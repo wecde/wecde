@@ -1,11 +1,16 @@
 import Vue from "vue";
 import Vuex from "vuex";
 
+import system from "./modules/system";
+import settings from "./modules/settings";
+import files from "./modules/files";
+
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  state: {},
-  mutations: {},
-  actions: {},
-  modules: {},
+  modules: {
+    system,
+    settings,
+    files,
+  },
 });
