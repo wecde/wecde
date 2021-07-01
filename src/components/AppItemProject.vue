@@ -92,8 +92,7 @@
 
 <script>
 import AppRename from "@/components/AppRename";
-import { zip } from "@/modules/zip";
-import saveFile from "file-saver";
+import { exportZip } from "@/utils"
 
 export default {
   components: {
@@ -117,14 +116,7 @@ export default {
   },
   methods: {
     async exportZip() {
-      const fileZip = await zip({
-        folder: `projects/${this.project.file}`,
-        to: false,
-        exclude: [".git"],
-        directory: this.project.directory,
-      });
-
-      saveFile(new Blob([fileZip]), `${this.project.file}.zip`);
+      await exportZip(`projects/${this.project.file}`)
     },
   },
 };

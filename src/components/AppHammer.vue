@@ -1,5 +1,5 @@
 <template>
-  <v-app-bar app :color="color" elevation="0">
+  <v-app-bar app :color="color" elevation="0" height="50.66px">
     <v-app-bar-nav-icon @click="$store.commit(`system/setNavigation`, true)" />
     <slot />
   </v-app-bar>

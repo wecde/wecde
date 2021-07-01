@@ -9,12 +9,8 @@ const routes = [
     component: () => import("../pages/Home"),
   },
   {
-    path: "/editor/:project/(*?)",
-    component: () => import("../pages/Project"),
-  },
-  {
-    path: "/about",
-    component: () => import("../pages/About"),
+    path: "/editor",
+    component: () => import("../pages/Editor"),
   },
 ];
 

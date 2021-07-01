@@ -1,6 +1,5 @@
 import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
 import { basename } from "path";
-import write_blob from "capacitor-blob-writer";
 import { sort } from "fast-sort";
 
 export async function readdir(path, directory = Directory.Documents) {
@@ -48,21 +47,6 @@ export async function writeFile(
     path: `Shin Code Editor/${path}`,
     directory,
     data,
-    encoding,
-    recursive: true,
-  });
-}
-
-export async function writeBlobFile(
-  path,
-  data,
-  encoding = Encoding.UTF8,
-  directory = Directory.Documents
-) {
-  await write_blob({
-    path: `Shin Code Editor/${path}`,
-    directory,
-    blob: data,
     encoding,
     recursive: true,
   });

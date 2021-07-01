@@ -92,7 +92,7 @@
                 </v-list-item-content>
               </v-list-item>
             </template>
-            <v-list-item class="min-height-0">
+            <v-list-item class="min-height-0" @click="exportZip">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
                 <v-icon>mdi-archive-outline</v-icon>
               </v-list-item-icon>
@@ -150,9 +150,10 @@
 <script>
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon.js";
 import AppRename from "./AppRename";
-import { extname } from "@/utils";
+import { extname, exportZip, b64toBlob } from "@/utils";
 import AppFileAdd from "./AppFileAdd";
-import { rename, unlink } from "@/modules/filesystem";
+import { rename, unlink, readFile } from "@/modules/filesystem";
+import saveFile from "file-saver";
 
 export default {
   components: {
@@ -245,8 +246,22 @@ export default {
       this.$emit("reload");
     },
     openEditor() {
-      this.$store.commit("editor/setFile", this.file)
-      this.$router.push("/?route=editor")
+      this.$store.commit("editor/setFile", this.file);
+    },
+
+    async exportZip() {
+      if (this.isFolder) {
+        await exportZip(this.file);
+      } else {
+        const { data } = await readFile(this.file);
+
+        try {
+          atob(data);
+          saveFile(b64toBlob(data), this.name);
+        } catch {
+          saveFile(new Blob([data]), this.name);
+        }
+      }
     },
   },
 };
