@@ -1,5 +1,5 @@
 <template>
-  <div class="fill-width">
+  <div class="fill-width fill-height">
     <div class="navigation--toolbar grey-2">
       <div>
         <v-btn icon>
@@ -21,7 +21,7 @@
       </div>
     </div>
 
-    <div class="mx-3 pt-3">
+    <div class="mx-3 pt-3 overflow-y-scroll">
       <div class="d-flex align-center justify-space-between">
         <div>
           <v-icon size="20px"> mdi-chevron-right </v-icon>

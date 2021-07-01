@@ -4,10 +4,12 @@
     <input
       type="text"
       value="Test project"
-      v-model.lazy.trim="inputValue"
+      v-model.lazy.trim="inputValueL"
+      v-model.trim="input"
       ref="input"
       @keydown.enter="$refs.input.blur()"
       @blur="$emit(`update:state`, false)"
+      autofocus
     />
   </div>
   <span v-else @click="timeClick = Date.now()">{{ value }}</span>
@@ -26,10 +28,23 @@ export default {
       type: String,
       required: true,
     },
+
+    inputValue: {
+      type: String,
+      required: true,
+    },
+
+    files: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
   data() {
     return {
       timeClick: 0,
+
+      input: "",
     };
   },
   watch: {
@@ -49,14 +64,23 @@ export default {
         });
       }
     },
+    value: {
+      handler(newValue) {
+        this.input = newValue;
+      },
+      immediate: true,
+    },
+    input(newValue) {
+      this.$emit("input", newValue);
+    },
   },
   computed: {
-    inputValue: {
+    inputValueL: {
       get() {
         return this.value;
       },
       set(value) {
-        this.$emit("rename", [this.value, value]);
+        this.$emit("rename", [this.inputValue, value]);
       },
     },
   },
@@ -89,6 +113,8 @@ export default {
     color: currentColor;
     font-weight: inherit;
     background-color: #30393f;
+    display: block;
+    width: 100%;
   }
 }
 </style>

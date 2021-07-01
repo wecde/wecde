@@ -33,11 +33,7 @@
         </v-tab>
       </v-tabs>
 
-      <v-tabs-items
-        v-model="navigationTabs"
-        style="height: 100%; overflow: hidden scroll"
-        class="fill-width"
-      >
+      <v-tabs-items v-model="navigationTabs" class="fill-width fill-height">
         <v-tab-item>
           <app-menu-archive />
         </v-tab-item>
@@ -60,6 +56,7 @@ import AppMenuArchive from "@/components/Menu/Archive";
 import AppMenuFiles from "@/components/Menu/Files";
 import AppMenuSearch from "@/components/Menu/Search";
 import AppMenuSettings from "@/components/Menu/Settings";
+import { stat } from "@/modules/filesystem";
 
 export default {
   components: {
@@ -73,6 +70,23 @@ export default {
       navigationTabs: null,
     };
   },
+
+  watch: {
+    "$store.state.files.project": {
+      async handler(newValue) {
+        try {
+          if ((await stat(`projects/${newValue}`)).type !== "directory") {
+            throw new Error(`IS_NOT_DIR`);
+          }
+
+          this.navigationTabs = 1;
+        } catch {
+          this.$store.commit("files/setProject", null);
+        }
+      },
+    },
+  },
+
   computed: {
     navigation: {
       get() {
@@ -104,6 +118,10 @@ export default {
       display: none;
     }
     // scrollbar-width: none;
+
+    .v-window-item {
+      height: 100%;
+    }
   }
 }
 </style>

@@ -9,7 +9,7 @@ const routes = [
     component: () => import("../pages/Home"),
   },
   {
-    path: "/project/:name/*",
+    path: "/editor/:project/(*?)",
     component: () => import("../pages/Project"),
   },
   {
@@ -19,7 +19,6 @@ const routes = [
 ];
 
 const router = new VueRouter({
-  mode: "history",
   routes,
 });
 

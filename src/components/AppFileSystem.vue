@@ -2,13 +2,16 @@
   <div as="ul" class="file--system">
     <app-file-system-item
       tag="li"
-      v-for="({ name, isFolder, children }, index) in files"
+      v-for="({ name, isFolder, children, file }, index) in files"
       :key="index"
       :name="name"
       :level="level"
       :is-folder="isFolder"
       :children="children"
       :hidden="isHidden(name)"
+      :file="file"
+      :list-files="files"
+      @reload="$emit(`reload`)"
     />
   </div>
 </template>
@@ -32,6 +35,12 @@ export default {
       type: Array,
       required: true,
     },
+
+    listFiles: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
 
   data() {
@@ -51,7 +60,7 @@ export default {
       }
 
       return false;
-    }, 
+    },
   },
 };
 </script>

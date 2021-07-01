@@ -1,5 +1,5 @@
 <template>
-  <div class="fill-width">
+  <div class="fill-width fill-height">
     <div class="navigation--toolbar grey-2">
       <div>
         <v-btn icon>
@@ -14,6 +14,9 @@
         </v-btn>
       </div>
     </div>
+
+    <div class="fill-height overflow-y-scroll">
+      
     <v-list>
       <v-list-group prepend-icon="mdi-git" :value="true">
         <template v-slot:activator>
@@ -63,6 +66,7 @@
         </v-list-item>
       </v-list-group>
     </v-list>
+    </div>
   </div>
 </template>
 

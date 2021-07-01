@@ -34,6 +34,8 @@
           :value="project.file"
           @rename="$emit(`rename`, $event)"
           :state.sync="renaming"
+          :list-files="files"
+          :input-value="project.file"
         />
       </v-list-item-title>
       <v-list-item-subtitle style="font-size: 12px">
@@ -50,7 +52,7 @@
         </template>
 
         <v-list color="grey-4" class="list--mouseright">
-          <v-list-item class="min-height-0">
+          <v-list-item class="min-height-0" @click="exportZip">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>mdi-archive-outline</v-icon>
             </v-list-item-icon>
@@ -74,7 +76,7 @@
               <v-list-item-title> Move to... </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item class="min-height-0">
+          <v-list-item class="min-height-0" @click="$emit(`remove`)">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>mdi-delete-outline</v-icon>
             </v-list-item-icon>
@@ -90,6 +92,8 @@
 
 <script>
 import AppRename from "@/components/AppRename";
+import { zip } from "@/modules/zip";
+import saveFile from "file-saver";
 
 export default {
   components: {
@@ -100,11 +104,28 @@ export default {
       type: Object,
       required: true,
     },
+    files: {
+      type: Array,
+      required: false,
+      default: () => [],
+    },
   },
   data() {
     return {
       renaming: false,
     };
+  },
+  methods: {
+    async exportZip() {
+      const fileZip = await zip({
+        folder: `projects/${this.project.file}`,
+        to: false,
+        exclude: [".git"],
+        directory: this.project.directory,
+      });
+
+      saveFile(new Blob([fileZip]), `${this.project.file}.zip`);
+    },
   },
 };
 </script>

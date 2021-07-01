@@ -1,5 +1,5 @@
 import * as MaterialIcons from "./material-icons.json";
-import { extname } from "path";
+import { extname } from "@/utils";
 
 function getIconById(id) {
   return require(__dirname +
@@ -9,7 +9,7 @@ function getIconById(id) {
 
 export default function getIcon({ light, isOpen, isFolder, name, language }) {
   let id,
-    ext = extname(name).replace(/^\./, "");
+    ext = extname(name);
 
   if (isFolder) {
     if (light) {
@@ -17,7 +17,7 @@ export default function getIcon({ light, isOpen, isFolder, name, language }) {
         id = MaterialIcons.light.folderNamesExpanded[name];
       }
 
-      id = id ?? MaterialIcons.light.folderNames[name] ?? "root-folder";
+      id = id ?? MaterialIcons.light.folderNames[name];
     }
 
     if (isOpen) {
@@ -28,7 +28,7 @@ export default function getIcon({ light, isOpen, isFolder, name, language }) {
       id ??
       MaterialIcons.folderNames[name] ??
       MaterialIcons.languageIds[language] ??
-      "root-folder";
+      (isOpen ? "folder-open" : "folder");
   } else {
     if (light) {
       id =
@@ -42,5 +42,6 @@ export default function getIcon({ light, isOpen, isFolder, name, language }) {
       (ext in MaterialIcons.iconDefinitions ? ext : null) ??
       "file";
   }
+
   return getIconById(id);
 }
