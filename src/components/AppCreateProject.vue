@@ -8,7 +8,9 @@
     <v-fade-transition mode="in-out">
       <v-card dark v-if="!templateSelected" class="fill-height">
         <div class="d-flex justify-space-between align-center fill-width">
-          <v-card-title class="text-body-1"> Project Template </v-card-title>
+          <v-card-title class="text-body-1">
+            {{ $t("Project Template") }}
+          </v-card-title>
           <div>
             <v-btn icon color="rgb(183, 185, 195)" @click="stateLocal = false">
               <v-icon>mdi-close</v-icon>
@@ -49,10 +51,12 @@
       </v-card>
       <v-card dark v-else class="fill-height">
         <div class="d-flex justify-space-between align-center fill-width">
-          <v-card-title class="text-body-1"> Create Project </v-card-title>
+          <v-card-title class="text-body-1">
+            {{ $t("Create Project") }}
+          </v-card-title>
           <div>
             <v-btn text color="blue" @click="create" ref="createBtn">
-              Create
+              {{ $t("Create") }}
             </v-btn>
             <v-btn icon color="rgb(183, 185, 195)" @click="stateLocal = false">
               <v-icon>mdi-close</v-icon>
@@ -60,7 +64,7 @@
           </div>
         </div>
         <v-card-text>
-          <div class="mt-2">Project Name</div>
+          <div class="mt-2">{{ $t("Project Name") }}</div>
           <v-text-field
             v-model.trim="templateSelected.name"
             class="pt-0"
@@ -69,12 +73,14 @@
                 projects.some(
                   (project) => project.file === templateSelected.name.trim()
                 )
-                  ? `Project \&quot;${templateSelected.name}\&quot; exists`
+                  ? $t(`Project {name} already exists`, {
+                      name: templateSelected.name,
+                    })
                   : true,
               () =>
                 !!templateSelected.name.trim()
                   ? true
-                  : `Project required name.`,
+                  : $t(`Project required name`),
             ]"
             required
             @keypress.enter="$refs.createBtn.$el.click()"
@@ -155,7 +161,9 @@ export default {
       }
 
       Toast.show({
-        text: `Created project "${this.templateSelected.name}"`,
+        text: this.$t(`Created project {name}`, {
+          name: this.templateSelected.name,
+        }),
       });
       console.log("created project");
       this.$emit("created");

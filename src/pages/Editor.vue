@@ -110,6 +110,7 @@ import {
 import { isPlainText, getType, extname, rawText } from "@/utils";
 import $store from "@/store";
 import $router from "@/plugins/router";
+import $i18n from "@/plugins/i18n";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon.js";
 import { basename } from "path";
 import marked from "marked";
@@ -270,14 +271,16 @@ export default defineComponent({
       await WebServer.start(port).catch((err) => console.log(err));
 
       Toast.show({
-        text: `WebServer started on port ${port}`,
+        text: $i18n.t(`WebServer started on port {port}`, {
+          port,
+        }),
       });
     }
     async function stopServer() {
       await WebServer.stop();
 
       Toast.show({
-        text: `WebServer closed`,
+        text: $i18n.t(`WebServer closed`),
       });
     }
     async function changePort(port) {
@@ -309,7 +312,7 @@ export default defineComponent({
     async function openWebView() {
       browser = await Browser.open({
         url: `http://localhost:${$store.state.settings.preview.port}`,
-        presentationStyle: "fullscreen",
+        presentationStyle: "popover",
       });
     }
     async function closeWebView() {

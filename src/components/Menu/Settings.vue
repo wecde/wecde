@@ -5,7 +5,7 @@
         <v-btn icon>
           <v-icon>mdi-chevron-down</v-icon>
         </v-btn>
-        <span class="app-title"> Settings </span>
+        <span class="app-title"> {{ $t("Settings") }} </span>
       </div>
 
       <div>
@@ -16,56 +16,52 @@
     </div>
 
     <div class="fill-height overflow-y-scroll">
-      
-    <v-list>
-      <v-list-group prepend-icon="mdi-git" :value="true">
-        <template v-slot:activator>
-          <v-list-item-title>GIT</v-list-item-title>
-        </template>
+      <v-list>
+        <v-list-group prepend-icon="mdi-git" :value="true">
+          <template v-slot:activator>
+            <v-list-item-title>{{ $t("GIT") }}</v-list-item-title>
+          </template>
 
-        <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title>Credentials</v-list-item-title>
-          </v-list-item-content>
+          <v-list-item>
+            <v-list-item-content>
+              <v-list-item-title>{{ $t("Credentials") }}</v-list-item-title>
+            </v-list-item-content>
 
-          <v-list-item-action>
-            <span class="primary--text"> Open </span>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list-group>
+            <v-list-item-action>
+              <span class="primary--text"> {{ $t("Open") }} </span>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list-group>
 
-      <v-list-group
-        :prepend-icon="stateGroup.icon"
-        :value="true"
-        v-for="stateGroup in stateDescription"
-        :key="stateGroup.prop"
-      >
-        <template v-slot:activator>
-          <v-list-item-title>{{ stateGroup.label }}</v-list-item-title>
-        </template>
-
-        <v-list-item
-          v-for="state in stateGroup.props"
-          :key="state.prop"
+        <v-list-group
+          :prepend-icon="stateGroup.icon"
+          :value="true"
+          v-for="stateGroup in stateDescription"
+          :key="stateGroup.prop"
         >
-          <v-list-item-content>
-            <v-list-item-title> {{ state.label }} </v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-switch inset small v-if="state.type === `switch`"></v-switch>
-            <select v-else-if="state.type === `list`">
-              <option
-                v-for="item in state.select"
-                :value="item.value"
-                :key="item.value"
-              >
-                {{ item.label }}
-              </option>
-            </select>
-          </v-list-item-action>
-        </v-list-item>
-      </v-list-group>
-    </v-list>
+          <template v-slot:activator>
+            <v-list-item-title>{{ stateGroup.label }}</v-list-item-title>
+          </template>
+
+          <v-list-item v-for="state in stateGroup.props" :key="state.prop">
+            <v-list-item-content>
+              <v-list-item-title> {{ state.label }} </v-list-item-title>
+            </v-list-item-content>
+            <v-list-item-action>
+              <v-switch inset small v-if="state.type === `switch`"></v-switch>
+              <select v-else-if="state.type === `list`">
+                <option
+                  v-for="item in state.select"
+                  :value="item.value"
+                  :key="item.value"
+                >
+                  {{ item.label }}
+                </option>
+              </select>
+            </v-list-item-action>
+          </v-list-item>
+        </v-list-group>
+      </v-list>
     </div>
   </div>
 </template>

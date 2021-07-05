@@ -42,7 +42,7 @@
                   <v-icon>mdi-file-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title> New File </v-list-item-title>
+                  <v-list-item-title> {{ $t("New File") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
               <v-list-item
@@ -56,7 +56,9 @@
                   <v-icon>mdi-folder-outline</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title> New Folder </v-list-item-title>
+                  <v-list-item-title>
+                    {{ $t("New Folder") }}
+                  </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
             </template>
@@ -81,7 +83,7 @@
                 <v-icon>mdi-export-variant</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> Move to... </v-list-item-title>
+                <v-list-item-title> {{ $t("Move to") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item class="min-height-0" @click="remove">
@@ -89,7 +91,7 @@
                 <v-icon>mdi-delete-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> Delete </v-list-item-title>
+                <v-list-item-title> {{ $t("Delete") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -243,9 +245,11 @@ export default {
       );
 
       Toast.show({
-        text: `Renamed ${
-          this.isFolder ? "folder" : "file"
-        } "${removedPathProject(this.directory)}/${oldValue}" to "${removedPathProject(this.directory)}/${newValue}"`,
+        text: this.$t("Renamed {type} {old} to {new}", {
+          type: this.$t(this.isFolder ? "folder" : "file"),
+          old: `${removedPathProject(this.directory)}/${oldValue}`,
+          new: `${removedPathProject(this.directory)}/${newValue}`,
+        }),
       });
 
       this.$emit("reload");
@@ -256,9 +260,10 @@ export default {
       await unlink(this.file);
 
       Toast.show({
-        text: `Removed ${
-          this.isFolder ? "folder" : "file"
-        } "${this.file.replace(/^\/projects\//, "")}`,
+        text: this.$t("Removed {type} {name}", {
+          type: this.isFolder ? "folder" : "file",
+          name: `${removedPathProject(this.file)}`,
+        }),
       });
 
       this.$emit("reload");
@@ -278,21 +283,20 @@ export default {
       if (this.isFolder) {
         await exportZip(this.file);
         this.$store.commit("terminal/clear");
-
-        Toast.show({
-          text: `Exported folder "${removedPathProject(this.file)}"`,
-        });
       } else {
         this.$show();
         const data = await readFile(this.file);
 
         saveFile(b64toBlob(data), this.name);
         this.$hide();
-
-        Toast.show({
-          text: `Exported file "${removedPathProject(this.file)}"`,
-        });
       }
+
+      Toast.show({
+        text: this.$t("Exported {type} {name}", {
+          type: this.isFolder ? "folder" : "file",
+          name: removedPathProject(this.file),
+        }),
+      });
     },
   },
 };

@@ -43,16 +43,6 @@ export default {
     },
   },
 
-  data() {
-    return {
-      fileManager: [
-        {
-          name: "index.js",
-          isFolder: false,
-        },
-      ],
-    };
-  },
   methods: {
     isHidden(filename) {
       if (filename.startsWith(".")) {

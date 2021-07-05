@@ -7,10 +7,12 @@ import App from "./App.vue";
 import "./registerServiceWorker";
 import router from "./plugins/router";
 import store from "./store";
+import i18n from "./plugins/i18n";
 import vuetify from "./plugins/vuetify";
 import asyncComputed from "vue-async-computed";
 import timeagojs from "vue-timeago.js";
 import VueCompositionAPI from "@vue/composition-api";
+
 /// * register module and WebServer ( not start )
 import "./webserver";
 
@@ -31,5 +33,6 @@ new Vue({
   router,
   store,
   vuetify,
+  i18n,
   render: (h) => h(App),
 }).$mount("#app");

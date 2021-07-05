@@ -42,7 +42,8 @@
         />
       </v-list-item-title>
       <v-list-item-subtitle style="font-size: 12px">
-        Modified <vue-timeagojs :time="new Date(project.stat.mtime)" />
+        {{ $t("Modified") }}
+        <vue-timeagojs :time="new Date(project.stat.mtime)" />
       </v-list-item-subtitle>
     </v-list-item-content>
 
@@ -60,7 +61,7 @@
               <v-icon>mdi-archive-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title> Export ZIP </v-list-item-title>
+              <v-list-item-title> {{ $t("Export ZIP") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item class="min-height-0" @click="renaming = true" v-ripple>
@@ -68,7 +69,7 @@
               <v-icon>mdi-pen</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title> Rename </v-list-item-title>
+              <v-list-item-title> {{ $t("Rename") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item class="min-height-0">
@@ -76,7 +77,7 @@
               <v-icon>mdi-export-variant</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title> Move to... </v-list-item-title>
+              <v-list-item-title> {{ $t("Move to") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
           <v-list-item class="min-height-0" @click="$emit(`remove`)">
@@ -84,7 +85,7 @@
               <v-icon>mdi-delete-outline</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
-              <v-list-item-title> Delete </v-list-item-title>
+              <v-list-item-title> {{ $t("Delete") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
         </v-list>
@@ -124,7 +125,10 @@ export default {
       this.$store.commit("terminal/clear");
 
       Toast.show({
-        text: `Exported project "${this.project.file}"`,
+        text: this.$t("Exported {type} {name}", {
+          type: this.$t("project"),
+          name: this.project.file,
+        }),
       });
     },
   },

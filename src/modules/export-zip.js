@@ -2,6 +2,7 @@ import { extname, basename } from "path";
 import { zip } from "@/modules/zip";
 import saveFile from "file-saver";
 import store from "@/store";
+import $i18n from "@/plugins/i18n";
 
 export default async function exportZip(path, directory) {
   const fileZip = await zip({
@@ -13,7 +14,12 @@ export default async function exportZip(path, directory) {
 
   const filename = `${basename(path, extname(path))}.zip`;
 
-  store.commit("terminal/print", `Saving file "${filename}"`);
+  store.commit(
+    "terminal/print",
+    $i18n(`Saving file {name}`, {
+      name: filename,
+    })
+  );
 
   saveFile(new Blob([fileZip]), filename);
 

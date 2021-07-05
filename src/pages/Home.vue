@@ -82,7 +82,7 @@
           </li>
         </ul>
       </v-tab-item>
-      <v-tab-item> No Labs </v-tab-item>
+      <v-tab-item> {{ $t('No Labs') }} </v-tab-item>
       <v-tab-item v-html="changelog"> </v-tab-item>
     </v-tabs-items>
   </div>

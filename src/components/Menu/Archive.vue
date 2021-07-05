@@ -5,7 +5,7 @@
         <v-btn icon>
           <v-icon>mdi-chevron-down</v-icon>
         </v-btn>
-        <span class="app-title"> Project </span>
+        <span class="app-title"> {{ $t("Project") }} </span>
       </div>
 
       <div>
@@ -29,7 +29,7 @@
                 <v-icon>mdi-git</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> Clone Repo </v-list-item-title>
+                <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item class="min-height-0">
@@ -37,7 +37,7 @@
                 <v-icon>mdi-lock-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> Credentials </v-list-item-title>
+                <v-list-item-title> {{ $t("Credentials") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -56,7 +56,7 @@
                 <v-icon>mdi-archive-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> New Project </v-list-item-title>
+                <v-list-item-title> {{ $t("New Project") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
 
@@ -65,7 +65,7 @@
                 <v-icon>mdi-zip-box-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> Import ZIP </v-list-item-title>
+                <v-list-item-title> {{ $t("Import ZIP") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider />
@@ -74,7 +74,7 @@
                 <v-icon>mdi-message-text-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> Change Logs </v-list-item-title>
+                <v-list-item-title> {{ $t("Change Logs") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item class="min-height-0">
@@ -82,7 +82,7 @@
                 <v-icon>mdi-gitlab</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> View Labs </v-list-item-title>
+                <v-list-item-title> {{ $t("View Labs") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -102,7 +102,7 @@
           <v-btn icon>
             <v-icon>mdi-chevron-down</v-icon>
           </v-btn>
-          <span class="app-title"> Project </span>
+          <span class="app-title"> {{ $t("Project") }} </span>
         </div>
       </div>
 
@@ -140,18 +140,21 @@
       >
         <v-card dark>
           <div class="d-flex justify-space-between align-center fill-width">
-            <v-card-title class="text-body-1"> Delete Project </v-card-title>
+            <v-card-title class="text-body-1">
+              {{ $t("Delete") }} {{ $t("Project") }}
+            </v-card-title>
           </div>
           <v-card-text class="pb-0">
-            Type <span class="blue--text">{{ code }}</span> to confirm.
+            {{ $t("Type") }} <span class="blue--text">{{ code }}</span>
+            {{ $t("to confirm.") }}
             <span class="blue--text">{{ (projectRemoving || {}).file }}</span>
-            will permanently deleted. It can NOT be recovered!
+            {{ $t("will permanently deleted. It can NOT be recovered!") }}
             <v-text-field
               :rules="[
                 () =>
                   code === codeInput
                     ? true
-                    : `What you typed did not match ${code}.`,
+                    : $t('What you typed did not match {code}', { code }),
               ]"
               class="pt-0 mt-3"
               type="tel"
@@ -163,9 +166,9 @@
 
           <div class="d-flex align-center justify-space-between mt-3">
             <v-btn text color="blue" @click="projectRemoving = null">
-              Cancel
+              {{ $t("Cancel") }}
             </v-btn>
-            <v-btn text color="blue" @click="remove"> OK </v-btn>
+            <v-btn text color="blue" @click="remove"> {{ $t("OK") }} </v-btn>
           </div>
         </v-card>
       </v-dialog>
@@ -245,14 +248,20 @@ export default {
       this.$hide();
 
       await Toast.show({
-        text: `Rename project "${oldValue}" to "${newValue}"`,
+        text: this.$t(`Renamed project {old} to {new}`, {
+          old: oldValue,
+          new: newValue,
+        }),
       });
     },
     async importProjectFromZip() {
       const names = await importZip(`projects/`);
       await this.reloadListProjects();
+      this.$store.commit("terminal/clear");
       await Toast.show({
-        text: `Imported project ${names.map((item) => `"${item}"`).join(", ")}`,
+        text: this.$t(`Imported project {list}`, {
+          list: names.map((item) => `"${item}"`).join(", "),
+        }),
       });
     },
     async remove() {
@@ -260,7 +269,9 @@ export default {
       if (this.code === this.codeInput) {
         await rmdir(`projects/${this.projectRemoving.file}`);
         await Toast.show({
-          text: `Removed project "${this.projectRemoving.file}"`,
+          text: this.$t(`Removed project {name}`, {
+            name: this.projectRemoving.file,
+          }),
         });
 
         await this.reloadListProjects();

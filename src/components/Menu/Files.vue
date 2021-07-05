@@ -37,7 +37,7 @@
                 <v-icon>mdi-file-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> New File </v-list-item-title>
+                <v-list-item-title> {{ $t("New File") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item
@@ -51,7 +51,7 @@
                 <v-icon>mdi-folder-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> New Folder </v-list-item-title>
+                <v-list-item-title> {{ $t("New Folder") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item class="min-height-0" @click="importFile">
@@ -59,7 +59,7 @@
                 <v-icon>mdi-download</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> Import File </v-list-item-title>
+                <v-list-item-title> {{ $t("Import File") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider />
@@ -68,7 +68,7 @@
                 <v-icon>mdi-undo</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> Undo </v-list-item-title>
+                <v-list-item-title> {{ $t("Undo") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-list-item class="min-height-0">
@@ -76,7 +76,7 @@
                 <v-icon>mdi-redo</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
-                <v-list-item-title> Redo </v-list-item-title>
+                <v-list-item-title> {{ $t("Redo") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
           </v-list>
@@ -155,7 +155,7 @@ export default {
 
       if (notification) {
         await Toast.show({
-          text: "Reload project",
+          text: this.$t("Reload project"),
         });
       }
     },
@@ -165,7 +165,9 @@ export default {
       );
       await this.reloadListFile();
       await Toast.show({
-        text: `Imported file(s) ${names.map((item) => `"${item}"`).join(", ")}`,
+        text: this.$t(`Imported file(s) {list}`, {
+          list: names.map((item) => `"${item}"`).join(", "),
+        }),
       });
     },
   },

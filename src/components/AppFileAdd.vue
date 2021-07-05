@@ -87,9 +87,10 @@ export default {
       }
 
       Toast.show({
-        text: `Created ${
-          this.isFolder ? "folder" : "file"
-        } "${removedPathProject(this.directory)}/${filename}"`,
+        text: this.$t("Created {type} {name}", {
+          type: this.$t(this.isFolder ? "folder" : "file"),
+          name: `${removedPathProject(this.directory)}/${filename}`,
+        }),
       });
 
       this.$emit("created");

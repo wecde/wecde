@@ -5,7 +5,7 @@
         <v-btn icon>
           <v-icon>mdi-chevron-down</v-icon>
         </v-btn>
-        <span class="app-title"> Find </span>
+        <span class="app-title"> {{ $t("Find") }} </span>
       </div>
 
       <div>
