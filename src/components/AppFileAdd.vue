@@ -37,9 +37,10 @@
 
 <script>
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon.js";
-import { extname } from "@/utils";
+import { extname, removedPathProject } from "@/utils";
 import AppRename from "./AppRename";
 import { mkdir, writeFile } from "@/modules/filesystem";
+import { Toast } from "@capacitor/toast";
 
 export default {
   components: {
@@ -78,11 +79,18 @@ export default {
     getIcon,
     extname,
     async createFile() {
+      const { filename } = this;
       if (this.isFolder) {
-        await mkdir(`${this.directory}/${this.filename}`);
+        await mkdir(`${this.directory}/${filename}`);
       } else {
-        await writeFile(`${this.directory}/${this.filename}`, "fwe");
+        await writeFile(`${this.directory}/${filename}`, "");
       }
+
+      Toast.show({
+        text: `Created ${
+          this.isFolder ? "folder" : "file"
+        } "${removedPathProject(this.directory)}/${filename}"`,
+      });
 
       this.$emit("created");
       this.$emit("update:state", false);

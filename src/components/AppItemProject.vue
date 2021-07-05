@@ -96,6 +96,7 @@
 <script>
 import AppRename from "@/components/AppRename";
 import exportZip from "@/modules/export-zip";
+import { Toast } from "@capacitor/toast";
 
 export default {
   components: {
@@ -120,7 +121,11 @@ export default {
   methods: {
     async exportZip() {
       await exportZip(`projects/${this.project.file}`);
-        this.$store.commit("terminal/clear")
+      this.$store.commit("terminal/clear");
+
+      Toast.show({
+        text: `Exported project "${this.project.file}"`,
+      });
     },
   },
 };

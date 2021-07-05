@@ -4,8 +4,6 @@ import { arrayBufferToBase64 } from "../utils";
 import { basename } from "path";
 import { sort as fastsort } from "fast-sort";
 
-window.Filesystem = Filesystem;
-
 export async function readdir(path, directory = Directory.Documents) {
   try {
     return await Filesystem.readdir({

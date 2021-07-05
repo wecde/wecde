@@ -3889,6 +3889,8 @@
     "nodemon.json": "nodemon",
     "nodemon-debug.json": "nodemon",
     ".hintrc": "webhint",
+    "webserver.config.js": "webhint",
+    "webserver.config.json": "webhint",
     "browserslist": "browserlist",
     ".browserslistrc": "browserlist",
     ".snyk": "snyk",

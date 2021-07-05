@@ -12,7 +12,7 @@
         <v-btn icon @click="search = !search" :color="search ? `blue` : null">
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
-        <v-btn icon @click="reloadListProjects">
+        <v-btn icon @click="reloadListProjects(true)">
           <v-icon>mdi-reload</v-icon>
         </v-btn>
 
@@ -179,6 +179,7 @@ import AppItemProject from "@/components/AppItemProject";
 import AppCreateProject from "@/components/AppCreateProject";
 import importZip from "@/modules/import-zip";
 import { random } from "@/utils";
+import { Toast } from "@capacitor/toast";
 
 export default {
   components: {
@@ -217,7 +218,7 @@ export default {
     await this.reloadListProjects();
   },
   methods: {
-    async reloadListProjects() {
+    async reloadListProjects(notification = false) {
       this.$show();
       this.projects = (await readdirStat("projects"))
         .filter((project) => {
@@ -230,6 +231,11 @@ export default {
           return b.stat.mtime - a.stat.mtime;
         });
       this.$hide();
+      if (notification) {
+        await Toast.show({
+          text: "Reload list projects",
+        });
+      }
     },
     async rename([newValue, oldValue]) {
       this.$show();
@@ -237,15 +243,25 @@ export default {
       await rename(`projects/${newValue}`, `projects/${oldValue}`);
       await this.reloadListProjects();
       this.$hide();
+
+      await Toast.show({
+        text: `Rename project "${oldValue}" to "${newValue}"`,
+      });
     },
     async importProjectFromZip() {
-      await importZip(`projects/`);
+      const names = await importZip(`projects/`);
       await this.reloadListProjects();
+      await Toast.show({
+        text: `Imported project ${names.map((item) => `"${item}"`).join(", ")}`,
+      });
     },
     async remove() {
       this.$show();
       if (this.code === this.codeInput) {
         await rmdir(`projects/${this.projectRemoving.file}`);
+        await Toast.show({
+          text: `Removed project "${this.projectRemoving.file}"`,
+        });
 
         await this.reloadListProjects();
         this.projectRemoving = null;

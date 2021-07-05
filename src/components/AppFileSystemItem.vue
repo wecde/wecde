@@ -151,11 +151,12 @@
 <script>
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon.js";
 import AppRename from "./AppRename";
-import { extname, b64toBlob } from "@/utils";
+import { extname, b64toBlob, removedPathProject } from "@/utils";
 import AppFileAdd from "./AppFileAdd";
 import { rename, unlink, readFile } from "@/modules/filesystem";
 import saveFile from "file-saver";
 import exportZip from "@/modules/export-zip";
+import { Toast } from "@capacitor/toast";
 
 export default {
   components: {
@@ -241,12 +242,24 @@ export default {
         `${this.directory}/${oldValue}`
       );
 
+      Toast.show({
+        text: `Renamed ${
+          this.isFolder ? "folder" : "file"
+        } "${removedPathProject(this.directory)}/${oldValue}" to "${removedPathProject(this.directory)}/${newValue}"`,
+      });
+
       this.$emit("reload");
       this.$hide();
     },
     async remove() {
       this.$show();
       await unlink(this.file);
+
+      Toast.show({
+        text: `Removed ${
+          this.isFolder ? "folder" : "file"
+        } "${this.file.replace(/^\/projects\//, "")}`,
+      });
 
       this.$emit("reload");
       this.$hide();
@@ -265,12 +278,20 @@ export default {
       if (this.isFolder) {
         await exportZip(this.file);
         this.$store.commit("terminal/clear");
+
+        Toast.show({
+          text: `Exported folder "${removedPathProject(this.file)}"`,
+        });
       } else {
         this.$show();
         const data = await readFile(this.file);
 
         saveFile(b64toBlob(data), this.name);
         this.$hide();
+
+        Toast.show({
+          text: `Exported file "${removedPathProject(this.file)}"`,
+        });
       }
     },
   },

@@ -26,4 +26,6 @@ export default async function importFiles(
       })
     );
   }
+
+  return files.map((item) => item.name);
 }

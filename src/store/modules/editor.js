@@ -15,20 +15,21 @@ export default {
       state.session = null;
       state.historySession.splice(0);
     },
-    setFile(state, path) {
-      state.file = path;
-    },
     pushSession(state, session) {
       if (state.sessions.includes(session) === false) {
         state.sessions.push(session);
       }
 
+      state.session = null;
       this.commit("editor/changeSession", session);
     },
     changeSession(state, session) {
       state.session = session;
 
-      if (state.historySession[state.historySession.length - 1] !== session) {
+      if (
+        session &&
+        state.historySession[state.historySession.length - 1] !== session
+      ) {
         state.historySession.push(session);
       }
     },

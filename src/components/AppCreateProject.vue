@@ -32,6 +32,7 @@
                   <v-img
                     width="56px"
                     height="56px"
+                    eager
                     v-for="(item, index) in template.icons"
                     :src="
                       require(`@/assets/templates/${template.project}/${item}`)
@@ -101,6 +102,7 @@
 import templates from "@/assets/templates/all";
 import { unzip } from "@/modules/zip";
 import { mkdir } from "@/modules/filesystem";
+import { Toast } from "@capacitor/toast";
 
 export default {
   props: {
@@ -147,11 +149,14 @@ export default {
           to: `projects/${this.templateSelected.name}`,
         });
 
-        this.$store.commit("terminal/clear")
+        this.$store.commit("terminal/clear");
       } else {
         await mkdir(`projects/${this.templateSelected.name}`);
       }
 
+      Toast.show({
+        text: `Created project "${this.templateSelected.name}"`,
+      });
       console.log("created project");
       this.$emit("created");
       this.stateLocal = false;

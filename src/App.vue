@@ -30,7 +30,9 @@ export default defineComponent({
     AppTerminal,
   },
   setup() {
-    onMounted(async () => void (await requestPermissions()));
+    onMounted(async () => {
+      await requestPermissions();
+    });
 
     return {};
   },

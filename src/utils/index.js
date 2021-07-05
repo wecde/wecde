@@ -1,4 +1,4 @@
-import { extname as _extname, basename } from "path";
+import { extname as _extname, basename, relative } from "path";
 import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons";
 
 const fileExtensionsPlainText = {
@@ -582,11 +582,16 @@ export function rawText(str) {
 }
 
 export function alwayBase64(str) {
-  if (isBase64(str)) {
+  // eslint-disable-next-line no-extra-boolean-cast
+  if (!!str) {
+    if (isBase64(str)) {
+      return str;
+    }
+
+    return btoa(str);
+  } else {
     return str;
   }
-
-  return btoa(str);
 }
 
 export function arrayBufferToBase64(buffer) {
@@ -615,4 +620,12 @@ export function filename(path) {
 
 export function random(value) {
   return Math.round(Math.random() * value);
+}
+
+export function removedPathProject(path) {
+  if (path.includes("projects")) {
+    return relative("projects", path).replace(/^\.\.\//, "");
+  }
+
+  return path;
 }

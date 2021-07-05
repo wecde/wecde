@@ -14,7 +14,7 @@
         <v-btn icon @click="search = !search" :color="search ? `blue` : null">
           <v-icon>mdi-magnify</v-icon>
         </v-btn>
-        <v-btn icon>
+        <v-btn icon @click="reloadListFile(true)">
           <v-icon>mdi-reload</v-icon>
         </v-btn>
 
@@ -121,6 +121,7 @@ import AppField from "@/components/AppField";
 import AppFileAdd from "@/components/AppFileAdd";
 import { readTreeFolder } from "@/modules/filesystem";
 import importFiles from "@/modules/import-files";
+import { Toast } from "@capacitor/toast";
 
 export default {
   components: {
@@ -147,14 +148,25 @@ export default {
     },
   },
   methods: {
-    async reloadListFile() {
+    async reloadListFile(notification = false) {
       this.tree = await readTreeFolder(
         `projects/${this.$store.state.editor.project}`
       );
+
+      if (notification) {
+        await Toast.show({
+          text: "Reload project",
+        });
+      }
     },
     async importFile() {
-      await importFiles(`projects/${this.$store.state.editor.project}`);
+      const names = await importFiles(
+        `projects/${this.$store.state.editor.project}`
+      );
       await this.reloadListFile();
+      await Toast.show({
+        text: `Imported file(s) ${names.map((item) => `"${item}"`).join(", ")}`,
+      });
     },
   },
 };

@@ -913,6 +913,11 @@
   resolved "https://registry.npmjs.org/@capacitor/app/-/app-1.0.2.tgz"
   integrity sha512-P9PInUnUdkiqYk+7wzd51Oe6AzJ4KyKDRFVebDMGo7UgHFuK2ogDTDLabrv9XQUV1Zk2tXvpEoGmw46dd+2Img==
 
+"@capacitor/browser@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/browser/-/browser-1.0.2.tgz#7defe6a66a234eb724450f302fc00cf591d1255f"
+  integrity sha512-XR2rVT5RndxD0392yeL/pnCZZ5/YcTCXVxhJ4f3MkXFjKJTx1esbeXs+xVX4t6K3OQOXtX9XKj0xusPRiOOsuA==
+
 "@capacitor/cli@3.0.2":
   version "3.0.2"
   resolved "https://registry.npmjs.org/@capacitor/cli/-/cli-3.0.2.tgz"
@@ -966,6 +971,11 @@
   version "1.0.2"
   resolved "https://registry.npmjs.org/@capacitor/status-bar/-/status-bar-1.0.2.tgz"
   integrity sha512-NgAZIw8Uq2lm6Ln1lWipAqi/YxqIDd92boO4k81Z1WMOdZJt6oLxZB8LfJRDLXU7xNkpW97zHcNBf5pIXJIFqw==
+
+"@capacitor/toast@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/toast/-/toast-1.0.2.tgz#3984960b797a6dc6ac971b0602bf8c363b39394f"
+  integrity sha512-4R4aUP/BeqQ9/CRJpuoE+U+3tO1pmoZE8fNPhmcXZJYNedprX/uZfNzxBDz6kCJ90RETjrF4e/BxtBFXLiXxxQ==
 
 "@hapi/address@2.x.x":
   version "2.1.4"
@@ -2498,7 +2508,7 @@ caller-path@^2.0.0:
 
 callsite@^1.0.0:
   version "1.0.0"
-  resolved "https://registry.npmjs.org/callsite/-/callsite-1.0.0.tgz"
+  resolved "https://registry.yarnpkg.com/callsite/-/callsite-1.0.0.tgz#280398e5d664bd74038b6f0905153e6e8af1bc20"
   integrity sha1-KAOY5dZkvXQDi28JBRU+borxvCA=
 
 callsites@^2.0.0:
@@ -3288,7 +3298,7 @@ debug@^4.0.0, debug@^4.0.1, debug@^4.1.0, debug@^4.1.1, debug@^4.2.0:
 
 decache@^4.6.0:
   version "4.6.0"
-  resolved "https://registry.npmjs.org/decache/-/decache-4.6.0.tgz"
+  resolved "https://registry.yarnpkg.com/decache/-/decache-4.6.0.tgz#87026bc6e696759e82d57a3841c4e251a30356e8"
   integrity sha512-PppOuLiz+DFeaUvFXEYZjLxAkKiMYH/do/b/MxpDe/8AgKBi5GhZxridoVIbBq72GDbL36e4p0Ce2jTGUwwU+w==
   dependencies:
     callsite "^1.0.0"
@@ -4138,7 +4148,7 @@ file-loader@^4.2.0:
 
 file-loader@^6.2.0:
   version "6.2.0"
-  resolved "https://registry.npmjs.org/file-loader/-/file-loader-6.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/file-loader/-/file-loader-6.2.0.tgz#baef7cf8e1840df325e4390b4484879480eebe4d"
   integrity sha512-qo3glqyTa61Ytg4u73GultjHGjdRyig3tG6lPtyX/jOEJvHif9uB0/OCI2Kif6ctF3caQTW2G5gym21oAsI4pw==
   dependencies:
     loader-utils "^2.0.0"
@@ -8949,9 +8959,9 @@ vue@^2.6.11:
   resolved "https://registry.npmjs.org/vue/-/vue-2.6.14.tgz"
   integrity sha512-x2284lgYvjOMj3Za7kqzRcUSxBboHqtgRE2zlos1qWaOye5yUmHn42LB1250NJBLRwEcdrB0JRwyPTEPhfQjiQ==
 
-vuetify-loader@^1.7.0:
+vuetify-loader@^1.7.2:
   version "1.7.2"
-  resolved "https://registry.npmjs.org/vuetify-loader/-/vuetify-loader-1.7.2.tgz"
+  resolved "https://registry.yarnpkg.com/vuetify-loader/-/vuetify-loader-1.7.2.tgz#5cdc45309496cf3a5fe431fd7611706ffa4aa8c8"
   integrity sha512-2GSo4KvRAOThBsj8mvtIEeIoyBAZx38GDfh8D90e/or7Hzx4813krJKvcQAllyLO/Ln0eQWrq2IuvBXnZ55cSA==
   dependencies:
     decache "^4.6.0"

@@ -1,6 +1,6 @@
 import store from "./store";
 import { WebServer } from "./modules/webserver";
-import { stat } from "@/modules/filesystem";
+import { stat, getUri } from "@/modules/filesystem";
 import { join } from "path";
 import { extname } from "./utils";
 
@@ -25,7 +25,7 @@ WebServer.onRequest().subscribe(async (data) => {
         if (await stat(pathToFile)) {
           WebServer.sendResponse(data.requestId, {
             status: extname(pathToFile) === "html" ? 200 : 201,
-            path: pathToFile,
+            path: await getUri(pathToFile),
             headers: {},
           });
         } else {

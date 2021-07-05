@@ -1,7 +1,7 @@
 <template>
   <div class="fill-height">
     <app-hammer>
-      <div class="session">
+      <div class="session mr-1" ref="sessionWrapper">
         <div
           class="session--item"
           v-for="item in $store.state.editor.sessions"
@@ -32,9 +32,8 @@
           </v-icon>
         </div>
       </div>
-      <v-icon v-ripple v-if="!previewMd">mdi-magnify</v-icon>
+      <v-icon v-if="!previewMd">mdi-magnify</v-icon>
       <v-icon
-        v-ripple
         v-if="type === `markdown`"
         @click="previewMd = !previewMd"
         class="ml-2"
@@ -47,9 +46,24 @@
       <v-icon
         color="#0dbf7f"
         class="ml-2"
-        v-ripple
         @click="serverStatus = !serverStatus"
-        >{{ serverStatus ? "mdi-pause" : "mdi-play" }}</v-icon
+        >{{
+          serverLoading
+            ? "mdi-loading mdi-spin"
+            : serverStatus
+            ? "mdi-pause"
+            : "mdi-play"
+        }}</v-icon
+      >
+      <v-icon
+        class="ml-2"
+        color="decoration"
+        :style="{
+          opacity: serverStatus && !serverLoading ? 1 : 0.5,
+        }"
+        :disabled="!serverStatus || serverLoading"
+        @click="openWebView"
+        >mdi-web</v-icon
       >
     </app-hammer>
 
@@ -91,29 +105,41 @@ import {
   watch,
   computed,
   onMounted,
+  onBeforeMount,
 } from "@vue/composition-api";
 import { isPlainText, getType, extname, rawText } from "@/utils";
 import $store from "@/store";
+import $router from "@/plugins/router";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon.js";
 import { basename } from "path";
 import marked from "marked";
 import { WebServer } from "@/modules/webserver";
+import { Browser } from "@capacitor/browser";
+import AppWebView from "@/components/AppWebView";
+import { Toast } from "@capacitor/toast";
 
 export default defineComponent({
   components: {
     AppHammer,
+    AppWebView,
   },
   setup() {
     const base64 = ref(null);
     const file = computed(() => $store.state.editor.session);
     const ext = computed(() => extname(file.value));
     const type = computed(() => getType(file.value));
+
     const editor = ref(null);
+
     const serverStatus = ref(false);
+    const serverLoading = ref(false);
     const port = computed(() => $store.state.settings.preview.port);
+
+    const sessionWrapper = ref(null);
 
     let $ace = null;
     let isMounted = false;
+    let browser = null;
 
     onMounted(() => void (isMounted = true));
 
@@ -125,11 +151,20 @@ export default defineComponent({
         $ace.setOption("enableLiveAutocompletion", true);
       }
     }
+    let timeoutSaveFile;
     function createEditor() {
       $ace = ace.edit(editor.value);
 
-      $ace.session.on("change", async () => {
-        await writeFile(file.value, $ace.getValue());
+      clearTimeout(timeoutSaveFile);
+      $ace.session.on("change", () => {
+        clearTimeout(timeoutSaveFile);
+
+        timeoutSaveFile = setTimeout(
+          async () => void (await writeFile(file.value, $ace.getValue())),
+          100
+        );
+
+        scrollSessionWrapperToSessionActive();
       });
 
       $ace.setOptions({
@@ -155,6 +190,10 @@ export default defineComponent({
     watch(
       file,
       async (newValue, oldValue) => {
+        if (!newValue) {
+          return;
+        }
+
         if (oldValue && $ace) {
           $store.commit("storeScroll/setStore", {
             file: oldValue,
@@ -209,11 +248,17 @@ export default defineComponent({
       }
     );
 
+    onBeforeMount(() => {
+      if (!file) {
+        $router.push("/");
+      }
+    });
+
     watch(
       file,
       (newValue) => {
         if (!newValue) {
-          this.$router.push("/");
+          $router.push("/");
         }
       },
       {
@@ -223,9 +268,17 @@ export default defineComponent({
 
     async function startServer(port) {
       await WebServer.start(port).catch((err) => console.log(err));
+
+      Toast.show({
+        text: `WebServer started on port ${port}`,
+      });
     }
     async function stopServer() {
       await WebServer.stop();
+
+      Toast.show({
+        text: `WebServer closed`,
+      });
     }
     async function changePort(port) {
       await stopServer();
@@ -233,17 +286,61 @@ export default defineComponent({
     }
 
     watch(serverStatus, async (newValue) => {
-      if (newValue) {
-        await startServer(+$store.state.settings.preview.port);
-      } else {
-        await stopServer();
+      serverLoading.value = true;
+      try {
+        if (newValue) {
+          await startServer(+$store.state.settings.preview.port);
+        } else {
+          await stopServer();
+        }
+      } catch (err) {
+        console.error(err);
       }
+      serverLoading.value = false;
     });
     watch(port, async (newValue) => {
+      serverLoading.value = true;
       if (serverStatus.value) {
         await changePort(newValue);
       }
+      serverLoading.value = false;
     });
+
+    async function openWebView() {
+      browser = await Browser.open({
+        url: `http://localhost:${$store.state.settings.preview.port}`,
+        presentationStyle: "fullscreen",
+      });
+    }
+    async function closeWebView() {
+      if (browser) {
+        await browser.close();
+        browser = null;
+      }
+    }
+
+    function scrollSessionWrapperToSessionActive() {
+      const wrapper = sessionWrapper.value;
+      const active = wrapper.querySelector(".active");
+
+      wrapper.scrollTo(active.offsetLeft, 0);
+    }
+
+    watch(
+      file,
+      (newValue) => {
+        if (newValue) {
+          if (isMounted) {
+            scrollSessionWrapperToSessionActive();
+          } else {
+            onMounted(() => void scrollSessionWrapperToSessionActive());
+          }
+        }
+      },
+      {
+        immediate: true,
+      }
+    );
 
     return {
       tab: ref(null),
@@ -261,6 +358,10 @@ export default defineComponent({
       serverStatus,
       beautifyCode,
       port,
+      serverLoading,
+      openWebView,
+      closeWebView,
+      sessionWrapper,
     };
   },
   methods: {
@@ -373,4 +474,8 @@ export default defineComponent({
     }
   }
 }
+</style>
+
+<style lang="scss" scoped>
+@import "~@/sass/global.scss";
 </style>

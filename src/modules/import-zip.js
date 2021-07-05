@@ -19,4 +19,6 @@ export default async function importZip(folderExtract, directory) {
       })
     );
   }
+
+  return files.map((item) => item.name);
 }

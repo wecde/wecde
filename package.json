@@ -12,12 +12,14 @@
   "dependencies": {
     "@capacitor/android": "^3.0.2",
     "@capacitor/app": "1.0.2",
+    "@capacitor/browser": "^1.0.2",
     "@capacitor/core": "3.0.2",
     "@capacitor/filesystem": "^1.0.2",
     "@capacitor/haptics": "1.0.2",
     "@capacitor/ios": "^3.0.2",
     "@capacitor/keyboard": "1.0.2",
     "@capacitor/status-bar": "1.0.2",
+    "@capacitor/toast": "^1.0.2",
     "@ionic-native/core": "^5.34.0",
     "@ionic-native/web-server": "^5.34.0",
     "@ionic-native/web-socket-server": "^5.34.0",
@@ -62,6 +64,6 @@
     "sass-loader": "^10.0.0",
     "vue-cli-plugin-vuetify": "~2.4.1",
     "vue-template-compiler": "^2.6.11",
-    "vuetify-loader": "^1.7.0"
+    "vuetify-loader": "^1.7.2"
   }
 }
