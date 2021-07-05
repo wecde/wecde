@@ -1,37 +1,76 @@
 <template>
   <div class="fill-height">
     <app-hammer>
-      <v-spacer />
-
-      <div class="d-flex">
-        <v-tabs
-          fixed-tabs
-          background-color="transparent"
-          class="tabs"
-          v-model="tab"
+      <div class="session">
+        <div
+          class="session--item"
+          v-for="item in $store.state.editor.sessions"
+          :key="item"
+          :class="{
+            active: item === $store.state.editor.session,
+          }"
+          v-ripple
+          @click="$store.commit(`editor/changeSession`, item)"
         >
-          <!-- <v-tabs-slider class="tab-slider"></v-tabs-slider> -->
-          <v-tab class="primary--text">
-            <v-icon>mdi-gitlab</v-icon>
-          </v-tab>
-
-          <v-tab class="primary--text">
-            <v-icon>mdi-book-outline</v-icon>
-          </v-tab>
-
-          <v-tab class="primary--text">
-            <v-icon>mdi-android-messages</v-icon>
-          </v-tab>
-        </v-tabs>
+          <img
+            :src="
+              getIcon({
+                light: false,
+                isFolder: false,
+                name: basename(item),
+                language: extname(item),
+              })
+            "
+          />
+          {{ basename(item) }}
+          <v-icon
+            size="inherit"
+            class="times"
+            @click.prevent.stop="$store.commit(`editor/removeSession`, item)"
+          >
+            mdi-close
+          </v-icon>
+        </div>
       </div>
-
-      <v-spacer />
-      <v-btn icon> </v-btn>
+      <v-icon v-ripple v-if="!previewMd">mdi-magnify</v-icon>
+      <v-icon
+        v-ripple
+        v-if="type === `markdown`"
+        @click="previewMd = !previewMd"
+        class="ml-2"
+        >{{
+          previewMd
+            ? "mdi-square-edit-outline"
+            : "mdi-language-markdown-outline"
+        }}</v-icon
+      >
+      <v-icon
+        color="#0dbf7f"
+        class="ml-2"
+        v-ripple
+        @click="serverStatus = !serverStatus"
+        >{{ serverStatus ? "mdi-pause" : "mdi-play" }}</v-icon
+      >
     </app-hammer>
 
-    <div class="editor--wrapper">
-      <div ref="editor" class="editor"></div>
+    <div class="editor--wrapper dark" v-show="!previewMd">
+      <div ref="editor" class="editor" v-if="isPlainText(file)" />
+
+      <div v-else-if="type === `image`">
+        <img :src="`data:image/${ext};base64,${base64}`" alt="" />
+      </div>
+      <div v-else-if="type === `video`">
+        <video :src="`data:video/${ext};base64,${base64}`" alt="" />
+      </div>
+      <div v-else-if="type === `audio`">
+        <audio :src="`data:audio/${ext};base64,${base64}`" alt="" />
+      </div>
     </div>
+    <div
+      class="preview--markdown"
+      v-if="type === `markdown` && previewMd"
+      v-html="marked(rawText(base64))"
+    />
   </div>
 </template>
 
@@ -40,805 +79,298 @@ import AppHammer from "@/components/AppHammer";
 import ace from "ace-builds";
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
-import "ace-builds/src-noconflict/ext-emmet";
+// import "ace-builds/src-noconflict/ext-emmet";
 import "ace-builds/src-noconflict/ext-linking";
 import "ace-builds/src-noconflict/ext-settings_menu";
 import { beautify } from "ace-builds/src-noconflict/ext-beautify";
-import codeLens from "ace-builds/src-noconflict/ext-code_lens";
-import { readFile } from "@/modules/filesystem";
-import { extname } from "@/utils";
+import { readFile, writeFile } from "@/modules/filesystem";
+import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons";
+import {
+  defineComponent,
+  ref,
+  watch,
+  computed,
+  onMounted,
+} from "@vue/composition-api";
+import { isPlainText, getType, extname, rawText } from "@/utils";
+import $store from "@/store";
+import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon.js";
+import { basename } from "path";
+import marked from "marked";
+import { WebServer } from "@/modules/webserver";
 
-const fileExtensions = {
-  htm: "html",
-  xhtml: "html",
-  html_vm: "html",
-  html: "html",
-  asp: "html",
-  jade: "pug",
-  pug: "pug",
-  md: "markdown",
-  markdown: "markdown",
-  rst: "markdown",
-  blink: "blink",
-  css: "css",
-  scss: "sass",
-  sass: "sass",
-  less: "less",
-  json: "json",
-  tsbuildinfo: "json",
-  json5: "json",
-  jsonl: "json",
-  ndjson: "json",
-  jinja: "jinja",
-  jinja2: "jinja",
-  j2: "jinja",
-  "jinja-html": "jinja",
-  proto: "proto",
-  "sublime-project": "sublime",
-  "sublime-workspace": "sublime",
-  tw: "twine",
-  twee: "twine",
-  yaml: "yaml",
-  "YAML-tmLanguage": "yaml",
-  yml: "yaml",
-  xml: "xml",
-  plist: "xml",
-  xsd: "xml",
-  dtd: "xml",
-  xsl: "xml",
-  xslt: "xml",
-  resx: "xml",
-  iml: "xml",
-  xquery: "xml",
-  tmLanguage: "xml",
-  manifest: "xml",
-  project: "xml",
-  png: "image",
-  jpeg: "image",
-  jpg: "image",
-  gif: "image",
-  ico: "image",
-  tif: "image",
-  tiff: "image",
-  psd: "image",
-  psb: "image",
-  ami: "image",
-  apx: "image",
-  bmp: "image",
-  bpg: "image",
-  brk: "image",
-  cur: "image",
-  dds: "image",
-  dng: "image",
-  exr: "image",
-  fpx: "image",
-  gbr: "image",
-  img: "image",
-  jbig2: "image",
-  jb2: "image",
-  jng: "image",
-  jxr: "image",
-  pgf: "image",
-  pic: "image",
-  raw: "image",
-  webp: "image",
-  eps: "image",
-  afphoto: "image",
-  ase: "image",
-  aseprite: "image",
-  clip: "image",
-  cpt: "image",
-  heif: "image",
-  heic: "image",
-  kra: "image",
-  mdp: "image",
-  ora: "image",
-  pdn: "image",
-  reb: "image",
-  sai: "image",
-  tga: "image",
-  xcf: "image",
-  jfif: "image",
-  ppm: "image",
-  pbm: "image",
-  pgm: "image",
-  pnm: "image",
-  esx: "javascript",
-  mjs: "javascript",
-  js: "javascript",
-  jsx: "react",
-  tsx: "react_ts",
-  "routing.ts": "routing",
-  "routing.tsx": "routing",
-  "routing.js": "routing",
-  "routing.jsx": "routing",
-  "routes.ts": "routing",
-  "routes.tsx": "routing",
-  "routes.js": "routing",
-  "routes.jsx": "routing",
-  ini: "settings",
-  dlc: "settings",
-  dll: "settings",
-  config: "settings",
-  conf: "settings",
-  properties: "settings",
-  prop: "settings",
-  settings: "settings",
-  option: "settings",
-  props: "settings",
-  toml: "settings",
-  prefs: "settings",
-  "sln.dotsettings": "settings",
-  "sln.dotsettings.user": "settings",
-  cfg: "settings",
-  "d.ts": "typescript-def",
-  marko: "markojs",
-  astro: "astro",
-  pdf: "pdf",
-  xlsx: "table",
-  xls: "table",
-  csv: "table",
-  tsv: "table",
-  vscodeignore: "vscode",
-  vsixmanifest: "vscode",
-  vsix: "vscode",
-  "code-workplace": "vscode",
-  csproj: "visualstudio",
-  ruleset: "visualstudio",
-  sln: "visualstudio",
-  suo: "visualstudio",
-  vb: "visualstudio",
-  vbs: "visualstudio",
-  vcxitems: "visualstudio",
-  "vcxitems.filters": "visualstudio",
-  vcxproj: "visualstudio",
-  "vcxproj.filters": "visualstudio",
-  pdb: "database",
-  sql: "database",
-  pks: "database",
-  pkb: "database",
-  accdb: "database",
-  mdb: "database",
-  sqlite: "database",
-  sqlite3: "database",
-  pgsql: "database",
-  postgres: "database",
-  psql: "database",
-  db: "database",
-  db3: "database",
-  kql: "kusto",
-  cs: "csharp",
-  csx: "csharp",
-  qs: "qsharp",
-  zip: "zip",
-  tar: "zip",
-  gz: "zip",
-  xz: "zip",
-  br: "zip",
-  bzip2: "zip",
-  gzip: "zip",
-  brotli: "zip",
-  "7z": "zip",
-  rar: "zip",
-  tgz: "zip",
-  vala: "vala",
-  zig: "zig",
-  exe: "exe",
-  msi: "exe",
-  java: "java",
-  jar: "java",
-  jsp: "java",
-  c: "c",
-  m: "c",
-  i: "c",
-  mi: "c",
-  h: "h",
-  cc: "cpp",
-  cpp: "cpp",
-  cxx: "cpp",
-  "c++": "cpp",
-  cp: "cpp",
-  mm: "cpp",
-  mii: "cpp",
-  ii: "cpp",
-  hh: "hpp",
-  hpp: "hpp",
-  hxx: "hpp",
-  "h++": "hpp",
-  hp: "hpp",
-  tcc: "hpp",
-  inl: "hpp",
-  go: "go",
-  py: "python",
-  pyc: "python-misc",
-  whl: "python-misc",
-  url: "url",
-  sh: "console",
-  ksh: "console",
-  csh: "console",
-  tcsh: "console",
-  zsh: "console",
-  bash: "console",
-  bat: "console",
-  cmd: "console",
-  awk: "console",
-  fish: "console",
-  exp: "console",
-  ps1: "powershell",
-  psm1: "powershell",
-  psd1: "powershell",
-  ps1xml: "powershell",
-  psc1: "powershell",
-  pssc: "powershell",
-  gradle: "gradle",
-  doc: "word",
-  docx: "word",
-  rtf: "word",
-  cer: "certificate",
-  cert: "certificate",
-  crt: "certificate",
-  pub: "key",
-  key: "key",
-  pem: "key",
-  asc: "key",
-  gpg: "key",
-  passwd: "key",
-  woff: "font",
-  woff2: "font",
-  ttf: "font",
-  eot: "font",
-  suit: "font",
-  otf: "font",
-  bmap: "font",
-  fnt: "font",
-  odttf: "font",
-  ttc: "font",
-  font: "font",
-  fonts: "font",
-  sui: "font",
-  ntf: "font",
-  mrf: "font",
-  lib: "lib",
-  bib: "lib",
-  rb: "ruby",
-  erb: "ruby",
-  fs: "fsharp",
-  fsx: "fsharp",
-  fsi: "fsharp",
-  fsproj: "fsharp",
-  swift: "swift",
-  ino: "arduino",
-  dockerignore: "docker",
-  dockerfile: "docker",
-  tex: "tex",
-  sty: "tex",
-  dtx: "tex",
-  ltx: "tex",
-  pptx: "powerpoint",
-  ppt: "powerpoint",
-  pptm: "powerpoint",
-  potx: "powerpoint",
-  potm: "powerpoint",
-  ppsx: "powerpoint",
-  ppsm: "powerpoint",
-  pps: "powerpoint",
-  ppam: "powerpoint",
-  ppa: "powerpoint",
-  webm: "video",
-  mkv: "video",
-  flv: "video",
-  vob: "video",
-  ogv: "video",
-  ogg: "video",
-  gifv: "video",
-  avi: "video",
-  mov: "video",
-  qt: "video",
-  wmv: "video",
-  yuv: "video",
-  rm: "video",
-  rmvb: "video",
-  mp4: "video",
-  m4v: "video",
-  mpg: "video",
-  mp2: "video",
-  mpeg: "video",
-  mpe: "video",
-  mpv: "video",
-  m2v: "video",
-  vdi: "virtual",
-  vbox: "virtual",
-  "vbox-prev": "virtual",
-  ics: "email",
-  mp3: "audio",
-  flac: "audio",
-  m4a: "audio",
-  wma: "audio",
-  aiff: "audio",
-  wav: "audio",
-  coffee: "coffee",
-  cson: "coffee",
-  iced: "coffee",
-  txt: "document",
-  graphql: "graphql",
-  gql: "graphql",
-  rs: "rust",
-  raml: "raml",
-  xaml: "xaml",
-  hs: "haskell",
-  kt: "kotlin",
-  kts: "kotlin",
-  patch: "git",
-  lua: "lua",
-  clj: "clojure",
-  cljs: "clojure",
-  cljc: "clojure",
-  groovy: "groovy",
-  r: "r",
-  rmd: "r",
-  dart: "dart",
-  as: "actionscript",
-  mxml: "mxml",
-  ahk: "autohotkey",
-  swf: "flash",
-  swc: "swc",
-  cmake: "cmake",
-  asm: "assembly",
-  a51: "assembly",
-  inc: "assembly",
-  nasm: "assembly",
-  s: "assembly",
-  ms: "assembly",
-  agc: "assembly",
-  ags: "assembly",
-  aea: "assembly",
-  argus: "assembly",
-  mitigus: "assembly",
-  binsource: "assembly",
-  vue: "vue",
-  ml: "ocaml",
-  mli: "ocaml",
-  cmx: "ocaml",
-  "js.map": "javascript-map",
-  "mjs.map": "javascript-map",
-  "cjs.map": "javascript-map",
-  "css.map": "css-map",
-  lock: "lock",
-  hbs: "handlebars",
-  mustache: "handlebars",
-  pm: "perl",
-  raku: "perl",
-  hx: "haxe",
-  "spec.ts": "test-ts",
-  "e2e-spec.ts": "test-ts",
-  "test.ts": "test-ts",
-  "ts.snap": "test-ts",
-  "spec.tsx": "test-jsx",
-  "test.tsx": "test-jsx",
-  "tsx.snap": "test-jsx",
-  "spec.jsx": "test-jsx",
-  "test.jsx": "test-jsx",
-  "jsx.snap": "test-jsx",
-  "spec.js": "test-js",
-  "e2e-spec.js": "test-js",
-  "test.js": "test-js",
-  "js.snap": "test-js",
-  "module.ts": "angular",
-  "module.js": "angular",
-  "ng-template": "angular",
-  "component.ts": "angular-component",
-  "component.js": "angular-component",
-  "guard.ts": "angular-guard",
-  "guard.js": "angular-guard",
-  "service.ts": "angular-service",
-  "service.js": "angular-service",
-  "pipe.ts": "angular-pipe",
-  "pipe.js": "angular-pipe",
-  "filter.js": "angular-pipe",
-  "directive.ts": "angular-directive",
-  "directive.js": "angular-directive",
-  "resolver.ts": "angular-resolver",
-  "resolver.js": "angular-resolver",
-  pp: "puppet",
-  ex: "elixir",
-  exs: "elixir",
-  eex: "elixir",
-  leex: "elixir",
-  ls: "livescript",
-  erl: "erlang",
-  twig: "twig",
-  jl: "julia",
-  elm: "elm",
-  pure: "purescript",
-  purs: "purescript",
-  tpl: "smarty",
-  styl: "stylus",
-  re: "reason",
-  rei: "reason",
-  cmj: "bucklescript",
-  merlin: "merlin",
-  v: "verilog",
-  vhd: "verilog",
-  sv: "verilog",
-  svh: "verilog",
-  nb: "mathematica",
-  wl: "wolframlanguage",
-  wls: "wolframlanguage",
-  njk: "nunjucks",
-  nunjucks: "nunjucks",
-  robot: "robot",
-  sol: "solidity",
-  au3: "autoit",
-  haml: "haml",
-  yang: "yang",
-  mjml: "mjml",
-  tf: "terraform",
-  "tf.json": "terraform",
-  tfvars: "terraform",
-  tfstate: "terraform",
-  "blade.php": "laravel",
-  "inky.php": "laravel",
-  applescript: "applescript",
-  ipa: "applescript",
-  cake: "cake",
-  feature: "cucumber",
-  nim: "nim",
-  nimble: "nim",
-  apib: "apiblueprint",
-  apiblueprint: "apiblueprint",
-  riot: "riot",
-  tag: "riot",
-  vfl: "vfl",
-  kl: "kl",
-  pcss: "postcss",
-  sss: "postcss",
-  todo: "todo",
-  cfml: "coldfusion",
-  cfc: "coldfusion",
-  lucee: "coldfusion",
-  cfm: "coldfusion",
-  cabal: "cabal",
-  nix: "nix",
-  slim: "slim",
-  http: "http",
-  rest: "http",
-  rql: "restql",
-  restql: "restql",
-  kv: "kivy",
-  graphcool: "graphcool",
-  sbt: "sbt",
-  apk: "android",
-  smali: "android",
-  dex: "android",
-  env: "tune",
-  "gitlab-ci.yml": "gitlab",
-  jenkinsfile: "jenkins",
-  jenkins: "jenkins",
-  cr: "crystal",
-  ecr: "crystal",
-  "drone.yml": "drone",
-  cu: "cuda",
-  cuh: "cuda",
-  log: "log",
-  def: "dotjs",
-  dot: "dotjs",
-  jst: "dotjs",
-  ejs: "ejs",
-  ".wakatime-project": "wakatime",
-  pde: "processing",
-  "stories.js": "storybook",
-  "stories.jsx": "storybook",
-  "story.js": "storybook",
-  "story.jsx": "storybook",
-  "stories.ts": "storybook",
-  "stories.tsx": "storybook",
-  "story.ts": "storybook",
-  "story.tsx": "storybook",
-  wpy: "wepy",
-  hcl: "hcl",
-  san: "san",
-  djt: "django",
-  red: "red",
-  fxp: "foxpro",
-  prg: "foxpro",
-  pot: "i18n",
-  po: "i18n",
-  mo: "i18n",
-  wat: "webassembly",
-  wasm: "webassembly",
-  ipynb: "jupyter",
-  d: "d",
-  mdx: "mdx",
-  bal: "ballerina",
-  balx: "ballerina",
-  rkt: "racket",
-  bzl: "bazel",
-  bazel: "bazel",
-  mint: "mint",
-  vm: "velocity",
-  fhtml: "velocity",
-  vtl: "velocity",
-  gd: "godot",
-  godot: "godot-assets",
-  tres: "godot-assets",
-  tscn: "godot-assets",
-  "azure-pipelines.yml": "azure-pipelines",
-  "azure-pipelines.yaml": "azure-pipelines",
-  azcli: "azure",
-  vagrantfile: "vagrant",
-  prisma: "prisma",
-  cshtml: "razor",
-  vbhtml: "razor",
-  abc: "abc",
-  ad: "asciidoc",
-  adoc: "asciidoc",
-  asciidoc: "asciidoc",
-  edge: "edge",
-  ss: "scheme",
-  scm: "scheme",
-  lisp: "lisp",
-  lsp: "lisp",
-  cl: "lisp",
-  fast: "lisp",
-  stl: "3d",
-  obj: "3d",
-  ac: "3d",
-  blend: "3d",
-  mesh: "3d",
-  mqo: "3d",
-  pmd: "3d",
-  pmx: "3d",
-  skp: "3d",
-  vac: "3d",
-  vdp: "3d",
-  vox: "3d",
-  svg: "svg",
-  svelte: "svelte",
-  vimrc: "vim",
-  gvimrc: "vim",
-  exrc: "vim",
-  vim: "vim",
-  viminfo: "vim",
-  moon: "moonscript",
-  prw: "advpl_prw",
-  prx: "advpl_prw",
-  ptm: "advpl_ptm",
-  tlpp: "advpl_tlpp",
-  ch: "advpl_include",
-  iso: "disc",
-  f: "fortran",
-  f77: "fortran",
-  f90: "fortran",
-  f95: "fortran",
-  f03: "fortran",
-  f08: "fortran",
-  tcl: "tcl",
-  liquid: "liquid",
-  p: "prolog",
-  pro: "prolog",
-  pl: "prolog",
-  coco: "coconut",
-  sketch: "sketch",
-  pwn: "pawn",
-  amx: "pawn",
-  "4th": "forth",
-  fth: "forth",
-  frt: "forth",
-  iuml: "uml",
-  pu: "uml",
-  puml: "uml",
-  plantuml: "uml",
-  wsd: "uml",
-  wrap: "meson",
-  dhall: "dhall",
-  dhallb: "dhall",
-  sml: "sml",
-  mlton: "sml",
-  mlb: "sml",
-  sig: "sml",
-  fun: "sml",
-  cm: "sml",
-  lex: "sml",
-  use: "sml",
-  grm: "sml",
-  opam: "opam",
-  imba: "imba",
-  drawio: "drawio",
-  dio: "drawio",
-  pas: "pascal",
-  unity: "shaderlab",
-  sas: "sas",
-  sas7bdat: "sas",
-  sashdat: "sas",
-  astore: "sas",
-  ast: "sas",
-  sast: "sas",
-  nupkg: "nuget",
-  command: "command",
-  dsc: "denizenscript",
-  "code-search": "search",
-  mcfunction: "minecraft",
-  res: "rescript",
-  resi: "rescript",
-  b: "brainfuck",
-  bf: "brainfuck",
-  bicep: "bicep",
-  cob: "cobol",
-  cbl: "cobol",
-  gr: "grain",
-  lol: "lolcode",
-  idr: "idris",
-  ibc: "idris",
-  pipeline: "pipeline",
-  rego: "opa",
-  windi: "windicss",
-  scala: "scala",
-  sc: "scala",
-  ly: "lilypond",
-  pgn: "chess",
-  fen: "chess",
-  gmi: "gemini",
-  gemini: "gemini",
-};
-
-let editor;
-
-export default {
+export default defineComponent({
   components: {
     AppHammer,
   },
-  data() {
+  setup() {
+    const base64 = ref(null);
+    const file = computed(() => $store.state.editor.session);
+    const ext = computed(() => extname(file.value));
+    const type = computed(() => getType(file.value));
+    const editor = ref(null);
+    const serverStatus = ref(false);
+    const port = computed(() => $store.state.settings.preview.port);
+
+    let $ace = null;
+    let isMounted = false;
+
+    onMounted(() => void (isMounted = true));
+
+    function setSettings() {
+      if ($ace) {
+        $ace.getSession().setUseWrapMode(true);
+        $ace.setTheme("ace/theme/monokai");
+        $ace.setOption("enableBasicAutocompletion", true);
+        $ace.setOption("enableLiveAutocompletion", true);
+      }
+    }
+    function createEditor() {
+      $ace = ace.edit(editor.value);
+
+      $ace.session.on("change", async () => {
+        await writeFile(file.value, $ace.getValue());
+      });
+
+      $ace.setOptions({
+        enableLinking: true,
+        autoScrollEditorIntoView: true,
+        // enableEmmet: true,
+        // enableCodeLens: true,
+      });
+
+      $ace.session.mergeUndoDeltas = true;
+    }
+    function removeEditor() {
+      if ($ace) {
+        $ace.destroy();
+        $ace = null;
+      }
+    }
+
+    function beautifyCode() {
+      beautify.beautify($ace.session);
+    }
+
+    watch(
+      file,
+      async (newValue, oldValue) => {
+        if (oldValue && $ace) {
+          $store.commit("storeScroll/setStore", {
+            file: oldValue,
+            value: {
+              x: $ace.session.getScrollLeft(),
+              y: $ace.session.getScrollTop(),
+            },
+          });
+        }
+
+        if (newValue) {
+          base64.value = await readFile(newValue);
+        }
+
+        if (isPlainText(file.value)) {
+          const init = () => {
+            createEditor();
+            setSettings();
+
+            $ace.setValue(atob(base64.value));
+            $ace.clearSelection();
+
+            setTimeout(() => {
+              const { x, y } = $store.state.storeScroll.store[file.valueF] || {
+                x: 0,
+                y: 0,
+              };
+
+              $ace.session.setScrollLeft(x);
+              $ace.session.setScrollTop(y);
+            }, 70);
+
+            const ext = extname(file.value);
+            $ace.session.setMode(
+              `ace/mode/${
+                ext === "vue" ? "html" : fileExtensions[ext] || "text"
+              }`
+            );
+          };
+
+          if (isMounted) {
+            init();
+          } else {
+            onMounted(() => init());
+          }
+        } else {
+          removeEditor();
+        }
+      },
+      {
+        immediate: true,
+      }
+    );
+
+    watch(
+      file,
+      (newValue) => {
+        if (!newValue) {
+          this.$router.push("/");
+        }
+      },
+      {
+        immediate: true,
+      }
+    );
+
+    async function startServer(port) {
+      await WebServer.start(port).catch((err) => console.log(err));
+    }
+    async function stopServer() {
+      await WebServer.stop();
+    }
+    async function changePort(port) {
+      await stopServer();
+      await startServer(port);
+    }
+
+    watch(serverStatus, async (newValue) => {
+      if (newValue) {
+        await startServer(+$store.state.settings.preview.port);
+      } else {
+        await stopServer();
+      }
+    });
+    watch(port, async (newValue) => {
+      if (serverStatus.value) {
+        await changePort(newValue);
+      }
+    });
+
     return {
-      tab: null,
+      tab: ref(null),
+      file,
+      ext,
+      basename,
+      type,
+      base64,
+      $ace,
+      editor,
+      getIcon,
+      previewMd: ref(false),
+      marked,
+      rawText,
+      serverStatus,
+      beautifyCode,
+      port,
     };
   },
   methods: {
-    beautify() {
-      beautify.beautify(editor.session);
-    },
-    reactiveAce() {
-      readFile(this.$store.state.editor.file).then(({ data }) => {
-        editor.setValue(data);
-        editor.clearSelection();
-      });
-
-      const ext = extname(this.$store.state.editor.file);
-      editor.session.setMode(`ace/mode/${fileExtensions[ext] || "text"}`);
-    },
-    async createAce() {
-      if (editor) {
-        editor.destroy();
-      }
-
-      editor = ace.edit(this.$refs.editor);
-      editor.getSession().setUseWrapMode(true);
-      editor.setTheme("ace/theme/monokai");
-      editor.setOptions({
-        enableBasicAutocompletion: true,
-        // enableSnippets: true,
-        enableLiveAutocompletion: true,
-        enableLinking: true,
-      });
-      editor.setOption("enableEmmet", true);
-      editor.setOption("enableCodeLens", true);
-
-      this.reactiveAce();
-
-      codeLens.registerCodeLensProvider(editor, {
-        provideCodeLenses(session, callback) {
-          var p = [
-            {
-              start: { row: 0 },
-              command: {
-                id: "clearCodeLenses",
-                title: "Clear all code lenses",
-                arguments: [],
-              },
-            },
-          ];
-          var l = session.getLength();
-
-          for (var row = 2; row < l; row++) {
-            var line = session.getLine(row);
-            var endColumn = line.length;
-
-            var m = /[{>]\s*$/.exec(line);
-            if (!m) continue;
-
-            p.push({
-              start: {
-                row: row,
-                column: m.index,
-              },
-              command: {
-                id: "describeCodeLens",
-                title: "Line " + (row + 1),
-                arguments: ["line", row],
-              },
-            });
-
-            if (m.index < 10) continue;
-            p.push({
-              start: {
-                row: row,
-                column: m.index,
-              },
-              end: {
-                row: row,
-                column: m.index + 1,
-              },
-              command: {
-                id: "describeCodeLens",
-                title: "column " + endColumn,
-                arguments: ["column", endColumn],
-              },
-            });
-
-            if (m.index < 30) continue;
-            p.push({
-              start: {
-                row: row,
-                column: m.index,
-              },
-              command: {
-                id: "describeCodeLens",
-                title: "Third Link",
-                arguments: ["3", row],
-              },
-            });
-          }
-          callback(p);
-        },
-      });
-
-      editor.session.mergeUndoDeltas = true;
-
-      var staticWordCompleter = {
-        getCompletions: function (editor, session, pos, prefix, callback) {
-          var wordList = ["foo", "bar", "baz"];
-          callback(null, [
-            ...wordList.map(function (word) {
-              return {
-                caption: word,
-                value: word,
-                meta: "static",
-              };
-            }),
-            ...session.$mode.$highlightRules.$keywordList.map(function (word) {
-              return {
-                caption: word,
-                value: word,
-                meta: "keyword",
-              };
-            }),
-          ]);
-        },
-      };
-
-      editor.completers = [staticWordCompleter];
-    },
+    isPlainText,
+    extname,
   },
-  watch: {
-    "$store.state.editor.file"() {
-      this.reactiveAce();
-    },
-  },
-  async mounted() {
-    this.createAce();
-  },
-};
+});
 </script>
 
 <style lang="scss" scoped>
-.editor--wrapper {
+.editor--wrapper,
+.preview--markdown {
   position: relative;
   width: 100%;
   height: 100%;
+}
+.editor--wrapper {
+  > div {
+    margin: auto;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 
   .editor {
-    position: absolute;
     width: 100%;
     height: 100%;
+  }
+
+  img {
+    max-width: 100%;
+  }
+  video {
+    width: 100%;
+  }
+}
+.preview--markdown {
+  margin: 15px 10px;
+  overflow: scroll;
+}
+</style>
+
+<style lang="scss" scoped>
+.session {
+  flex: 1;
+  width: 100%;
+  overflow: scroll hidden;
+  display: flex;
+  min-height: 70%;
+  font-size: 14px;
+  position: relative;
+  margin: auto 0;
+  overflow-x: auto;
+  user-select: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  &--item {
+    padding: 7px 7px 7px 9px;
+    height: 100%;
+    cursor: pointer;
+
+    // background-color: rgba($color: #2c2c2c, $alpha: 1);
+    transition: background-color 0.22s cubic-bezier(0.215, 0.61, 0.355, 1);
+    white-space: nowrap;
+    &:hover {
+      background-color: rgba($color: #383838, $alpha: 0.3);
+      opacity: 1;
+      .times {
+        opacity: 1;
+      }
+    }
+    &.active {
+      opacity: 1;
+      background-color: #383838;
+      &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: rgba(0, 132, 255, 0.645);
+      }
+      .times {
+        opacity: 1;
+      }
+    }
+    position: relative;
+    margin-right: 0;
+    display: flex;
+    align-items: center;
+    img {
+      display: inline-block;
+      width: 1.3em;
+      height: 1.3em;
+      margin-right: 3px;
+    }
+    // &:first-child {
+    //   margin-right: 0;
+    // }
+    // opacity: .8;
+    .times {
+      margin-left: 3px;
+      margin-top: 3px;
+      // opacity: 0.3;
+    }
   }
 }
 </style>

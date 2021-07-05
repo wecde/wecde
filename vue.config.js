@@ -21,4 +21,12 @@ module.exports = {
       ],
     },
   },
+  // pwa: {
+  //   name: "Shin Code Editor",
+  //   themeColor: "#222222",
+  //   msTileColor: "#000000",
+  //   appleMobileWebAppCapable: "yes",
+  //   appleMobileWebAppStatusBarStyle: "black",
+  //   workboxPluginMode: "InjectManifest",
+  // },
 };

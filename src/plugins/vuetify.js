@@ -12,6 +12,7 @@ export default new Vuetify({
         "grey-2": "#424242",
         "grey-3": "#1b1b1b",
         "grey-4": "#383838",
+        dark: "#1b1b1b",
         primary: colors.blue.darken2,
         accent: colors.grey.darken3,
         secondary: colors.amber.darken3,

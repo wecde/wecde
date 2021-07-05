@@ -10,7 +10,7 @@
       :children="children"
       :hidden="isHidden(name)"
       :file="file"
-      :list-files="files"
+      :list-files="listFiles"
       @reload="$emit(`reload`)"
     />
   </div>

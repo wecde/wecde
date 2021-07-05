@@ -287,6 +287,12 @@ export const stateDescription = [
         type: "switch",
         default: true,
       },
+      {
+        label: "Port",
+        prop: "port",
+        type: "tel",
+        default: "8080",
+      },
     ],
   },
   {

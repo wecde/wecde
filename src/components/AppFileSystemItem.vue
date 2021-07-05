@@ -14,39 +14,7 @@
         openEditor();
       "
     >
-      <div class="d-flex align-center">
-        <span class="file--system__prepend">
-          <v-icon style="color: inherit" v-if="isFolder">
-            {{ collapse ? "mdi-chevron-down" : "mdi-chevron-right" }}
-          </v-icon>
-        </span>
-        <span class="file--system__icon">
-          <img
-            :src="
-              getIcon({
-                light: false,
-                isOpen: collapse,
-                isFolder,
-                name: nameLocal,
-                language: extname(nameLocal),
-              })
-            "
-          />
-        </span>
-
-        <span class="file--system__name text-truncate">
-          <app-rename
-            :value="name"
-            v-model="nameLocal"
-            @rename="rename"
-            :state.sync="renaming"
-            :input-value="name"
-            :list-files="listFiles"
-          />
-        </span>
-      </div>
-
-      <div class="file--system__more">
+      <div class="file--system__more order-1">
         <v-menu bottom left>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -127,6 +95,39 @@
           </v-list>
         </v-menu>
       </div>
+
+      <div class="d-flex align-center order-0 text-truncate">
+        <span class="file--system__prepend">
+          <v-icon style="color: inherit" v-if="isFolder">
+            {{ collapse ? "mdi-chevron-down" : "mdi-chevron-right" }}
+          </v-icon>
+          <span v-else></span>
+        </span>
+        <span class="file--system__icon">
+          <img
+            :src="
+              getIcon({
+                light: false,
+                isOpen: collapse,
+                isFolder,
+                name: nameLocal,
+                language: extname(nameLocal),
+              })
+            "
+          />
+        </span>
+
+        <span class="file--system__name text-truncate">
+          <app-rename
+            :value="name"
+            v-model="nameLocal"
+            @rename="rename"
+            :state.sync="renaming"
+            :input-value="name"
+            :list-files="listFiles"
+          />
+        </span>
+      </div>
     </div>
     <div class="ml-3" v-if="isFolder" v-show="collapse">
       <app-file-add
@@ -150,10 +151,11 @@
 <script>
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon.js";
 import AppRename from "./AppRename";
-import { extname, exportZip, b64toBlob } from "@/utils";
+import { extname, b64toBlob } from "@/utils";
 import AppFileAdd from "./AppFileAdd";
 import { rename, unlink, readFile } from "@/modules/filesystem";
 import saveFile from "file-saver";
+import exportZip from "@/modules/export-zip";
 
 export default {
   components: {
@@ -233,34 +235,42 @@ export default {
     extname,
 
     async rename([newValue, oldValue]) {
+      this.$show();
       await rename(
         `${this.directory}/${newValue}`,
         `${this.directory}/${oldValue}`
       );
 
       this.$emit("reload");
+      this.$hide();
     },
     async remove() {
+      this.$show();
       await unlink(this.file);
 
       this.$emit("reload");
+      this.$hide();
     },
     openEditor() {
-      this.$store.commit("editor/setFile", this.file);
+      if (this.isFolder === false) {
+        this.$store.commit("editor/pushSession", this.file);
+
+        if (this.$route.name !== "editor") {
+          this.$router.push("/editor");
+        }
+      }
     },
 
     async exportZip() {
       if (this.isFolder) {
         await exportZip(this.file);
+        this.$store.commit("terminal/clear");
       } else {
-        const { data } = await readFile(this.file);
+        this.$show();
+        const data = await readFile(this.file);
 
-        try {
-          atob(data);
-          saveFile(b64toBlob(data), this.name);
-        } catch {
-          saveFile(new Blob([data]), this.name);
-        }
+        saveFile(b64toBlob(data), this.name);
+        this.$hide();
       }
     },
   },
@@ -323,7 +333,6 @@ export default {
   }
 
   &__prepend {
-    margin-right: 5px;
     transform: translateY(-25%);
   }
   &__icon {
@@ -345,6 +354,18 @@ export default {
     width: 1em;
     height: 1em;
     display: inline-block;
+    > * {
+      font-size: inherit;
+    }
+  }
+  &__prepend {
+    width: 24px;
+    height: 24px;
+    > span {
+      display: block;
+      width: 1em;
+      height: 1em;
+    }
   }
 }
 </style>

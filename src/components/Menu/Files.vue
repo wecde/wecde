@@ -54,7 +54,7 @@
                 <v-list-item-title> New Folder </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item class="min-height-0">
+            <v-list-item class="min-height-0" @click="importFile">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
                 <v-icon>mdi-download</v-icon>
               </v-list-item-icon>
@@ -83,11 +83,11 @@
         </v-menu>
       </div>
 
-      <div class="d-flex order-0">
+      <div class="d-flex order-0 text-truncate">
         <v-btn icon>
           <v-icon>mdi-chevron-down</v-icon>
         </v-btn>
-        <span class="app-title text-truncate">{{ tree ? tree.file : "" }}</span>
+        <span class="app-title text-truncate">{{ tree ? tree.name : "" }}</span>
       </div>
     </div>
 
@@ -98,7 +98,7 @@
         <app-file-add
           :state.sync="adding"
           :is-folder="addingFolder"
-          :directory="tree.uri"
+          :directory="tree.file"
           @created="reloadListFile"
           :list-files="tree.children"
         />
@@ -120,6 +120,7 @@ import AppFileSystem from "@/components/AppFileSystem";
 import AppField from "@/components/AppField";
 import AppFileAdd from "@/components/AppFileAdd";
 import { readTreeFolder } from "@/modules/filesystem";
+import importFiles from "@/modules/import-files";
 
 export default {
   components: {
@@ -138,7 +139,7 @@ export default {
     };
   },
   watch: {
-    "$store.state.files.project": {
+    "$store.state.editor.project": {
       async handler() {
         await this.reloadListFile();
       },
@@ -147,10 +148,13 @@ export default {
   },
   methods: {
     async reloadListFile() {
-      console.log("load");
       this.tree = await readTreeFolder(
-        `projects/${this.$store.state.files.project}`
+        `projects/${this.$store.state.editor.project}`
       );
+    },
+    async importFile() {
+      await importFiles(`projects/${this.$store.state.editor.project}`);
+      await this.reloadListFile();
     },
   },
 };

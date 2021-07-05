@@ -15,7 +15,7 @@ export default function (type, multiple = false) {
     input.addEventListener(
       "change",
       () => {
-        resolve(input.files);
+        resolve(Array.from(input.files));
         input.remove();
       },
       {

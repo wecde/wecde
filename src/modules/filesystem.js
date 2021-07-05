@@ -1,6 +1,10 @@
-import { Filesystem, Directory, Encoding } from "@capacitor/filesystem";
+import { Filesystem, Directory } from "@capacitor/filesystem";
+import { alwayBase64 } from "@/utils";
+import { arrayBufferToBase64 } from "../utils";
 import { basename } from "path";
-import { sort } from "fast-sort";
+import { sort as fastsort } from "fast-sort";
+
+window.Filesystem = Filesystem;
 
 export async function readdir(path, directory = Directory.Documents) {
   try {
@@ -36,32 +40,48 @@ export async function rmdir(path, directory = Directory.Documents) {
     // eslint-disable-next-line no-empty
   } catch {}
 }
+/**
+ *
+ * todo: not support base64
+ */
+export async function writeFile(path, data, directory = Directory.Documents) {
+  if (data instanceof ArrayBuffer) {
+    data = arrayBufferToBase64(data);
+  } else if (data instanceof Blob) {
+    data = arrayBufferToBase64(data.arrayBuffer());
+  } else {
+    data = btoa(data);
+  }
 
-export async function writeFile(
-  path,
-  data,
-  encoding = Encoding.UTF8,
-  directory = Directory.Documents
-) {
-  await Filesystem.writeFile({
-    path: `Shin Code Editor/${path}`,
-    directory,
-    data,
-    encoding,
-    recursive: true,
-  });
+  try {
+    await Filesystem.writeFile({
+      path: `Shin Code Editor/${path}`,
+      directory,
+      data,
+      recursive: true,
+    });
+    // eslint-disable-next-line no-empty
+  } catch {
+    try {
+      await Filesystem.writeFile({
+        path: `Shin Code Editor/${path}`,
+        directory,
+        data,
+        recursive: false,
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
 }
 
-export async function readFile(
-  path,
-  encoding = Encoding.UTF8,
-  directory = Directory.Documents
-) {
-  return await Filesystem.readFile({
+export async function readFile(path, directory = Directory.Documents) {
+  const { data } = await Filesystem.readFile({
     path: `Shin Code Editor/${path}`,
     directory,
-    encoding,
   });
+
+  return alwayBase64(data);
 }
 
 export async function unlink(path, directory = Directory.Documents) {
@@ -111,12 +131,16 @@ export async function copy(
     toDirectory,
   });
 }
-
+0;
 export async function stat(path, directory = Directory.Documents) {
-  return await Filesystem.stat({
-    path: `Shin Code Editor/${path}`,
-    directory,
-  });
+  try {
+    return await Filesystem.stat({
+      path: `Shin Code Editor/${path}`,
+      directory,
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function readdirStat(path, directory = Directory.Documents) {
@@ -133,13 +157,9 @@ export async function readdirStat(path, directory = Directory.Documents) {
   );
 }
 
-export async function readTreeFolder(
-  path,
-  directory = Directory.Documents,
-  indexG = 0
-) {
+export async function readTreeFolder(path, directory = Directory.Documents) {
   const tree = [];
-  let countFile = 0;
+
   await Promise.all(
     (
       await readdirStat(path)
@@ -149,12 +169,10 @@ export async function readTreeFolder(
           name: file,
           file: `${path}/${file}`,
           isFolder: false,
-          index: indexG + index,
           stat,
         });
-        countFile++;
       } else {
-        const { children, countFile: countOnChildren } = await readTreeFolder(
+        const { children, isFolder } = await readTreeFolder(
           `${path}/${file}`,
           directory,
           index
@@ -162,51 +180,36 @@ export async function readTreeFolder(
         tree.push({
           name: file,
           file: `${path}/${file}`,
-          index,
           children,
-          isFolder: true,
+          isFolder,
           stat,
         });
-        countFile += countOnChildren;
       }
     })
   );
 
-  const listFolders = [];
-  const listFiles = [];
-
+  const files = [];
+  const folders = [];
   tree.forEach((item) => {
-    if (item.stat.type === "directory") {
-      listFolders.push(item);
+    if (item.isFolder) {
+      folders.push(item);
     } else {
-      listFiles.push(item);
+      files.push(item);
     }
   });
 
   tree.splice(0);
   tree.push(
-    ...sort(listFolders).asc((item) => item.name),
-    ...sort(listFiles).asc((item) => item.name)
+    ...fastsort(folders).asc((item) => item.name),
+    ...fastsort(files).asc((item) => item.name)
   );
 
   return {
-    file: basename(path),
-    uri: path,
+    name: basename(path),
+    file: path,
     children: tree,
-    index: indexG,
-    countFile,
+    isFolder: true,
   };
-}
-
-function isBase64(str) {
-  if (typeof str !== "string" || str === "" || str.trim() === "") {
-    return false;
-  }
-  try {
-    return btoa(atob(str)) == str;
-  } catch (err) {
-    return false;
-  }
 }
 
 export async function readFilesFolder(path, directory = Directory.Documents) {
@@ -215,11 +218,11 @@ export async function readFilesFolder(path, directory = Directory.Documents) {
       await readdir(path)
     ).files.map(async (item) => {
       const thisStat = await stat(`${path}/${item}`, directory);
+      let data = null;
 
-      const data =
-        thisStat.type === "file"
-          ? await readFile(`${path}/${item}`, directory)
-          : null;
+      if (thisStat.type === "file" || thisStat.type === "link") {
+        data = await readFile(`${path}/${item}`, directory);
+      }
 
       return [
         {
@@ -228,7 +231,6 @@ export async function readFilesFolder(path, directory = Directory.Documents) {
             file: {
               stat: thisStat,
               data,
-              isBase64: isBase64(data),
             },
           },
         },
@@ -240,4 +242,21 @@ export async function readFilesFolder(path, directory = Directory.Documents) {
   );
 
   return thisChildren.flat(2);
+}
+
+export async function requestPermissions() {
+  if ((await Filesystem.checkPermissions()) !== "granted") {
+    await Filesystem.requestPermissions();
+  }
+}
+
+export async function getUri(path, directory = Directory.Documents) {
+  return decodeURIComponent(
+    (
+      await Filesystem.getUri({
+        path: `Shin Code Editor/${path}`,
+        directory,
+      })
+    ).uri
+  ).replace(/^[a-z]+:\/\//, "");
 }

@@ -35,7 +35,7 @@
 
       <v-tabs-items v-model="navigationTabs" class="fill-width fill-height">
         <v-tab-item>
-          <app-menu-archive />
+          <app-menu-archive @toFiles="navigationTabs = 1" />
         </v-tab-item>
         <v-tab-item>
           <app-menu-files />
@@ -72,7 +72,7 @@ export default {
   },
 
   watch: {
-    "$store.state.files.project": {
+    "$store.state.editor.project": {
       async handler(newValue) {
         try {
           if ((await stat(`projects/${newValue}`)).type !== "directory") {
@@ -81,7 +81,7 @@ export default {
 
           this.navigationTabs = 1;
         } catch {
-          this.$store.commit("files/setProject", null);
+          this.$store.commit("editor/setProject", null);
         }
       },
     },
@@ -96,6 +96,12 @@ export default {
         this.$store.commit("system/setNavigation", value);
       },
     },
+  },
+
+  beforeMount() {
+    if (this.$store.state.editor.session) {
+      this.navigationTabs = 1;
+    }
   },
 };
 </script>

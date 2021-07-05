@@ -10,12 +10,14 @@ const routes = [
   },
   {
     path: "/editor",
+    name: "editor",
     component: () => import("../pages/Editor"),
   },
 ];
 
 const router = new VueRouter({
   routes,
+  mode: "history",
 });
 
 export default router;

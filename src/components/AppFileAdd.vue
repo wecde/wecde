@@ -24,7 +24,7 @@
             @update:state="$emit(`update:state`, $event)"
             :value="filename"
             :input-value="``"
-            :list-files="files"
+            :list-files="listFiles"
             v-model="filename"
           />
         </span>
@@ -77,11 +77,11 @@ export default {
   methods: {
     getIcon,
     extname,
-    async createFile([filename]) {
+    async createFile() {
       if (this.isFolder) {
-        await mkdir(`${this.directory}/${filename}`);
+        await mkdir(`${this.directory}/${this.filename}`);
       } else {
-        await writeFile(`${this.directory}/${filename}`, "fwe");
+        await writeFile(`${this.directory}/${this.filename}`, "fwe");
       }
 
       this.$emit("created");

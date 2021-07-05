@@ -2,11 +2,15 @@
 <androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_width="50px"
+    android:layout_height="50px"
+    android:fitsSystemWindows="true"
+    android:visibility="invisible"
+    tools:context=".MainActivity"
+    tools:visibility="invisible">
 
     <WebView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="50px"
+        android:layout_height="50px"
+        android:visibility="visible" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,6 +1,17 @@
 <template>
   <v-app>
+    <v-progress-linear
+      indeterminate
+      color="cyan"
+      fixed
+      top
+      rounded
+      height="3px"
+      style="z-index: 1000"
+      v-if="$store.state.progress.isShow"
+    />
     <app-navigation-drawer />
+    <app-terminal />
     <v-main>
       <router-view />
     </v-main>
@@ -9,12 +20,21 @@
 
 <script>
 import AppNavigationDrawer from "@/components/AppNavigationDrawer";
+import AppTerminal from "@/components/AppTerminal";
+import { requestPermissions } from "@/modules/filesystem";
+import { defineComponent, onMounted } from "@vue/composition-api";
 
-export default {
+export default defineComponent({
   components: {
     AppNavigationDrawer,
+    AppTerminal,
   },
-};
+  setup() {
+    onMounted(async () => void (await requestPermissions()));
+
+    return {};
+  },
+});
 </script>
 
 <style lang="scss">
@@ -24,7 +44,7 @@ export default {
 
 ::-webkit-scrollbar-thumb {
   background-color: rgba(231, 231, 231, 0.1);
-  transition: background-color .33s cubic-bezier(0.895, 0.03, 0.685, 0.22);
+  transition: background-color 0.33s cubic-bezier(0.895, 0.03, 0.685, 0.22);
 }
 
 ::-webkit-scrollbar-thumb:hover {

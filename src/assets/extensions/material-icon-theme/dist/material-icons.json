@@ -2908,6 +2908,7 @@
     "htm": "html",
     "xhtml": "html",
     "html_vm": "html",
+    "html": "html",
     "asp": "html",
     "jade": "pug",
     "pug": "pug",

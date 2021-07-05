@@ -34,9 +34,8 @@ export default {
       required: true,
     },
 
-    files: {
+    listFiles: {
       type: Array,
-      required: false,
       default: () => [],
     },
   },

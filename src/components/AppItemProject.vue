@@ -2,7 +2,10 @@
   <v-list-item
     class="list-project__item"
     v-ripple
-    @click="$store.commit(`files/setProject`, project.file)"
+    @click="
+      $store.commit(`editor/setProject`, project.file);
+      $emit(`click`);
+    "
   >
     <v-list-item-avatar size="40px">
       <svg
@@ -92,7 +95,7 @@
 
 <script>
 import AppRename from "@/components/AppRename";
-import { exportZip } from "@/utils"
+import exportZip from "@/modules/export-zip";
 
 export default {
   components: {
@@ -116,7 +119,8 @@ export default {
   },
   methods: {
     async exportZip() {
-      await exportZip(`projects/${this.project.file}`)
+      await exportZip(`projects/${this.project.file}`);
+        this.$store.commit("terminal/clear")
     },
   },
 };

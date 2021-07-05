@@ -41,7 +41,13 @@
             :key="item"
             class="item text-center pa-3 col-6 pt-0"
           >
-            <v-card color="transparent" flat max-width="300px" class="mx-auto" to="/project/shin">
+            <v-card
+              color="transparent"
+              flat
+              max-width="300px"
+              class="mx-auto"
+              to="/project/shin"
+            >
               <v-img src="https://spck.io/templates/lab-learn-snake/tb.nl.png">
                 <v-btn
                   icon
@@ -76,9 +82,7 @@
           </li>
         </ul>
       </v-tab-item>
-      <v-tab-item>
-        No Labs
-      </v-tab-item>
+      <v-tab-item> No Labs </v-tab-item>
       <v-tab-item v-html="changelog"> </v-tab-item>
     </v-tabs-items>
   </div>
@@ -87,14 +91,15 @@
 <script>
 import AppHammer from "@/components/AppHammer";
 import marked from "marked";
+import { defineComponent, ref } from "@vue/composition-api";
 
-export default {
+export default defineComponent({
   components: {
     AppHammer,
   },
-  data() {
+  setup() {
     return {
-      tab: null,
+      tab: ref(null),
     };
   },
   asyncComputed: {
@@ -102,7 +107,7 @@ export default {
       return marked(await fetch("/changelog.md").then((res) => res.text()));
     },
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>

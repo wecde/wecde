@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">shin-code-editor</string>
-    <string name="title_activity_main">shin-code-editor</string>
+    <string name="app_name">Shin Code Editor</string>
+    <string name="title_activity_main">Shin Code Editor</string>
     <string name="package_name">git.shin.codeeditor</string>
     <string name="custom_url_scheme">git.shin.codeeditor</string>
 </resources>

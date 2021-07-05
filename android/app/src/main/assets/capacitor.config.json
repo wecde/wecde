@@ -1,6 +1,6 @@
 {
 	"appId": "git.shin.codeeditor",
-	"appName": "shin-code-editor",
+	"appName": "Shin Code Editor",
 	"webDir": "dist",
 	"bundledWebRuntime": false
 }

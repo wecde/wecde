@@ -1,21 +1,8 @@
 import JSZip from "jszip";
-import { readFilesFolder, writeFile, readFile } from "./filesystem";
+import { readFilesFolder, writeFile, readFile, mkdir } from "./filesystem";
 import { join } from "path";
-
-function isASCII(str) {
-  // eslint-disable-next-line no-control-regex
-  return /^[\x00-\x7F]*$/.test(str);
-}
-
-function checkUTF8(text) {
-  try {
-    decodeURIComponent(escape(text));
-
-    return true;
-  } catch {
-    return false;
-  }
-}
+import store from "@/store";
+import { base64ToArrayBuffer } from "../utils";
 
 export async function zip({
   folder,
@@ -24,7 +11,9 @@ export async function zip({
   toDirectory,
   exclude = [],
 }) {
+  store.commit("terminal/print", `Ziping folder "${folder}"`);
   const zip = new JSZip();
+
   (await readFilesFolder(folder, directory)).forEach(
     ({
       key: path,
@@ -32,7 +21,6 @@ export async function zip({
         file: {
           stat: { type },
           data,
-          isBase64,
         },
       },
     }) => {
@@ -48,11 +36,12 @@ export async function zip({
         return [];
       }
 
+      store.commit("terminal/print", `Adding ${type} "${path}"...`);
       if (type === "directory") {
         zip.folder(path);
       } else {
-        zip.file(path, data?.data ?? null, {
-          base64: isBase64,
+        zip.file(path, data ?? null, {
+          base64: true,
         });
       }
     }
@@ -63,65 +52,55 @@ export async function zip({
   });
 
   if (to) {
-    await writeFile(
-      to,
-      btoa(String.fromCharCode(...new Uint8Array(fileResult))),
-      null,
-      toDirectory
-    );
+    store.commit("terminal/print", `Successfuly zip saved in "${to}"`);
+
+    await writeFile(to, fileResult, toDirectory);
   }
+
+  store.commit("terminal/print", `Successfuly created zip.`);
 
   return fileResult;
 }
 
-function _arrayBufferToBase64(buffer) {
-  var binary = "";
-  var bytes = new Uint8Array(buffer);
-  var len = bytes.byteLength;
-  for (var i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return window.btoa(binary);
-}
-
 export async function unzip({ file, to, directory, toDirectory }) {
+  store.commit(
+    "terminal/print",
+    `Geting file zip from "${
+      typeof file === "string" ? file : "tmp/buffer"
+    }"...`
+  );
+
   const zip = await JSZip.loadAsync(
     typeof file === "string"
       ? file.match(/^(?:https?:\/\/|\/)/)
         ? await fetch(file)
             .then((res) => res.blob())
             .then((blob) => blob.arrayBuffer())
-        : Uint8Array.from(
-            atob(await (await readFile(file, directory)).data),
-            (c) => c.charCodeAt(0)
-          )
+        : base64ToArrayBuffer(await readFile(file, directory))
       : file
   );
-
+  store.commit("terminal/print", `Extract file "${file}"...`);
   const allProcess = [];
 
   for (const path in zip.files) {
+    store.commit(
+      "terminal/print",
+      `Extracing ${zip.files[path].dir ? "directory" : "file"} "${path}"`
+    );
+
     if (zip.files[path].dir === false) {
-      const text = await zip.file(path).async("text");
-
-      if (isASCII(text) || checkUTF8(text)) {
-        /// is plain/text
-
-        allProcess.push(
-          writeFile(join(to, path), text, undefined, toDirectory)
-        );
-      } else {
-        allProcess.push(
-          writeFile(
-            join(to, path),
-            _arrayBufferToBase64(await zip.file(path).async("arraybuffer")),
-            "base64",
-            toDirectory
-          )
-        );
-      }
+      allProcess.push(
+        writeFile(
+          join(to, path),
+          await zip.file(path).async("arraybuffer"),
+          toDirectory
+        )
+      );
+    } else {
+      allProcess.push(mkdir(join(to, path), toDirectory));
     }
   }
 
   await Promise.all(allProcess);
+  store.commit("terminal/print", `Extracted zip to "${to}"`);
 }

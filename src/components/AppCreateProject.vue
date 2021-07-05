@@ -146,6 +146,8 @@ export default {
           file: require(`@/assets/templates/${this.templateSelected.project}/template.zip`),
           to: `projects/${this.templateSelected.name}`,
         });
+
+        this.$store.commit("terminal/clear")
       } else {
         await mkdir(`projects/${this.templateSelected.name}`);
       }

@@ -91,7 +91,7 @@
         <app-create-project
           v-model="creatingProject"
           @created="reloadListProjects"
-          :projects="projects "
+          :projects="projects"
         />
       </div>
     </div>
@@ -126,6 +126,7 @@
             :project="item"
             @rename="rename"
             @remove="projectRemoving = item"
+            @click="$emit(`toFiles`)"
           />
         </v-list>
       </div>
@@ -176,13 +177,8 @@
 import { readdirStat, rename, rmdir } from "@/modules/filesystem";
 import AppItemProject from "@/components/AppItemProject";
 import AppCreateProject from "@/components/AppCreateProject";
-import selecFile, { fileToBuffer } from "@/modules/select-file";
-import { basename, extname } from "path";
-import { unzip } from "@/modules/zip";
-
-function random(value) {
-  return Math.round(Math.random() * value);
-}
+import importZip from "@/modules/import-zip";
+import { random } from "@/utils";
 
 export default {
   components: {
@@ -202,7 +198,7 @@ export default {
       code: null,
       codeInput: null,
 
-      keywordSearch: ""
+      keywordSearch: "",
     };
   },
   watch: {
@@ -222,6 +218,7 @@ export default {
   },
   methods: {
     async reloadListProjects() {
+      this.$show();
       this.projects = (await readdirStat("projects"))
         .filter((project) => {
           return (
@@ -232,31 +229,28 @@ export default {
         .sort((a, b) => {
           return b.stat.mtime - a.stat.mtime;
         });
+      this.$hide();
     },
     async rename([newValue, oldValue]) {
+      this.$show();
       console.log(`Rename project "${newValue}" to "${oldValue}"`);
       await rename(`projects/${newValue}`, `projects/${oldValue}`);
       await this.reloadListProjects();
+      this.$hide();
     },
     async importProjectFromZip() {
-      const files = await selecFile(".zip");
-
-      if (files.length) {
-        await unzip({
-          file: await fileToBuffer(files[0]),
-          to: `projects/${basename(files[0].name, extname(files[0].name))}`,
-        });
-      }
-
+      await importZip(`projects/`);
       await this.reloadListProjects();
     },
     async remove() {
+      this.$show();
       if (this.code === this.codeInput) {
         await rmdir(`projects/${this.projectRemoving.file}`);
 
         await this.reloadListProjects();
         this.projectRemoving = null;
       }
+      this.$hide();
     },
   },
 };

@@ -39,6 +39,7 @@ export default function getIcon({ light, isOpen, isFolder, name, language }) {
     id =
       MaterialIcons.fileNames[name] ??
       MaterialIcons.fileExtensions[ext] ??
+      MaterialIcons.languageIds[language] ??
       (ext in MaterialIcons.iconDefinitions ? ext : null) ??
       "file";
   }

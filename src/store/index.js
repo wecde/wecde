@@ -4,8 +4,10 @@ import createPersistedState from "vuex-persistedstate";
 
 import system from "./modules/system";
 import settings from "./modules/settings";
-import files from "./modules/files";
 import editor from "./modules/editor";
+import storeScroll from "./modules/store-scroll";
+import terminal from "./modules/terminal";
+import progress from "./modules/progress";
 
 Vue.use(Vuex);
 
@@ -13,12 +15,14 @@ export default new Vuex.Store({
   modules: {
     system,
     settings,
-    files,
     editor,
+    storeScroll,
+    terminal,
+    progress,
   },
   plugins: [
     createPersistedState({
-      paths: ["files", "settings", "system", "editor"],
+      paths: ["settings", "system", "editor", "storeScroll"],
     }),
   ],
 });
