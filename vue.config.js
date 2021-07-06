@@ -22,8 +22,8 @@ module.exports = {
                   return "[path][name].[ext]";
                 }
 
-                return "archives/[name].[ext]";
-                // return "[contenthash].[ext]";
+                // return "archives/[name].[ext]";
+                return "[contenthash].[ext]";
               },
             },
           },
