@@ -32,7 +32,7 @@
           </v-icon>
         </div>
       </div>
-      <v-icon v-if="!previewMd">mdi-magnify</v-icon>
+      <v-icon v-if="!previewMd && isPlainText(file)">mdi-magnify</v-icon>
       <v-icon
         v-if="type === `markdown`"
         @click="previewMd = !previewMd"
@@ -55,16 +55,24 @@
             : "mdi-play"
         }}</v-icon
       >
-      <v-icon
-        class="ml-2"
-        color="decoration"
-        :style="{
-          opacity: serverStatus && !serverLoading ? 1 : 0.5,
-        }"
-        :disabled="!serverStatus || serverLoading"
-        @click="openWebView"
-        >mdi-web</v-icon
+      <app-web-view
+        ref="WebView"
+        :port="port"
+        :value="serverStatus && !serverLoading"
       >
+        <template v-slot:fab="{ on }">
+          <v-icon
+            class="ml-2"
+            color="decoration"
+            :style="{
+              opacity: serverStatus && !serverLoading ? 1 : 0.5,
+            }"
+            :disabled="!serverStatus || serverLoading"
+            v-on="on"
+            >mdi-web</v-icon
+          >
+        </template>
+      </app-web-view>
     </app-hammer>
 
     <div class="editor--wrapper dark" v-show="!previewMd">
@@ -115,7 +123,6 @@ import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon.js";
 import { basename } from "path";
 import marked from "marked";
 import { WebServer } from "@/modules/webserver";
-import { Browser } from "@capacitor/browser";
 import AppWebView from "@/components/AppWebView";
 import { Toast } from "@capacitor/toast";
 
@@ -131,6 +138,7 @@ export default defineComponent({
     const type = computed(() => getType(file.value));
 
     const editor = ref(null);
+    const WebView = ref(null);
 
     const serverStatus = ref(false);
     const serverLoading = ref(false);
@@ -140,7 +148,6 @@ export default defineComponent({
 
     let $ace = null;
     let isMounted = false;
-    let browser = null;
 
     onMounted(() => void (isMounted = true));
 
@@ -275,6 +282,7 @@ export default defineComponent({
           port,
         }),
       });
+      await WebView.value.openWebView();
     }
     async function stopServer() {
       await WebServer.stop();
@@ -293,6 +301,7 @@ export default defineComponent({
       try {
         if (newValue) {
           await startServer(+$store.state.settings.preview.port);
+          // await openWebView();
         } else {
           await stopServer();
         }
@@ -308,19 +317,6 @@ export default defineComponent({
       }
       serverLoading.value = false;
     });
-
-    async function openWebView() {
-      browser = await Browser.open({
-        url: `http://localhost:${$store.state.settings.preview.port}`,
-        presentationStyle: "popover",
-      });
-    }
-    async function closeWebView() {
-      if (browser) {
-        await browser.close();
-        browser = null;
-      }
-    }
 
     function scrollSessionWrapperToSessionActive() {
       const wrapper = sessionWrapper.value;
@@ -362,9 +358,8 @@ export default defineComponent({
       beautifyCode,
       port,
       serverLoading,
-      openWebView,
-      closeWebView,
       sessionWrapper,
+      WebView,
     };
   },
   methods: {

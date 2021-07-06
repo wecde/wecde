@@ -7,6 +7,9 @@ export default {
     sessions: [],
     session: null,
     historySession: [],
+
+    floatingBrowserX: null,
+    floatingBrowserY: null,
   },
   mutations: {
     setProject(state, value) {
@@ -45,6 +48,13 @@ export default {
 
         state.session = state.sessions[indexSession] ?? null;
       }
+    },
+
+    setFloatingBrowserX(state, value) {
+      state.floatingBrowserX = value;
+    },
+    setFloatingBrowserY(state, value) {
+      state.floatingBrowserY = value;
     },
   },
 };

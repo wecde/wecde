@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import ace from "ace-builds";
 import { themesByName } from "ace-builds/src-noconflict/ext-themelist";
+import i18n from "@/plugins/i18n";
 
 export const stateDescription = [
   {
@@ -16,8 +17,12 @@ export const stateDescription = [
             label: "English",
             value: "en",
           },
+          {
+            label: "Vietnamese",
+            value: "vi",
+          },
         ],
-        default: "en",
+        default: i18n.locale,
         type: "list",
       },
       {
@@ -29,6 +34,7 @@ export const stateDescription = [
             value: theme.theme,
           };
         }),
+        default: "ace/theme/github",
         type: "list",
       },
       {
@@ -282,12 +288,6 @@ export const stateDescription = [
         default: true,
       },
       {
-        label: "Reactive",
-        prop: "reactive",
-        type: "switch",
-        default: true,
-      },
-      {
         label: "Port",
         prop: "port",
         type: "tel",
@@ -365,5 +365,17 @@ export default {
       email: "",
     },
     ...state,
+  },
+
+  mutations: {
+    setState(state, { prop, value }) {
+      const props = prop.split(".");
+
+      props.slice(0, props.length - 1).forEach((prop) => {
+        state = state[prop];
+      });
+
+      state[props[props.length - 1]] = value;
+    },
   },
 };
