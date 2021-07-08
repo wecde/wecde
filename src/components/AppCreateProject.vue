@@ -149,24 +149,33 @@ export default {
   },
   methods: {
     async create() {
+      let created = false;
       if (this.templateSelected.template) {
-        await unzip({
-          file: require(`@/assets/templates/${this.templateSelected.project}/template.zip`),
-          to: `projects/${this.templateSelected.name}`,
-        });
+        try {
+          await unzip({
+            file: require(`@/assets/templates/${this.templateSelected.project}/template.zip`),
+            to: `projects/${this.templateSelected.name}`,
+          });
 
-        this.$store.commit("terminal/clear");
+          this.$store.commit("terminal/clear");
+          created = true;
+        } catch (err) {
+          this.$store.commit("terminal/error", err);
+        }
       } else {
         await mkdir(`projects/${this.templateSelected.name}`);
+        created = true;
       }
 
-      Toast.show({
-        text: this.$t(`Created project {name}`, {
-          name: this.templateSelected.name,
-        }),
-      });
-      console.log("created project");
-      this.$emit("created");
+      if (created) {
+        Toast.show({
+          text: this.$t(`Created project {name}`, {
+            name: this.templateSelected.name,
+          }),
+        });
+        console.log("created project");
+        this.$emit("created");
+      }
       this.stateLocal = false;
     },
   },

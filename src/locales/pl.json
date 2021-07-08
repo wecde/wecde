@@ -95,7 +95,7 @@
   "Port": "Port",
   "Preview": "Zapowiedź",
   "Print margin": "Margines wydruku",
-  "Project {name} already exists": "",
+  "Project {name} already exists": "Projekt {name} już istnieje",
   "Show invisible": "Pokaż niewidoczne",
   "Slim": "Szczupły",
   "Solid": "Solidny",
@@ -109,5 +109,11 @@
   "Transparency": "Przezroczystość",
   "Transparent": "Przezroczysty",
   "Trigger autocomplete": "Uruchom autouzupełnianie",
-  "UUID": "UUID"
+  "UUID": "UUID",
+  "Hide": "Ukryć",
+  "It can NOT be recovered!": "NIE można go odzyskać!",
+  "Use soft tabs": "Użyj miękkich zakładek",
+  "WebView Version": "Wersja WebView",
+  "Word wrap": "Zawijanie tekstu",
+  "project": "projekt"
 }

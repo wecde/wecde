@@ -95,7 +95,7 @@
   "Port": "ポート",
   "Preview": "プレビュー",
   "Print margin": "印刷余白",
-  "Project {name} already exists": "",
+  "Project {name} already exists": "プロジェクト{名前}はすでに存在します",
   "Show invisible": "見えないように表示",
   "Slim": "スリム",
   "Solid": "固体",
@@ -113,5 +113,15 @@
   "Use soft tabs": "ソフトタブを使用する",
   "WebView Version": "WebViewバージョン",
   "Word wrap": "ワードラップ",
-  "project": "事業"
+  "project": "事業",
+  "Hide": "隠す",
+  "It can NOT be recovered!": "回復できません！",
+  "Clone GIT": "クローンGIT",
+  "Depth": "深さ",
+  "Exclude": "除外する",
+  "No checkout": "チェックアウトなし",
+  "No tags": "タグなし",
+  "Since date": "日付以降",
+  "Single branch": "単一のブランチ",
+  "Toggle Developer Tools": "開発ツールの切り替え"
 }

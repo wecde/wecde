@@ -114,5 +114,18 @@
   "Extra keyboard": "Extra keyboard",
   "Touch keyboard": "Touch keyboard",
   "It can NOT be recovered!": "It can NOT be recovered!",
-  "Project {name} already exists": "Project {name} already exists"
+  "Project {name} already exists": "Project {name} already exists",
+  "Hide": "Hide",
+  "Toggle Developer Tools": "Toggle Developer Tools",
+  "Clone GIT": "Clone GIT",
+  "Single branch": "Single branch",
+  "No checkout": "No checkout",
+  "No tags": "No tags",
+  "Depth": "Depth",
+  "Since date": "Since date",
+  "Exclude": "Exclude",
+  "Provider": "Provider",
+  "Username": "Username",
+  "Password": "Password",
+  "Email": "Email"
 }

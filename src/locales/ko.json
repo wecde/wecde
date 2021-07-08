@@ -95,7 +95,7 @@
   "Port": "포트",
   "Preview": "시사",
   "Print margin": "여백 인쇄",
-  "Project {name} already exists": "",
+  "Project {name} already exists": "{name} 프로젝트가 이미 존재합니다.",
   "Show invisible": "보이지 않게 표시",
   "Slim": "날씬한",
   "Solid": "고체",
@@ -109,5 +109,11 @@
   "Transparency": "투명도",
   "Transparent": "투명한",
   "Trigger autocomplete": "자동 완성 트리거",
-  "UUID": "UUID"
+  "UUID": "UUID",
+  "Hide": "숨는 장소",
+  "It can NOT be recovered!": "복구 할 수 없습니다!",
+  "Use soft tabs": "소프트 탭 사용",
+  "WebView Version": "WebView 버전",
+  "Word wrap": "줄 바꿈",
+  "project": "계획"
 }

@@ -121,15 +121,19 @@ export default {
   },
   methods: {
     async exportZip() {
-      await exportZip(`projects/${this.project.file}`);
-      this.$store.commit("terminal/clear");
+      try {
+        await exportZip(`projects/${this.project.file}`);
+        this.$store.commit("terminal/clear");
 
-      Toast.show({
-        text: this.$t("Exported {type} {name}", {
-          type: this.$t("project"),
-          name: this.project.file,
-        }),
-      });
+        Toast.show({
+          text: this.$t("Exported {type} {name}", {
+            type: this.$t("project"),
+            name: this.project.file,
+          }),
+        });
+      } catch (err) {
+        this.$store.commit("terminal/error", err);
+      }
     },
   },
 };

@@ -2,6 +2,7 @@ import { extname as _extname, basename, relative } from "path";
 import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons";
 
 const fileExtensionsPlainText = {
+  ts: "typescript",
   htm: "html",
   xhtml: "html",
   html_vm: "html",
@@ -51,6 +52,7 @@ const fileExtensionsPlainText = {
   js: "javascript",
   jsx: "react",
   tsx: "react_ts",
+  "d.tsx": "react_ts",
   "routing.ts": "routing",
   "routing.tsx": "routing",
   "routing.js": "routing",

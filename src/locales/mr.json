@@ -95,7 +95,7 @@
   "Port": "बंदर",
   "Preview": "पूर्वावलोकन",
   "Print margin": "प्रिंट मार्जिन",
-  "Project {name} already exists": "",
+  "Project {name} already exists": "प्रकल्प {नाव} आधीपासून विद्यमान आहे",
   "Show invisible": "अदृश्य दर्शवा",
   "Slim": "स्लिम",
   "Solid": "घन",
@@ -110,9 +110,10 @@
   "Transparent": "पारदर्शक",
   "Trigger autocomplete": "ट्रिगर स्वयंपूर्ण",
   "UUID": "यूआयडी",
-
   "Use soft tabs": "मऊ टॅब वापरा",
   "WebView Version": "वेब व्ह्यू व्हर्जन",
   "Word wrap": "शब्द लपेटणे",
-  "project": "प्रकल्प"
+  "project": "प्रकल्प",
+  "Hide": "लपवा",
+  "It can NOT be recovered!": "ते परत मिळवता येणार नाही!"
 }

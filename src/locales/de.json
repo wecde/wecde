@@ -95,7 +95,7 @@
   "Port": "Hafen",
   "Preview": "Vorschau",
   "Print margin": "Druckrand",
-  "Project {name} already exists": "",
+  "Project {name} already exists": "Projekt {name} existiert bereits",
   "Show invisible": "Unsichtbar anzeigen",
   "Slim": "Schlank",
   "Solid": "Solide",
@@ -113,5 +113,15 @@
   "Use soft tabs": "Verwenden Sie Soft-Tabs",
   "WebView Version": "WebView-Version",
   "Word wrap": "Zeilenumbruch",
-  "project": "Projekt"
+  "project": "Projekt",
+  "Hide": "Ausblenden",
+  "It can NOT be recovered!": "Es kann NICHT wiederhergestellt werden!",
+  "Clone GIT": "GIT klonen",
+  "Depth": "Tiefe",
+  "Exclude": "Ausschließen",
+  "No checkout": "Keine Kasse",
+  "No tags": "Keine Tags",
+  "Since date": "Seit Datum",
+  "Single branch": "Einzelfiliale",
+  "Toggle Developer Tools": "Toggle Entwicklertools"
 }

@@ -95,7 +95,7 @@
   "Port": "Port",
   "Preview": "Aperçu",
   "Print margin": "Marge d'impression",
-  "Project {name} already exists": "",
+  "Project {name} already exists": "Le projet {nom} existe déjà",
   "Show invisible": "Afficher invisible",
   "Slim": "Maigrir",
   "Solid": "Solide",
@@ -113,5 +113,7 @@
   "Use soft tabs": "Utiliser des onglets souples",
   "WebView Version": "Version WebView",
   "Word wrap": "Enveloppement de mots",
-  "project": "projet"
+  "project": "projet",
+  "Hide": "Cacher",
+  "It can NOT be recovered!": "Il ne peut PAS être récupéré !"
 }

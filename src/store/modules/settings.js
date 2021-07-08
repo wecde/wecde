@@ -2,26 +2,71 @@
 import ace from "ace-builds";
 import { themesByName } from "ace-builds/src-noconflict/ext-themelist";
 import i18n from "@/plugins/i18n";
+import ISO from "iso-639-1";
+import { basename } from "path";
 
 export const stateDescription = [
   {
+    label: "Clone GIT",
+    prop: "cloneGit",
+    props: [
+      {
+        label: "Single branch",
+        prop: "singleBranch",
+        type: "switch",
+        default: true,
+      },
+      {
+        label: "No checkout",
+        prop: "noCheckout",
+        type: "switch",
+        default: false,
+      },
+      {
+        label: "No tags",
+        prop: "noTags",
+        type: "switch",
+        default: false,
+      },
+      {
+        label: "Depth",
+        prop: "depth",
+        type: "tel",
+        default: null,
+      },
+      {
+        label: "Since date",
+        prop: "since",
+        type: "date",
+        default: null,
+      },
+      {
+        label: "Exclude",
+        prop: "exclude",
+        type: "text",
+        default: null,
+      },
+    ],
+  },
+  {
     label: "Appearance",
     prop: "appearance",
-    icon: "mdi-format-paint",
+
     props: [
       {
         label: "Language",
         prop: "language",
-        select: [
-          {
-            label: "English",
-            value: "en",
-          },
-          {
-            label: "Vietnamese",
-            value: "vi",
-          },
-        ],
+        select: require
+          .context("@/locales", true, /[a-zA-Z_-]+\.json$/)
+          .keys()
+          .map((file) => {
+            const code = basename(file, ".json");
+
+            return {
+              label: ISO.getNativeName(code),
+              value: code,
+            };
+          }),
         default: i18n.locale,
         type: "list",
       },
@@ -68,7 +113,7 @@ export const stateDescription = [
   {
     label: "BOT",
     prop: "bot",
-    icon: "mdi-android-auto",
+
     props: [
       {
         label: "Enabled",
@@ -117,7 +162,7 @@ export const stateDescription = [
   {
     label: "Editor",
     prop: "editor",
-    icon: "mdi-code-braces",
+
     props: [
       {
         label: "Autocomplete / Check Syntax",
@@ -279,7 +324,7 @@ export const stateDescription = [
   {
     label: "Preview",
     prop: "preview",
-    icon: "mdi-image-outline",
+
     props: [
       {
         label: "Live",
@@ -298,7 +343,7 @@ export const stateDescription = [
   {
     label: "Touch",
     prop: "touch",
-    icon: "mdi-cellphone",
+
     props: [
       {
         label: "Tablet",
@@ -354,22 +399,51 @@ stateDescription.forEach((stateGroup) => {
   });
 });
 
+export const providersGIT = {
+  "github.com": "GitHub",
+  "bitbucket.org": "BitBucket",
+  "gitlab.com": "GitLab",
+  "dev.azure.com": "Dev Azure Ops",
+  "*": "Other",
+};
+
 export default {
   namespaced: true,
 
   state: {
     git: {
-      provide: "github",
-      username: "",
-      secure: "",
-      email: "",
+      "github.com": {
+        username: "",
+        secure: "",
+        email: "",
+      },
+      "bitbucket.org": {
+        username: "",
+        secure: "",
+        email: "",
+      },
+      "gitlab.com": {
+        username: "",
+        secure: "",
+        email: "",
+      },
+      "dev.azure.com": {
+        username: "",
+        secure: "",
+        email: "",
+      },
+      "*": {
+        username: "",
+        secure: "",
+        email: "",
+      },
     },
     ...state,
   },
 
   mutations: {
     setState(state, { prop, value }) {
-      const props = prop.split(".");
+      const props = prop.split("/");
 
       props.slice(0, props.length - 1).forEach((prop) => {
         state = state[prop];

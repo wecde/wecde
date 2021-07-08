@@ -1,24 +1,42 @@
 <template>
   <v-dialog
-    persistent
+    :persistent="$store.state.terminal.done === false"
     max-width="600"
     :value="lines.length > 0"
     content-class="dialog--terminal"
   >
     <template>
-      <div class="terminal">
+      <div class="terminal" ref="terminal">
         <div class="header">Console</div>
-        <div v-for="(line, index) in lines" :key="index">{{ line }}</div>
+        <div
+          v-for="(line, index) in lines"
+          :class="[line.color ? `${line.color}--text` : undefined]"
+          :key="index"
+        >
+          {{ line.message }}
+        </div>
       </div>
     </template>
   </v-dialog>
 </template>
 
 <script>
+let timeout;
 export default {
   computed: {
     lines() {
       return this.$store.state.terminal.lines;
+    },
+  },
+  watch: {
+    lines() {
+      clearTimeout(timeout);
+
+      if (this.$refs.terminal) {
+        timeout = setTimeout(() => {
+          this.$refs.terminal.scrollTo(0, this.$refs.terminal.scrollHeight);
+        }, 70);
+      }
     },
   },
 };
@@ -40,7 +58,7 @@ export default {
   color: #f0f0f0;
   background: #000000;
   line-height: normal;
-  overflow: hidden;
+  overflow: hidden scroll;
   white-space: pre-line;
   word-break: break-all;
   font-size: 14px;

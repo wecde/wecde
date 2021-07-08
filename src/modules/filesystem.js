@@ -5,16 +5,12 @@ import { basename } from "path";
 import { sort as fastsort } from "fast-sort";
 
 export async function readdir(path, directory = Directory.Documents) {
-  try {
-    return await Filesystem.readdir({
+  return (
+    await Filesystem.readdir({
       path: `Shin Code Editor/${path}`,
       directory,
-    });
-  } catch {
-    return {
-      files: [],
-    };
-  }
+    })
+  ).files;
 }
 
 export async function mkdir(path, directory = Directory.Documents) {
@@ -45,6 +41,8 @@ export async function rmdir(path, directory = Directory.Documents) {
 export async function writeFile(path, data, directory = Directory.Documents) {
   if (data instanceof ArrayBuffer) {
     data = arrayBufferToBase64(data);
+  } else if (data instanceof Uint8Array) {
+    data = Buffer.from(data).toString("base64");
   } else if (data instanceof Blob) {
     data = arrayBufferToBase64(data.arrayBuffer());
   } else {
@@ -129,23 +127,19 @@ export async function copy(
     toDirectory,
   });
 }
-0;
+
 export async function stat(path, directory = Directory.Documents) {
-  try {
-    return await Filesystem.stat({
-      path: `Shin Code Editor/${path}`,
-      directory,
-    });
-  } catch {
-    return null;
-  }
+  return await Filesystem.stat({
+    path: `Shin Code Editor/${path}`,
+    directory,
+  });
 }
 
 export async function readdirStat(path, directory = Directory.Documents) {
   return await Promise.all(
     (
       await readdir(path, directory)
-    ).files.map(async (file) => {
+    ).map(async (file) => {
       return {
         file,
         directory,
@@ -161,29 +155,32 @@ export async function readTreeFolder(path, directory = Directory.Documents) {
   await Promise.all(
     (
       await readdirStat(path)
-    ).map(async ({ file, stat }, index) => {
-      if (stat.type === "file") {
-        tree.push({
-          name: file,
-          file: `${path}/${file}`,
-          isFolder: false,
-          stat,
-        });
-      } else {
-        const { children, isFolder } = await readTreeFolder(
-          `${path}/${file}`,
-          directory,
-          index
-        );
-        tree.push({
-          name: file,
-          file: `${path}/${file}`,
-          children,
-          isFolder,
-          stat,
-        });
-      }
-    })
+    )
+      .filter(({ file, stat: { type } }) => {
+        return type !== "directory" || file !== ".git";
+      })
+      .map(async ({ file, stat }) => {
+        if (stat.type === "file") {
+          tree.push({
+            name: file,
+            file: `${path}/${file}`,
+            isFolder: false,
+            stat,
+          });
+        } else {
+          const { children, isFolder } = await readTreeFolder(
+            `${path}/${file}`,
+            directory
+          );
+          tree.push({
+            name: file,
+            file: `${path}/${file}`,
+            children,
+            isFolder,
+            stat,
+          });
+        }
+      })
   );
 
   const files = [];
@@ -214,7 +211,7 @@ export async function readFilesFolder(path, directory = Directory.Documents) {
   const thisChildren = await Promise.all(
     (
       await readdir(path)
-    ).files.map(async (item) => {
+    ).map(async (item) => {
       const thisStat = await stat(`${path}/${item}`, directory);
       let data = null;
 

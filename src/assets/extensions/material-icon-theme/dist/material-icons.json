@@ -2905,6 +2905,7 @@
     "contract-tests": "folder-contract-open"
   },
   "fileExtensions": {
+    "ts": "typescript",
     "htm": "html",
     "xhtml": "html",
     "html_vm": "html",
@@ -3004,6 +3005,7 @@
     "js": "javascript",
     "jsx": "react",
     "tsx": "react_ts",
+    "d.tsx": "react_ts",
     "routing.ts": "routing",
     "routing.tsx": "routing",
     "routing.js": "routing",

@@ -281,22 +281,31 @@ export default {
 
     async exportZip() {
       if (this.isFolder) {
-        await exportZip(this.file);
-        this.$store.commit("terminal/clear");
+        try {
+          await exportZip(this.file);
+          this.$store.commit("terminal/clear");
+          Toast.show({
+            text: this.$t("Exported {type} {name}", {
+              type: this.isFolder ? "folder" : "file",
+              name: removedPathProject(this.file),
+            }),
+          });
+        } catch (err) {
+          this.$store.commit("terminal/error", err);
+        }
       } else {
         this.$show();
         const data = await readFile(this.file);
 
         saveFile(b64toBlob(data), this.name);
         this.$hide();
+        Toast.show({
+          text: this.$t("Exported {type} {name}", {
+            type: this.isFolder ? "folder" : "file",
+            name: removedPathProject(this.file),
+          }),
+        });
       }
-
-      Toast.show({
-        text: this.$t("Exported {type} {name}", {
-          type: this.isFolder ? "folder" : "file",
-          name: removedPathProject(this.file),
-        }),
-      });
     },
   },
 };

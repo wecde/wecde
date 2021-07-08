@@ -1,6 +1,25 @@
 import eruda from "eruda2";
 
-eruda.init();
+self.setConsoleState = (state) => {
+  if (state) {
+    if (!self.__ERUDA__) {
+      eruda.init({
+        useShadowDom: true,
+        autoScale: true,
+
+        defaults: {
+          displaySize: 40,
+          transparency: 0.9,
+          theme: "Monokai Pro",
+        },
+      });
+      self.__ERUDA__ = true;
+    }
+  } else {
+    eruda?.destroy();
+    self.__ERUDA__ = false;
+  }
+};
 
 import Vue from "vue";
 import App from "./App.vue";
@@ -29,6 +48,8 @@ Vue.prototype.$hide = function () {
   this.$store.commit("progress/hide");
 };
 
+Vue.util.defineReactive(self, "__ERUDA__", false);
+
 new Vue({
   router,
   store,
@@ -36,3 +57,5 @@ new Vue({
   i18n,
   render: (h) => h(App),
 }).$mount("#app");
+
+import "./modules/git";

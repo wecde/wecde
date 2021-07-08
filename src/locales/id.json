@@ -95,7 +95,7 @@
   "Port": "Pelabuhan",
   "Preview": "Pratinjau",
   "Print margin": "Margin cetak",
-  "Project {name} already exists": "",
+  "Project {name} already exists": "Proyek {name} sudah ada",
   "Show invisible": "Tampilkan tak terlihat",
   "Slim": "Ramping",
   "Solid": "Padat",
@@ -109,5 +109,11 @@
   "Transparency": "Transparansi",
   "Transparent": "Transparan",
   "Trigger autocomplete": "Pemicu pelengkapan otomatis",
-  "UUID": "UUID"
+  "UUID": "UUID",
+  "Hide": "Menyembunyikan",
+  "It can NOT be recovered!": "Itu TIDAK dapat dipulihkan!",
+  "Use soft tabs": "Gunakan tab lunak",
+  "WebView Version": "Versi Tampilan Web",
+  "Word wrap": "Bungkus kata",
+  "project": "proyek"
 }

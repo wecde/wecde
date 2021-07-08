@@ -24,22 +24,41 @@
           </template>
 
           <v-list color="grey-4" class="list--mouseright">
-            <v-list-item class="min-height-0">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-git</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item class="min-height-0">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-lock-outline</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("Credentials") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+            <modal-git-clone>
+              <v-list-item
+                slot="activator"
+                slot-scope="{ on, attr }"
+                v-on="on"
+                v-bind="attr"
+                class="min-height-0"
+              >
+                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                  <v-icon>mdi-git</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </modal-git-clone>
+
+            <modal-git-provide>
+              <v-list-item
+                slot="activator"
+                slot-scope="{ on, attr }"
+                v-on="on"
+                v-bind="attr"
+                class="min-height-0"
+              >
+                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                  <v-icon>mdi-lock-outline</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ $t("Credentials") }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </modal-git-provide>
           </v-list>
         </v-menu>
 
@@ -183,11 +202,15 @@ import AppCreateProject from "@/components/AppCreateProject";
 import importZip from "@/modules/import-zip";
 import { random } from "@/utils";
 import { Toast } from "@capacitor/toast";
+import ModalGitProvide from "@/components/ModalGitProvide";
+import ModalGitClone from "@/components/ModalGitClone";
 
 export default {
   components: {
     AppItemProject,
     AppCreateProject,
+    ModalGitProvide,
+    ModalGitClone,
   },
   data() {
     return {
@@ -223,16 +246,20 @@ export default {
   methods: {
     async reloadListProjects(notification = false) {
       this.$show();
-      this.projects = (await readdirStat("projects"))
-        .filter((project) => {
-          return (
-            project.file.includes("/") === false &&
-            project.stat.type === "directory"
-          );
-        })
-        .sort((a, b) => {
-          return b.stat.mtime - a.stat.mtime;
-        });
+      try {
+        this.projects = (await readdirStat("projects"))
+          .filter((project) => {
+            return (
+              project.file.includes("/") === false &&
+              project.stat.type === "directory"
+            );
+          })
+          .sort((a, b) => {
+            return b.stat.mtime - a.stat.mtime;
+          });
+      } catch {
+        this.projects = [];
+      }
       this.$hide();
       if (notification) {
         await Toast.show({
@@ -255,14 +282,18 @@ export default {
       });
     },
     async importProjectFromZip() {
-      const names = await importZip(`projects/`);
+      try {
+        const names = await importZip(`projects/`);
+        this.$store.commit("terminal/clear");
+        Toast.show({
+          text: this.$t(`Imported project {list}`, {
+            list: names.map((item) => `"${item}"`).join(", "),
+          }),
+        });
+      } catch (err) {
+        this.$store.commit("terminal/error", err);
+      }
       await this.reloadListProjects();
-      this.$store.commit("terminal/clear");
-      await Toast.show({
-        text: this.$t(`Imported project {list}`, {
-          list: names.map((item) => `"${item}"`).join(", "),
-        }),
-      });
     },
     async remove() {
       this.$show();

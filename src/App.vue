@@ -22,7 +22,11 @@
 import AppNavigationDrawer from "@/components/AppNavigationDrawer";
 import AppTerminal from "@/components/AppTerminal";
 import { requestPermissions } from "@/modules/filesystem";
-import { defineComponent, onMounted } from "@vue/composition-api";
+import {
+  defineComponent,
+  onMounted,
+} from "@vue/composition-api";
+import { loadLanguageAsync } from "@/plugins/i18n";
 
 export default defineComponent({
   components: {
@@ -35,6 +39,15 @@ export default defineComponent({
     });
 
     return {};
+  },
+  watch: {
+    "$store.state.settings.appearance.language": {
+      async handler(newValue) {
+        // console.log(newValue);
+        await loadLanguageAsync(newValue);
+      },
+      immediate: true,
+    },
   },
 });
 </script>

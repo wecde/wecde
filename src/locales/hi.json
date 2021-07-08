@@ -95,7 +95,7 @@
   "Port": "बंदरगाह",
   "Preview": "पूर्वावलोकन",
   "Print margin": "प्रिंट मार्जिन",
-  "Project {name} already exists": "",
+  "Project {name} already exists": "प्रोजेक्ट {नाम} पहले से मौजूद है",
   "Show invisible": "अदृश्य दिखाओ",
   "Slim": "पतला",
   "Solid": "ठोस",
@@ -110,5 +110,10 @@
   "Transparent": "पारदर्शक",
   "Trigger autocomplete": "ट्रिगर स्वतः पूर्ण",
   "UUID": "यूयूआईडी",
-  "project": "परियोजना"
+  "project": "परियोजना",
+  "Hide": "छिपाना",
+  "It can NOT be recovered!": "इसे पुनर्प्राप्त नहीं किया जा सकता है!",
+  "Use soft tabs": "सॉफ्ट टैब्स का इस्तेमाल करें",
+  "WebView Version": "वेबव्यू संस्करण",
+  "Word wrap": "वर्ड रैप"
 }

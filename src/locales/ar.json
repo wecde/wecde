@@ -95,7 +95,7 @@
   "Port": "ميناء",
   "Preview": "معاينة",
   "Print margin": "هامش الطباعة",
-  "Project {name} already exists": "",
+  "Project {name} already exists": "المشروع {name} موجود بالفعل",
   "Show invisible": "إظهار غير مرئي",
   "Slim": "معتدل البنيه",
   "Solid": "صلب",
@@ -113,5 +113,15 @@
   "Use soft tabs": "استخدم علامات تبويب ناعمة",
   "WebView Version": "إصدار WebView",
   "Word wrap": "التفاف النص",
-  "project": "المشروع"
+  "project": "المشروع",
+  "Hide": "يخفي",
+  "It can NOT be recovered!": "لا يمكن استعادته!",
+  "Clone GIT": "استنساخ GIT",
+  "Depth": "عمق",
+  "Exclude": "استبعاد",
+  "No checkout": "لا الخروج",
+  "No tags": "بدون علامات",
+  "Since date": "منذ التاريخ",
+  "Single branch": "فرع واحد",
+  "Toggle Developer Tools": "تبديل أدوات المطور"
 }

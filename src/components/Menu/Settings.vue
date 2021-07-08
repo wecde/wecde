@@ -23,14 +23,24 @@
               <v-icon>{{
                 state ? "mdi-chevron-down" : "mdi-chevron-right"
               }}</v-icon>
-              GIT
+              {{ $t("GIT") }}
             </div>
           </template>
 
           <div class="list-item">
             <div class="left">{{ $t("Credentials") }}</div>
             <div class="right">
-              <span class="primary--text"> {{ $t("Open") }} </span>
+              <modal-git-provide>
+                <span
+                  slot="activator"
+                  slot-scope="{on, attr}"
+                  v-on="on"
+                  v-bind="attr"
+                  class="primary--text"
+                >
+                  {{ $t("Open") }}
+                </span>
+              </modal-git-provide>
             </div>
           </div>
         </app-collapse>
@@ -65,7 +75,7 @@
                   "
                   @change="
                     $store.commit(`settings/setState`, {
-                      prop: `${stateGroup.prop}.${state.prop}`,
+                      prop: `${stateGroup.prop}/${state.prop}`,
                       value: $event,
                     })
                   "
@@ -75,7 +85,7 @@
                   :value="$store.state.settings[stateGroup.prop][state.prop]"
                   @change="
                     $store.commit(`settings/setState`, {
-                      prop: `${stateGroup.prop}.${state.prop}`,
+                      prop: `${stateGroup.prop}/${state.prop}`,
                       value: $event.target.value,
                     })
                   "
@@ -85,16 +95,16 @@
                     :value="item.value"
                     :key="item.value"
                   >
-                    {{ item.label }}
+                    {{ $t(item.label) }}
                   </option>
                 </select>
                 <input
                   v-else
                   :type="state.type"
                   :value="$store.state.settings[stateGroup.prop][state.prop]"
-                  @change="
+                  @input="
                     $store.commit(`settings/setState`, {
-                      prop: `${stateGroup.prop}.${state.prop}`,
+                      prop: `${stateGroup.prop}/${state.prop}`,
                       value: $event.target.value,
                     })
                   "
@@ -104,97 +114,114 @@
           </template>
         </app-collapse>
 
-        <app-collapse eager class="list--group" v-if="device">
-          <template v-slot:activator="{ on, state }">
-            <div class="list-action" v-on="on">
-              <v-icon>{{
-                state ? "mdi-chevron-down" : "mdi-chevron-right"
-              }}</v-icon>
-              {{ $t("About") }}
+        <template v-if="device">
+          <app-collapse eager class="list--group">
+            <template v-slot:activator="{ on, state }">
+              <div class="list-action" v-on="on">
+                <v-icon>{{
+                  state ? "mdi-chevron-down" : "mdi-chevron-right"
+                }}</v-icon>
+                {{ $t("About") }}
+              </div>
+            </template>
+            <div class="list-item">
+              <div class="left">{{ device.name || $t("Device") }}</div>
+              <div class="right">
+                <span class="primary--text"> {{ device.osVersion }} </span>
+              </div>
             </div>
-          </template>
-          <div class="list-item">
-            <div class="left">{{ device.name || $t("Device") }}</div>
-            <div class="right">
-              <span class="primary--text"> {{ device.osVersion }} </span>
+            <div class="list-item">
+              <div class="left">{{ $t("Platform") }}</div>
+              <div class="right">{{ device.platform }}</div>
             </div>
-          </div>
-          <div class="list-item">
-            <div class="left">{{ $t("Platform") }}</div>
-            <div class="right">
-              <span class="primary--text text-capitalize">
-                {{ device.platform }}
-              </span>
-            </div>
-          </div>
-          <div class="list-item">
-            <div class="left">{{ $t("OS") }}</div>
-            <div class="right">
-              <span class="primary--text text-capitalize">
+            <div class="list-item">
+              <div class="left">{{ $t("OS") }}</div>
+              <div class="right">
                 {{ device.isVirtual ? "virtual ~ " : "" }}
-                {{ device.operatingSystem }}({{ device.osVersion }})
-              </span>
+                {{ device.operatingSystem }} ({{ device.osVersion }})
+              </div>
             </div>
-          </div>
-          <div class="list-item">
-            <div class="left">{{ $t("Manufacturer") }}</div>
-            <div class="right">
-              <span class="primary--text text-capitalize">
-                {{ device.manufacturer }}
-              </span>
+            <div class="list-item">
+              <div class="left">{{ $t("Manufacturer") }}</div>
+              <div class="right">{{ device.manufacturer }}</div>
             </div>
-          </div>
-          <div class="list-item">
-            <div class="left">{{ $t("WebView Version") }}</div>
-            <div class="right">
-              <span class="primary--text text-capitalize">
-                {{ device.webViewVersion }}
-              </span>
+            <div class="list-item">
+              <div class="left">{{ $t("WebView Version") }}</div>
+              <div class="right">{{ device.webViewVersion }}</div>
             </div>
-          </div>
-          <div class="list-item">
-            <div>{{ $t("Disk Free") }}</div>
-            <div>
-              {{ size(device.diskFree || 0) }}({{
-                (device.diskFree / device.diskTotal).toFixed(2)
-              }}%)
+            <div class="list-item">
+              <div>{{ $t("Disk Free") }}</div>
+              <div>
+                {{ size(device.diskFree || 0) }}({{
+                  (device.diskFree / device.diskTotal).toFixed(2)
+                }}%)
+              </div>
             </div>
-          </div>
-          <div class="list-item">
-            <div>{{ $t("Disk Used") }}</div>
-            <div>
-              {{ size(device.memUsed || 0) }}({{
-                (device.memUsed / device.diskTotal).toFixed(2)
-              }}%)
+            <div class="list-item">
+              <div>{{ $t("Disk Used") }}</div>
+              <div>
+                {{ size(device.memUsed || 0) }}({{
+                  (device.memUsed / device.diskTotal).toFixed(2)
+                }}%)
+              </div>
             </div>
+            <div class="list-item">
+              <div>{{ $t("Disk Total") }}</div>
+              <div>{{ size(device.diskTotal || 0) }}</div>
+            </div>
+            <div class="list-item">
+              <div>{{ $t("Toggle Developer Tools") }}</div>
+              <div>
+                <span
+                  class="primary--text text-capitalize"
+                  style="cursor: pointer"
+                  @click="stateDevTools = !stateDevTools"
+                  >{{ stateDevTools ? $t("Hide") : $t("Open") }}</span
+                >
+              </div>
+            </div>
+          </app-collapse>
+
+          <div
+            class="
+              list-item
+              text-caption text-center text-center
+              mt-3
+              d-block
+              text--secondary
+            "
+          >
+            {{ device.uuid.replace(/-/g, "") }}
           </div>
-          <div class="list-item">
-            <div>{{ $t("Disk Total") }}</div>
-            <div>{{ size(device.diskTotal || 0) }}</div>
-          </div>
-          <div class="list-item">
-            <div>{{ $t("UUID") }}</div>
-            <div>{{ device.uuid.replace(/-/g, "") }}</div>
-          </div>
-        </app-collapse>
+        </template>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { defineComponent, ref } from "@vue/composition-api";
+import { defineComponent, ref, computed } from "@vue/composition-api";
 import { stateDescription } from "@/store/modules/settings";
 import AppCollapse from "@/components/AppCollapse";
 import { Device } from "@capacitor/device";
 import filesize from "filesize";
+import ModalGitProvide from "@/components/ModalGitProvide";
 
 export default defineComponent({
   components: {
     AppCollapse,
+    ModalGitProvide,
   },
   setup() {
     const device = ref(null);
+    const stateDevTools = computed({
+      get() {
+        return self.__ERUDA__;
+      },
+      set(value) {
+        self.setConsoleState(value);
+      },
+    });
 
     async function refreshInfoDevice() {
       const [{ uuid }, info] = await Promise.all([
@@ -216,6 +243,7 @@ export default defineComponent({
       size: filesize.partial({
         standard: "iec",
       }),
+      stateDevTools,
     };
   },
 });
@@ -247,6 +275,14 @@ input {
 input {
   background: transparent;
 }
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-calendar-picker-indicator {
+  display: none;
+  -webkit-appearance: none;
+}
+input[type="date"] {
+  padding-right: 0;
+}
 </style>
 <style lang="scss" scoped>
 .list {
@@ -268,7 +304,9 @@ input {
     justify-content: space-between;
     padding: 0 0 10px 0;
     margin: 8px 4px;
-
+    > *:nth-child(1) {
+      max-width: (300px - 120px);
+    }
     > *:nth-child(2) {
       max-width: 120px;
       word-break: break-all;

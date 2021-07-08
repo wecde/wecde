@@ -119,7 +119,7 @@
 import AppFileSystem from "@/components/AppFileSystem";
 import AppField from "@/components/AppField";
 import AppFileAdd from "@/components/AppFileAdd";
-import { readTreeFolder } from "@/modules/filesystem";
+import { readTreeFolder, stat } from "@/modules/filesystem";
 import importFiles from "@/modules/import-files";
 import { Toast } from "@capacitor/toast";
 
@@ -149,14 +149,24 @@ export default {
   },
   methods: {
     async reloadListFile(notification = false) {
-      this.tree = await readTreeFolder(
-        `projects/${this.$store.state.editor.project}`
-      );
+      try {
+        if (
+          (await stat(`projects/${this.$store.state.editor.project}`)).type !==
+          "directory"
+        ) {
+          throw new Error(`IS_NOT_DIR`);
+        }
+        this.tree = await readTreeFolder(
+          `projects/${this.$store.state.editor.project}`
+        );
 
-      if (notification) {
-        await Toast.show({
-          text: this.$t("Reload project"),
-        });
+        if (notification) {
+          await Toast.show({
+            text: this.$t("Reload project"),
+          });
+        }
+      } catch {
+        this.tree = [];
       }
     },
     async importFile() {

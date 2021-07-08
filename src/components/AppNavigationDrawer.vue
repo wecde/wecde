@@ -84,6 +84,7 @@ export default {
           this.$store.commit("editor/setProject", null);
         }
       },
+      immediate: true,
     },
   },
 
