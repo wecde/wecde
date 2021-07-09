@@ -66,6 +66,7 @@ export default defineComponent({
         Toast.show({
           text: `Clone repo "${this.url}" successfuly.`,
         });
+        this.$emit("done");
       } catch (err) {
         this.$store.commit("terminal/error", err);
         Toast.show({

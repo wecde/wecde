@@ -69,6 +69,7 @@
     "eslint-plugin-vue": "^6.2.2",
     "neo-async": "^2.0.0-rc.1",
     "prettier": "^2.2.1",
+    "raw-loader": "^4.0.2",
     "sass": "~1.32.0",
     "sass-loader": "^10.0.0",
     "vue-cli-plugin-i18n": "~2.1.1",
