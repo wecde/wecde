@@ -10,9 +10,9 @@ export default {
       state.lines.push({
         message: payload,
       });
-      
-      if ( state.lines.length > 33 ) {
-        state.lines.splice( 0, state.lines.length - 33 - 1 )
+
+      if (state.lines.length > 33) {
+        state.lines.splice(0, state.lines.length - 33 - 1);
       }
 
       state.done = false;
@@ -25,8 +25,8 @@ export default {
         color: "error",
         message: payload.message,
       });
-      if ( state.lines.length > 33 ) {
-        state.lines.splice( 0, state.lines.length - 33 - 1 )
+      if (state.lines.length > 33) {
+        state.lines.splice(0, state.lines.length - 33 - 1);
       }
 
       state.done = true;
@@ -36,8 +36,8 @@ export default {
         color: "warning",
         message: payload,
       });
-      if ( lines.length > 33 ) {
-        lines.splice( 0, lines.length - 33 - 1 )
+      if (lines.length > 33) {
+        lines.splice(0, lines.length - 33 - 1);
       }
     },
     success({ lines }, payload) {
@@ -45,8 +45,8 @@ export default {
         color: "success",
         message: payload,
       });
-      if ( lines.length > 33 ) {
-        lines.splice( 0, lines.length - 33 - 1 )
+      if (lines.length > 33) {
+        lines.splice(0, lines.length - 33 - 1);
       }
     },
   },

@@ -179,7 +179,7 @@ export async function clone({ dir, url, ref }) {
 
     onProgress(event) {
       $store.commit(
-        "terminal/push",
+        "terminal/print",
         `${event.phase} (${
           event.total
             ? Math.round((event.loaded / event.total) * 100) + "%"
