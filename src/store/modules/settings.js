@@ -32,7 +32,7 @@ export const stateDescription = [
         label: "Depth",
         prop: "depth",
         type: "tel",
-        default: null,
+        default: 10,
       },
       {
         label: "Since date",
@@ -170,26 +170,26 @@ export const stateDescription = [
         type: "switch",
         default: true,
       },
-      {
-        label: "Cursor Style",
-        prop: "cursorStyle",
-        default: "default",
-        type: "list",
-        select: [
-          {
-            label: "Default",
-            value: "default",
-          },
-          {
-            label: "No blink",
-            value: "no blink",
-          },
-          {
-            label: "Slim",
-            value: "slim",
-          },
-        ],
-      },
+      // {
+      //   label: "Cursor Style",
+      //   prop: "cursorStyle",
+      //   default: "default",
+      //   type: "list",
+      //   select: [
+      //     {
+      //       label: "Default",
+      //       value: "default",
+      //     },
+      //     {
+      //       label: "No blink",
+      //       value: "no blink",
+      //     },
+      //     {
+      //       label: "Slim",
+      //       value: "slim",
+      //     },
+      //   ],
+      // },
       {
         label: "Font Size",
         prop: "fontSize",
@@ -226,11 +226,15 @@ export const stateDescription = [
         label: "Keybinding",
         prop: "keybinding",
         type: "list",
-        default: "ace",
+        default: "",
         select: [
           {
             label: "Ace",
-            value: "ace",
+            value: ""
+          },
+          {
+            label: "EMACS",
+            value: "emacs",
           },
           {
             label: "Sublime",

@@ -76,7 +76,15 @@
     </app-hammer>
 
     <div class="editor--wrapper dark" v-show="!previewMd">
-      <div ref="editor" class="editor" v-if="isPlainText(file)" />
+      <div
+        ref="editor"
+        class="editor"
+        v-if="isPlainText(file)"
+        :style="{
+          'font-size': `${$store.state.settings.editor.fontSize}px`,
+          'font-family': `${$store.state.settings.editor.font}`,
+        }"
+      />
 
       <div v-else-if="type === `image`">
         <img :src="`data:image/${ext};base64,${base64}`" alt="" />
@@ -104,6 +112,11 @@ import "ace-builds/src-noconflict/ext-language_tools";
 // import "ace-builds/src-noconflict/ext-emmet";
 import "ace-builds/src-noconflict/ext-linking";
 import "ace-builds/src-noconflict/ext-settings_menu";
+import "ace-builds/src-noconflict/keybinding-emacs";
+import "ace-builds/src-noconflict/keybinding-sublime";
+import "ace-builds/src-noconflict/keybinding-vim";
+import "ace-builds/src-noconflict/keybinding-vscode";
+import "ace-builds/src-noconflict/ext-spellcheck";
 import { beautify } from "ace-builds/src-noconflict/ext-beautify";
 import { readFile, writeFile } from "@/modules/filesystem";
 import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons";
@@ -146,53 +159,81 @@ export default defineComponent({
 
     const sessionWrapper = ref(null);
 
-    let $ace = null;
+    const $ace = {
+      value: null,
+    };
     let isMounted = false;
 
     onMounted(() => void (isMounted = true));
 
-    function setSettings() {
-      if ($ace) {
-        $ace.getSession().setUseWrapMode(true);
-        $ace.setTheme("ace/theme/monokai");
-        $ace.setOption("enableBasicAutocompletion", true);
-        $ace.setOption("enableLiveAutocompletion", true);
-      }
-    }
     let timeoutSaveFile;
+    const watchersSettingAce = [];
+
     function createEditor() {
-      $ace = ace.edit(editor.value);
+      $ace.value = ace.edit(editor.value);
 
       clearTimeout(timeoutSaveFile);
-      $ace.session.on("change", () => {
+      $ace.value.session.on("change", () => {
         clearTimeout(timeoutSaveFile);
 
         timeoutSaveFile = setTimeout(
-          async () => void (await writeFile(file.value, $ace.getValue())),
+          async () => void (await writeFile(file.value, $ace.value.getValue())),
           100
         );
 
         scrollSessionWrapperToSessionActive();
       });
 
-      $ace.setOptions({
+      $ace.value.setOptions({
         enableLinking: true,
         autoScrollEditorIntoView: true,
+        enableSnippets: true,
         // enableEmmet: true,
         // enableCodeLens: true,
       });
 
-      $ace.session.mergeUndoDeltas = true;
+      $ace.value.setTheme(`${$store.state.settings.appearance.theme}`);
+      $ace.value.setOption(
+        "enableBasicAutocompletion",
+        $store.state.settings.editor.autocomplete
+      );
+      $ace.value.setOption(
+        "enableLiveAutocompletion",
+        $store.state.settings.editor.autocomplete
+      );
+      $ace.value.setKeyboardHandler(
+        // eslint-disable-next-line no-extra-boolean-cast
+        !!$store.state.settings.editor.keybinding
+          ? `ace/keyboard/${$store.state.settings.editor.keybinding}`
+          : null
+      );
+      $ace.value.setOption(
+        "showGutter",
+        $store.state.settings.editor.lineNumber
+      );
+      $ace.value.setShowPrintMargin(
+        +$store.state.settings.editor.printMargin > 0
+      );
+      $ace.value.setPrintMarginColumn(
+        +$store.state.settings.editor.printMargin
+      );
+      $ace.value.setShowInvisibles($store.state.settings.editor.showInvisible);
+      $ace.value.session.setUseSoftTabs(
+        $store.state.settings.editor.useSoftTabs
+      );
+      $ace.value.session.setTabSize(+$store.state.settings.editor.tabSize);
+      $ace.value.session.setUseWrapMode($store.state.settings.editor.wordWrap);
     }
     function removeEditor() {
-      if ($ace) {
-        $ace.destroy();
-        $ace = null;
+      if ($ace.value) {
+        $ace.value.destroy();
+        $ace.value = null;
+        watchersSettingAce.splice(0).forEach((watcher) => void watcher());
       }
     }
 
     function beautifyCode() {
-      beautify.beautify($ace.session);
+      beautify.beautify($ace.value.session);
     }
 
     watch(
@@ -202,12 +243,12 @@ export default defineComponent({
           return;
         }
 
-        if (oldValue && $ace) {
+        if (oldValue && $ace.value) {
           $store.commit("storeScroll/setStore", {
             file: oldValue,
             value: {
-              x: $ace.session.getScrollLeft(),
-              y: $ace.session.getScrollTop(),
+              x: $ace.value.session.getScrollLeft(),
+              y: $ace.value.session.getScrollTop(),
             },
           });
         }
@@ -219,10 +260,9 @@ export default defineComponent({
         if (isPlainText(file.value)) {
           const init = () => {
             createEditor();
-            setSettings();
 
-            $ace.setValue(atob(base64.value));
-            $ace.clearSelection();
+            $ace.value.setValue(atob(base64.value));
+            $ace.value.clearSelection();
 
             setTimeout(() => {
               const { x, y } = $store.state.storeScroll.store[file.valueF] || {
@@ -230,16 +270,15 @@ export default defineComponent({
                 y: 0,
               };
 
-              $ace.session.setScrollLeft(x);
-              $ace.session.setScrollTop(y);
+              $ace.value.session.setScrollLeft(x);
+              $ace.value.session.setScrollTop(y);
             }, 70);
 
             const ext = extname(file.value);
-            $ace.session.setMode(
-              `ace/mode/${
-                ext === "vue" ? "html" : fileExtensions[ext] || "text"
-              }`
-            );
+            const language =
+              ext === "vue" ? "html" : fileExtensions[ext] || "text";
+            $ace.value.session.setMode(`ace/mode/${language}`);
+            ace.require(`ace/snippets/${language}`);
           };
 
           if (isMounted) {
@@ -361,6 +400,75 @@ export default defineComponent({
       sessionWrapper,
       WebView,
     };
+  },
+  watch: {
+    "$store.state.settings.appearance.theme": {
+      handler(newValue) {
+        console.log("theme changed");
+        if (this.$ace.value) {
+          this.$ace.value.setTheme(`${newValue}`);
+        }
+      },
+    },
+    "$store.state.settings.editor.autocomplete": {
+      handler(newValue) {
+        if (this.$ace.value) {
+          this.$ace.value.setOption("enableBasicAutocompletion", newValue);
+          this.$ace.value.setOption("enableLiveAutocompletion", newValue);
+        }
+      },
+    },
+    "$store.state.settings.editor.keybinding": {
+      handler(newValue) {
+        if (this.$ace.value) {
+          this.$ace.value.setKeyboardHandler(`ace/keyboard/${newValue}`);
+        }
+      },
+    },
+    "$store.state.settings.editor.lineNumber": {
+      handler(newValue) {
+        if (this.$ace.value) {
+          this.$ace.value.setOption("showGutter", newValue);
+        }
+      },
+    },
+    "$store.state.settings.editor.printMargin": {
+      handler(newValue) {
+        if (this.$ace.value) {
+          newValue = +newValue;
+          this.$ace.value.setShowPrintMargin(newValue > 0);
+          this.$ace.value.setPrintMarginColumn(newValue);
+        }
+      },
+    },
+    "$store.state.settings.editor.showInvisible": {
+      handler(newValue) {
+        if (this.$ace.value) {
+          this.$ace.value.setShowInvisibles(newValue);
+        }
+      },
+    },
+    "$store.state.settings.editor.useSoftTabs": {
+      handler(newValue) {
+        if (this.$ace.value) {
+          this.$ace.value.session.setUseSoftTabs(newValue);
+        }
+      },
+    },
+    "$store.state.settings.editor.tabSize": {
+      handler(newValue) {
+        if (this.$ace.value) {
+          this.$ace.value.session.setTabSize(+newValue);
+        }
+      },
+    },
+    "$store.state.settings.editor.wordWrap": {
+      handler(newValue) {
+        if (this.$ace.value) {
+          this.$ace.value.session.setUseWrapMode(newValue);
+        }
+      },
+    },
   },
   methods: {
     isPlainText,

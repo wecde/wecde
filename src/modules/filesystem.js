@@ -44,7 +44,7 @@ export async function writeFile(path, data, directory = Directory.Documents) {
   } else if (data instanceof Uint8Array) {
     data = Buffer.from(data).toString("base64");
   } else if (data instanceof Blob) {
-    data = arrayBufferToBase64(data.arrayBuffer());
+    data = arrayBufferToBase64(await data.arrayBuffer());
   } else {
     data = btoa(data);
   }
