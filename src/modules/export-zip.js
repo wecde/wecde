@@ -16,7 +16,7 @@ export default async function exportZip(path, directory) {
 
   store.commit(
     "terminal/print",
-    $i18n(`Saving file {name}`, {
+    $i18n.t(`Saving file {name}`, {
       name: filename,
     })
   );

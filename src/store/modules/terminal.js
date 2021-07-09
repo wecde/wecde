@@ -36,5 +36,10 @@ export default {
         message: payload,
       });
     },
+    replace({ lines }, payload) {
+      lines.splice(lines.length - 1, 1, {
+        message: payload,
+      });
+    },
   },
 };
