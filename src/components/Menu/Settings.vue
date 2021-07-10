@@ -33,7 +33,7 @@
               <modal-git-provide>
                 <span
                   slot="activator"
-                  slot-scope="{on, attr}"
+                  slot-scope="{ on, attr }"
                   v-on="on"
                   v-bind="attr"
                   class="primary--text"
@@ -199,13 +199,14 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent, ref, computed } from "@vue/composition-api";
+
 import { stateDescription } from "@/store/modules/settings";
-import AppCollapse from "@/components/AppCollapse";
+import AppCollapse from "@/components/App/Collapse.vue";
 import { Device } from "@capacitor/device";
 import filesize from "filesize";
-import ModalGitProvide from "@/components/ModalGitProvide";
+import ModalGitProvide from "@/components/Git/ModalGitProvide.vue";
 
 export default defineComponent({
   components: {
@@ -213,13 +214,13 @@ export default defineComponent({
     ModalGitProvide,
   },
   setup() {
-    const device = ref(null);
-    const stateDevTools = computed({
+    const device = ref<null | any>(null);
+    const stateDevTools = computed<boolean>({
       get() {
-        return self.__ERUDA__;
+        return (self as any).__ERUDA__ || false;
       },
       set(value) {
-        self.setConsoleState(value);
+        (self as any).setConsoleState(value);
       },
     });
 

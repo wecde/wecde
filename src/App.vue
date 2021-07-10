@@ -8,41 +8,44 @@
       rounded
       height="3px"
       style="z-index: 1000"
-      v-if="$store.state.progress.isShow"
+      v-if="progress"
     />
     <app-navigation-drawer />
-    <app-terminal />
+    <terminal-index />
     <v-main>
       <router-view />
     </v-main>
+    <v-teleport-location name="root" />
   </v-app>
 </template>
 
-<script>
-import AppNavigationDrawer from "@/components/AppNavigationDrawer";
-import AppTerminal from "@/components/AppTerminal";
+<script lang="ts">
+import { defineComponent, onMounted, computed } from "@vue/composition-api";
+import AppNavigationDrawer from "@/components/App/NavigationDrawer.vue";
+import TerminalIndex from "@/components/Terminal/Index.vue";
 import { requestPermissions } from "@/modules/filesystem";
-import {
-  defineComponent,
-  onMounted,
-} from "@vue/composition-api";
-import { loadLanguageAsync } from "@/plugins/i18n";
+import { loadLanguageAsync } from "@/i18n";
+import store from "@/store";
+import { vTeleportLocation } from "@desislavsd/vue-teleport";
 
 export default defineComponent({
   components: {
     AppNavigationDrawer,
-    AppTerminal,
+    TerminalIndex,
+    vTeleportLocation,
   },
   setup() {
     onMounted(async () => {
       await requestPermissions();
     });
 
-    return {};
+    return {
+      progress: computed<boolean>(() => store.state.progress.isShow),
+    };
   },
   watch: {
     "$store.state.settings.appearance.language": {
-      async handler(newValue) {
+      async handler(newValue: string) {
         // console.log(newValue);
         await loadLanguageAsync(newValue);
       },

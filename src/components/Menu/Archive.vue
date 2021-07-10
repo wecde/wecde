@@ -24,7 +24,7 @@
           </template>
 
           <v-list color="grey-4" class="list--mouseright">
-            <modal-git-clone>
+            <ModalGitClone>
               <v-list-item
                 slot="activator"
                 slot-scope="{ on, attr }"
@@ -39,7 +39,7 @@
                   <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-            </modal-git-clone>
+            </ModalGitClone>
 
             <modal-git-provide>
               <v-list-item
@@ -107,7 +107,7 @@
           </v-list>
         </v-menu>
 
-        <app-create-project
+        <project-create
           v-model="creatingProject"
           @created="reloadListProjects"
           :projects="projects"
@@ -135,17 +135,17 @@
         append-icon="mdi-close"
         v-if="search"
         v-model="keywordSearch"
-      ></v-text-field>
+      />
 
       <div class="fill-height overflow-y-scroll">
         <v-list>
-          <app-item-project
+          <ProjectItem
             v-for="item in projects"
-            :key="item.file"
+            :key="item.name"
             :project="item"
-            @rename="rename"
-            @remove="projectRemoving = item"
-            @click="$emit(`toFiles`)"
+            :names-exists="projects.map((item) => item.name)"
+            @click:delete="projectRemoving = item"
+            @click.native="$emit(`toFiles`)"
           />
         </v-list>
       </div>
@@ -157,7 +157,7 @@
         :value="!!projectRemoving"
         @input="$event ? (projectRemoveiing = null) : null"
       >
-        <v-card dark>
+        <v-card dark v-if="projectRemoving">
           <div class="d-flex justify-space-between align-center fill-width">
             <v-card-title class="text-body-1">
               {{ $t("Delete") }} {{ $t("Project") }}
@@ -166,7 +166,7 @@
           <v-card-text class="pb-0">
             {{ $t("Type") }} <span class="blue--text">{{ code }}</span>
             {{ $t("to confirm.") }}
-            <span class="blue--text">{{ (projectRemoving || {}).file }}</span>
+            <span class="blue--text">{{ projectRemoving.name }}</span>
             {{ $t("will permanently deleted. It can NOT be recovered!") }}
             <v-text-field
               :rules="[
@@ -195,64 +195,69 @@
   </div>
 </template>
 
-<script>
-import { readdirStat, rename, rmdir } from "@/modules/filesystem";
-import AppItemProject from "@/components/AppItemProject";
-import AppCreateProject from "@/components/AppCreateProject";
+<script lang="ts">
+import { defineComponent, ref, watch } from "@vue/composition-api";
+import { readdirStat, ReaddirStatItem, rmdir } from "@/modules/filesystem";
+import ProjectItem from "@/components/Project/Item.vue";
+import ProjectCreate from "@/components/Project/Create.vue";
 import importZip from "@/modules/import-zip";
 import { random } from "@/utils";
 import { Toast } from "@capacitor/toast";
-import ModalGitProvide from "@/components/ModalGitProvide";
-import ModalGitClone from "@/components/ModalGitClone";
+import ModalGitProvide from "@/components/Git/ModalGitProvide.vue";
+import ModalGitClone from "@/components/Git/ModalGitClone.vue";
 
-export default {
+export default defineComponent({
   components: {
-    AppItemProject,
-    AppCreateProject,
+    ProjectItem,
+    ProjectCreate,
     ModalGitProvide,
     ModalGitClone,
   },
-  data() {
-    return {
-      search: false,
+  setup() {
+    const search = ref<boolean>(false);
+    const projects = ref<ReaddirStatItem[]>([]);
+    const creatingProject = ref<boolean>(false);
+    const projectRemoving = ref<null | ReaddirStatItem>(null);
+    const code = ref<null | string>(null);
+    const codeInput = ref<null | string>(null);
+    const keywordSearch = ref<string>("");
 
-      projects: [],
-
-      creatingProject: false,
-
-      projectRemoving: null,
-
-      code: null,
-      codeInput: null,
-
-      keywordSearch: "",
-    };
-  },
-  watch: {
-    projectRemoving(newValue) {
+    watch(projectRemoving, (newValue) => {
       if (newValue) {
-        this.code = [random(9), random(9), random(9)].join("");
+        code.value = [random(9), random(9), random(9)].join("");
       } else {
-        this.code = null;
+        code.value = null;
       }
-    },
-    code() {
-      this.codeInput = null;
-    },
+    });
+    watch(code, () => {
+      codeInput.value = null;
+    });
+
+    return {
+      search,
+
+      projects,
+
+      creatingProject,
+
+      projectRemoving,
+
+      code,
+      codeInput,
+
+      keywordSearch,
+    };
   },
   async created() {
     await this.reloadListProjects();
   },
   methods: {
-    async reloadListProjects(notification = false) {
-      this.$show();
+    async reloadListProjects(notification = false): Promise<void> {
+      this.$store.commit("progress/show");
       try {
         this.projects = (await readdirStat("projects"))
           .filter((project) => {
-            return (
-              project.file.includes("/") === false &&
-              project.stat.type === "directory"
-            );
+            return project.stat.type === "directory";
           })
           .sort((a, b) => {
             return b.stat.mtime - a.stat.mtime;
@@ -260,58 +265,44 @@ export default {
       } catch {
         this.projects = [];
       }
-      this.$hide();
+      this.$store.commit("progress/hide");
       if (notification) {
         await Toast.show({
           text: "Reload list projects",
         });
       }
     },
-    async rename([newValue, oldValue]) {
-      this.$show();
-      console.log(`Rename project "${newValue}" to "${oldValue}"`);
-      await rename(`projects/${newValue}`, `projects/${oldValue}`);
-      await this.reloadListProjects();
-      this.$hide();
-
-      await Toast.show({
-        text: this.$t(`Renamed project {old} to {new}`, {
-          old: oldValue,
-          new: newValue,
-        }),
-      });
-    },
-    async importProjectFromZip() {
+    async importProjectFromZip(): Promise<void> {
       try {
         const names = await importZip(`projects/`);
         this.$store.commit("terminal/clear");
         Toast.show({
           text: this.$t(`Imported project {list}`, {
             list: names.map((item) => `"${item}"`).join(", "),
-          }),
+          }) as string,
         });
       } catch (err) {
         this.$store.commit("terminal/error", err);
       }
       await this.reloadListProjects();
     },
-    async remove() {
-      this.$show();
-      if (this.code === this.codeInput) {
-        await rmdir(`projects/${this.projectRemoving.file}`);
+    async remove(): Promise<void> {
+      this.$store.commit("progress/show");
+      if (this.code === this.codeInput && this.projectRemoving) {
+        await rmdir(this.projectRemoving.fullpath);
         await Toast.show({
           text: this.$t(`Removed project {name}`, {
-            name: this.projectRemoving.file,
-          }),
+            name: this.projectRemoving.name,
+          }) as string,
         });
 
         await this.reloadListProjects();
         this.projectRemoving = null;
       }
-      this.$hide();
+      this.$store.commit("progress/hide");
     },
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>

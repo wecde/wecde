@@ -82,30 +82,35 @@
           </li>
         </ul>
       </v-tab-item>
-      <v-tab-item> {{ $t('No Labs') }} </v-tab-item>
+      <v-tab-item> {{ $t("No Labs") }} </v-tab-item>
       <v-tab-item v-html="changelog"> </v-tab-item>
     </v-tabs-items>
   </div>
 </template>
 
-<script>
-import AppHammer from "@/components/AppHammer";
-import marked from "marked";
+<script lang="ts">
 import { defineComponent, ref } from "@vue/composition-api";
+
+import AppHammer from "@/components/App/Hammer.vue";
+import marked from "marked";
 
 export default defineComponent({
   components: {
     AppHammer,
   },
   setup() {
+    const changelog = ref<string>("");
+
+    fetch("/changelog.md")
+      .then((res: Response): Promise<string> => res.text())
+      .then((md: string): void => {
+        changelog.value = marked(md);
+      });
+
     return {
-      tab: ref(null),
+      tab: ref<number | null>(null),
+      changelog,
     };
-  },
-  asyncComputed: {
-    async changelog() {
-      return marked(await fetch("/changelog.md").then((res) => res.text()));
-    },
   },
 });
 </script>

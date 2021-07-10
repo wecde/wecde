@@ -1,5 +1,5 @@
 <template>
-  <div class="fill-height">
+  <div class="fill-height" v-if="file">
     <app-hammer>
       <div class="session mr-1" ref="sessionWrapper">
         <div
@@ -16,6 +16,7 @@
             :src="
               getIcon({
                 light: false,
+                isOpen: false,
                 isFolder: false,
                 name: basename(item),
                 language: extname(item),
@@ -55,7 +56,7 @@
             : "mdi-play"
         }}</v-icon
       >
-      <app-web-view
+      <web-view
         ref="WebView"
         :port="port"
         :value="serverStatus && !serverLoading"
@@ -72,7 +73,7 @@
             >mdi-web</v-icon
           >
         </template>
-      </app-web-view>
+      </web-view>
     </app-hammer>
 
     <div class="editor--wrapper dark" v-show="!previewMd">
@@ -98,14 +99,23 @@
     </div>
     <div
       class="preview--markdown"
-      v-if="type === `markdown` && previewMd"
+      v-if="type === `markdown` && previewMd && base64"
       v-html="marked(rawText(base64))"
     />
   </div>
 </template>
 
-<script>
-import AppHammer from "@/components/AppHammer";
+<script lang="ts">
+import {
+  defineComponent,
+  ref,
+  watch,
+  computed,
+  onMounted,
+  onBeforeMount,
+} from "@vue/composition-api";
+
+import AppHammer from "@/components/App/Hammer.vue";
 import ace from "ace-builds";
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
@@ -119,116 +129,123 @@ import "ace-builds/src-noconflict/keybinding-vscode";
 import "ace-builds/src-noconflict/ext-spellcheck";
 import { beautify } from "ace-builds/src-noconflict/ext-beautify";
 import { readFile, writeFile } from "@/modules/filesystem";
-import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons";
-import {
-  defineComponent,
-  ref,
-  watch,
-  computed,
-  onMounted,
-  onBeforeMount,
-} from "@vue/composition-api";
+import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons.json";
 import { isPlainText, getType, extname, rawText } from "@/utils";
 import $store from "@/store";
-import $router from "@/plugins/router";
-import $i18n from "@/plugins/i18n";
-import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon.js";
+import $router from "@/router";
+import $i18n from "@/i18n";
+import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 import { basename } from "path";
 import marked from "marked";
 import { WebServer } from "@/modules/webserver";
-import AppWebView from "@/components/AppWebView";
+import WebView from "@/components/WebView/AppWebView.vue";
 import { Toast } from "@capacitor/toast";
+import Vue from "vue";
 
 export default defineComponent({
   components: {
     AppHammer,
-    AppWebView,
+    WebView,
   },
   setup() {
-    const base64 = ref(null);
-    const file = computed(() => $store.state.editor.session);
-    const ext = computed(() => extname(file.value));
-    const type = computed(() => getType(file.value));
+    const base64 = ref<string | null>(null);
+    const file = computed<string | null>(() => $store.state.editor.session);
+    const ext = computed<string | null>(() =>
+      file.value ? extname(file.value) : null
+    );
+    const type = computed<string | null>(() =>
+      file.value ? getType(file.value) : null
+    );
 
-    const editor = ref(null);
-    const WebView = ref(null);
+    const editor = ref<Element | null>(null);
+    const WebView = ref<Vue | null>(null);
 
-    const serverStatus = ref(false);
-    const serverLoading = ref(false);
-    const port = computed(() => $store.state.settings.preview.port);
+    const serverStatus = ref<boolean>(false);
+    const serverLoading = ref<boolean>(false);
+    const port = computed<string>(() => $store.state.settings.preview.port);
 
-    const sessionWrapper = ref(null);
+    const sessionWrapper = ref<Element | null>(null);
 
-    const $ace = {
+    const $ace: {
+      value: any;
+    } = {
       value: null,
     };
     let isMounted = false;
 
     onMounted(() => void (isMounted = true));
 
-    let timeoutSaveFile;
-    const watchersSettingAce = [];
+    let timeoutSaveFile: any;
 
     function createEditor() {
-      $ace.value = ace.edit(editor.value);
+      if (editor.value && file.value) {
+        $ace.value = ace.edit(editor.value);
 
-      clearTimeout(timeoutSaveFile);
-      $ace.value.session.on("change", () => {
         clearTimeout(timeoutSaveFile);
+        $ace.value.session.on("change", () => {
+          clearTimeout(timeoutSaveFile);
 
-        timeoutSaveFile = setTimeout(
-          async () => void (await writeFile(file.value, $ace.value.getValue())),
-          100
+          timeoutSaveFile = setTimeout(
+            async () =>
+              void (await writeFile(
+                file.value as string,
+                $ace.value.getValue()
+              )),
+            100
+          );
+
+          scrollSessionWrapperToSessionActive();
+        });
+
+        $ace.value.setOptions({
+          enableLinking: true,
+          autoScrollEditorIntoView: true,
+          enableSnippets: true,
+          // enableEmmet: true,
+          // enableCodeLens: true,
+        });
+
+        $ace.value.setTheme(`${$store.state.settings.appearance.theme}`);
+        $ace.value.setOption(
+          "enableBasicAutocompletion",
+          $store.state.settings.editor.autocomplete
         );
-
-        scrollSessionWrapperToSessionActive();
-      });
-
-      $ace.value.setOptions({
-        enableLinking: true,
-        autoScrollEditorIntoView: true,
-        enableSnippets: true,
-        // enableEmmet: true,
-        // enableCodeLens: true,
-      });
-
-      $ace.value.setTheme(`${$store.state.settings.appearance.theme}`);
-      $ace.value.setOption(
-        "enableBasicAutocompletion",
-        $store.state.settings.editor.autocomplete
-      );
-      $ace.value.setOption(
-        "enableLiveAutocompletion",
-        $store.state.settings.editor.autocomplete
-      );
-      $ace.value.setKeyboardHandler(
-        // eslint-disable-next-line no-extra-boolean-cast
-        !!$store.state.settings.editor.keybinding
-          ? `ace/keyboard/${$store.state.settings.editor.keybinding}`
-          : null
-      );
-      $ace.value.setOption(
-        "showGutter",
-        $store.state.settings.editor.lineNumber
-      );
-      $ace.value.setShowPrintMargin(
-        +$store.state.settings.editor.printMargin > 0
-      );
-      $ace.value.setPrintMarginColumn(
-        +$store.state.settings.editor.printMargin
-      );
-      $ace.value.setShowInvisibles($store.state.settings.editor.showInvisible);
-      $ace.value.session.setUseSoftTabs(
-        $store.state.settings.editor.useSoftTabs
-      );
-      $ace.value.session.setTabSize(+$store.state.settings.editor.tabSize);
-      $ace.value.session.setUseWrapMode($store.state.settings.editor.wordWrap);
+        $ace.value.setOption(
+          "enableLiveAutocompletion",
+          $store.state.settings.editor.autocomplete
+        );
+        $ace.value.setKeyboardHandler(
+          // eslint-disable-next-line no-extra-boolean-cast
+          !!$store.state.settings.editor.keybinding
+            ? `ace/keyboard/${$store.state.settings.editor.keybinding}`
+            : null
+        );
+        $ace.value.setOption(
+          "showGutter",
+          $store.state.settings.editor.lineNumber
+        );
+        $ace.value.setShowPrintMargin(
+          +$store.state.settings.editor.printMargin > 0
+        );
+        $ace.value.setPrintMarginColumn(
+          +$store.state.settings.editor.printMargin
+        );
+        $ace.value.setShowInvisibles(
+          $store.state.settings.editor.showInvisible
+        );
+        $ace.value.session.setUseSoftTabs(
+          $store.state.settings.editor.useSoftTabs
+        );
+        $ace.value.session.setTabSize(+$store.state.settings.editor.tabSize);
+        $ace.value.session.setUseWrapMode(
+          $store.state.settings.editor.wordWrap
+        );
+      }
     }
     function removeEditor() {
       if ($ace.value) {
         $ace.value.destroy();
         $ace.value = null;
-        watchersSettingAce.splice(0).forEach((watcher) => void watcher());
       }
     }
 
@@ -257,28 +274,33 @@ export default defineComponent({
           base64.value = await readFile(newValue);
         }
 
-        if (isPlainText(file.value)) {
+        if (isPlainText(file.value as string)) {
           const init = () => {
-            createEditor();
+            if (editor.value) {
+              createEditor();
 
-            $ace.value.setValue(atob(base64.value));
-            $ace.value.clearSelection();
+              $ace.value.setValue(atob(base64.value || ""));
+              $ace.value.clearSelection();
 
-            setTimeout(() => {
-              const { x, y } = $store.state.storeScroll.store[file.valueF] || {
-                x: 0,
-                y: 0,
-              };
+              setTimeout(() => {
+                const { x, y } = $store.state.storeScroll.store[
+                  file.value as string
+                ] || {
+                  x: 0,
+                  y: 0,
+                };
 
-              $ace.value.session.setScrollLeft(x);
-              $ace.value.session.setScrollTop(y);
-            }, 70);
+                $ace.value.session.setScrollLeft(x);
+                $ace.value.session.setScrollTop(y);
+              }, 70);
 
-            const ext = extname(file.value);
-            const language =
-              ext === "vue" ? "html" : fileExtensions[ext] || "text";
-            $ace.value.session.setMode(`ace/mode/${language}`);
-            ace.require(`ace/snippets/${language}`);
+              const language =
+                ext.value === "vue"
+                  ? "html"
+                  : fileExtensions[ext.value as string] || "text";
+              $ace.value.session.setMode(`ace/mode/${language}`);
+              ace.require(`ace/snippets/${language}`);
+            }
           };
 
           if (isMounted) {
@@ -313,24 +335,24 @@ export default defineComponent({
       }
     );
 
-    async function startServer(port) {
-      await WebServer.start(port).catch((err) => console.log(err));
+    async function startServer(port: string): Promise<void> {
+      await WebServer.start(port).catch((err: any) => console.log(err));
 
       Toast.show({
         text: $i18n.t(`WebServer started on port {port}`, {
           port,
-        }),
+        }) as string,
       });
-      await WebView.value.openWebView();
+      await (WebView.value as any).openWebView();
     }
     async function stopServer() {
       await WebServer.stop();
 
       Toast.show({
-        text: $i18n.t(`WebServer closed`),
+        text: $i18n.t(`WebServer closed`) as string,
       });
     }
-    async function changePort(port) {
+    async function changePort(port: string): Promise<void> {
       await stopServer();
       await startServer(port);
     }
@@ -339,7 +361,7 @@ export default defineComponent({
       serverLoading.value = true;
       try {
         if (newValue) {
-          await startServer(+$store.state.settings.preview.port);
+          await startServer($store.state.settings.preview.port);
           // await openWebView();
         } else {
           await stopServer();
@@ -358,10 +380,10 @@ export default defineComponent({
     });
 
     function scrollSessionWrapperToSessionActive() {
-      const wrapper = sessionWrapper.value;
-      const active = wrapper.querySelector(".active");
+      const wrapper = sessionWrapper.value as HTMLElement;
+      const active = wrapper.querySelector(".active") as HTMLElement;
 
-      wrapper.scrollTo(active.offsetLeft, 0);
+      wrapper.scrollTo(active?.offsetLeft || 0, 0);
     }
 
     watch(

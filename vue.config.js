@@ -1,14 +1,4 @@
 module.exports = {
-  transpileDependencies: ["vuetify"],
-
-  // pwa: {
-  //   name: "Shin Code Editor",
-  //   themeColor: "#222222",
-  //   msTileColor: "#000000",
-  //   appleMobileWebAppCapable: "yes",
-  //   appleMobileWebAppStatusBarStyle: "black",
-  //   workboxPluginMode: "InjectManifest",
-  // },
   configureWebpack: {
     module: {
       rules: [
@@ -34,10 +24,12 @@ module.exports = {
 
   pluginOptions: {
     i18n: {
-      locale: 'en',
-      fallbackLocale: 'en',
-      localeDir: 'locales',
-      enableInSFC: true
-    }
-  }
+      locale: "en",
+      fallbackLocale: "en",
+      localeDir: "locales",
+      enableInSFC: true,
+    },
+  },
+
+  transpileDependencies: ["vuetify"],
 };

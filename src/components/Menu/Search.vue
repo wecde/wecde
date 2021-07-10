@@ -27,7 +27,15 @@
           <v-icon size="20px"> mdi-chevron-right </v-icon>
         </div>
         <div>
-          <app-field class="mx-0" />
+          <v-text-field
+            placeholder="Search"
+            outline
+            rounded
+            class="py-1 grey-4 mx-0"
+            hide-details
+            close-on-click
+            append-icon="mdi-close"
+          />
           <!-- <app-field class="mx-0 mt-3" /> -->
         </div>
       </div>
@@ -43,14 +51,10 @@
   </div>
 </template>
 
-<script>
-import AppField from "@/components/AppField";
+<script lang="ts">
+import { defineComponent } from "@vue/composition-api";
 
-export default {
-  components: {
-    AppField,
-  },
-};
+export default defineComponent({});
 </script>
 
 <style lang="scss" scoped>

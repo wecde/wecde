@@ -87,56 +87,70 @@
         <v-btn icon>
           <v-icon>mdi-chevron-down</v-icon>
         </v-btn>
-        <span class="app-title text-truncate">{{ tree ? tree.name : "" }}</span>
+        <span class="app-title text-truncate">{{ projectName }}</span>
       </div>
     </div>
 
     <div class="fill-height">
-      <app-field v-show="search" class="mx-2" />
-
+      <v-text-field
+        placeholder="Search"
+        outline
+        rounded
+        class="py-1 grey-4 mx-2"
+        hide-details
+        close-on-click
+        append-icon="mdi-close"
+        v-if="search"
+      />
       <div class="fill-height overflow-y-scroll" v-if="tree">
-        <app-file-add
-          :state.sync="adding"
+        <file-explorer-add
+          :adding.sync="adding"
           :is-folder="addingFolder"
-          :directory="tree.file"
+          dirname="projects"
           @created="reloadListFile"
-          :list-files="tree.children"
+          :names-exists="tree.map((item) => item.name)"
         />
 
-        <app-file-system
-          :level="0"
-          :files="tree.children"
-          v-if="tree.children"
-          @reload="reloadListFile"
-          :list-files="tree.children"
+        <file-explorer-list
+          :files-list="tree"
+          @removed-file="tree.splice($event, 1)"
         />
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import AppFileSystem from "@/components/AppFileSystem";
-import AppField from "@/components/AppField";
-import AppFileAdd from "@/components/AppFileAdd";
-import { readTreeFolder, stat } from "@/modules/filesystem";
+<script lang="ts">
+import { defineComponent, ref, computed } from "@vue/composition-api";
+
+import FileExplorerList from "@/components/File Explorer/List.vue";
+import FileExplorerAdd from "@/components/File Explorer/Add.vue";
+import { stat, ReaddirStatItem, readdirStat } from "@/modules/filesystem";
 import importFiles from "@/modules/import-files";
 import { Toast } from "@capacitor/toast";
+import { basename } from "path";
+import store from "@/store";
 
-export default {
+export default defineComponent({
   components: {
-    AppFileSystem,
-    AppField,
-    AppFileAdd,
+    FileExplorerList,
+    FileExplorerAdd,
   },
-  data() {
+  setup() {
+    const search = ref<boolean>(false);
+    const adding = ref<boolean>(false);
+    const addingFolder = ref<boolean>(false);
+    const tree = ref<ReaddirStatItem[]>([]);
+    const projectName = computed<string | null>(() =>
+      store.state.editor.project ? basename(store.state.editor.project) : null
+    );
+
     return {
-      search: false,
-
-      adding: false,
-      addingFolder: false,
-
-      tree: null,
+      search,
+      adding,
+      addingFolder,
+      tree,
+      projectName,
     };
   },
   watch: {
@@ -148,40 +162,41 @@ export default {
     },
   },
   methods: {
-    async reloadListFile(notification = false) {
+    async reloadListFile(notification = false): Promise<void> {
       try {
         if (
-          (await stat(`projects/${this.$store.state.editor.project}`)).type !==
-          "directory"
+          (await stat(this.$store.state.editor.project)).type !== "directory"
         ) {
           throw new Error(`IS_NOT_DIR`);
         }
-        this.tree = await readTreeFolder(
-          `projects/${this.$store.state.editor.project}`
+
+        this.tree = await readdirStat(
+          this.$store.state.editor.project,
+          void 0,
+          [".git"]
         );
 
         if (notification) {
           await Toast.show({
-            text: this.$t("Reload project"),
+            text: this.$t("Reload project") as string,
           });
         }
-      } catch {
+      } catch (err) {
+        console.log(err);
         this.tree = [];
       }
     },
-    async importFile() {
-      const names = await importFiles(
-        `projects/${this.$store.state.editor.project}`
-      );
+    async importFile(): Promise<void> {
+      const names = await importFiles(this.$store.state.editor.project);
       await this.reloadListFile();
       await Toast.show({
         text: this.$t(`Imported file(s) {list}`, {
           list: names.map((item) => `"${item}"`).join(", "),
-        }),
+        }) as string,
       });
     },
   },
-};
+});
 </script>
 
 <style lang="scss" scoped>
