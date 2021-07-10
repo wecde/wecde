@@ -1,6 +1,6 @@
 <template>
   <div>
-    <app-hammer>
+    <App-Hammer>
       <v-spacer />
 
       <div class="d-flex">
@@ -27,7 +27,7 @@
 
       <v-spacer />
       <v-btn icon> </v-btn>
-    </app-hammer>
+    </App-Hammer>
 
     <v-tabs-items
       v-model="tab"

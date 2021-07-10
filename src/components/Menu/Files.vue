@@ -103,7 +103,7 @@
         v-if="search"
       />
       <div class="fill-height overflow-y-scroll" v-if="tree">
-        <file-explorer-add
+        <FileExplorer-Add
           :adding.sync="adding"
           :is-folder="addingFolder"
           dirname="projects"
@@ -111,7 +111,7 @@
           :names-exists="tree.map((item) => item.name)"
         />
 
-        <file-explorer-list
+        <FileExplorer-List
           :files-list="tree"
           @removed-file="tree.splice($event, 1)"
         />
@@ -122,10 +122,10 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from "@vue/composition-api";
-
 import FileExplorerList from "@/components/File Explorer/List.vue";
 import FileExplorerAdd from "@/components/File Explorer/Add.vue";
-import { stat, ReaddirStatItem, readdirStat } from "@/modules/filesystem";
+import { stat, readdirStat } from "@/modules/filesystem";
+import type { ReaddirStatItem } from "@/modules/filesystem";
 import importFiles from "@/modules/import-files";
 import { Toast } from "@capacitor/toast";
 import { basename } from "path";

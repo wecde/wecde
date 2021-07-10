@@ -17,7 +17,7 @@
 
     <div class="fill-height overflow-y-scroll">
       <div class="list">
-        <app-collapse eager class="list--group">
+        <App-Collapse eager class="list--group">
           <template v-slot:activator="{ on, state }">
             <div class="list-action" v-on="on">
               <v-icon>{{
@@ -30,7 +30,7 @@
           <div class="list-item">
             <div class="left">{{ $t("Credentials") }}</div>
             <div class="right">
-              <modal-git-provide>
+              <Git-Provide>
                 <span
                   slot="activator"
                   slot-scope="{ on, attr }"
@@ -40,12 +40,12 @@
                 >
                   {{ $t("Open") }}
                 </span>
-              </modal-git-provide>
+              </Git-Provide>
             </div>
           </div>
-        </app-collapse>
+        </App-Collapse>
 
-        <app-collapse
+        <App-Collapse
           eager
           class="list-group mt-3"
           v-for="stateGroup in stateDescription"
@@ -112,10 +112,10 @@
               </div>
             </div>
           </template>
-        </app-collapse>
+        </App-Collapse>
 
         <template v-if="device">
-          <app-collapse eager class="list--group">
+          <App-Collapse eager class="list--group">
             <template v-slot:activator="{ on, state }">
               <div class="list-action" v-on="on">
                 <v-icon>{{
@@ -180,7 +180,7 @@
                 >
               </div>
             </div>
-          </app-collapse>
+          </App-Collapse>
 
           <div
             class="
@@ -201,17 +201,16 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed } from "@vue/composition-api";
-
 import { stateDescription } from "@/store/modules/settings";
 import AppCollapse from "@/components/App/Collapse.vue";
 import { Device } from "@capacitor/device";
 import filesize from "filesize";
-import ModalGitProvide from "@/components/Git/ModalGitProvide.vue";
+import GitProvide from "@/components/Git/ModalGitProvide.vue";
 
 export default defineComponent({
   components: {
     AppCollapse,
-    ModalGitProvide,
+    GitProvide,
   },
   setup() {
     const device = ref<null | any>(null);

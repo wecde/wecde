@@ -4,7 +4,7 @@
       <div class="d-flex align-center">
         <span class="file--system__prepend"> </span>
 
-        <app-rename
+        <FileExplorer-Rename
           :is-folder="isFolder"
           :renaming="adding"
           @update:renaming="$emit(`update:adding`, $event)"
@@ -24,7 +24,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, PropType, watch } from "@vue/composition-api";
-import AppRename from "./Rename.vue";
+import FileExplorerRename from "./Rename.vue";
 import { mkdir, writeFile } from "@/modules/filesystem";
 import { Toast } from "@capacitor/toast";
 import { join } from "path";
@@ -32,7 +32,7 @@ import i18n from "@/i18n";
 
 export default defineComponent({
   components: {
-    AppRename,
+    FileExplorerRename,
   },
   props: {
     adding: {

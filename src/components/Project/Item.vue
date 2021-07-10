@@ -29,7 +29,7 @@
 
     <v-list-item-content>
       <v-list-item-title>
-        <FileExplorerRename
+        <FileExplorer-Rename
           :renaming.sync="renaming"
           :is-folder="true"
           :names-exists="namesExists"
@@ -97,7 +97,7 @@ import { defineComponent, ref, PropType } from "@vue/composition-api";
 import FileExplorerRename from "../File Explorer/Rename.vue";
 import exportZip from "@/modules/export-zip";
 import { Toast } from "@capacitor/toast";
-import { ReaddirStatItem } from "@/modules/filesystem";
+import type { ReaddirStatItem } from "@/modules/filesystem";
 
 export default defineComponent({
   components: {

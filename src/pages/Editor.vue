@@ -1,6 +1,6 @@
 <template>
   <div class="fill-height" v-if="file">
-    <app-hammer>
+    <App-Hammer>
       <div class="session mr-1" ref="sessionWrapper">
         <div
           class="session--item"
@@ -56,7 +56,7 @@
             : "mdi-play"
         }}</v-icon
       >
-      <web-view
+      <WebView
         ref="WebView"
         :port="port"
         :value="serverStatus && !serverLoading"
@@ -73,8 +73,8 @@
             >mdi-web</v-icon
           >
         </template>
-      </web-view>
-    </app-hammer>
+      </WebView>
+    </App-Hammer>
 
     <div class="editor--wrapper dark" v-show="!previewMd">
       <div
@@ -138,7 +138,7 @@ import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 import { basename } from "path";
 import marked from "marked";
 import { WebServer } from "@/modules/webserver";
-import WebView from "@/components/WebView/AppWebView.vue";
+import WebView from "@/components/WebView/Index.vue";
 import { Toast } from "@capacitor/toast";
 import Vue from "vue";
 

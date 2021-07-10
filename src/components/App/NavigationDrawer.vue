@@ -35,16 +35,16 @@
 
       <v-tabs-items v-model="navigationTabs" class="fill-width fill-height">
         <v-tab-item>
-          <menu-archive @toFiles="navigationTabs = 1" />
+          <Menu-Archive @toFiles="navigationTabs = 1" />
         </v-tab-item>
         <v-tab-item>
-          <menu-files />
+          <Menu-Files />
         </v-tab-item>
         <v-tab-item>
-          <menu-search />
+          <Menu-Search />
         </v-tab-item>
         <v-tab-item>
-          <menu-settings />
+          <Menu-Settings />
         </v-tab-item>
       </v-tabs-items>
     </div>

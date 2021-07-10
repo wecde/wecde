@@ -1,6 +1,6 @@
 <template>
   <div>
-    <app-file-system-item
+    <FileExplorer-ListItem
       v-for="(item, index) in filesList"
       :file="item"
       :key="index"
@@ -11,12 +11,12 @@
 
 <script lang="ts">
 import { defineComponent, PropType } from "@vue/composition-api";
-import AppFileSystemItem from "./ListItem.vue";
-import { ReaddirStatItem } from "@/modules/filesystem";
+import FileExplorerListItem from "./ListItem.vue";
+import type { ReaddirStatItem } from "@/modules/filesystem";
 
 export default defineComponent({
   components: {
-    AppFileSystemItem,
+    FileExplorerListItem,
   },
   props: {
     filesList: {

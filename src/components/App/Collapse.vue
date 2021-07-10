@@ -34,6 +34,11 @@ export default defineComponent({
       }
     });
 
+    if (eager) {
+      setuped.value = true;
+      watchState();
+    }
+
     return {
       state,
       setuped,

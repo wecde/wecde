@@ -10,29 +10,26 @@
       style="z-index: 1000"
       v-if="progress"
     />
-    <app-navigation-drawer />
-    <terminal-index />
+    <App-NavigationDrawer />
+    <Terminal />
     <v-main>
       <router-view />
     </v-main>
-    <v-teleport-location name="root" />
   </v-app>
 </template>
 
 <script lang="ts">
 import { defineComponent, onMounted, computed } from "@vue/composition-api";
 import AppNavigationDrawer from "@/components/App/NavigationDrawer.vue";
-import TerminalIndex from "@/components/Terminal/Index.vue";
+import Terminal from "@/components/Terminal/Index.vue";
 import { requestPermissions } from "@/modules/filesystem";
 import { loadLanguageAsync } from "@/i18n";
 import store from "@/store";
-import { vTeleportLocation } from "@desislavsd/vue-teleport";
 
 export default defineComponent({
   components: {
     AppNavigationDrawer,
-    TerminalIndex,
-    vTeleportLocation,
+    Terminal,
   },
   setup() {
     onMounted(async () => {

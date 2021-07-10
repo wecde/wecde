@@ -95,7 +95,7 @@
         </v-menu>
       </div>
 
-      <app-rename
+      <FileExplorer-Rename
         :is-folder="isFolder"
         :renaming.sync="renaming"
         :names-exists="namesExists"
@@ -112,10 +112,10 @@
             <span v-else />
           </span>
         </template>
-      </app-rename>
+      </FileExplorer-Rename>
     </div>
     <div class="ml-3" v-if="isFolder" v-show="collapse">
-      <app-add
+      <FileExplorer-Add
         :adding.sync="adding"
         :is-folder="addingFolder"
         :names-exists="namesExists"
@@ -123,7 +123,7 @@
         class="d-flex align-center order-0 text-truncate"
         @created="refreshFolder"
       />
-      <app-file-system
+      <FileExplorer-List
         :files-list="files"
         @removed-file="files.splice($event, 1)"
       />
@@ -140,20 +140,20 @@ import {
   watch,
 } from "@vue/composition-api";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
-import AppRename from "./Rename.vue";
+import FileExplorerRename from "./Rename.vue";
 import { extname, b64toBlob, removedPathProject } from "@/utils";
-import AppAdd from "./Add.vue";
+import FileExplorerAdd from "./Add.vue";
 import { rename, unlink, readFile, readdirStat } from "@/modules/filesystem";
 import { saveAs } from "file-saver";
 import exportZip from "@/modules/export-zip";
 import { Toast } from "@capacitor/toast";
-import { ReaddirStatItem } from "@/modules/filesystem";
+import type { ReaddirStatItem } from "@/modules/filesystem";
 
 export default defineComponent({
   components: {
-    AppFileSystem: () => import("./List.vue") as any,
-    AppRename,
-    AppAdd,
+    FileExplorerList: () => import("./List.vue") as any,
+    FileExplorerRename,
+    FileExplorerAdd,
   },
   props: {
     file: {

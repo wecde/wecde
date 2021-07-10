@@ -24,7 +24,7 @@
           </template>
 
           <v-list color="grey-4" class="list--mouseright">
-            <ModalGitClone>
+            <Git-Clone>
               <v-list-item
                 slot="activator"
                 slot-scope="{ on, attr }"
@@ -39,9 +39,9 @@
                   <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-            </ModalGitClone>
+            </Git-Clone>
 
-            <modal-git-provide>
+            <Git-Provide>
               <v-list-item
                 slot="activator"
                 slot-scope="{ on, attr }"
@@ -58,7 +58,7 @@
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-            </modal-git-provide>
+            </Git-Provide>
           </v-list>
         </v-menu>
 
@@ -107,7 +107,7 @@
           </v-list>
         </v-menu>
 
-        <project-create
+        <Project-Create
           v-model="creatingProject"
           @created="reloadListProjects"
           :projects="projects"
@@ -139,7 +139,7 @@
 
       <div class="fill-height overflow-y-scroll">
         <v-list>
-          <ProjectItem
+          <Project-Item
             v-for="item in projects"
             :key="item.name"
             :project="item"
@@ -197,21 +197,22 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "@vue/composition-api";
-import { readdirStat, ReaddirStatItem, rmdir } from "@/modules/filesystem";
+import { readdirStat, rmdir } from "@/modules/filesystem";
+import type { ReaddirStatItem } from "@/modules/filesystem";
 import ProjectItem from "@/components/Project/Item.vue";
 import ProjectCreate from "@/components/Project/Create.vue";
 import importZip from "@/modules/import-zip";
 import { random } from "@/utils";
 import { Toast } from "@capacitor/toast";
-import ModalGitProvide from "@/components/Git/ModalGitProvide.vue";
-import ModalGitClone from "@/components/Git/ModalGitClone.vue";
+import GitProvide from "@/components/Git/ModalGitProvide.vue";
+import GitClone from "@/components/Git/ModalGitClone.vue";
 
 export default defineComponent({
   components: {
     ProjectItem,
     ProjectCreate,
-    ModalGitProvide,
-    ModalGitClone,
+    GitProvide,
+    GitClone,
   },
   setup() {
     const search = ref<boolean>(false);
