@@ -13,6 +13,7 @@ import { base64ToArrayBuffer, rawText } from "@/utils";
 import $store from "@/store";
 import { Toast } from "@capacitor/toast";
 import { StatResult } from "@capacitor/filesystem";
+import i18n from "@/i18n";
 
 function Err(name: string): any {
   return class extends Error {
@@ -187,7 +188,7 @@ export async function clone({
   url: string;
   ref?: string;
 }): Promise<void> {
-  $store.commit("terminal/print", `Cloning repo "${url}"...`);
+  $store.commit("terminal/print", i18n.t(`Cloning repo {url}...`, { url }));
   await git.clone({
     fs,
     http,
@@ -229,14 +230,20 @@ export async function clone({
     onAuth(url) {
       const auth = getAuthFromProvide(url);
 
-      $store.commit("terminal/warning", "Clone repo failure 403. Try login...");
+      $store.commit(
+        "terminal/warning",
+        i18n.t("Clone repo failure 403. Try login...")
+      );
 
       return auth;
     },
     onAuthFailure() {
-      $store.commit("terminal/error", "Access was denied. Login failure!");
+      $store.commit(
+        "terminal/error",
+        i18n.t("Access was denied. Login failure!")
+      );
       Toast.show({
-        text: "Login GIT failure.",
+        text: i18n.t("Login GIT failure") as string,
       });
 
       return {
@@ -244,7 +251,7 @@ export async function clone({
       };
     },
     onAuthSuccess() {
-      $store.commit("terminal/success", "Login success!");
+      $store.commit("terminal/success", i18n.t("Login success!"));
     },
   });
 }

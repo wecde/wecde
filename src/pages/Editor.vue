@@ -1,5 +1,5 @@
 <template>
-  <div class="fill-height" v-if="file">
+  <div class="fill-height" v-if="fullpath">
     <App-Hammer>
       <div class="session mr-1" ref="sessionWrapper">
         <div
@@ -24,6 +24,7 @@
             "
           />
           {{ basename(item) }}
+          <template v-if="isPlainText(item) === false">(read only)</template>
           <v-icon
             size="inherit"
             class="times"
@@ -33,17 +34,7 @@
           </v-icon>
         </div>
       </div>
-      <v-icon v-if="!previewMd && isPlainText(file)">mdi-magnify</v-icon>
-      <v-icon
-        v-if="type === `markdown`"
-        @click="previewMd = !previewMd"
-        class="ml-2"
-        >{{
-          previewMd
-            ? "mdi-square-edit-outline"
-            : "mdi-language-markdown-outline"
-        }}</v-icon
-      >
+      <v-icon v-if="plaintext">mdi-magnify</v-icon>
       <v-icon
         color="#0dbf7f"
         class="ml-2"
@@ -76,32 +67,33 @@
       </WebView>
     </App-Hammer>
 
-    <div class="editor--wrapper dark" v-show="!previewMd">
-      <div
-        ref="editor"
-        class="editor"
-        v-if="isPlainText(file)"
-        :style="{
-          'font-size': `${$store.state.settings.editor.fontSize}px`,
-          'font-family': `${$store.state.settings.editor.font}`,
-        }"
+    <div class="editor dark">
+      <Preview-Font :fullpath="fullpath" v-if="typeEditor === 'font'" />
+      <Preview-Image :fullpath="fullpath" v-else-if="typeEditor === 'image'" />
+      <Preview-Video :fullpath="fullpath" v-else-if="typeEditor === 'video'" />
+      <Preview-Audio :fullpath="fullpath" v-else-if="typeEditor === 'audio'" />
+      <Editor-SVG
+        :fullpath="fullpath"
+        :previewing="previewing"
+        v-else-if="typeEditor === 'svg'"
+        @change="scrollSessionWrapperToSessionActive"
       />
-
-      <div v-else-if="type === `image`">
-        <img :src="`data:image/${ext};base64,${base64}`" alt="" />
-      </div>
-      <div v-else-if="type === `video`">
-        <video :src="`data:video/${ext};base64,${base64}`" alt="" />
-      </div>
-      <div v-else-if="type === `audio`">
-        <audio :src="`data:audio/${ext};base64,${base64}`" alt="" />
+      <Editor-Markdown
+        :fullpath="fullpath"
+        :previewing="previewing"
+        v-else-if="typeEditor === 'markdown'"
+        @change="scrollSessionWrapperToSessionActive"
+      />
+      <Editor-Code
+        :fullpath="fullpath"
+        v-else-if="plaintext"
+        @change="scrollSessionWrapperToSessionActive"
+      />
+      <div v-else>
+        This file is not displayed in the text editor because it is either
+        binary or uses an unsupported text encoding.
       </div>
     </div>
-    <div
-      class="preview--markdown"
-      v-if="type === `markdown` && previewMd && base64"
-      v-html="marked(rawText(base64))"
-    />
   </div>
 </template>
 
@@ -112,219 +104,62 @@ import {
   watch,
   computed,
   onMounted,
-  onBeforeMount,
 } from "@vue/composition-api";
-
 import AppHammer from "@/components/App/Hammer.vue";
-import ace from "ace-builds";
-import "ace-builds/webpack-resolver";
-import "ace-builds/src-noconflict/ext-language_tools";
-// import "ace-builds/src-noconflict/ext-emmet";
-import "ace-builds/src-noconflict/ext-linking";
-import "ace-builds/src-noconflict/ext-settings_menu";
-import "ace-builds/src-noconflict/keybinding-emacs";
-import "ace-builds/src-noconflict/keybinding-sublime";
-import "ace-builds/src-noconflict/keybinding-vim";
-import "ace-builds/src-noconflict/keybinding-vscode";
-import "ace-builds/src-noconflict/ext-spellcheck";
-import { beautify } from "ace-builds/src-noconflict/ext-beautify";
-import { readFile, writeFile } from "@/modules/filesystem";
-import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons.json";
-import { isPlainText, getType, extname, rawText } from "@/utils";
+import { extname } from "@/utils";
 import $store from "@/store";
 import $router from "@/router";
-import $i18n from "@/i18n";
+import i18n from "@/i18n";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 import { basename } from "path";
-import marked from "marked";
 import { WebServer } from "@/modules/webserver";
 import WebView from "@/components/WebView/Index.vue";
 import { Toast } from "@capacitor/toast";
 import Vue from "vue";
+import { isPlainText, getEditor } from "@/utils";
+import PreviewFont from "@/components/Preview/Font.vue";
+import PreviewImage from "@/components/Preview/Image.vue";
+import PreviewVideo from "@/components/Preview/Video.vue";
+import PreviewAudio from "@/components/Preview/Audio.vue";
+import EditorSVG from "@/components/Editor/SVG.vue";
+import EditorMarkdown from "@/components/Editor/Markdown.vue";
+import EditorCode from "@/components/Editor/Code.vue";
 
 export default defineComponent({
   components: {
     AppHammer,
     WebView,
+    PreviewFont,
+    PreviewImage,
+    PreviewVideo,
+    PreviewAudio,
+    EditorSVG,
+    EditorMarkdown,
+    EditorCode,
   },
   setup() {
-    const base64 = ref<string | null>(null);
-    const file = computed<string | null>(() => $store.state.editor.session);
-    const ext = computed<string | null>(() =>
-      file.value ? extname(file.value) : null
-    );
-    const type = computed<string | null>(() =>
-      file.value ? getType(file.value) : null
+    const fullpath = computed<string | null>(() => $store.state.editor.session);
+    const typeEditor = computed<string>(
+      () => (fullpath.value ? getEditor(fullpath.value) : null) || "text"
     );
 
-    const editor = ref<Element | null>(null);
     const WebView = ref<Vue | null>(null);
 
     const serverStatus = ref<boolean>(false);
     const serverLoading = ref<boolean>(false);
     const port = computed<string>(() => $store.state.settings.preview.port);
+    const plaintext = computed<boolean>(() =>
+      fullpath.value ? isPlainText(fullpath.value) : false
+    );
 
     const sessionWrapper = ref<Element | null>(null);
 
-    const $ace: {
-      value: any;
-    } = {
-      value: null,
-    };
     let isMounted = false;
 
     onMounted(() => void (isMounted = true));
 
-    let timeoutSaveFile: any;
-
-    function createEditor() {
-      if (editor.value && file.value) {
-        $ace.value = ace.edit(editor.value);
-
-        clearTimeout(timeoutSaveFile);
-        $ace.value.session.on("change", () => {
-          clearTimeout(timeoutSaveFile);
-
-          timeoutSaveFile = setTimeout(
-            async () =>
-              void (await writeFile(
-                file.value as string,
-                $ace.value.getValue()
-              )),
-            100
-          );
-
-          scrollSessionWrapperToSessionActive();
-        });
-
-        $ace.value.setOptions({
-          enableLinking: true,
-          autoScrollEditorIntoView: true,
-          enableSnippets: true,
-          // enableEmmet: true,
-          // enableCodeLens: true,
-        });
-
-        $ace.value.setTheme(`${$store.state.settings.appearance.theme}`);
-        $ace.value.setOption(
-          "enableBasicAutocompletion",
-          $store.state.settings.editor.autocomplete
-        );
-        $ace.value.setOption(
-          "enableLiveAutocompletion",
-          $store.state.settings.editor.autocomplete
-        );
-        $ace.value.setKeyboardHandler(
-          // eslint-disable-next-line no-extra-boolean-cast
-          !!$store.state.settings.editor.keybinding
-            ? `ace/keyboard/${$store.state.settings.editor.keybinding}`
-            : null
-        );
-        $ace.value.setOption(
-          "showGutter",
-          $store.state.settings.editor.lineNumber
-        );
-        $ace.value.setShowPrintMargin(
-          +$store.state.settings.editor.printMargin > 0
-        );
-        $ace.value.setPrintMarginColumn(
-          +$store.state.settings.editor.printMargin
-        );
-        $ace.value.setShowInvisibles(
-          $store.state.settings.editor.showInvisible
-        );
-        $ace.value.session.setUseSoftTabs(
-          $store.state.settings.editor.useSoftTabs
-        );
-        $ace.value.session.setTabSize(+$store.state.settings.editor.tabSize);
-        $ace.value.session.setUseWrapMode(
-          $store.state.settings.editor.wordWrap
-        );
-      }
-    }
-    function removeEditor() {
-      if ($ace.value) {
-        $ace.value.destroy();
-        $ace.value = null;
-      }
-    }
-
-    function beautifyCode() {
-      beautify.beautify($ace.value.session);
-    }
-
     watch(
-      file,
-      async (newValue, oldValue) => {
-        if (!newValue) {
-          return;
-        }
-
-        if (oldValue && $ace.value) {
-          $store.commit("storeScroll/setStore", {
-            file: oldValue,
-            value: {
-              x: $ace.value.session.getScrollLeft(),
-              y: $ace.value.session.getScrollTop(),
-            },
-          });
-        }
-
-        if (newValue) {
-          base64.value = await readFile(newValue);
-        }
-
-        if (isPlainText(file.value as string)) {
-          const init = () => {
-            if (editor.value) {
-              createEditor();
-
-              $ace.value.setValue(atob(base64.value || ""));
-              $ace.value.clearSelection();
-
-              setTimeout(() => {
-                const { x, y } = $store.state.storeScroll.store[
-                  file.value as string
-                ] || {
-                  x: 0,
-                  y: 0,
-                };
-
-                $ace.value.session.setScrollLeft(x);
-                $ace.value.session.setScrollTop(y);
-              }, 70);
-
-              const language =
-                ext.value === "vue"
-                  ? "html"
-                  : fileExtensions[ext.value as string] || "text";
-              $ace.value.session.setMode(`ace/mode/${language}`);
-              ace.require(`ace/snippets/${language}`);
-            }
-          };
-
-          if (isMounted) {
-            init();
-          } else {
-            onMounted(() => init());
-          }
-        } else {
-          removeEditor();
-        }
-      },
-      {
-        immediate: true,
-      }
-    );
-
-    onBeforeMount(() => {
-      if (!file) {
-        $router.push("/");
-      }
-    });
-
-    watch(
-      file,
+      fullpath,
       (newValue) => {
         if (!newValue) {
           $router.push("/");
@@ -339,7 +174,7 @@ export default defineComponent({
       await WebServer.start(port).catch((err: any) => console.log(err));
 
       Toast.show({
-        text: $i18n.t(`WebServer started on port {port}`, {
+        text: i18n.t(`WebServer started on port {port}`, {
           port,
         }) as string,
       });
@@ -349,7 +184,7 @@ export default defineComponent({
       await WebServer.stop();
 
       Toast.show({
-        text: $i18n.t(`WebServer closed`) as string,
+        text: i18n.t(`WebServer closed`) as string,
       });
     }
     async function changePort(port: string): Promise<void> {
@@ -387,7 +222,7 @@ export default defineComponent({
     }
 
     watch(
-      file,
+      fullpath,
       (newValue) => {
         if (newValue) {
           if (isMounted) {
@@ -403,133 +238,37 @@ export default defineComponent({
     );
 
     return {
-      tab: ref(null),
-      file,
-      ext,
+      fullpath,
       basename,
-      type,
-      base64,
-      $ace,
-      editor,
       getIcon,
-      previewMd: ref(false),
-      marked,
-      rawText,
       serverStatus,
-      beautifyCode,
       port,
       serverLoading,
       sessionWrapper,
       WebView,
+      scrollSessionWrapperToSessionActive,
+      plaintext,
+      typeEditor,
+      previewing: ref<boolean>(false),
     };
   },
-  watch: {
-    "$store.state.settings.appearance.theme": {
-      handler(newValue) {
-        console.log("theme changed");
-        if (this.$ace.value) {
-          this.$ace.value.setTheme(`${newValue}`);
-        }
-      },
-    },
-    "$store.state.settings.editor.autocomplete": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.setOption("enableBasicAutocompletion", newValue);
-          this.$ace.value.setOption("enableLiveAutocompletion", newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor.keybinding": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.setKeyboardHandler(`ace/keyboard/${newValue}`);
-        }
-      },
-    },
-    "$store.state.settings.editor.lineNumber": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.setOption("showGutter", newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor.printMargin": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          newValue = +newValue;
-          this.$ace.value.setShowPrintMargin(newValue > 0);
-          this.$ace.value.setPrintMarginColumn(newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor.showInvisible": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.setShowInvisibles(newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor.useSoftTabs": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.session.setUseSoftTabs(newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor.tabSize": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.session.setTabSize(+newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor.wordWrap": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.session.setUseWrapMode(newValue);
-        }
-      },
-    },
-  },
   methods: {
-    isPlainText,
     extname,
+    isPlainText,
   },
 });
 </script>
 
 <style lang="scss" scoped>
-.editor--wrapper,
-.preview--markdown {
+.editor {
   position: relative;
   width: 100%;
   height: 100%;
-}
-.editor--wrapper {
-  > div {
-    margin: auto;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
-
-  .editor {
+  > * {
+    position: relative;
     width: 100%;
     height: 100%;
   }
-
-  img {
-    max-width: 100%;
-  }
-  video {
-    width: 100%;
-  }
-}
-.preview--markdown {
-  margin: 15px 10px;
-  overflow: scroll;
 }
 </style>
 

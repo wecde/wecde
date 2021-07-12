@@ -22,5 +22,5 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": "off",
     "prefer-rest-params": "off",
   },
-  ignorePatterns: ["src/assets/templates/index.js"],
+  ignorePatterns: ["resources"],
 };

@@ -123,5 +123,18 @@
   "No checkout": "Không checkout",
   "No tags": "Không tải tags",
   "Since date": "Kể từ ngày",
-  "Single branch": "Chỉ tải một nhánh"
+  "Single branch": "Chỉ tải một nhánh",
+  "Clone repo {url} failed": "Sao chép repo \"{url}\" không thành công",
+  "Clone repo {url} successfuly": "Sao chép repo \"{url}\" thành công",
+  "Email": "E-mail",
+  "Login GIT failure": "Đăng nhập GIT thất bại",
+  "Login success!": "Đăng nhập thành công!",
+  "Password": "Mật khẩu",
+  "Provider": "Các nhà cung cấp",
+  "Reload list file(s)": "Tải lại (các) tệp danh sách",
+  "Reload list projects": "Tải lại danh sách các dự án",
+  "Remove {type} {name} failed": "Xóa {type} \"{name}\" không thành công",
+  "Renamed {type} {old} to {new} failed": "Đã đổi tên {type} \"{old}\" thành \"{new}\" không thành công",
+  "URL (Start with https://)": "URL (Bắt đầu bằng https: //)",
+  "Username": "tên tài khoản"
 }

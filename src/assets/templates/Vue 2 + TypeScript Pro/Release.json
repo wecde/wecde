@@ -1,0 +1,11 @@
+{
+  "name": "Vue 2 + TypeScript Pro",
+  "directory-name": "Vue 2 + TypeScript Pro",
+  "icons": [
+    "icon_ts.svg",
+    "icon_vue.svg"
+  ],
+  "isTemplate": true,
+  "MD5": "4b3de70912401db39ccc3775e673832c",
+  "mtimeMs": 1626023981694.263
+}

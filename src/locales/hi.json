@@ -115,5 +115,7 @@
   "It can NOT be recovered!": "इसे पुनर्प्राप्त नहीं किया जा सकता है!",
   "Use soft tabs": "सॉफ्ट टैब्स का इस्तेमाल करें",
   "WebView Version": "वेबव्यू संस्करण",
-  "Word wrap": "वर्ड रैप"
+  "Word wrap": "वर्ड रैप",
+  "Reload list file(s)": "",
+  "Reload list projects": ""
 }

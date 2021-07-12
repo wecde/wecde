@@ -177,8 +177,10 @@ export default defineComponent({
         );
 
         if (notification) {
-          await Toast.show({
-            text: this.$t("Reload project") as string,
+          Toast.show({
+            text: this.$t("Reload list {type}", {
+              type: this.$t("file(s)"),
+            }) as string,
           });
         }
       } catch (err) {
@@ -189,8 +191,10 @@ export default defineComponent({
     async importFile(): Promise<void> {
       const names = await importFiles(this.$store.state.editor.project);
       await this.reloadListFile();
-      await Toast.show({
-        text: this.$t(`Imported file(s) {list}`, {
+      this.$store.commit("terminal/clear");
+      Toast.show({
+        text: this.$t(`Imported {type} {list}`, {
+          type: this.$t("file(s)"),
           list: names.map((item) => `"${item}"`).join(", "),
         }) as string,
       });

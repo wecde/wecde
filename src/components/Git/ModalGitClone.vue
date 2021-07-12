@@ -64,13 +64,17 @@ export default defineComponent({
 
         this.$store.commit("terminal/clear");
         Toast.show({
-          text: `Clone repo "${this.url}" successfuly.`,
+          text: this.$t(`Clone repo {url} successfuly`, {
+            url: this.url,
+          }) as string,
         });
         this.$emit("done");
       } catch (err) {
         this.$store.commit("terminal/error", err);
         Toast.show({
-          text: `Clone repo "${this.url}" failed.`,
+          text: this.$t(`Clone repo {url} failed`, {
+            url: this.url,
+          }) as string,
         });
       }
     },

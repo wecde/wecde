@@ -8,6 +8,9 @@ import editor, { State as StateEditor } from "./modules/editor";
 import storeScroll, { State as StateStoreScroll } from "./modules/store-scroll";
 import terminal, { State as StateTerminal } from "./modules/terminal";
 import progress, { State as StateProgress } from "./modules/progress";
+import bookmarkLabs, {
+  State as StateBookmarkLabs,
+} from "./modules/bookmark-labs";
 
 Vue.use(Vuex);
 
@@ -18,6 +21,7 @@ export default new Vuex.Store<{
   storeScroll: StateStoreScroll;
   terminal: StateTerminal;
   progress: StateProgress;
+  "bookmark-labs": StateBookmarkLabs;
 }>({
   modules: {
     system,
@@ -26,10 +30,11 @@ export default new Vuex.Store<{
     storeScroll,
     terminal,
     progress,
+    "bookmark-labs": bookmarkLabs,
   },
   plugins: [
     createPersistedState({
-      paths: ["settings", "system", "editor", "storeScroll"],
+      paths: ["settings", "system", "editor", "storeScroll", "bookmark-labs"],
     }),
   ],
 });

@@ -38,13 +38,14 @@ declare module "*/material-icons.json" {
   };
 }
 
-declare module "*/templates/all.json" {
+declare module "*/Release.json" {
   export interface Template {
     name: string;
-    project: string;
-    index: number;
-    template: boolean;
-    icons: string[];
+    "directory-name": string;
+    icons?: string[];
+    images?: string[];
+    description?: string;
+    isTemplate: boolean;
   }
 
   const value: Template[];

@@ -3,7 +3,7 @@ import { readFilesFolder, writeFile, readFile, mkdir } from "./filesystem";
 import { join } from "path";
 import store from "@/store";
 import { base64ToArrayBuffer } from "../utils";
-import $i18n from "@/i18n";
+import i18n from "@/i18n";
 import { Directory } from "@capacitor/filesystem";
 
 export async function zip({
@@ -47,7 +47,7 @@ export async function zip({
 }): Promise<ArrayBuffer | void> {
   store.commit(
     "terminal/print",
-    $i18n.t(`Ziping folder {name}`, {
+    i18n.t(`Ziping folder {name}`, {
       name: folder,
     })
   );
@@ -60,7 +60,7 @@ export async function zip({
 
       store.commit(
         "terminal/print",
-        $i18n.t("Adding {type} {name}", {
+        i18n.t("Adding {type} {name}", {
           type: stat.type,
           name: path,
         })
@@ -82,7 +82,7 @@ export async function zip({
   if (to) {
     store.commit(
       "terminal/print",
-      $i18n.t("Successfuly zip saved in {name}", {
+      i18n.t("Successfuly zip saved in {name}", {
         name: to,
       })
     );
@@ -90,7 +90,7 @@ export async function zip({
     await writeFile(to, fileResult, toDirectory);
   }
 
-  store.commit("terminal/print", $i18n.t(`Successfuly created zip`));
+  store.commit("terminal/print", i18n.t(`Successfuly created zip`));
 
   return fileResult;
 }
@@ -108,7 +108,7 @@ export async function unzip({
 }): Promise<void> {
   store.commit(
     "terminal/print",
-    $i18n.t(`Geting file zip from {name}`, {
+    i18n.t(`Geting file zip from {name}`, {
       name: typeof file === "string" ? file : "tmp/buffer",
     })
   );
@@ -124,7 +124,7 @@ export async function unzip({
   );
   store.commit(
     "terminal/print",
-    $i18n.t("Extract file {name}", {
+    i18n.t("Extract file {name}", {
       name: typeof file === "string" ? file : "tmp/buffer",
     })
   );
@@ -133,7 +133,7 @@ export async function unzip({
   for (const path in zip.files) {
     store.commit(
       "terminal/print",
-      $i18n.t("Extracing {type} {name}", {
+      i18n.t("Extracing {type} {name}", {
         type: zip.files[path].dir ? "directory" : "file",
         name: path,
       })
@@ -155,7 +155,7 @@ export async function unzip({
   await Promise.all(allProcess);
   store.commit(
     "terminal/print",
-    $i18n.t(`Extracted zip to {to}`, {
+    i18n.t(`Extracted zip to {to}`, {
       to,
     })
   );

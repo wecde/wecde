@@ -53,6 +53,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss">
+@import "~@/assets/fonts/Roboto/fonts.css";
+</style>
+
+<style lang="scss">
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -65,6 +69,29 @@ export default defineComponent({
 ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(231, 231, 231, 0.3);
 }
+
+*:not(input, textarea, [contentediable="true"]) {
+  user-select: none;
+}
+
+.min-height-0 {
+  min-height: 0;
+}
+
+.fill-width {
+  width: 100%;
+}
+
+.overflow-y-scroll {
+  overflow-y: scroll;
+
+  padding-bottom: 40px;
+}
+
+.fill-height {
+  height: 100%;
+}
+
 // * {
 //   // scrollbar-width: none;
 // }

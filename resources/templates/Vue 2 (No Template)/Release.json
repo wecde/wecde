@@ -1,0 +1,10 @@
+{
+  "name": "Vue 2 (No Template)",
+  "directory-name": "Vue 2 (No Template)",
+  "icons": [
+    "icon_vue.svg"
+  ],
+  "isTemplate": true,
+  "MD5": "4fe5f524ae9d99726e3227c3ee9ec2bd",
+  "mtimeMs": 1626002001673.059
+}

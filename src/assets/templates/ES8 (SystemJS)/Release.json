@@ -1,0 +1,10 @@
+{
+  "name": "ES8 (SystemJS)",
+  "directory-name": "ES8 (SystemJS)",
+  "icons": [
+    "icon_es8.svg"
+  ],
+  "isTemplate": true,
+  "MD5": "38469352d1eda337dbc7b397ebdfe572",
+  "mtimeMs": 1626023979339.2188
+}

@@ -1,0 +1,11 @@
+{
+  "name": "Radius Raid",
+  "directory-name": "Radius Raid",
+  "images": [
+    "image_radius-raid.png"
+  ],
+  "isTemplate": true,
+  "MD5": "23620643e050e18bfcde09f7795fbee1",
+  "mtimeMs": 1626023094280.248,
+  "description": "Shooter Game"
+}

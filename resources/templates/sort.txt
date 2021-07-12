@@ -1,0 +1,25 @@
+No Template
+ES8 Pro
+ES8 (SystemJS)
+Typescript 4 Pro
+TypeScript (SystemJS)
+HTML
+HTML + Bootstrap 5
+HTML + Material UI Lite
+HTML + Semantic UI
+Angular (SystemJS)
+AngularJS (CDN)
+React 16 Pro
+React 17 + Hot-Reloader
+React 16 + Less Pro
+React + TypeScript Pro
+React 16 (SystemJS)
+React 16 + Material UI Lite (SystemJS)
+Svelte 3 Pro
+Svelte 3 + TypeScript Pro
+Vue 2 Pro
+Vue 3 Pro
+Vue 2 + TypeScript Pro
+Vue 2 (No Template)
+Vue 2 (SystemJS)
+d3

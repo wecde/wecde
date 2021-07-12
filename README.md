@@ -1,4 +1,4 @@
-# demo
+# Shin Code Editor
 
 ## Project setup
 ```

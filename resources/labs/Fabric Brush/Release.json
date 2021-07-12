@@ -1,0 +1,11 @@
+{
+  "name": "Fabric Brush",
+  "directory-name": "Fabric Brush",
+  "images": [
+    "image_fabric-brush.png"
+  ],
+  "isTemplate": true,
+  "MD5": "2a58f744a293c60bc3175d3819773b45",
+  "mtimeMs": 1626010052945.6533,
+  "description": "Drawing Tool"
+}

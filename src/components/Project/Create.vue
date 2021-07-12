@@ -30,14 +30,14 @@
               "
             >
               <div>
-                <div class="list-templates__group-icons">
+                <div class="list-templates__group-icons" v-if="template.icons">
                   <v-img
                     width="56px"
                     height="56px"
                     eager
                     v-for="(item, index) in template.icons"
                     :src="
-                      require(`@/assets/templates/${template.project}/${item}`)
+                      require(`@/assets/templates/${template['directory-name']}/${item}`)
                     "
                     :key="index"
                   ></v-img>
@@ -89,14 +89,17 @@
           />
 
           <div class="mt-8">Template</div>
-          <div class="list-templates__group-icons mt-1">
+          <div
+            class="list-templates__group-icons mt-1"
+            v-if="templateSelected.icons"
+          >
             <v-img
               width="56px"
               height="56px"
               v-for="(item, index) in templateSelected.icons"
               :src="
                 require(`@/assets/templates/${
-                  templateSelected && templateSelected.project
+                  templateSelected && templateSelected['directory-name']
                 }/${item}`)
               "
               :key="index"
@@ -110,7 +113,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, PropType } from "@vue/composition-api";
-import templates, { Template } from "@/assets/templates/all.json";
+import templates, { Template } from "@/assets/templates/Release.json";
 import { unzip } from "@/modules/zip";
 import { mkdir } from "@/modules/filesystem";
 import { Toast } from "@capacitor/toast";
@@ -156,11 +159,11 @@ export default defineComponent({
       let created = false;
 
       if (this.templateSelected) {
-        if (this.templateSelected.template) {
+        if (this.templateSelected.isTemplate) {
           try {
             await unzip({
               // eslint-disable-next-line @typescript-eslint/no-var-requires
-              file: require(`@/assets/templates/${this.templateSelected.project}/template.zip`)
+              file: require(`@/assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
                 .default,
               to: `projects/${this.templateSelected.name}`,
             });
@@ -177,7 +180,8 @@ export default defineComponent({
 
         if (created) {
           Toast.show({
-            text: this.$t(`Created project {name}`, {
+            text: this.$t(`Created {type} {name}`, {
+              type: this.$t("project"),
               name: this.templateSelected.name,
             }) as string,
           });

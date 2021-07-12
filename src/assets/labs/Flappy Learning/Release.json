@@ -1,0 +1,11 @@
+{
+  "name": "Flappy Learning",
+  "directory-name": "Flappy Learning",
+  "images": [
+    "image_flappy-learning.png"
+  ],
+  "isTemplate": true,
+  "MD5": "3b7c948289aba5c7d5eac2c821fcab01",
+  "mtimeMs": 1626023093483.6038,
+  "description": "Machine Learning"
+}

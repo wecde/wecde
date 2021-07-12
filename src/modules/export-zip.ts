@@ -2,7 +2,7 @@ import { extname, basename } from "path";
 import { zip } from "@/modules/zip";
 import { saveAs } from "file-saver";
 import store from "@/store";
-import $i18n from "@/i18n";
+import i18n from "@/i18n";
 import { Directory } from "@capacitor/filesystem";
 
 export default async function exportZip(
@@ -20,12 +20,12 @@ export default async function exportZip(
 
   store.commit(
     "terminal/print",
-    $i18n.t(`Saving file {name}`, {
+    i18n.t(`Saving file {name}`, {
       name: filename,
     })
   );
 
   saveAs(new Blob([fileZip]), filename);
 
-  store.commit("terminal/print", "Done");
+  store.commit("terminal/print", i18n.t("Done") as string);
 }

@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "@vue/composition-api";
+import { defineComponent, ref, watch, toRefs } from "@vue/composition-api";
 
 export default defineComponent({
   props: {
@@ -23,8 +23,9 @@ export default defineComponent({
       default: false,
     },
   },
-  setup({ eager }) {
-    const state = ref<boolean>(eager);
+  setup(props) {
+    const { eager } = toRefs(props);
+    const state = ref<boolean>(eager.value);
     const setuped = ref<boolean>(false);
 
     const watchState = watch(state, (newValue) => {
@@ -34,7 +35,7 @@ export default defineComponent({
       }
     });
 
-    if (eager) {
+    if (eager.value) {
       setuped.value = true;
       watchState();
     }

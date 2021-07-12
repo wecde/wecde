@@ -9,7 +9,7 @@
         'file--system__new': state === 'U',
       }"
       v-ripple
-      @click="collapse = !collapse"
+      @click="clickToFile"
     >
       <div class="file--system__more order-1">
         <v-menu bottom left>
@@ -138,6 +138,7 @@ import {
   PropType,
   computed,
   watch,
+  toRefs,
 } from "@vue/composition-api";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 import FileExplorerRename from "./Rename.vue";
@@ -161,22 +162,25 @@ export default defineComponent({
       required: true,
     },
   },
-  setup({ file }) {
+  setup(props) {
+    const { file } = toRefs(props);
     const collapse = ref<boolean>(false);
     const state = ref<null | "M" | "U">(null);
     const renaming = ref<boolean>(false);
     const adding = ref<boolean>(false);
     const addingFolder = ref<boolean>(false);
     const nameLocal = ref<string>("");
-    const isFolder = computed<boolean>(() => file.stat.type === "directory");
-    const hidden = computed<boolean>(() => file.name.startsWith("."));
+    const isFolder = computed<boolean>(
+      () => file.value.stat.type === "directory"
+    );
+    const hidden = computed<boolean>(() => file.value.name.startsWith("."));
     const files = ref<ReaddirStatItem[]>([]);
     const namesExists = computed<string[]>(() =>
       files.value.map((file) => file.name)
     );
 
     async function refreshFolder() {
-      files.value = await readdirStat(file.fullpath, void 0, [".git"]);
+      files.value = await readdirStat(file.value.fullpath, void 0, [".git"]);
     }
 
     const watchFirstOpenCollapse = watch(collapse, (newValue) => {
@@ -250,12 +254,10 @@ export default defineComponent({
       this.$store.commit("progress/hide");
     },
     openEditor() {
-      if (this.isFolder === false) {
-        this.$store.commit("editor/pushSession", this.file);
+      this.$store.commit("editor/pushSession", this.file.fullpath);
 
-        if (this.$route.name !== "editor") {
-          this.$router.push("/editor");
-        }
+      if (this.$route.name !== "editor") {
+        this.$router.push("/editor");
       }
     },
 
@@ -285,6 +287,14 @@ export default defineComponent({
             name: removedPathProject(this.file.fullpath),
           }) as string,
         });
+      }
+    },
+
+    clickToFile() {
+      this.collapse = !this.collapse;
+
+      if (this.isFolder === false) {
+        this.openEditor();
       }
     },
   },

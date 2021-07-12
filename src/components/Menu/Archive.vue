@@ -98,7 +98,7 @@
             </v-list-item>
             <v-list-item class="min-height-0">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-gitlab</v-icon>
+                <v-icon>mdi-cube-outline</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title> {{ $t("View Labs") }} </v-list-item-title>
@@ -269,7 +269,9 @@ export default defineComponent({
       this.$store.commit("progress/hide");
       if (notification) {
         await Toast.show({
-          text: "Reload list projects",
+          text: this.$t("Reload list {type}", {
+            type: this.$t("project"),
+          }) as string,
         });
       }
     },
@@ -278,7 +280,8 @@ export default defineComponent({
         const names = await importZip(`projects/`);
         this.$store.commit("terminal/clear");
         Toast.show({
-          text: this.$t(`Imported project {list}`, {
+          text: this.$t(`Imported {type} {list}`, {
+            type: this.$t("project(s)"),
             list: names.map((item) => `"${item}"`).join(", "),
           }) as string,
         });
@@ -290,12 +293,22 @@ export default defineComponent({
     async remove(): Promise<void> {
       this.$store.commit("progress/show");
       if (this.code === this.codeInput && this.projectRemoving) {
-        await rmdir(this.projectRemoving.fullpath);
-        await Toast.show({
-          text: this.$t(`Removed project {name}`, {
-            name: this.projectRemoving.name,
-          }) as string,
-        });
+        try {
+          await rmdir(this.projectRemoving.fullpath);
+          Toast.show({
+            text: this.$t(`Removed {type} {name}`, {
+              type: this.$t("project"),
+              name: this.projectRemoving.name,
+            }) as string,
+          });
+        } catch {
+          Toast.show({
+            text: this.$t(`Remove {type} {name} failed`, {
+              type: this.$t("project"),
+              name: this.projectRemoving.name,
+            }) as string,
+          });
+        }
 
         await this.reloadListProjects();
         this.projectRemoving = null;

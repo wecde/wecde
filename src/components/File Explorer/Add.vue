@@ -23,7 +23,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType, watch } from "@vue/composition-api";
+import {
+  defineComponent,
+  ref,
+  PropType,
+  watch,
+  toRefs,
+} from "@vue/composition-api";
 import FileExplorerRename from "./Rename.vue";
 import { mkdir, writeFile } from "@/modules/filesystem";
 import { Toast } from "@capacitor/toast";
@@ -53,20 +59,18 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
+    const { adding, dirname, isFolder } = toRefs(props);
     const filename = ref<string>("");
 
-    watch(
-      () => props.adding,
-      (newValue) => {
-        if (newValue) {
-          filename.value = "";
-        }
+    watch(adding, (newValue) => {
+      if (newValue) {
+        filename.value = "";
       }
-    );
+    });
     watch(filename, async (newValue) => {
       if (newValue !== "") {
-        const pathTo = join(props.dirname, filename.value);
-        if (props.isFolder) {
+        const pathTo = join(dirname.value, filename.value);
+        if (isFolder.value) {
           await mkdir(pathTo);
         } else {
           await writeFile(pathTo, "");
@@ -74,7 +78,7 @@ export default defineComponent({
 
         Toast.show({
           text: i18n.t("Created {type} {name}", {
-            type: i18n.t(props.isFolder ? "folder" : "file"),
+            type: i18n.t(isFolder.value ? "folder" : "file"),
             name: pathTo,
           }) as string,
         });

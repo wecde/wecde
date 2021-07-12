@@ -1,7 +1,13 @@
 <template>
   <div class="d-inline">
     <slot name="prepend" />
-    <span class="file--system__icon" v-if="noIcon === false">
+    <span
+      class="file--system__icon"
+      v-if="noIcon === false"
+      :class="{
+        renaming,
+      }"
+    >
       <img
         :src="
           getIcon({
@@ -22,6 +28,8 @@
           v-model.trim="newFilename"
           ref="input"
           @keydown.enter="blurInput"
+          @keydown="newFilename = $event.target.value.trim()"
+          @keyup="newFilename = $event.target.value.trim()"
           @blur="blur"
           :data-error="
             fileNameAlreadyExists
@@ -31,7 +39,9 @@
           @click.prevent.stop="() => false"
         />
       </div>
-      <span v-else @click="timeClick = Date.now()">{{ filename }}</span>
+      <span v-else @click="timeClick = Date.now()" style="cursor: text">{{
+        filename
+      }}</span>
     </span>
 
     <slot name="append" />
@@ -45,9 +55,10 @@ import {
   PropType,
   computed,
   watch,
+  toRefs,
 } from "@vue/composition-api";
 import { rename } from "@/modules/filesystem";
-import { join, relative } from "path";
+import { join, relative, basename, extname } from "path";
 import { Toast } from "@capacitor/toast";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 
@@ -88,21 +99,24 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const newFilename = ref<string>(props.filename);
+    const { filename, renaming, namesExists } = toRefs(props);
+    const newFilename = ref<string>(filename.value);
 
-    watch(
-      () => props.filename,
-      () => {
-        newFilename.value = props.filename;
+    watch(filename, () => {
+      newFilename.value = filename.value;
+    });
+    watch(renaming, (newValue) => {
+      if (newValue === false) {
+        newFilename.value = filename.value;
       }
-    );
+    });
 
     return {
       timeClick: ref<number>(0),
       newFilename,
       fileNameAlreadyExists: computed(() =>
-        props.namesExists.some(
-          (name) => name === newFilename.value && name !== props.filename
+        namesExists.value.some(
+          (name) => name === newFilename.value && name !== filename.value
         )
       ),
       getIcon,
@@ -131,18 +145,21 @@ export default defineComponent({
           try {
             await rename(from, to);
             Toast.show({
-              text: `Renamed ${this.isFolder ? "folder" : "file"} "${relative(
-                "projects",
-                from
-              )}" to "${relative("projects", to)}"`,
+              text: this.$t(`Renamed {type} {old} to {new}`, {
+                type: this.isFolder ? "folder" : "file",
+                old: relative("projects", from),
+                new: relative("projects", to),
+              }) as string,
             });
           } catch (err) {
             console.log(err);
             Toast.show({
-              text: `Rename ${this.isFolder ? "folder" : "file"} "${relative(
-                "projects",
-                from
-              )}" failed`,
+              text: this.$t(
+                `Rename ${this.isFolder ? "folder" : "file"} "${relative(
+                  "projects",
+                  from
+                )}" failed`
+              ) as string,
             });
           }
           this.$store.commit("progress/hide");
@@ -158,6 +175,19 @@ export default defineComponent({
     blurInput() {
       (this.$refs?.input as any)?.blur();
     },
+    focusInput() {
+      setTimeout(() => {
+        const { input } = this.$refs as { input: any };
+        input.focus();
+        input.click();
+
+        input.select();
+        input.setSelectionRange(
+          0,
+          basename(input.value, extname(input.value)).length
+        );
+      }, 70);
+    },
   },
   watch: {
     timeClick(newValue, oldValue) {
@@ -170,20 +200,14 @@ export default defineComponent({
     renaming: {
       handler(newValue) {
         if (newValue) {
-          setTimeout(() => {
-            (this.$refs.input as any).focus();
-            (this.$refs.input as any).click();
-          }, 70);
+          this.focusInput();
         }
       },
     },
   },
   mounted() {
     if (this.renaming) {
-      setTimeout(() => {
-        (this.$refs.input as any).focus();
-        (this.$refs.input as any).click();
-      }, 70);
+      this.focusInput();
     }
   },
 });
@@ -209,6 +233,10 @@ export default defineComponent({
     width: 1em;
     height: 1em;
     display: inline-block;
+    &.renaming {
+      position: relative;
+      z-index: 101;
+    }
     > * {
       font-size: inherit;
     }
