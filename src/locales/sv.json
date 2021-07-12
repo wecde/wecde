@@ -109,5 +109,7 @@
   "Transparency": "Genomskinlighet",
   "Transparent": "Transparent",
   "Trigger autocomplete": "Utlös autoslutförande",
-  "UUID": "UUID"
+  "UUID": "UUID",
+  "Reload list file(s)": "",
+  "Reload list projects": ""
 }

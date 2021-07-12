@@ -27,7 +27,7 @@
     <v-tabs-items
       v-model="tab"
       style="height: 100%"
-      class="fill-width transparent my-3 mx-4"
+      class="fill-width transparent my-3 px-4"
     >
       <v-tab-item>
         <Home-Labs />

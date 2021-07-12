@@ -188,7 +188,12 @@ export async function clone({
   url: string;
   ref?: string;
 }): Promise<void> {
-  $store.commit("terminal/print", i18n.t(`Cloning repo {url}...`, { url }));
+  $store.commit(
+    "terminal/print",
+    i18n.t(`Cloning repo {url}`, {
+      url,
+    })
+  );
   await git.clone({
     fs,
     http,
@@ -232,7 +237,7 @@ export async function clone({
 
       $store.commit(
         "terminal/warning",
-        i18n.t("Clone repo failure 403. Try login...")
+        i18n.t("Clone repo failure 403 Try login...")
       );
 
       return auth;
@@ -240,7 +245,7 @@ export async function clone({
     onAuthFailure() {
       $store.commit(
         "terminal/error",
-        i18n.t("Access was denied. Login failure!")
+        i18n.t("Access was denied Login failure!")
       );
       Toast.show({
         text: i18n.t("Login GIT failure") as string,

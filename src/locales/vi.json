@@ -136,5 +136,13 @@
   "Remove {type} {name} failed": "Xóa {type} \"{name}\" không thành công",
   "Renamed {type} {old} to {new} failed": "Đã đổi tên {type} \"{old}\" thành \"{new}\" không thành công",
   "URL (Start with https://)": "URL (Bắt đầu bằng https: //)",
-  "Username": "tên tài khoản"
+  "Username": "tên tài khoản",
+  "Access was denied Login failure!": "Quyền truy cập đã bị từ chối. \nĐăng nhập thất bại!",
+  "Clone repo failure 403 Try login": "Sao chép repo thất bại 403. Hãy thử đăng nhập ...",
+  "Cloning repo {url}": "Sao chép repo \"{url}\" ...",
+  "Imported {type} {list}": "Đã nhập {type} {list}",
+  "Reload list {type}": "Tải lại danh sách {type}",
+  "file(s)": "các tập tin)",
+  "folder(s)": "thư mục)",
+  "project(s)": "(các) dự án"
 }
