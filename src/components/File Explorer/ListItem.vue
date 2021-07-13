@@ -7,6 +7,8 @@
         'file--system-folder': isFolder,
         'file--system__changed': state === '*modified',
         'file--system__new': state === '*added',
+        'file--system__changed-modified': state === 'modified',
+        'file--system__new-modified': state === 'added',
       }"
       :data-type="state"
       v-ripple
