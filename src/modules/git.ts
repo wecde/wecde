@@ -14,6 +14,20 @@ import $store from "@/store";
 import { Toast } from "@capacitor/toast";
 import { StatResult } from "@capacitor/filesystem";
 import i18n from "@/i18n";
+const cache = {
+  clone: {},
+  commit: {},
+  log: {},
+  fetch: {},
+  status: {},
+  statusMatrix: {},
+};
+
+setInterval(() => {
+  for (const key in cache) {
+    (cache as any)[key] = {};
+  }
+}, 5 * 60 * 1000);
 
 function Err(name: string): any {
   return class extends Error {
@@ -219,6 +233,7 @@ export async function clone({
     corsProxy: "https://cors.isomorphic-git.org",
     url,
     ref,
+    cache: cache.clone,
     singleBranch: $store.state.settings.cloneGit.singleBranch,
     noCheckout: $store.state.settings.cloneGit.noCheckout,
     noTags: $store.state.settings.cloneGit.noTags,
@@ -262,6 +277,7 @@ export async function commit({
     dir,
     message,
     onSign: onAuth,
+    cache: cache.commit,
     author: {
       name: $store.state.settings.git[provide]?.name,
       email: $store.state.settings.git[provide]?.email,
@@ -295,6 +311,8 @@ export async function log({
     fs,
     dir,
     ref,
+
+    cache: cache.log,
 
     ...(Number.isNaN(+$store.state.settings.cloneGit.depth)
       ? {}
@@ -331,6 +349,7 @@ export async function fetch({
     corsProxy: "https://cors.isomorphic-git.org",
     url,
     ref,
+    cache: cache.fetch,
 
     onProgress,
     onAuth,
@@ -370,5 +389,14 @@ export async function status({
     fs,
     dir,
     filepath,
+    cache: cache.status,
+  });
+}
+
+export async function statusMatrix({ dir }: { dir: string }): Promise<any> {
+  return await git.statusMatrix({
+    fs,
+    dir,
+    cache: cache.statusMatrix,
   });
 }

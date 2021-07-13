@@ -4,6 +4,7 @@
     max-width="600"
     top
     content-class="dialog--git-provid align-self-start"
+    v-model="state"
   >
     <template v-slot:activator="{ on, attr }">
       <slot name="activator" :on="on" :attr="attr" />
@@ -49,6 +50,7 @@ export default defineComponent({
 
     return {
       url,
+      state: ref<boolean>(false),
     };
   },
   methods: {
@@ -68,6 +70,8 @@ export default defineComponent({
             url: this.url,
           }) as string,
         });
+
+        this.state = false;
         this.$emit("done");
       } catch (err) {
         this.$store.commit("terminal/error", err);

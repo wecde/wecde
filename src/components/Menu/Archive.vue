@@ -30,43 +30,52 @@
             </v-btn>
           </template>
 
-          <v-list color="grey-4" class="list--mouseright">
-            <Git-Clone>
-              <v-list-item
-                slot="activator"
-                slot-scope="{ on, attr }"
-                v-on="on"
-                v-bind="attr"
-                class="min-height-0"
+          <template v-slot="menu">
+            <v-list color="grey-4" class="list--mouseright">
+              <Git-Clone
+                @done="
+                  menu.value = false;
+                  reloadListProjects();
+                "
               >
-                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-git</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </Git-Clone>
+                <v-list-item
+                  slot="activator"
+                  slot-scope="{ on, attr }"
+                  v-on="on"
+                  v-bind="attr"
+                  class="min-height-0"
+                >
+                  <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                    <v-icon>mdi-git</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>{{
+                      $t("Clone Repo")
+                    }}</v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </Git-Clone>
 
-            <Git-Provide>
-              <v-list-item
-                slot="activator"
-                slot-scope="{ on, attr }"
-                v-on="on"
-                v-bind="attr"
-                class="min-height-0"
-              >
-                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-lock-outline</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $t("Credentials") }}
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </Git-Provide>
-          </v-list>
+              <Git-Provide>
+                <v-list-item
+                  slot="activator"
+                  slot-scope="{ on, attr }"
+                  v-on="on"
+                  v-bind="attr"
+                  class="min-height-0"
+                >
+                  <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                    <v-icon>mdi-lock-outline</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ $t("Credentials") }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </Git-Provide>
+            </v-list>
+          </template>
         </v-menu>
 
         <v-menu

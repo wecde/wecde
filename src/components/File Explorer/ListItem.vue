@@ -5,15 +5,14 @@
       :class="{
         'file--system-hidden': hidden || isBeginCut,
         'file--system-folder': isFolder,
-        'file--system__changed': state === '*modified',
-        'file--system__new': state === '*added',
-        'file--system__changed-modified': state === 'modified',
-        'file--system__new-modified': state === 'added',
       }"
-      :data-type="state"
       v-ripple
       @click="clickToFile"
     >
+      <!-- 'file--system__changed': state === '*modified',
+        'file--system__new': state === '*added',
+        'file--system__changed-modified': state === 'modified',
+        'file--system__new-modified': state === 'added', -->
       <div class="file--system__more order-1">
         <v-menu internal-activator bottom left>
           <template v-slot:activator="{ on, attrs }">
@@ -196,11 +195,6 @@ import exportZip from "@/modules/export-zip";
 import { Toast } from "@capacitor/toast";
 import type { ReaddirStatItem } from "@/modules/filesystem";
 import ImportFiles from "@/components/Import/Files.vue";
-import { status } from "@/modules/git";
-import store from "@/store";
-import { relative } from "path";
-
-/// kiểm tra trạng thái của tệp |||
 
 export default defineComponent({
   components: {
@@ -218,7 +212,6 @@ export default defineComponent({
   setup(props) {
     const { file } = toRefs(props);
     const collapse = ref<boolean>(false);
-    const state = ref<null | string>(null);
     const renaming = ref<boolean>(false);
     const adding = ref<boolean>(false);
     const addingFolder = ref<boolean>(false);
@@ -251,25 +244,8 @@ export default defineComponent({
       }
     });
 
-    watch(
-      file,
-      async () => {
-        state.value = await status({
-          dir: store.state.editor.project as string,
-          filepath: relative(
-            store.state.editor.project || "",
-            file.value.fullpath
-          ),
-        });
-      },
-      {
-        immediate: true,
-      }
-    );
-
     return {
       collapse,
-      state,
       renaming,
       adding,
       addingFolder,
@@ -458,7 +434,20 @@ export default defineComponent({
       content: "U";
     }
   }
+  &__changed-modified {
+    color: #e0bd96;
 
+    .file--system__more::before {
+      content: "M";
+    }
+  }
+  &__new-modified {
+    color: #33984a;
+
+    .file--system__more::before {
+      content: "U";
+    }
+  }
   &__changed.file--system-folder .file--system__more::before,
   &__new.file--system-folder .file--system__more::before {
     content: "";
