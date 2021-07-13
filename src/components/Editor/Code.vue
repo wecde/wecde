@@ -267,3 +267,9 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="scss" scoped>
+.Editor-Code {
+  padding-bottom: 150px;
+}
+</style>

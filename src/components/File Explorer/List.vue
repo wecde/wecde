@@ -5,6 +5,7 @@
       :file="item"
       :key="index"
       @removed="$emit(`removed-file`, index)"
+      @refresh-parent="$emit(`refresh`)"
     />
   </div>
 </template>

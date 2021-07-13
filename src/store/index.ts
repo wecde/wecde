@@ -11,6 +11,7 @@ import progress, { State as StateProgress } from "./modules/progress";
 import bookmarkLabs, {
   State as StateBookmarkLabs,
 } from "./modules/bookmark-labs";
+import clipboardFs, { State as StateClipboardFs } from "./modules/clipboard-fs";
 
 Vue.use(Vuex);
 
@@ -22,7 +23,9 @@ export default new Vuex.Store<{
   terminal: StateTerminal;
   progress: StateProgress;
   "bookmark-labs": StateBookmarkLabs;
+  "clipboard-fs": StateClipboardFs;
 }>({
+  // strict: process.env.NODE_ENV !== "production",
   modules: {
     system,
     settings,
@@ -31,6 +34,7 @@ export default new Vuex.Store<{
     terminal,
     progress,
     "bookmark-labs": bookmarkLabs,
+    "clipboard-fs": clipboardFs,
   },
   plugins: [
     createPersistedState({

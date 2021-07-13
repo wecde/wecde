@@ -18,7 +18,7 @@
           <v-icon>mdi-reload</v-icon>
         </v-btn>
 
-        <v-menu bottom left>
+        <v-menu internal-activator bottom left>
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon v-bind="attrs" v-on="on">
               <v-icon>mdi-plus</v-icon>
@@ -26,6 +26,21 @@
           </template>
 
           <v-list color="grey-4" class="list--mouseright">
+            <template v-if="clipboardExists">
+              <v-list-item
+                class="min-height-0"
+                @click="paste"
+                :disabled="notAllowPaste"
+              >
+                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                  <v-icon>mdi-content-paste</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title> {{ $t("Paste") }} </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+              <v-divider />
+            </template>
             <v-list-item
               class="min-height-0"
               @click="
@@ -54,14 +69,23 @@
                 <v-list-item-title> {{ $t("New Folder") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item class="min-height-0" @click="importFile">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-download</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("Import File") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
+            <Import-Files
+              :dirname="$store.state.editor.project"
+              @imported="reloadListFile"
+            >
+              <template v-slot:default="{ on }">
+                <v-list-item class="min-height-0" v-on="on">
+                  <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                    <v-icon>mdi-download</v-icon>
+                  </v-list-item-icon>
+                  <v-list-item-content>
+                    <v-list-item-title>
+                      {{ $t("Import Files") }}
+                    </v-list-item-title>
+                  </v-list-item-content>
+                </v-list-item>
+              </template>
+            </Import-Files>
             <v-divider />
             <v-list-item class="min-height-0">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
@@ -102,11 +126,15 @@
         append-icon="mdi-close"
         v-if="search"
       />
-      <div class="fill-height overflow-y-scroll" v-if="tree">
+      <div
+        class="fill-height overflow-y-scroll"
+        style="padding-bottom: 150px"
+        v-if="tree"
+      >
         <FileExplorer-Add
           :adding.sync="adding"
           :is-folder="addingFolder"
-          dirname="projects"
+          :dirname="$store.state.editor.project"
           @created="reloadListFile"
           :names-exists="tree.map((item) => item.name)"
         />
@@ -114,6 +142,7 @@
         <FileExplorer-List
           :files-list="tree"
           @removed-file="tree.splice($event, 1)"
+          @refresh="reloadListFile"
         />
       </div>
     </div>
@@ -126,15 +155,16 @@ import FileExplorerList from "@/components/File Explorer/List.vue";
 import FileExplorerAdd from "@/components/File Explorer/Add.vue";
 import { stat, readdirStat } from "@/modules/filesystem";
 import type { ReaddirStatItem } from "@/modules/filesystem";
-import importFiles from "@/modules/import-files";
 import { Toast } from "@capacitor/toast";
 import { basename } from "path";
 import store from "@/store";
+import ImportFiles from "@/components/Import/Files.vue";
 
 export default defineComponent({
   components: {
     FileExplorerList,
     FileExplorerAdd,
+    ImportFiles,
   },
   setup() {
     const search = ref<boolean>(false);
@@ -188,16 +218,26 @@ export default defineComponent({
         this.tree = [];
       }
     },
-    async importFile(): Promise<void> {
-      const names = await importFiles(this.$store.state.editor.project);
+
+    async paste() {
+      await this.$store.dispatch(
+        "clipboard-fs/paste",
+        this.$store.state.editor.project
+      );
+
       await this.reloadListFile();
-      this.$store.commit("terminal/clear");
-      Toast.show({
-        text: this.$t(`Imported {type} {list}`, {
-          type: this.$t("file(s)"),
-          list: names.map((item) => `"${item}"`).join(", "),
-        }) as string,
-      });
+    },
+  },
+  computed: {
+    clipboardExists(): boolean {
+      return this.$store.getters["clipboard-fs/isEmpty"] === false;
+    },
+    notAllowPaste(): boolean {
+      return (
+        this.$store.getters["clipboard-fs/allowPaste"](
+          this.$store.state.editor.project
+        ) === false
+      );
     },
   },
 });

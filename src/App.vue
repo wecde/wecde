@@ -11,8 +11,8 @@
       v-if="progress"
     />
     <App-NavigationDrawer />
-    <Terminal />
     <v-main>
+      <Terminal />
       <router-view />
     </v-main>
   </v-app>
@@ -92,7 +92,7 @@ export default defineComponent({
   height: 100%;
 }
 
-// * {
-//   // scrollbar-width: none;
-// }
+* {
+  scrollbar-width: none;
+}
 </style>

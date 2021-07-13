@@ -6,6 +6,14 @@ import { sort } from "fast-sort";
 
 const PUBLIC_STORAGE_APPLICATION = "Shin Code Editor";
 
+async function fixStartsWidth<T>(callback: { (): Promise<T> }): Promise<T> {
+  const { startsWith } = String.prototype;
+  String.prototype.startsWith = () => false;
+  const result = await callback();
+  String.prototype.startsWith = startsWith;
+  return result;
+}
+
 export async function readdir(
   path: string,
   directory: Directory = Directory.Documents
@@ -124,15 +132,14 @@ export async function rename(
   toDirectory: Directory = Directory.Documents
 ): Promise<void> {
   /// fix error
-  const { startsWith } = String.prototype;
-  String.prototype.startsWith = () => false;
-  await Filesystem.rename({
-    from: join(PUBLIC_STORAGE_APPLICATION, from),
-    to: join(PUBLIC_STORAGE_APPLICATION, to),
-    directory,
-    toDirectory,
-  });
-  String.prototype.startsWith = startsWith;
+  await fixStartsWidth<void>(() =>
+    Filesystem.rename({
+      from: join(PUBLIC_STORAGE_APPLICATION, from),
+      to: join(PUBLIC_STORAGE_APPLICATION, to),
+      directory,
+      toDirectory,
+    })
+  );
 }
 
 export async function copy(
@@ -141,12 +148,14 @@ export async function copy(
   directory: Directory = Directory.Documents,
   toDirectory: Directory = Directory.Documents
 ): Promise<void> {
-  await Filesystem.copy({
-    from: join(PUBLIC_STORAGE_APPLICATION, from),
-    to: join(PUBLIC_STORAGE_APPLICATION, to),
-    directory,
-    toDirectory,
-  });
+  await fixStartsWidth<void>(() =>
+    Filesystem.copy({
+      from: join(PUBLIC_STORAGE_APPLICATION, from),
+      to: join(PUBLIC_STORAGE_APPLICATION, to),
+      directory,
+      toDirectory,
+    })
+  );
 }
 
 export async function stat(

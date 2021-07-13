@@ -215,10 +215,12 @@ export default defineComponent({
     });
 
     function scrollSessionWrapperToSessionActive() {
-      const wrapper = sessionWrapper.value as HTMLElement;
-      const active = wrapper.querySelector(".active") as HTMLElement;
+      setTimeout(() => {
+        const wrapper = sessionWrapper.value as HTMLElement;
+        const active = wrapper.querySelector(".active") as HTMLElement;
 
-      wrapper.scrollTo(active?.offsetLeft || 0, 0);
+        wrapper.scrollTo(active?.offsetLeft || 0, 0);
+      }, 70);
     }
 
     watch(

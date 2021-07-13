@@ -14,6 +14,7 @@
           :dirname="dirname"
           :allow-rename="false"
           :no-icon="false"
+          class="d-inline-flex"
         />
       </div>
 

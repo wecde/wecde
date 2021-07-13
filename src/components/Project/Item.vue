@@ -46,7 +46,7 @@
     </v-list-item-content>
 
     <v-list-item-action>
-      <v-menu bottom left>
+      <v-menu internal-activator bottom left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn dark icon v-bind="attrs" v-on="on">
             <v-icon>mdi-dots-vertical</v-icon>

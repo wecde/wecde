@@ -1,4 +1,4 @@
-import { extname as _extname, basename, relative } from "path";
+import { extname as _extname, basename, relative, resolve } from "path";
 import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons.json";
 
 export function extname(path: string): string {
@@ -50,7 +50,7 @@ export function isPlainText(path: string): boolean {
 }
 
 export function getType(path: string): string {
-  return fileExtensions[extname(path)] || "bin";
+  return fileExtensions[extname(path)] || "text";
 }
 
 export function getEditor(path: string): string {
@@ -130,4 +130,18 @@ export function removedPathProject(path: string): string {
   }
 
   return path;
+}
+
+export function pathEquals(a: string, b: string): boolean {
+  return resolve(a) === resolve(b);
+}
+
+export function isParentFolder(a: string, b: string): boolean {
+  const pathsA = resolve(a).split("/");
+  const pathsB = resolve(b).split("/");
+
+  return (
+    resolve(a) !== resolve(b) &&
+    pathsA.every((value, index) => value === pathsB[index])
+  );
 }

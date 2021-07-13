@@ -16,7 +16,14 @@
           <v-icon>mdi-reload</v-icon>
         </v-btn>
 
-        <v-menu bottom left>
+        <v-menu
+          auto
+          internal-activator
+          bottom
+          left
+          close-on-click
+          close-on-content-click
+        >
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon v-bind="attrs" v-on="on">
               <v-icon>mdi-git</v-icon>
@@ -62,7 +69,14 @@
           </v-list>
         </v-menu>
 
-        <v-menu bottom left close-on-click close-on-content-click>
+        <v-menu
+          auto
+          internal-activator
+          bottom
+          left
+          close-on-click
+          close-on-content-click
+        >
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon v-bind="attrs" v-on="on">
               <v-icon>mdi-plus</v-icon>

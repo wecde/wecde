@@ -18,7 +18,7 @@
   "OK": "OK",
   "New File": "New File",
   "New Folder": "New Folder",
-  "Import File": "Import File",
+  "Import Files": "Import Files",
   "Undo": "Undo",
   "Redo": "Redo",
   "Imported {type} {list}": "Imported {type} {list}",
@@ -137,12 +137,7 @@
   "Clone repo failure 403 Try login": "Clone repo failure 403. Try login...",
   "Access was denied Login failure!": "Access was denied. Login failure!",
   "Login success!": "Login success!",
-  "Created project {name}": "",
-  "Imported file(s) {list}": "",
-  "Imported project {list}": "",
-  "Reload list file(s)": "",
-  "Reload list projects": "",
-  "Reload project": "",
-  "Removed project {name}": "",
-  "Renamed project {old} to {new}": ""
+  "Cut": "Cut",
+  "Copy": "Copy",
+  "Paste": "Paste"
 }

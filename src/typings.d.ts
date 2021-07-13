@@ -76,3 +76,11 @@ declare module "@desislavsd/vue-teleport" {
   export const vTeleport: typeof Vue;
   export const vTeleportLocation: typeof Vue;
 }
+
+declare module "vue-bus" {
+  import Vue, { PluginOptions } from "vue";
+
+  export default {
+    install(Vue: Vue): void;,
+  } as PluginOptions;
+}
