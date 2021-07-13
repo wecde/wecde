@@ -5,9 +5,10 @@
       :class="{
         'file--system-hidden': hidden || isBeginCut,
         'file--system-folder': isFolder,
-        'file--system__changed': state === 'M',
-        'file--system__new': state === 'U',
+        'file--system__changed': state === '*modified',
+        'file--system__new': state === '*added',
       }"
+      :data-type="state"
       v-ripple
       @click="clickToFile"
     >
@@ -193,6 +194,11 @@ import exportZip from "@/modules/export-zip";
 import { Toast } from "@capacitor/toast";
 import type { ReaddirStatItem } from "@/modules/filesystem";
 import ImportFiles from "@/components/Import/Files.vue";
+import { status } from "@/modules/git";
+import store from "@/store";
+import { relative } from "path";
+
+/// kiểm tra trạng thái của tệp |||
 
 export default defineComponent({
   components: {
@@ -210,7 +216,7 @@ export default defineComponent({
   setup(props) {
     const { file } = toRefs(props);
     const collapse = ref<boolean>(false);
-    const state = ref<null | "M" | "U">(null);
+    const state = ref<null | string>(null);
     const renaming = ref<boolean>(false);
     const adding = ref<boolean>(false);
     const addingFolder = ref<boolean>(false);
@@ -242,6 +248,22 @@ export default defineComponent({
         collapse.value = true;
       }
     });
+
+    watch(
+      file,
+      async () => {
+        state.value = await status({
+          dir: store.state.editor.project as string,
+          filepath: relative(
+            store.state.editor.project || "",
+            file.value.fullpath
+          ),
+        });
+      },
+      {
+        immediate: true,
+      }
+    );
 
     return {
       collapse,

@@ -420,6 +420,7 @@ export interface State {
       username: string;
       secure: string;
       email: string;
+      name: string;
     };
   };
   [group: string]: {
@@ -435,26 +436,31 @@ const store: Module<State, unknown> = {
         username: "",
         secure: "",
         email: "",
+        name: "",
       },
       "bitbucket.org": {
         username: "",
         secure: "",
         email: "",
+        name: "",
       },
       "gitlab.com": {
         username: "",
         secure: "",
         email: "",
+        name: "",
       },
       "dev.azure.com": {
         username: "",
         secure: "",
         email: "",
+        name: "",
       },
       "*": {
         username: "",
         secure: "",
         email: "",
+        name: "",
       },
     },
     ...state,

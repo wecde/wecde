@@ -1,4 +1,4 @@
-import git from "isomorphic-git";
+import git, { ReadCommitResult, FetchResult } from "isomorphic-git";
 import http from "isomorphic-git/http/web/index.js";
 import {
   readFile,
@@ -142,41 +142,59 @@ const fs = {
   },
 };
 
-function getAuthFromProvide(url: string):
-  | {
-      cancel: true;
-    }
-  | {
-      username: string;
-      password: string;
-    } {
-  let auth:
-    | {
-        cancel: true;
-      }
-    | {
-        username: string;
-        password: string;
-      } = {
-    cancel: true,
-  };
-  let provide = new URL(url).hostname;
+function getProvide(url: string): string {
+  const provide = new URL(url).hostname;
 
-  if (provide in $store.state.settings.git === false) {
-    provide = "*";
+  if (provide in $store.state.settings.git) {
+    return provide;
   }
 
-  if (
-    !!$store.state.settings.git[provide].username &&
-    !!$store.state.settings.git[provide].secure
-  ) {
-    auth = {
-      username: $store.state.settings.git[provide].username,
-      password: $store.state.settings.git[provide].secure,
-    };
-  }
+  return "*";
+}
+
+function getAuthFromProvide(url: string): any {
+  const provide = getProvide(url);
+
+  return $store.state.settings.git[provide];
+}
+
+/// utils
+
+function onProgress(event: any): void {
+  $store.commit(
+    "terminal/print",
+    `${event.phase} (${
+      event.total
+        ? Math.round((event.loaded / event.total) * 100) + "%"
+        : event.loaded
+    })`
+  );
+}
+function onAuth(url: any): any {
+  const auth = getAuthFromProvide(url);
+
+  $store.commit("terminal/warning", i18n.t("Git 403 Try login..."));
 
   return auth;
+}
+function onAuthFailure(): any {
+  $store.commit("terminal/error", i18n.t("Access was denied Login failure!"));
+  Toast.show({
+    text: i18n.t("Login GIT failure") as string,
+  });
+
+  return {
+    cancel: true,
+  };
+}
+function onAuthSuccess() {
+  $store.commit("terminal/success", i18n.t("Login success!"));
+}
+
+// export
+
+export async function init({ dir }: { dir: string }): Promise<void> {
+  await git.init({ fs, dir });
 }
 
 export async function clone({
@@ -221,42 +239,136 @@ export async function clone({
         .split(",")
         .filter(Boolean) ?? [],
 
-    onProgress(event) {
-      $store.commit(
-        "terminal/print",
-        `${event.phase} (${
-          event.total
-            ? Math.round((event.loaded / event.total) * 100) + "%"
-            : event.loaded
-        })`
-      );
-    },
+    onProgress,
     onMessage: console.log,
-    onAuth(url) {
-      const auth = getAuthFromProvide(url);
+    onAuth,
+    onAuthFailure,
+    onAuthSuccess,
+  });
+}
 
-      $store.commit(
-        "terminal/warning",
-        i18n.t("Clone repo failure 403 Try login...")
-      );
+export async function commit({
+  dir,
+  message,
+}: {
+  dir: string;
+  message: string;
+}): Promise<string> {
+  const auth = await listRemotes({ dir });
+  const provide = getProvide(auth?.[0].url || "");
 
-      return auth;
+  return await git.commit({
+    fs,
+    dir,
+    message,
+    onSign: onAuth,
+    author: {
+      name: $store.state.settings.git[provide]?.name,
+      email: $store.state.settings.git[provide]?.email,
     },
-    onAuthFailure() {
-      $store.commit(
-        "terminal/error",
-        i18n.t("Access was denied Login failure!")
-      );
-      Toast.show({
-        text: i18n.t("Login GIT failure") as string,
-      });
+  });
+}
 
-      return {
-        cancel: true,
-      };
-    },
-    onAuthSuccess() {
-      $store.commit("terminal/success", i18n.t("Login success!"));
-    },
+export async function listRemotes({ dir }: { dir: string }): Promise<
+  {
+    remote: string;
+    url: string;
+  }[]
+> {
+  return await git.listRemotes({
+    fs,
+    dir,
+  });
+}
+
+export async function log({
+  dir,
+  ref = "HEAD",
+  force = false,
+}: {
+  dir: string;
+  ref: string;
+  depth: number;
+  force: boolean;
+}): Promise<ReadCommitResult[]> {
+  return await git.log({
+    fs,
+    dir,
+    ref,
+
+    ...(Number.isNaN(+$store.state.settings.cloneGit.depth)
+      ? {}
+      : {
+          depth: +$store.state.settings.cloneGit.depth,
+        }),
+    // eslint-disable-next-line no-extra-boolean-cast
+    ...(!!$store.state.settings.cloneGit.since
+      ? {
+          since: $store.state.settings.cloneGit.since,
+        }
+      : {}),
+
+    force,
+  });
+}
+
+export async function fetch({
+  dir,
+  url,
+  ref,
+  remoteRef,
+}: {
+  dir: string;
+  url: string;
+  ref: string;
+  remoteRef: string;
+  depth: number;
+}): Promise<FetchResult> {
+  return await git.fetch({
+    fs,
+    http,
+    dir,
+    corsProxy: "https://cors.isomorphic-git.org",
+    url,
+    ref,
+
+    onProgress,
+    onAuth,
+    onAuthFailure,
+    onAuthSuccess,
+
+    remoteRef,
+
+    singleBranch: $store.state.settings.cloneGit.singleBranch,
+    ...(Number.isNaN(+$store.state.settings.cloneGit.depth)
+      ? {}
+      : {
+          depth: +$store.state.settings.cloneGit.depth,
+        }),
+    // eslint-disable-next-line no-extra-boolean-cast
+    ...(!!$store.state.settings.cloneGit.since
+      ? {
+          since: $store.state.settings.cloneGit.since,
+        }
+      : {}),
+    exclude:
+      $store.state.settings.cloneGit.exclude
+        ?.replace(/,\s+/g, ",")
+        .split(",")
+        .filter(Boolean) ?? [],
+  });
+}
+
+export async function status({
+  dir,
+  filepath,
+}: {
+  dir: string;
+  filepath: string;
+}): Promise<string> {
+  return await git.status({
+    fs,
+    dir,
+    filepath,
   });
 }
