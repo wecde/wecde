@@ -84,3 +84,19 @@ declare module "vue-bus" {
     install(Vue: Vue): void;,
   } as PluginOptions;
 }
+
+declare module "prettier" {
+  const value: any;
+  const getSupportInfo: any;
+  const formatWithCursor: any;
+  const format: any;
+
+  export { getSupportInfo, formatWithCursor, format };
+  export default value;
+}
+
+declare module "*parser-typescript.js" {
+  const value: any;
+
+  export default value;
+}

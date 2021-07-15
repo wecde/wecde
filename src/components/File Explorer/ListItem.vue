@@ -146,6 +146,7 @@
         v-model="file.name"
         :dirname="file.dirname"
         allow-rename
+        allow-update-store
         class="d-flex align-center order-0 text-truncate"
       >
         <template v-slot:prepend>
@@ -165,6 +166,7 @@
         :names-exists="namesExists"
         :dirname="file.fullpath"
         class="d-flex align-center order-0 text-truncate"
+        allow-open-editor
         @created="refreshFolder"
       />
       <FileExplorer-List
@@ -189,7 +191,7 @@ import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 import FileExplorerRename from "./Rename.vue";
 import { b64toBlob, removedPathProject } from "@/utils";
 import FileExplorerAdd from "./Add.vue";
-import { rename, unlink, readFile, readdirStat } from "@/modules/filesystem";
+import { unlink, readFile, readdirStat } from "@/modules/filesystem";
 import { saveAs } from "file-saver";
 import exportZip from "@/modules/export-zip";
 import { Toast } from "@capacitor/toast";
@@ -268,25 +270,8 @@ export default defineComponent({
   methods: {
     getIcon,
 
-    async rename([newValue, oldValue]: [string, string]): Promise<void> {
-      this.$store.commit("progress/show");
-      await rename(
-        `${this.file.dirname}/${newValue}`,
-        `${this.file.dirname}/${oldValue}`
-      );
-
-      Toast.show({
-        text: this.$t("Renamed {type} {old} to {new}", {
-          type: this.$t(this.isFolder ? "folder" : "file"),
-          old: `${removedPathProject(this.file.dirname)}/${oldValue}`,
-          new: `${removedPathProject(this.file.dirname)}/${newValue}`,
-        }) as string,
-      });
-
-      this.$store.commit("progress/hide");
-    },
     async remove() {
-      this.$store.commit("progress/show");
+      this.$store.commit("system/setProgress", true);
       await unlink(this.file.fullpath);
 
       Toast.show({
@@ -297,7 +282,7 @@ export default defineComponent({
       });
 
       this.$emit("removed");
-      this.$store.commit("progress/hide");
+      this.$store.commit("system/setProgress", false);
     },
     cut() {
       this.$store.commit("clipboard-fs/cut", [
@@ -348,11 +333,11 @@ export default defineComponent({
           this.$store.commit("terminal/error", err);
         }
       } else {
-        this.$store.commit("progress/show");
+        this.$store.commit("system/setProgress", true);
         const data = await readFile(this.file.fullpath);
 
         saveAs(b64toBlob(data), this.file.name);
-        this.$store.commit("progress/hide");
+        this.$store.commit("system/setProgress", false);
         Toast.show({
           text: this.$t("Exported {type} {name}", {
             type: this.isFolder ? "folder" : "file",

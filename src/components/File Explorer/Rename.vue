@@ -61,6 +61,7 @@ import { rename } from "@/modules/filesystem";
 import { join, relative, basename, extname } from "path";
 import { Toast } from "@capacitor/toast";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
+import { isParentFolder } from "@/utils";
 
 export default defineComponent({
   model: {
@@ -95,6 +96,11 @@ export default defineComponent({
     noIcon: {
       type: Boolean,
       required: false,
+      default: false,
+    },
+    allowUpdateStore: {
+      type: Boolean,
+      required: true,
       default: false,
     },
   },
@@ -134,14 +140,13 @@ export default defineComponent({
         this.running = true;
         if (this.allowRename) {
           /// rename
-          this.$store.commit("progress/show");
+          this.$store.commit("system/setProgress", true);
           //// rename
 
           const [to, from] = [
             join(this.dirname, this.newFilename),
             join(this.dirname, this.filename),
           ];
-          console.log(to, from);
           try {
             await rename(from, to);
             Toast.show({
@@ -162,7 +167,38 @@ export default defineComponent({
               ) as string,
             });
           }
-          this.$store.commit("progress/hide");
+          this.$store.commit("system/setProgress", false);
+
+          if (this.allowUpdateStore) {
+            /// update project
+            if (isParentFolder(from, this.$store.state.editor.project)) {
+              this.$store.commit(
+                "editor/setProject",
+                this.$store.state.editor.project.replace(from, to)
+              );
+            }
+            /// update sessions
+            this.$store.state.editor.sessions.forEach(
+              (item: string, index: number): void => {
+                if (isParentFolder(from, item)) {
+                  /// update
+                  this.$store.commit("editor/updateSession", {
+                    index,
+                    value: item.replace(from, to),
+                  });
+                }
+              }
+            );
+            /// update store scroll
+            for (const file in this.$store.state.editor.scrollEnhance) {
+              if (isParentFolder(from, file)) {
+                this.$store.commit("editor/updateFileScrollEnhance", {
+                  file,
+                  newFile: file.replace(from, to),
+                });
+              }
+            }
+          }
 
           this.$emit("rename", this.newFilename);
         } else {

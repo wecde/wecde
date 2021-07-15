@@ -277,7 +277,7 @@ export default defineComponent({
   },
   methods: {
     async reloadListProjects(notification = false): Promise<void> {
-      this.$store.commit("progress/show");
+      this.$store.commit("system/setProgress", true);
       try {
         this.projects = (await readdirStat("projects"))
           .filter((project) => {
@@ -289,7 +289,7 @@ export default defineComponent({
       } catch {
         this.projects = [];
       }
-      this.$store.commit("progress/hide");
+      this.$store.commit("system/setProgress", false);
       if (notification) {
         await Toast.show({
           text: this.$t("Reload list {type}", {
@@ -314,7 +314,7 @@ export default defineComponent({
       await this.reloadListProjects();
     },
     async remove(): Promise<void> {
-      this.$store.commit("progress/show");
+      this.$store.commit("system/setProgress", true);
       if (this.code === this.codeInput && this.projectRemoving) {
         try {
           await rmdir(this.projectRemoving.fullpath);
@@ -336,7 +336,7 @@ export default defineComponent({
         await this.reloadListProjects();
         this.projectRemoving = null;
       }
-      this.$store.commit("progress/hide");
+      this.$store.commit("system/setProgress", false);
     },
   },
 });

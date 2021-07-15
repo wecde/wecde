@@ -14,6 +14,7 @@
           :dirname="dirname"
           :allow-rename="false"
           :no-icon="false"
+          :allow-update-store="false"
           class="d-inline-flex"
         />
       </div>
@@ -36,6 +37,7 @@ import { mkdir, writeFile } from "@/modules/filesystem";
 import { Toast } from "@capacitor/toast";
 import { join } from "path";
 import i18n from "@/i18n";
+import store from "@/store";
 
 export default defineComponent({
   components: {
@@ -58,9 +60,13 @@ export default defineComponent({
       type: String,
       required: true,
     },
+    allowOpenEditor: {
+      type: Boolean,
+      required: true,
+    },
   },
   setup(props, { emit }) {
-    const { adding, dirname, isFolder } = toRefs(props);
+    const { adding, dirname, isFolder, allowOpenEditor } = toRefs(props);
     const filename = ref<string>("");
 
     watch(adding, (newValue) => {
@@ -84,6 +90,9 @@ export default defineComponent({
           }) as string,
         });
 
+        if (allowOpenEditor.value) {
+          store.commit("editor/pushSession", pathTo);
+        }
         emit("created");
         emit("update:adding", false);
       }

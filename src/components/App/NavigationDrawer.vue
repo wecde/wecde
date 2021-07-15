@@ -99,7 +99,7 @@ export default defineComponent({
   },
 
   created() {
-    if (this.$store.state.editor.session) {
+    if (this.$store.state.editor.session > -1) {
       this.navigationTabs = 1;
     }
   },

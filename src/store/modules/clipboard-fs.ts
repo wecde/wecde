@@ -9,6 +9,8 @@ import {
 import { pathEquals, isParentFolder } from "@/utils";
 import Vue from "vue";
 
+export const storeVm = new Map<string, Vue>();
+
 async function resolveName(dirname: string, name: string): Promise<string> {
   const names: string[] = await fsReaddir(dirname);
 
@@ -33,7 +35,7 @@ async function resolveName(dirname: string, name: string): Promise<string> {
 export interface State {
   objects: {
     path: string;
-    vue: Vue;
+    vue: string;
   }[];
   action: "cut" | "copy";
 }
@@ -53,8 +55,20 @@ const store: Module<State, unknown> = {
     ): void {
       state.action = "cut";
 
+      state.objects.forEach(({ vue }) => {
+        storeVm.delete(vue);
+      });
       state.objects.splice(0);
-      state.objects.push(...uris);
+
+      uris.forEach(({ path, vue }) => {
+        if (storeVm.has((vue as any)._uid) === false) {
+          storeVm.set((vue as any)._uid, vue);
+        }
+        state.objects.push({
+          path,
+          vue: (vue as any)._uid,
+        });
+      });
     },
     copy(
       state,
@@ -65,11 +79,26 @@ const store: Module<State, unknown> = {
     ): void {
       state.action = "copy";
 
+      state.objects.forEach(({ vue }) => {
+        storeVm.delete(vue);
+      });
       state.objects.splice(0);
-      state.objects.push(...uris);
+
+      uris.forEach(({ path, vue }) => {
+        if (storeVm.has((vue as any)._uid) === false) {
+          storeVm.set((vue as any)._uid, vue);
+        }
+        state.objects.push({
+          path,
+          vue: (vue as any)._uid,
+        });
+      });
     },
     reset(state): void {
       state.action = "copy";
+      state.objects.forEach(({ vue }) => {
+        storeVm.delete(vue);
+      });
       state.objects.splice(0);
     },
   },
@@ -88,8 +117,9 @@ const store: Module<State, unknown> = {
     allowPaste(state) {
       return (fullpath: string): boolean => {
         // if this.file.fullpath as children -> exit
-        const indexParentFile = state.objects.findIndex((item: any): boolean =>
-          isParentFolder(item.path, fullpath)
+        const indexParentFile = state.objects.findIndex(
+          (item: { path: string; vue: string }): boolean =>
+            isParentFolder(item.path, fullpath)
         );
 
         if (indexParentFile > -1) {
@@ -102,7 +132,7 @@ const store: Module<State, unknown> = {
   },
   actions: {
     async paste({ commit, state }, uri: string): Promise<boolean> {
-      commit("progress/show", undefined, {
+      commit("system/setProgress", true, {
         root: true,
       });
 
@@ -142,13 +172,13 @@ const store: Module<State, unknown> = {
       }
 
       if (state.action === "cut") {
-        state.objects.forEach((item: any) => {
-          item.vue.$emit("removed");
+        state.objects.forEach((item: { path: string; vue: string }) => {
+          (storeVm.get(item.vue) as Vue).$emit("removed");
         });
       }
 
       commit("reset");
-      commit("progress/hide", undefined, {
+      commit("system/setProgress", false, {
         root: true,
       });
 

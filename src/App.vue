@@ -37,7 +37,7 @@ export default defineComponent({
     });
 
     return {
-      progress: computed<boolean>(() => store.state.progress.isShow),
+      progress: computed<boolean>(() => store.state.system.progress),
     };
   },
   watch: {
@@ -58,7 +58,7 @@ export default defineComponent({
 
 <style lang="scss">
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 0; // 8px;;
 }
 
 ::-webkit-scrollbar-thumb {

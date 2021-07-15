@@ -4,13 +4,13 @@
       <div class="session mr-1" ref="sessionWrapper">
         <div
           class="session--item"
-          v-for="item in $store.state.editor.sessions"
+          v-for="(item, index) in $store.state.editor.sessions"
           :key="item"
           :class="{
-            active: item === $store.state.editor.session,
+            active: index === $store.state.editor.session,
           }"
           v-ripple
-          @click="$store.commit(`editor/changeSession`, item)"
+          @click="$store.commit(`editor/changeSession`, index)"
         >
           <img
             :src="
@@ -28,7 +28,7 @@
           <v-icon
             size="inherit"
             class="times"
-            @click.prevent.stop="$store.commit(`editor/removeSession`, item)"
+            @click.prevent.stop="$store.commit(`editor/removeSession`, index)"
           >
             mdi-close
           </v-icon>
@@ -68,28 +68,47 @@
     </App-Hammer>
 
     <div class="editor dark">
-      <Preview-Font :fullpath="fullpath" v-if="typeEditor === 'font'" />
-      <Preview-Image :fullpath="fullpath" v-else-if="typeEditor === 'image'" />
-      <Preview-Video :fullpath="fullpath" v-else-if="typeEditor === 'video'" />
-      <Preview-Audio :fullpath="fullpath" v-else-if="typeEditor === 'audio'" />
+      <Preview-Font
+        class="editor"
+        :fullpath="fullpath"
+        v-if="typeEditor === 'font'"
+      />
+      <Preview-Image
+        class="editor"
+        :fullpath="fullpath"
+        v-else-if="typeEditor === 'image'"
+      />
+      <Preview-Video
+        class="editor"
+        :fullpath="fullpath"
+        v-else-if="typeEditor === 'video'"
+      />
+      <Preview-Audio
+        class="editor"
+        :fullpath="fullpath"
+        v-else-if="typeEditor === 'audio'"
+      />
       <Editor-SVG
+        class="editor"
         :fullpath="fullpath"
         :previewing="previewing"
         v-else-if="typeEditor === 'svg'"
         @change="scrollSessionWrapperToSessionActive"
       />
       <Editor-Markdown
+        class="editor"
         :fullpath="fullpath"
         :previewing="previewing"
         v-else-if="typeEditor === 'markdown'"
         @change="scrollSessionWrapperToSessionActive"
       />
       <Editor-Code
+        class="editor"
         :fullpath="fullpath"
         v-else-if="plaintext"
         @change="scrollSessionWrapperToSessionActive"
       />
-      <div v-else>
+      <div class="editor" v-else>
         This file is not displayed in the text editor because it is either
         binary or uses an unsupported text encoding.
       </div>
@@ -138,7 +157,9 @@ export default defineComponent({
     EditorCode,
   },
   setup() {
-    const fullpath = computed<string | null>(() => $store.state.editor.session);
+    const fullpath = computed<string | null>(
+      () => $store.state.editor.sessions[$store.state.editor.session] ?? null
+    );
     const typeEditor = computed<string>(
       () => (fullpath.value ? getEditor(fullpath.value) : null) || "text"
     );
@@ -266,11 +287,6 @@ export default defineComponent({
   position: relative;
   width: 100%;
   height: 100%;
-  > * {
-    position: relative;
-    width: 100%;
-    height: 100%;
-  }
 }
 </style>
 

@@ -36,6 +36,7 @@
           dirname="projects"
           v-model="project.name"
           no-icon
+          allow-update-store
           :allow-rename="true"
         />
       </v-list-item-title>

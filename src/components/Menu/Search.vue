@@ -36,16 +36,44 @@
             close-on-click
             append-icon="mdi-close"
           />
-          <!-- <app-field class="mx-0 mt-3" /> -->
+          <div class="d-flex">
+            <v-text-field
+              placeholder="Search"
+              outline
+              rounded
+              class="py-1 grey-4 mx-0"
+              hide-details
+              close-on-click
+              append-icon="mdi-close"
+            />
+            <v-icon>mdi-check-all</v-icon>
+          </div>
         </div>
       </div>
       <div class="text-right">
         <v-btn icon>
           <v-icon>mdi-dots-horizontal</v-icon>
         </v-btn>
-
-        <!-- <app-field class="mx-0" />
-        <app-field class="mx-0 mt-3" /> -->
+        files to include
+        <v-text-field
+          placeholder="Search"
+          outline
+          rounded
+          class="py-1 grey-4 mx-0"
+          hide-details
+          close-on-click
+          append-icon="mdi-close"
+        />
+        files to exclude
+        <v-text-field
+          placeholder="Search"
+          outline
+          rounded
+          class="py-1 grey-4 mx-0"
+          hide-details
+          close-on-click
+          append-icon="mdi-close"
+        />
       </div>
     </div>
   </div>

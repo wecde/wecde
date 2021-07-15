@@ -918,6 +918,11 @@
   resolved "https://registry.yarnpkg.com/@capacitor/browser/-/browser-1.0.2.tgz#7defe6a66a234eb724450f302fc00cf591d1255f"
   integrity sha512-XR2rVT5RndxD0392yeL/pnCZZ5/YcTCXVxhJ4f3MkXFjKJTx1esbeXs+xVX4t6K3OQOXtX9XKj0xusPRiOOsuA==
 
+"@capacitor/clipboard@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/clipboard/-/clipboard-1.0.2.tgz#835d42a4ce5d56232c356a20b1c28704b6644cd0"
+  integrity sha512-uYed+v10UjZapn1v5pRbRAJd6od6gUW1ROuu/pO0JxMABVV3SwmwqQbu9y6K8l4ptqNH5ZmpqkFmc4Qz0lN3JA==
+
 "@capacitor/core@^3.1.1":
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-3.1.1.tgz#61e1ad8b9f532ee5bc5e5c680b0fd71a00492765"
@@ -1169,6 +1174,11 @@
   version "4.0.0"
   resolved "https://registry.npmjs.org/@types/parse-json/-/parse-json-4.0.0.tgz"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
+
+"@types/prettier@^2.3.2":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.3.2.tgz#fc8c2825e4ed2142473b4a81064e6e081463d1b3"
+  integrity sha512-eI5Yrz3Qv4KPUa/nSIAi0h+qX0XyewOliug5F2QAtuRg6Kjg6jfmxe1GIwoIRhZspD1A0RP8ANrPwvEXXtRFog==
 
 "@types/q@^1.5.1":
   version "1.5.5"
@@ -2858,11 +2868,6 @@ cliui@^7.0.2:
     string-width "^4.2.0"
     strip-ansi "^6.0.0"
     wrap-ansi "^7.0.0"
-
-clone@2.x:
-  version "2.1.2"
-  resolved "https://registry.yarnpkg.com/clone/-/clone-2.1.2.tgz#1b7f4b9f591f1e8f83670401600345a02887435f"
-  integrity sha1-G39Ln1kfHo+DZwQBYANFoCiHQ18=
 
 clone@^1.0.2:
   version "1.0.4"
@@ -6455,13 +6460,6 @@ no-case@^2.2.0:
   dependencies:
     lower-case "^1.1.1"
 
-node-cache@^5.1.2:
-  version "5.1.2"
-  resolved "https://registry.yarnpkg.com/node-cache/-/node-cache-5.1.2.tgz#f264dc2ccad0a780e76253a694e9fd0ed19c398d"
-  integrity sha512-t1QzWwnk4sjLWaQAS8CHgOJ+RAfmHpxFWmc36IWTiWHQfs0w5JDMBS1b1ZxQteo0vVVuWJvIUKHDkkeK7vIGCg==
-  dependencies:
-    clone "2.x"
-
 node-forge@^0.10.0:
   version "0.10.0"
   resolved "https://registry.npmjs.org/node-forge/-/node-forge-0.10.0.tgz"
@@ -7426,9 +7424,9 @@ prettier@^1.18.2:
   resolved "https://registry.npmjs.org/prettier/-/prettier-1.19.1.tgz"
   integrity sha512-s7PoyDv/II1ObgQunCbB9PdLmUcBZcnWOcxDh7O0N/UwDEsHyqkW+Qh28jW+mVuCdx7gLB0BotYI1Y6uI9iyew==
 
-prettier@^2.2.1:
+prettier@^2.3.2:
   version "2.3.2"
-  resolved "https://registry.npmjs.org/prettier/-/prettier-2.3.2.tgz"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.3.2.tgz#ef280a05ec253712e486233db5c6f23441e7342d"
   integrity sha512-lnJzDfJ66zkMy58OL5/NY5zp70S7Nz6KqcKkXYzn2tMVrNxvbqaBpg7H3qHaLxCJ5lNMsGuM8+ohS7cZrthdLQ==
 
 pretty-bytes@^5.1.0:

@@ -136,6 +136,7 @@
           :is-folder="addingFolder"
           :dirname="$store.state.editor.project"
           @created="reloadListFile"
+          allow-open-editor
           :names-exists="tree.map((item) => item.name)"
         />
 
@@ -186,6 +187,7 @@ export default defineComponent({
   watch: {
     "$store.state.editor.project": {
       async handler() {
+        this.tree.splice(0);
         await this.reloadListFile();
       },
       immediate: true,
