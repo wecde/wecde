@@ -13,7 +13,7 @@ import clipboardFs, { State as StateClipboardFs } from "./modules/clipboard-fs";
 
 Vue.use(Vuex);
 
-export default new Vuex.Store<{
+const store = new Vuex.Store<{
   system: StateSystem;
   settings: StateSettings;
   editor: StateEditor;
@@ -36,3 +36,5 @@ export default new Vuex.Store<{
     }),
   ],
 });
+
+export default store;

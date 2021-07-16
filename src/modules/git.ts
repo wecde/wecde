@@ -14,6 +14,7 @@ import $store from "@/store";
 import { Toast } from "@capacitor/toast";
 import { StatResult } from "@capacitor/filesystem";
 import i18n from "@/i18n";
+import { join } from "path";
 const cache = {
   clone: {},
   commit: {},
@@ -399,4 +400,12 @@ export async function statusMatrix({ dir }: { dir: string }): Promise<any> {
     dir,
     cache: cache.statusMatrix,
   });
+}
+
+export async function has({ dir }: { dir: string }): Promise<boolean> {
+  try {
+    return !!(await stat(join(dir, ".git")));
+  } catch {
+    return false;
+  }
 }

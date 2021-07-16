@@ -157,6 +157,10 @@
             <span v-else />
           </span>
         </template>
+
+        <template v-slot:append-text v-if="editing">
+          <v-icon size="1em" color="blue">mdi-circle-medium</v-icon>
+        </template>
       </FileExplorer-Rename>
     </div>
     <div class="ml-3" v-if="isFolder" v-show="collapse">
@@ -189,7 +193,12 @@ import {
 } from "@vue/composition-api";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 import FileExplorerRename from "./Rename.vue";
-import { b64toBlob, removedPathProject } from "@/utils";
+import {
+  b64toBlob,
+  removedPathProject,
+  isParentFolder,
+  pathEquals,
+} from "@/utils";
 import FileExplorerAdd from "./Add.vue";
 import { unlink, readFile, readdirStat } from "@/modules/filesystem";
 import { saveAs } from "file-saver";
@@ -197,6 +206,7 @@ import exportZip from "@/modules/export-zip";
 import { Toast } from "@capacitor/toast";
 import type { ReaddirStatItem } from "@/modules/filesystem";
 import ImportFiles from "@/components/Import/Files.vue";
+import store from "@/store";
 
 export default defineComponent({
   components: {
@@ -225,6 +235,13 @@ export default defineComponent({
     const files = ref<ReaddirStatItem[]>([]);
     const namesExists = computed<string[]>(() =>
       files.value.map((file) => file.name)
+    );
+    const editing = computed<boolean>(
+      () =>
+        !!store.getters["editor/session"] &&
+        (isFolder.value
+          ? isParentFolder(file.value.fullpath, store.getters["editor/session"])
+          : pathEquals(store.getters["editor/session"], file.value.fullpath))
     );
 
     async function refreshFolder() {
@@ -257,6 +274,7 @@ export default defineComponent({
       files,
       namesExists,
       refreshFolder,
+      editing,
     };
   },
   watch: {
@@ -376,107 +394,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
-@import "~@/sass/list-mouseright.scss";
-
-.file--system {
-  &__item {
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    // padding: 5px 13px 5px 10px;
-    padding: 2.5px 13px 2.5px 10px;
-    color: #b9bbc1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    > div:last-child {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
-  }
-
-  &-hidden {
-    color: rgb(127, 127, 127) !important;
-  }
-
-  &__more::before {
-    font-size: 14px;
-  }
-
-  &__changed {
-    color: rgb(121, 184, 255);
-
-    .file--system__more::before {
-      content: "M";
-    }
-  }
-  &__new {
-    color: rgb(52, 208, 88);
-
-    .file--system__more::before {
-      content: "U";
-    }
-  }
-  &__changed-modified {
-    color: #e0bd96;
-
-    .file--system__more::before {
-      content: "M";
-    }
-  }
-  &__new-modified {
-    color: #33984a;
-
-    .file--system__more::before {
-      content: "U";
-    }
-  }
-  &__changed.file--system-folder .file--system__more::before,
-  &__new.file--system-folder .file--system__more::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: currentColor;
-    opacity: 0.7;
-  }
-
-  &__prepend {
-    transform: translateY(-25%);
-  }
-  &__icon {
-    margin-right: 8px;
-    transform: translateY(-25%);
-
-    img {
-      width: 24px;
-      height: 24px;
-      margin: auto;
-      display: block;
-      object-fit: cover;
-      margin-top: 3px;
-    }
-  }
-  &__prepend,
-  &__icon {
-    font-size: 20px;
-    width: 1em;
-    height: 1em;
-    display: inline-block;
-    > * {
-      font-size: inherit;
-    }
-  }
-  &__prepend {
-    width: 24px;
-    height: 24px;
-    > span {
-      display: block;
-      width: 1em;
-      height: 1em;
-    }
-  }
-}
+@import "./ListItem.scss";
 </style>

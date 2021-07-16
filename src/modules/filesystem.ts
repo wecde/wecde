@@ -295,3 +295,21 @@ export async function getUri(
     ).uri
   ).replace(/^[a-z]+:\/\//, "");
 }
+
+export async function foreach(
+  path: string,
+  exclude: Array<string | RegExp> = [],
+  callback: {
+    (dirname: string, name: string): void;
+  }
+): Promise<void> {
+  await Promise.all(
+    filterExclude(await readdir(path), exclude).map(async (item) => {
+      if ((await stat(join(path, item))).type === "directory") {
+        await foreach(join(path, item), exclude, callback);
+      } else {
+        await callback(path, item);
+      }
+    })
+  );
+}

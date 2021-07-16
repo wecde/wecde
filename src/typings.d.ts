@@ -100,3 +100,9 @@ declare module "*parser-typescript.js" {
 
   export default value;
 }
+
+declare module "escape-string-regexp" {
+  const value: any;
+
+  export default value;
+}

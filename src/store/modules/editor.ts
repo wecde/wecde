@@ -2,6 +2,7 @@ import { Module } from "vuex";
 
 export interface State {
   project: string | null;
+  statusMatrix: Array<[string, number, number, number]> | null;
   sessions: string[];
   session: number;
   historySession: number[];
@@ -20,6 +21,7 @@ const store: Module<State, unknown> = {
   namespaced: true,
   state: {
     project: null,
+    statusMatrix: null,
 
     sessions: [],
     session: -1,
@@ -116,6 +118,11 @@ const store: Module<State, unknown> = {
     ): void {
       state.scrollEnhance[newFile] = state.scrollEnhance[file];
       delete state.scrollEnhance[file];
+    },
+  },
+  getters: {
+    session(state): string | null {
+      return state.sessions[state.session] ?? null;
     },
   },
 };

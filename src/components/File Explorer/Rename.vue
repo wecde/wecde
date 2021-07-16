@@ -39,9 +39,9 @@
           @click.prevent.stop="() => false"
         />
       </div>
-      <span v-else @click="timeClick = Date.now()" style="cursor: text">{{
-        filename
-      }}</span>
+      <span v-else @click="timeClick = Date.now()" style="cursor: text"
+        >{{ filename }} <slot name="append-text"
+      /></span>
     </span>
 
     <slot name="append" />
@@ -250,63 +250,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.file--system {
-  &__icon {
-    margin-right: 8px;
-    transform: translateY(-25%);
-
-    img {
-      width: 24px;
-      height: 24px;
-      margin: auto;
-      display: block;
-      object-fit: cover;
-      margin-top: 3px;
-    }
-  }
-  &__icon {
-    font-size: 20px;
-    width: 1em;
-    height: 1em;
-    display: inline-block;
-    &.renaming {
-      position: relative;
-      z-index: 101;
-    }
-    > * {
-      font-size: inherit;
-    }
-  }
-}
-</style>
-<style lang="scss" scoped>
-.app--rename {
-  color: currentColor;
-  font: inherit;
-  font-size: inherit;
-  font-weight: inherit;
-
-  &__backboardd {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba($color: #000000, $alpha: 0.5);
-    z-index: 100;
-  }
-
-  input {
-    all: initial;
-    position: relative;
-    z-index: 101;
-    font: inherit;
-    font-size: inherit;
-    color: currentColor;
-    font-weight: inherit;
-    background-color: #30393f;
-    display: block;
-    width: 100%;
-  }
-}
+@import "./Rename.scss";
 </style>

@@ -157,11 +157,9 @@ export default defineComponent({
     EditorCode,
   },
   setup() {
-    const fullpath = computed<string | null>(
-      () => $store.state.editor.sessions[$store.state.editor.session] ?? null
-    );
+    const fullpath = computed<string>(() => $store.getters["editor/session"]);
     const typeEditor = computed<string>(
-      () => (fullpath.value ? getEditor(fullpath.value) : null) || "text"
+      () => getEditor(fullpath.value) || "text"
     );
 
     const WebView = ref<Vue | null>(null);
@@ -169,9 +167,7 @@ export default defineComponent({
     const serverStatus = ref<boolean>(false);
     const serverLoading = ref<boolean>(false);
     const port = computed<string>(() => $store.state.settings.preview.port);
-    const plaintext = computed<boolean>(() =>
-      fullpath.value ? isPlainText(fullpath.value) : false
-    );
+    const plaintext = computed<boolean>(() => isPlainText(fullpath.value));
 
     const sessionWrapper = ref<Element | null>(null);
 

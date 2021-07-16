@@ -151,7 +151,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "@vue/composition-api";
+import {
+  defineComponent,
+  ref,
+  computed,
+  // watch,
+  // onBeforeMount,
+} from "@vue/composition-api";
 import FileExplorerList from "@/components/File Explorer/List.vue";
 import FileExplorerAdd from "@/components/File Explorer/Add.vue";
 import { stat, readdirStat } from "@/modules/filesystem";
@@ -160,6 +166,7 @@ import { Toast } from "@capacitor/toast";
 import { basename } from "path";
 import store from "@/store";
 import ImportFiles from "@/components/Import/Files.vue";
+// import { statusMatrix, has as hasGIT } from "@/modules/git";
 
 export default defineComponent({
   components: {
@@ -172,9 +179,42 @@ export default defineComponent({
     const adding = ref<boolean>(false);
     const addingFolder = ref<boolean>(false);
     const tree = ref<ReaddirStatItem[]>([]);
+    const project = computed<string | null>(() => store.state.editor.project);
     const projectName = computed<string | null>(() =>
-      store.state.editor.project ? basename(store.state.editor.project) : null
+      project.value ? basename(project.value) : null
     );
+
+    // let timeoutGetStatusGit: any;
+    // async function getStatusGit() {
+    //   clearTimeout(timeoutGetStatusGit);
+    //   if (
+    //     !!project.value &&
+    //     (await hasGIT({
+    //       dir: project.value,
+    //     }))
+    //   ) {
+    //     console.time();
+    //     console.log(
+    //       await statusMatrix({
+    //         dir: project.value || "",
+    //       })
+    //     );
+    //     console.timeEnd();
+    //     timeoutGetStatusGit = setTimeout(() => void getStatusGit(), 1000);
+    //   }
+    // }
+
+    // watch(project, (newValue: string | null) => {
+    //   clearTimeout(timeoutGetStatusGit);
+    //   // eslint-disable-next-line no-extra-boolean-cast
+    //   if (!!newValue) {
+    //     getStatusGit();
+    //   }
+    // });
+
+    // onBeforeMount(() => clearTimeout(timeoutGetStatusGit));
+
+    // getStatusGit();
 
     return {
       search,

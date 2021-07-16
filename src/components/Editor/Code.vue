@@ -104,9 +104,9 @@
                   v-ripple
                   @click="nextError"
                   :style="{
-                    opacity: !!nextError ? 1 : 0.5,
+                    opacity: !!nextErrorer ? 1 : 0.5,
                   }"
-                  :disabled="!!nextError === false"
+                  :disabled="!!nextErrorer === false"
                 >
                   <v-icon size="1em">mdi-chevron-down-circle-outline</v-icon>
                   <span>Next Error</span>
@@ -431,7 +431,7 @@ export default defineComponent({
     supportFormat(): boolean {
       return !!this.parser;
     },
-    nextError(): any {
+    nextErrorer(): any {
       if (this.$ace.value) {
         const { row, column } = this.$ace.value.getCursorPosition() || {
           row: 0,
@@ -573,10 +573,10 @@ export default defineComponent({
     },
     nextError() {
       if (this.$ace.value) {
-        if (this.nextError) {
+        if (this.nextErrorer) {
           this.$ace.value.moveCursorTo(
-            this.nextError.row || 0,
-            this.nextError.column || 0
+            this.nextErrorer.row || 0,
+            this.nextErrorer.column || 0
           );
         }
       }
