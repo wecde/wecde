@@ -117,5 +117,15 @@
   "WebView Version": "वेबव्यू संस्करण",
   "Word wrap": "वर्ड रैप",
   "Reload list file(s)": "",
-  "Reload list projects": ""
+  "Reload list projects": "",
+  "Access was denied Login failure!": "प्रवेश निषेध था। \nलॉगिन विफलता!",
+  "Clone GIT": "क्लोन जीआईटी",
+  "Clone repo failure 403 Try login": "क्लोन रेपो विफलता 403. लॉगिन करने का प्रयास करें...",
+  "Clone repo {url} failed": "क्लोन रेपो \"{url}\" विफल रहा",
+  "Clone repo {url} successfuly": "क्लोन रेपो \"{url}\" सफलतापूर्वक",
+  "Cloning repo {url}": "क्लोनिंग रेपो \"{url}\"...",
+  "Copy": "प्रतिलिपि",
+  "Cut": "कट गया",
+  "Depth": "गहराई",
+  "Email": "ईमेल"
 }
