@@ -245,7 +245,7 @@ export default defineComponent({
         this.tree = await readdirStat(
           this.$store.state.editor.project,
           void 0,
-          [".git"]
+          ["^.git"]
         );
 
         if (notification) {

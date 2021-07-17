@@ -12,7 +12,7 @@ export default async function exportZip(
   const fileZip = await zip({
     folder: path,
     to: false,
-    exclude: [".git"],
+    exclude: ["^.git"],
     directory,
   });
 

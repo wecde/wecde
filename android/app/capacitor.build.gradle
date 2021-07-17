@@ -11,15 +11,13 @@ apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
     implementation project(':capacitor-app')
     implementation project(':capacitor-browser')
+    implementation project(':capacitor-clipboard')
     implementation project(':capacitor-device')
     implementation project(':capacitor-filesystem')
-    implementation project(':capacitor-haptics')
-    implementation project(':capacitor-keyboard')
-    implementation project(':capacitor-status-bar')
     implementation project(':capacitor-toast')
-    implementation "org.nanohttpd:nanohttpd:+"
+
 }
-apply from: "../../node_modules/cordova-plugin-websocket-server/src/android/websocket-server.gradle"
+
 
 if (hasProperty('postBuildExtras')) {
   postBuildExtras()

@@ -246,7 +246,7 @@ export default defineComponent({
 
     async function refreshFolder() {
       if (isFolder.value) {
-        files.value = await readdirStat(file.value.fullpath, void 0, [".git"]);
+        files.value = await readdirStat(file.value.fullpath, void 0, ["^.git"]);
       }
     }
 

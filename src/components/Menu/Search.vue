@@ -49,6 +49,7 @@
               class="py-1 grey-4 mx-0"
               hide-details
               v-model="keywordSearch"
+              @keypress.enter="search"
             />
             <div class="d-flex mt-2" v-if="openReplace">
               <v-text-field
@@ -57,6 +58,7 @@
                 rounded
                 class="py-1 grey-4 mx-0"
                 hide-details
+                v-mode="keywordReplace"
               />
               <v-icon class="ml-1" size="16px">mdi-check-all</v-icon>
             </div>
@@ -74,6 +76,7 @@
                 rounded
                 class="py-1 grey-4 mx-0"
                 hide-details
+                v-model="include"
               />
             </div>
             <div class="mt-2">
@@ -85,6 +88,7 @@
                 rounded
                 class="py-1 grey-4 mx-0"
                 hide-details
+                v-model="exclude"
               />
             </div>
           </div>
@@ -140,21 +144,26 @@
                     }"
                     >{{ item.file }}</small
                   ></span
-                >
+                ><span class="chip blue">{{ item.match.length }}</span>
               </div>
               <span></span>
             </div>
           </template>
 
           <div
-            v-for="match in item.match"
+            class="d-flex align-center justify-space-between mx-4 mt-1"
+            v-for="(match, index) in item.match"
             :key="match.index"
-            class="mx-4 text-truncate mt-1"
-            style="font-size: 15px"
           >
-            {{ match.firstValue
-            }}<strong class="blue--text">{{ match.value }}</strong
-            >{{ match.lastValue }}
+            <div class="text-truncate" style="font-size: 15px">
+              {{ match.firstValue
+              }}<strong class="blue--text">{{ match.value }}</strong
+              >{{ match.lastValue }}
+            </div>
+
+            <v-icon size="18px" @click="replaceSearch(item, index)"
+              >mdi-check</v-icon
+            >
           </div>
         </App-Collapse>
       </div>
@@ -172,6 +181,17 @@ import escapeRegExp from "escape-string-regexp";
 import AppCollapse from "@/components/App/Collapse.vue";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 
+interface Result {
+  file: string;
+  basename: string;
+  match: {
+    index: number;
+    firstValue: string;
+    value: string;
+    lastValue: string;
+  }[];
+}
+
 export default defineComponent({
   components: {
     AppCollapse,
@@ -182,31 +202,36 @@ export default defineComponent({
     const modeWordBox = ref<boolean>(false);
 
     const searching = ref<boolean>(false);
-    const results = ref<
-      {
-        file: string;
-        basename: string;
-        match: {
-          index: number;
-          firstValue: string;
-          value: string;
-          lastValue: string;
-        }[];
-      }[]
-    >([]);
+    const results = ref<Result[]>([]);
 
     const keywordSearch = ref<string>("");
+    const keywordReplace = ref<string>("");
+    const include = ref<string>("");
+    const exclude = ref<string>("");
 
     let timeoutSearch: any;
     async function search(): Promise<void> {
       clearTimeout(timeoutSearch);
-      results.value.splice(0);
       setTimeout(async () => {
+        results.value.splice(0);
+
         searching.value = true;
         if (store.state.editor.project) {
           await foreachFiles(
             store.state.editor.project,
-            [".git"],
+            [
+              "^.git",
+              ...exclude.value
+                .replace(/\s+,\s+/g, ",")
+                .split(",")
+                .filter(Boolean),
+            ],
+            [
+              ...exclude.value
+                .replace(/\s+,\s+/g, ",")
+                .split(",")
+                .filter(Boolean),
+            ],
             async (dirname, filename) => {
               const file = join(dirname, filename);
               if (isPlainText(file)) {
@@ -221,22 +246,26 @@ export default defineComponent({
                 const rawMatch = rawText(await readFile(file)).matchAll(regexp);
 
                 if (rawMatch) {
-                  results.value.push({
-                    file,
-                    basename: basename(file),
-                    match: [...(rawMatch || [])].map((item) => {
-                      const [firstValue = "", lastValue = ""] = item[0].split(
-                        item[1]
-                      );
+                  const match = [...(rawMatch || [])].map((item) => {
+                    const [firstValue = "", lastValue = ""] = item[0].split(
+                      item[1]
+                    );
 
-                      return {
-                        index: item.index || -1,
-                        firstValue,
-                        value: item[1],
-                        lastValue,
-                      };
-                    }),
+                    return {
+                      index: item.index || -1,
+                      firstValue,
+                      value: item[1],
+                      lastValue,
+                    };
                   });
+
+                  if (match.length > 0) {
+                    results.value.push({
+                      file,
+                      basename: basename(file),
+                      match,
+                    });
+                  }
                 }
               }
             }
@@ -264,10 +293,27 @@ export default defineComponent({
       search,
 
       keywordSearch,
+      keywordReplace,
+      include,
+      exclude,
     };
   },
   methods: {
     getIcon,
+
+    async replaceSearch(item: Result, matchIndex: number): Promise<void> {
+      const { file } = item;
+      const { index, value } = item.match[matchIndex];
+
+      const context = rawText(await readFile(file));
+
+      const newContext =
+        context.slice(0, index) +
+        this.keywordReplace +
+        context.slice(index + value.length);
+
+      console.log(newContext);
+    },
   },
 });
 </script>
@@ -280,4 +326,16 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import "@/components/File Explorer/ListItem.scss";
 @import "@/components/File Explorer/Rename.scss";
+
+.chip {
+  font-size: 14px;
+  border-radius: (1.2em / 2);
+  min-width: 1.2em;
+  height: 1.2em;
+  text-align: center;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 </style>

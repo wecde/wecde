@@ -1,8 +1,9 @@
 import { Filesystem, Directory, StatResult } from "@capacitor/filesystem";
 import { alwayBase64 } from "@/utils";
 import { arrayBufferToBase64 } from "../utils";
-import { join } from "path";
+import { join, basename } from "path";
 import { sort } from "fast-sort";
+import escapeStringRegexp from "escape-string-regexp";
 
 const PUBLIC_STORAGE_APPLICATION = "Shin Code Editor";
 
@@ -168,19 +169,35 @@ export async function stat(
   });
 }
 
+function exists(regexps: Array<string | RegExp> = [], uri: string): boolean {
+  return regexps.some((item) => {
+    if (item instanceof RegExp) {
+      return !!item.test(uri);
+    }
+
+    if (item.startsWith("^")) {
+      return item.replace("^", "") === basename(uri);
+    }
+
+    if (item.startsWith(".")) {
+      return new RegExp(`${escapeStringRegexp(item)}(?:\\/|\\0$)`).test(uri);
+    }
+
+    return new RegExp(
+      `(?:\\/|^\\\0)${escapeStringRegexp(item)}(?:\\/|\\\0$)`
+    ).test(uri);
+  });
+}
 function filterExclude(
   files: string[],
-  exclude: Array<string | RegExp> = []
+  exclude: Array<string | RegExp> = [],
+  include: Array<string | RegExp> = [],
+  dirname = ""
 ): string[] {
   return files.filter((name) => {
     return (
-      exclude.some((item) => {
-        if (item instanceof RegExp) {
-          return item.test(name);
-        }
-
-        return item === name;
-      }) === false
+      !exists(exclude, join(dirname, name)) &&
+      (include.length === 0 || exists(include, join(dirname, name)))
     );
   });
 }
@@ -299,17 +316,20 @@ export async function getUri(
 export async function foreach(
   path: string,
   exclude: Array<string | RegExp> = [],
+  include: Array<string | RegExp> = [],
   callback: {
     (dirname: string, name: string): void;
   }
 ): Promise<void> {
   await Promise.all(
-    filterExclude(await readdir(path), exclude).map(async (item) => {
-      if ((await stat(join(path, item))).type === "directory") {
-        await foreach(join(path, item), exclude, callback);
-      } else {
-        await callback(path, item);
+    filterExclude(await readdir(path), exclude, include, path).map(
+      async (item) => {
+        if ((await stat(join(path, item))).type === "directory") {
+          await foreach(join(path, item), exclude, include, callback);
+        } else {
+          await callback(path, item);
+        }
       }
-    })
+    )
   );
 }
