@@ -60,7 +60,9 @@
                 hide-details
                 v-mode="keywordReplace"
               />
-              <v-icon class="ml-1" size="16px">mdi-check-all</v-icon>
+              <v-icon class="ml-1" size="16px" @click="replaceAll"
+                >mdi-check-all</v-icon
+              >
             </div>
           </div>
         </div>
@@ -173,7 +175,11 @@
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "@vue/composition-api";
-import { foreach as foreachFiles, readFile } from "@/modules/filesystem";
+import {
+  foreach as foreachFiles,
+  readFile,
+  writeFile,
+} from "@/modules/filesystem";
 import store from "@/store";
 import { isPlainText, rawText } from "@/utils";
 import { join, basename } from "path";
@@ -209,6 +215,41 @@ export default defineComponent({
     const include = ref<string>("");
     const exclude = ref<string>("");
 
+    async function searchInFile(file: string): Promise<Result | void> {
+      if (isPlainText(file)) {
+        const regexp = new RegExp(
+          `(?:[^\n]{0,28}(${
+            modeRegexp.value
+              ? keywordSearch.value
+              : escapeRegExp(keywordSearch.value)
+          })(${modeWordBox.value ? "\\s|\\0$" : ""})[^\n]{0,28}){1}?`,
+          "g" + (modeLetterCase.value ? "" : "i")
+        );
+        const rawMatch = rawText(await readFile(file)).matchAll(regexp);
+
+        if (rawMatch) {
+          const match = [...(rawMatch || [])].map((item) => {
+            const [firstValue = "", lastValue = ""] = item[0].split(item[1]);
+
+            return {
+              index: item.index || -1,
+              firstValue,
+              value: item[1],
+              lastValue,
+            };
+          });
+
+          if (match.length > 0) {
+            return {
+              file,
+              basename: basename(file),
+              match,
+            };
+          }
+        }
+      }
+    }
+
     let timeoutSearch: any;
     async function search(): Promise<void> {
       clearTimeout(timeoutSearch);
@@ -234,39 +275,11 @@ export default defineComponent({
             ],
             async (dirname, filename) => {
               const file = join(dirname, filename);
-              if (isPlainText(file)) {
-                const regexp = new RegExp(
-                  `(?:[^\n]{0,28}(${
-                    modeRegexp.value
-                      ? keywordSearch.value
-                      : escapeRegExp(keywordSearch.value)
-                  })(${modeWordBox.value ? "\\s|\\0$" : ""})[^\n]{0,28}){1}?`,
-                  "g" + (modeLetterCase.value ? "" : "i")
-                );
-                const rawMatch = rawText(await readFile(file)).matchAll(regexp);
 
-                if (rawMatch) {
-                  const match = [...(rawMatch || [])].map((item) => {
-                    const [firstValue = "", lastValue = ""] = item[0].split(
-                      item[1]
-                    );
+              const result = await searchInFile(file);
 
-                    return {
-                      index: item.index || -1,
-                      firstValue,
-                      value: item[1],
-                      lastValue,
-                    };
-                  });
-
-                  if (match.length > 0) {
-                    results.value.push({
-                      file,
-                      basename: basename(file),
-                      match,
-                    });
-                  }
-                }
+              if (result) {
+                results.value.push(result);
               }
             }
           );
@@ -289,6 +302,7 @@ export default defineComponent({
       openRules: ref<boolean>(false),
 
       searching,
+      searchInFile,
       results,
       search,
 
@@ -302,6 +316,7 @@ export default defineComponent({
     getIcon,
 
     async replaceSearch(item: Result, matchIndex: number): Promise<void> {
+      this.$store.commit("system/setProgress", true);
       const { file } = item;
       const { index, value } = item.match[matchIndex];
 
@@ -309,10 +324,29 @@ export default defineComponent({
 
       const newContext =
         context.slice(0, index) +
-        this.keywordReplace +
+        (this.modeRegexp
+          ? value.replace(new RegExp(this.keywordSearch), this.keywordReplace)
+          : this.keywordReplace) +
         context.slice(index + value.length);
 
-      console.log(newContext);
+      await writeFile(file, newContext);
+
+      const newResult = await this.searchInFile(file);
+
+      if (newResult) {
+        this.results.splice(this.results.indexOf(item), 1, newResult);
+      } else {
+        this.results.splice(this.results.indexOf(item), 1);
+      }
+      this.$store.commit("system/setProgress", false);
+    },
+
+    async replaceAll(): Promise<void> {
+      for await (const item of this.results) {
+        for (const index in item.match) {
+          await this.replaceSearch(item, +index);
+        }
+      }
     },
   },
 });

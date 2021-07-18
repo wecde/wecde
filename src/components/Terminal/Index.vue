@@ -1,13 +1,11 @@
 <template>
   <v-dialog
-    :persistent="$store.state.terminal.done === false"
     max-width="600"
     :value="lines.length > 0"
     content-class="dialog--terminal"
   >
     <template>
       <div class="terminal" ref="terminal">
-        <div class="header">Console</div>
         <div
           v-for="(line, index) in lines"
           :class="[line.color ? `${line.color}--text` : undefined]"
