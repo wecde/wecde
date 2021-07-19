@@ -139,5 +139,7 @@
   "Login success!": "Login success!",
   "Cut": "Cut",
   "Copy": "Copy",
-  "Paste": "Paste"
+  "Paste": "Paste",
+  "Set Credentials": "Set Credentials",
+  "to access Private Repository": "to access Private Repository"
 }

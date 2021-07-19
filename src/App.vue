@@ -41,7 +41,7 @@ export default defineComponent({
     };
   },
   watch: {
-    "$store.state.settings.appearance.language": {
+    "$store.state.settings.appearance__language": {
       async handler(newValue: string) {
         // console.log(newValue);
         await loadLanguageAsync(newValue);

@@ -13,7 +13,31 @@
         'file--system__new': state === '*added',
         'file--system__changed-modified': state === 'modified',
         'file--system__new-modified': state === 'added', -->
-      <div class="file--system__more order-1">
+
+      <FileExplorer-Rename
+        :is-folder="isFolder"
+        :renaming.sync="renaming"
+        :names-exists="namesExists"
+        v-model="file.name"
+        :dirname="file.dirname"
+        allow-rename
+        allow-update-store
+        class="d-flex align-center file--system__rename"
+      >
+        <template v-slot:prepend>
+          <span class="file--system__prepend" v-if="isFolder">
+            <v-icon style="color: inherit">
+              {{ collapse ? "mdi-chevron-down" : "mdi-chevron-right" }}
+            </v-icon>
+          </span>
+        </template>
+
+        <template v-slot:append-text v-if="editing">
+          <v-icon size="1em" color="blue">mdi-circle-medium</v-icon>
+        </template>
+      </FileExplorer-Rename>
+
+      <div class="file--system__more">
         <v-menu internal-activator bottom left>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -138,38 +162,14 @@
           </v-list>
         </v-menu>
       </div>
-
-      <FileExplorer-Rename
-        :is-folder="isFolder"
-        :renaming.sync="renaming"
-        :names-exists="namesExists"
-        v-model="file.name"
-        :dirname="file.dirname"
-        allow-rename
-        allow-update-store
-        class="d-flex align-center order-0 text-truncate"
-      >
-        <template v-slot:prepend>
-          <span class="file--system__prepend">
-            <v-icon style="color: inherit" v-if="isFolder">
-              {{ collapse ? "mdi-chevron-down" : "mdi-chevron-right" }}
-            </v-icon>
-            <span v-else />
-          </span>
-        </template>
-
-        <template v-slot:append-text v-if="editing">
-          <v-icon size="1em" color="blue">mdi-circle-medium</v-icon>
-        </template>
-      </FileExplorer-Rename>
     </div>
     <div class="ml-3" v-if="isFolder" v-show="collapse">
       <FileExplorer-Add
         :adding.sync="adding"
         :is-folder="addingFolder"
-        :names-exists="namesExists"
+        :names-exists="namesChildrenExists"
         :dirname="file.fullpath"
-        class="d-flex align-center order-0 text-truncate"
+        class="d-flex align-center order-0"
         allow-open-editor
         @created="refreshFolder"
       />
@@ -220,6 +220,10 @@ export default defineComponent({
       type: Object as PropType<ReaddirStatItem>,
       required: true,
     },
+    namesExists: {
+      type: Array as PropType<string[]>,
+      required: true,
+    },
   },
   setup(props) {
     const { file } = toRefs(props);
@@ -233,7 +237,7 @@ export default defineComponent({
     );
     const hidden = computed<boolean>(() => file.value.name.startsWith("."));
     const files = ref<ReaddirStatItem[]>([]);
-    const namesExists = computed<string[]>(() =>
+    const namesChildrenExists = computed<string[]>(() =>
       files.value.map((file) => file.name)
     );
     const editing = computed<boolean>(
@@ -272,7 +276,7 @@ export default defineComponent({
       isFolder,
       hidden,
       files,
-      namesExists,
+      namesChildrenExists,
       refreshFolder,
       editing,
     };

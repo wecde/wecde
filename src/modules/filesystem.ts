@@ -1,9 +1,10 @@
 import { Filesystem, Directory, StatResult } from "@capacitor/filesystem";
 import { alwayBase64 } from "@/utils";
 import { arrayBufferToBase64 } from "../utils";
-import { join, basename } from "path";
+import { join, basename, resolve } from "path";
 import { sort } from "fast-sort";
 import escapeStringRegexp from "escape-string-regexp";
+import eventBus from "./event-bus";
 
 const PUBLIC_STORAGE_APPLICATION = "Shin Code Editor";
 
@@ -37,6 +38,7 @@ export async function mkdir(
       directory,
       recursive: true,
     });
+    eventBus.emit("create:dir", resolve(path));
     // eslint-disable-next-line no-empty
   } catch {}
 }
@@ -51,6 +53,7 @@ export async function rmdir(
       directory,
       recursive: true,
     });
+    eventBus.emit("remove:dir", resolve(path));
     // eslint-disable-next-line no-empty
   } catch {}
 }
@@ -80,6 +83,13 @@ export async function writeFile(
       data,
       recursive: true,
     });
+
+    // eslint-disable-next-line no-extra-boolean-cast
+    if (!!data) {
+      eventBus.emit("write:file", resolve(path));
+    } else {
+      eventBus.emit("create:file", resolve(path));
+    }
     // eslint-disable-next-line no-empty
   } catch {
     try {
@@ -89,6 +99,13 @@ export async function writeFile(
         data,
         recursive: false,
       });
+
+      // eslint-disable-next-line no-extra-boolean-cast
+      if (!!data) {
+        eventBus.emit("write:file", resolve(path));
+      } else {
+        eventBus.emit("create:file", resolve(path));
+      }
     } catch (err) {
       console.error(err);
     }
@@ -123,6 +140,8 @@ export async function unlink(
       path: join(PUBLIC_STORAGE_APPLICATION, path),
       directory,
     });
+
+    eventBus.emit("remove:file", resolve(path));
   }
 }
 
@@ -133,14 +152,16 @@ export async function rename(
   toDirectory: Directory = Directory.Documents
 ): Promise<void> {
   /// fix error
-  await fixStartsWidth<void>(() =>
-    Filesystem.rename({
+  await fixStartsWidth<void>(async () => {
+    await Filesystem.rename({
       from: join(PUBLIC_STORAGE_APPLICATION, from),
       to: join(PUBLIC_STORAGE_APPLICATION, to),
       directory,
       toDirectory,
-    })
-  );
+    });
+
+    eventBus.emit("move", resolve(from), resolve(to));
+  });
 }
 
 export async function copy(
@@ -149,14 +170,16 @@ export async function copy(
   directory: Directory = Directory.Documents,
   toDirectory: Directory = Directory.Documents
 ): Promise<void> {
-  await fixStartsWidth<void>(() =>
-    Filesystem.copy({
+  await fixStartsWidth<void>(async () => {
+    await Filesystem.copy({
       from: join(PUBLIC_STORAGE_APPLICATION, from),
       to: join(PUBLIC_STORAGE_APPLICATION, to),
       directory,
       toDirectory,
-    })
-  );
+    });
+
+    eventBus.emit("copy", resolve(from), resolve(to));
+  });
 }
 
 export async function stat(

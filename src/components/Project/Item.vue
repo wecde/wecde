@@ -142,4 +142,13 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import "~@/sass/global.scss";
 @import "~@/sass/list-mouseright.scss";
+
+.list-project__item {
+  &::v-deep {
+    .v-list-item__content,
+    .v-list-item__title {
+      overflow: visible !important;
+    }
+  }
+}
 </style>

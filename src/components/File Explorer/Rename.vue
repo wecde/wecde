@@ -14,34 +14,34 @@
             light: false,
             isOpen: false,
             isFolder,
-            name: newFilename,
+            name: renaming ? newFilename : filename,
           })
         "
       />
     </span>
 
-    <span class="file--system__name text-truncate">
+    <span class="file--system__name">
       <div class="app--rename" v-if="renaming">
         <div class="app--rename__backboardd" @click.prevent.stop="blurInput" />
-        <input
-          type="text"
-          v-model.trim="newFilename"
-          ref="input"
-          @keydown.enter="blurInput"
-          @keydown="newFilename = $event.target.value.trim()"
-          @keyup="newFilename = $event.target.value.trim()"
-          @blur="blur"
-          :data-error="
-            fileNameAlreadyExists
-              ? `A file or folder ${newFilename} already exists at this localtion. Please choose a different name.`
-              : ``
-          "
-          @click.prevent.stop="() => false"
-        />
+        <div class="app--rename__input-group">
+          <div class="app--rename__error" v-if="error" v-html="error" />
+          <input
+            type="text"
+            v-model.trim="newFilename"
+            ref="input"
+            @keydown.enter="blurInput"
+            @keydown="newFilename = $event.target.value.trim()"
+            @keyup="newFilename = $event.target.value.trim()"
+            @blur="blur"
+            @click.prevent.stop="() => false"
+          />
+        </div>
       </div>
-      <span v-else @click="timeClick = Date.now()" style="cursor: text"
-        >{{ filename }} <slot name="append-text"
-      /></span>
+      <div class="text-truncate" v-else>
+        <span @click="onClickName" style="cursor: text"
+          >{{ filename }} <slot name="append-text"
+        /></span>
+      </div>
     </span>
 
     <slot name="append" />
@@ -106,35 +106,54 @@ export default defineComponent({
   },
   setup(props) {
     const { filename, renaming, namesExists } = toRefs(props);
-    const newFilename = ref<string>(filename.value);
+    const newFilename = ref<string>("");
+    const firstChangedName = ref<boolean>(false);
 
-    watch(filename, () => {
-      newFilename.value = filename.value;
-    });
-    watch(renaming, (newValue) => {
-      if (newValue === false) {
+    watch(
+      filename,
+      () => {
         newFilename.value = filename.value;
+      },
+      {
+        immediate: true,
       }
+    );
+    watch(renaming, () => {
+      newFilename.value = filename.value;
+      firstChangedName.value = false;
+    });
+    watch(newFilename, () => {
+      firstChangedName.value = true;
     });
 
     return {
       timeClick: ref<number>(0),
       newFilename,
-      fileNameAlreadyExists: computed(() =>
-        namesExists.value.some(
-          (name) => name === newFilename.value && name !== filename.value
-        )
-      ),
-      getIcon,
+      firstChangedName,
+      error: computed<string | false>(() => {
+        if (!newFilename.value && firstChangedName.value) {
+          return "A file or folder name must be provided.";
+        }
+
+        if (
+          namesExists.value.some(
+            (name) => name === newFilename.value && name !== filename.value
+          )
+        ) {
+          return `A file or folder <strong>${newFilename.value}</strong> already exists at this localtion. Please choose a different name.`;
+        }
+
+        return false;
+      }),
       running: ref<boolean>(false),
     };
   },
   methods: {
+    getIcon,
     async blur(): Promise<void> {
       if (
-        this.filename !== this.newFilename &&
-        !!this.newFilename &&
-        this.fileNameAlreadyExists === false &&
+        this.newFilename !== this.filename &&
+        this.error === false &&
         this.running === false
       ) {
         this.running = true;
@@ -224,15 +243,17 @@ export default defineComponent({
         );
       }, 70);
     },
-  },
-  watch: {
-    timeClick(newValue, oldValue) {
-      if (newValue - oldValue < 500) {
+    onClickName(): void {
+      if (Date.now() - this.timeClick < 500) {
         this.$emit("update:renaming", true);
 
         this.timeClick = 0;
+      } else {
+        this.timeClick = Date.now();
       }
     },
+  },
+  watch: {
     renaming: {
       handler(newValue) {
         if (newValue) {

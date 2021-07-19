@@ -95,7 +95,57 @@ declare module "prettier" {
   export default value;
 }
 
-declare module "*parser-typescript.js" {
+declare module "prettier/parser-angular" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-babel" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-espree" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-flow" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-graphql" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-html" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-markdown" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-meriyah" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-postcss" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-typescript" {
+  const value: any;
+
+  export default value;
+}
+declare module "prettier/parser-yaml" {
   const value: any;
 
   export default value;

@@ -71,7 +71,7 @@
                   hide-details
                   class="mt-0"
                   :input-value="
-                    $store.state.settings[stateGroup.prop][state.prop]
+                    $store.state.settings[stateGroup.prop + '__' + state.prop]
                   "
                   @change="
                     $store.commit(`settings/setState`, {
@@ -82,7 +82,9 @@
                 ></v-switch>
                 <select
                   v-else-if="state.type === `list`"
-                  :value="$store.state.settings[stateGroup.prop][state.prop]"
+                  :input-value="
+                    $store.state.settings[stateGroup.prop + '__' + state.prop]
+                  "
                   @change="
                     $store.commit(`settings/setState`, {
                       prop: `${stateGroup.prop}/${state.prop}`,
@@ -101,7 +103,9 @@
                 <input
                   v-else
                   :type="state.type"
-                  :value="$store.state.settings[stateGroup.prop][state.prop]"
+                  :input-value="
+                    $store.state.settings[stateGroup.prop + '__' + state.prop]
+                  "
                   @input="
                     $store.commit(`settings/setState`, {
                       prop: `${stateGroup.prop}/${state.prop}`,

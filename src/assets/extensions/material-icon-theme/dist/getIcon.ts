@@ -23,7 +23,9 @@ export default function getIcon({
 }): string {
   let id;
   const ext = extname(name),
-    ext2 = basename(name).split(".").slice(-2).join(".");
+    ext2 = name.includes(".")
+      ? basename(name).split(".").slice(-2).join(".")
+      : "";
 
   if (isFolder) {
     if (light) {

@@ -166,7 +166,7 @@ export default defineComponent({
 
     const serverStatus = ref<boolean>(false);
     const serverLoading = ref<boolean>(false);
-    const port = computed<string>(() => $store.state.settings.preview.port);
+    const port = computed<string>(() => $store.state.settings.preview__port);
     const plaintext = computed<boolean>(() => isPlainText(fullpath.value));
 
     const sessionWrapper = ref<Element | null>(null);
@@ -213,7 +213,7 @@ export default defineComponent({
       serverLoading.value = true;
       try {
         if (newValue) {
-          await startServer($store.state.settings.preview.port);
+          await startServer($store.state.settings.preview__port);
           // await openWebView();
         } else {
           await stopServer();

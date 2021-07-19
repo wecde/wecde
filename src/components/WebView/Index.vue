@@ -214,7 +214,7 @@ export default defineComponent({
 
     async function openWebView() {
       await Browser.open({
-        url: `http://localhost:${$store.state.settings.preview.port}`,
+        url: `http://localhost:${$store.state.settings.preview__port}`,
         toolbarColor: "#212121",
         presentationStyle: "popover",
       });

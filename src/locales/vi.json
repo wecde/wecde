@@ -35,7 +35,6 @@
   "Project Name": "Tên dự án",
   "Project {name} already exists": "Dự án \"{name}\" đã tồn tại",
   "Project required name": "Tên dự án bắt buộc",
-  "Created project {name}": "Đã tạo dự án \"{name}\"",
   "Created {type} {name}": "Đã tạo {type} \"{name}\"",
   "file": "tệp",
   "folder": "thư mục",

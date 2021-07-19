@@ -43,7 +43,7 @@
           </div>
           <div class="fill-width">
             <v-text-field
-              placeholder="Search"
+              :placeholder="$t('Search')"
               outline
               rounded
               class="py-1 grey-4 mx-0"
@@ -53,7 +53,7 @@
             />
             <div class="d-flex mt-2" v-if="openReplace">
               <v-text-field
-                placeholder="Replace"
+                :placeholder="$t('Replace')"
                 outline
                 rounded
                 class="py-1 grey-4 mx-0"
@@ -70,9 +70,9 @@
           <v-icon @click="openRules = !openRules">mdi-dots-horizontal</v-icon>
           <div class="text-left" v-if="openRules">
             <div>
-              <small class="text-caption text--secondary"
-                >files to include</small
-              >
+              <small class="text-caption text--secondary">{{
+                $t("files to include")
+              }}</small>
               <v-text-field
                 outline
                 rounded
@@ -82,9 +82,9 @@
               />
             </div>
             <div class="mt-2">
-              <small class="text-caption text--secondary"
-                >files to exclude</small
-              >
+              <small class="text-caption text--secondary">{{
+                $t("files to exclude")
+              }}</small>
               <v-text-field
                 outline
                 rounded

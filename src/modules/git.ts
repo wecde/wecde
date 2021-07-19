@@ -15,6 +15,7 @@ import { Toast } from "@capacitor/toast";
 import { StatResult } from "@capacitor/filesystem";
 import i18n from "@/i18n";
 import { join } from "path";
+import { providersGIT } from "@/store/modules/settings";
 const cache = {
   clone: {},
   commit: {},
@@ -160,7 +161,7 @@ const fs = {
 function getProvide(url: string): string {
   const provide = new URL(url).hostname;
 
-  if (provide in $store.state.settings.git) {
+  if (provide in providersGIT) {
     return provide;
   }
 
@@ -170,7 +171,7 @@ function getProvide(url: string): string {
 function getAuthFromProvide(url: string): any {
   const provide = getProvide(url);
 
-  return $store.state.settings.git[provide];
+  return $store.state.settings["git__" + provide];
 }
 
 /// utils
@@ -235,22 +236,22 @@ export async function clone({
     url,
     ref,
     cache: cache.clone,
-    singleBranch: $store.state.settings.cloneGit.singleBranch,
-    noCheckout: $store.state.settings.cloneGit.noCheckout,
-    noTags: $store.state.settings.cloneGit.noTags,
-    ...(Number.isNaN(+$store.state.settings.cloneGit.depth)
+    singleBranch: $store.state.settings.cloneGit__singleBranch,
+    noCheckout: $store.state.settings.cloneGit__noCheckout,
+    noTags: $store.state.settings.cloneGit__noTags,
+    ...(Number.isNaN(+$store.state.settings.cloneGit__depth)
       ? {}
       : {
-          depth: +$store.state.settings.cloneGit.depth,
+          depth: +$store.state.settings.cloneGit__depth,
         }),
     // eslint-disable-next-line no-extra-boolean-cast
-    ...(!!$store.state.settings.cloneGit.since
+    ...(!!$store.state.settings.cloneGit__since
       ? {
-          since: $store.state.settings.cloneGit.since,
+          since: $store.state.settings.cloneGit__since,
         }
       : {}),
     exclude:
-      $store.state.settings.cloneGit.exclude
+      $store.state.settings.cloneGit__exclude
         ?.replace(/,\s+/g, ",")
         .split(",")
         .filter(Boolean) ?? [],
@@ -280,8 +281,8 @@ export async function commit({
     onSign: onAuth,
     cache: cache.commit,
     author: {
-      name: $store.state.settings.git[provide]?.name,
-      email: $store.state.settings.git[provide]?.email,
+      name: $store.state.settings["git__" + provide]?.name,
+      email: $store.state.settings["git__" + provide]?.email,
     },
   });
 }
@@ -315,15 +316,15 @@ export async function log({
 
     cache: cache.log,
 
-    ...(Number.isNaN(+$store.state.settings.cloneGit.depth)
+    ...(Number.isNaN(+$store.state.settings.cloneGit__depth)
       ? {}
       : {
-          depth: +$store.state.settings.cloneGit.depth,
+          depth: +$store.state.settings.cloneGit__depth,
         }),
     // eslint-disable-next-line no-extra-boolean-cast
-    ...(!!$store.state.settings.cloneGit.since
+    ...(!!$store.state.settings.cloneGit__since
       ? {
-          since: $store.state.settings.cloneGit.since,
+          since: $store.state.settings.cloneGit__since,
         }
       : {}),
 
@@ -359,20 +360,20 @@ export async function fetch({
 
     remoteRef,
 
-    singleBranch: $store.state.settings.cloneGit.singleBranch,
-    ...(Number.isNaN(+$store.state.settings.cloneGit.depth)
+    singleBranch: $store.state.settings.cloneGit__singleBranch,
+    ...(Number.isNaN(+$store.state.settings.cloneGit__depth)
       ? {}
       : {
-          depth: +$store.state.settings.cloneGit.depth,
+          depth: +$store.state.settings.cloneGit__depth,
         }),
     // eslint-disable-next-line no-extra-boolean-cast
-    ...(!!$store.state.settings.cloneGit.since
+    ...(!!$store.state.settings.cloneGit__since
       ? {
-          since: $store.state.settings.cloneGit.since,
+          since: $store.state.settings.cloneGit__since,
         }
       : {}),
     exclude:
-      $store.state.settings.cloneGit.exclude
+      $store.state.settings.cloneGit__exclude
         ?.replace(/,\s+/g, ",")
         .split(",")
         .filter(Boolean) ?? [],

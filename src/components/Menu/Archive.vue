@@ -17,7 +17,6 @@
         </v-btn>
 
         <v-menu
-          auto
           internal-activator
           bottom
           left
@@ -78,14 +77,7 @@
           </template>
         </v-menu>
 
-        <v-menu
-          auto
-          internal-activator
-          bottom
-          left
-          close-on-click
-          close-on-content-click
-        >
+        <v-menu bottom left close-on-click close-on-content-click>
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon v-bind="attrs" v-on="on">
               <v-icon>mdi-plus</v-icon>

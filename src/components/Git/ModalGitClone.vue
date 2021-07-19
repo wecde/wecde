@@ -18,8 +18,8 @@
           </v-card-title>
         </div>
         <v-card-text>
-          <span class="blue--text">Set Credentials</span> to acceess Private
-          Repository
+          <span class="blue--text">{{ $t("Set Credentials") }}</span>
+          {{ $t("to access Private Repository") }}
 
           <v-text-field
             :placeholder="$t('URL (Start with https://)')"

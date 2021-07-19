@@ -88,8 +88,8 @@ export default defineComponent({
       provideSelected,
       (provide) => {
         [username.value, password.value] = [
-          $store.state.settings.git[provide].username,
-          $store.state.settings.git[provide].secure,
+          $store.state.settings["git__" + provide].username,
+          $store.state.settings["git__" + provide].secure,
         ];
       },
       {
@@ -107,15 +107,15 @@ export default defineComponent({
 
       save() {
         $store.commit("settings/setState", {
-          prop: `git/${provideSelected.value}/username`,
+          prop: `git/${provideSelected.value}->username`,
           value: username.value,
         });
         $store.commit("settings/setState", {
-          prop: `git/${provideSelected.value}/secure`,
+          prop: `git/${provideSelected.value}->secure`,
           value: password.value,
         });
         $store.commit("settings/setState", {
-          prop: `git/${provideSelected.value}/email`,
+          prop: `git/${provideSelected.value}->email`,
           value: email.value,
         });
       },

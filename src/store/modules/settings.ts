@@ -86,7 +86,7 @@ export const stateDescription = [
             value: theme.theme,
           };
         }),
-        default: "ace/theme/github",
+        default: "ace/theme/dracula",
         type: "list",
       },
       {
@@ -441,9 +441,13 @@ const store: Module<State, unknown> = {
         value: any;
       }
     ): void {
-      const props = prop.split("/").join("__");
+      const props = prop.replace(/\//g, "__").split("->");
 
-      (state as any)[props] = value;
+      props.slice(0, props.length - 1).forEach((prop: string) => {
+        state = (state as any)[prop];
+      });
+
+      (state as any)[props[props.length - 1]] = value;
     },
   },
 };

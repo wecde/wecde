@@ -6,6 +6,7 @@
       :key="index"
       @removed="$emit(`removed-file`, index)"
       @refresh-parent="$emit(`refresh`)"
+      :names-exists="filesList.map((item) => item.name)"
     />
   </div>
 </template>

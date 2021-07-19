@@ -163,17 +163,7 @@ import store from "@/store";
 import { Clipboard } from "@capacitor/clipboard";
 import { extname } from "path";
 import { format, getSupportInfo } from "prettier";
-import parserAngular from "prettier/parser-angular";
-import parserBabel from "prettier/parser-babel";
-import parserEspress from "prettier/parser-espree";
-import parserFlow from "prettier/parser-flow";
-import parserGraphql from "prettier/parser-graphql";
-import parserHTML from "prettier/parser-html";
-import parserMarkdown from "prettier/parser-markdown";
-import parserMeriyah from "prettier/parser-meriyah";
-import parserPostCSS from "prettier/parser-postcss";
-import parserTypescript from "prettier/parser-typescript";
-import parserYaml from "prettier/parser-yaml";
+
 // import standalone from "prettier/standalone";
 
 export default defineComponent({
@@ -222,14 +212,12 @@ export default defineComponent({
         $ace.value.on("change", () => {
           clearTimeout(timeoutSaveFile);
 
-          timeoutSaveFile = setTimeout(
-            async () =>
-              void (await writeFile(
-                fullpath.value,
-                $ace.value?.getValue() || ""
-              )),
-            100
-          );
+          timeoutSaveFile = setTimeout(async () => {
+            void (await writeFile(
+              fullpath.value,
+              $ace.value?.getValue() || ""
+            ));
+          }, 100);
 
           emit("change");
         });
@@ -250,35 +238,39 @@ export default defineComponent({
           enableLinking: true,
           autoScrollEditorIntoView: true,
           enableSnippets: true,
-          enableBasicAutocompletion: store.state.settings.editor.autocomplete,
-          enableLiveAutocompletion: store.state.settings.editor.autocomplete,
+          enableBasicAutocompletion: store.state.settings.editor__autocomplete,
+          enableLiveAutocompletion: store.state.settings.editor__autocomplete,
           // enableEmmet: true,
           // enableCodeLens: true,
         });
 
-        $ace.value.setTheme(`${store.state.settings.appearance.theme}`);
+        $ace.value.setTheme(`${store.state.settings.appearance__theme}`);
         $ace.value.setKeyboardHandler(
           // eslint-disable-next-line no-extra-boolean-cast
-          !!store.state.settings.editor.keybinding
-            ? `ace/keyboard/${store.state.settings.editor.keybinding}`
+          !!store.state.settings.editor__keybinding
+            ? `ace/keyboard/${store.state.settings.editor__keybinding}`
             : ""
         );
         $ace.value.setOption(
           "showGutter",
-          store.state.settings.editor.lineNumber
+          store.state.settings.editor__lineNumber
         );
         $ace.value.setShowPrintMargin(
-          +store.state.settings.editor.printMargin > 0
+          +store.state.settings.editor__printMargin > 0
         );
         $ace.value.setPrintMarginColumn(
-          +store.state.settings.editor.printMargin
+          +store.state.settings.editor__printMargin
         );
-        $ace.value.setShowInvisibles(store.state.settings.editor.showInvisible);
+        $ace.value.setShowInvisibles(
+          store.state.settings.editor__showInvisible
+        );
         $ace.value.session.setUseSoftTabs(
-          store.state.settings.editor.useSoftTabs
+          store.state.settings.editor__useSoftTabs
         );
-        $ace.value.session.setTabSize(+store.state.settings.editor.tabSize);
-        $ace.value.session.setUseWrapMode(store.state.settings.editor.wordWrap);
+        $ace.value.session.setTabSize(+store.state.settings.editor__tabSize);
+        $ace.value.session.setUseWrapMode(
+          store.state.settings.editor__wordWrap
+        );
       }
     }
 
@@ -345,7 +337,7 @@ export default defineComponent({
   },
 
   watch: {
-    "$store.state.settings.appearance.theme": {
+    "$store.state.settings.appearance__theme": {
       handler(newValue) {
         console.log("theme changed");
         if (this.$ace.value) {
@@ -353,7 +345,7 @@ export default defineComponent({
         }
       },
     },
-    "$store.state.settings.editor.autocomplete": {
+    "$store.state.settings.editor__autocomplete": {
       handler(newValue) {
         if (this.$ace.value) {
           (this.$ace.value as any).setOption(
@@ -367,21 +359,21 @@ export default defineComponent({
         }
       },
     },
-    "$store.state.settings.editor.keybinding": {
+    "$store.state.settings.editor__keybinding": {
       handler(newValue) {
         if (this.$ace.value) {
           this.$ace.value.setKeyboardHandler(`ace/keyboard/${newValue}`);
         }
       },
     },
-    "$store.state.settings.editor.lineNumber": {
+    "$store.state.settings.editor__lineNumber": {
       handler(newValue) {
         if (this.$ace.value) {
           this.$ace.value.setOption("showGutter", newValue);
         }
       },
     },
-    "$store.state.settings.editor.printMargin": {
+    "$store.state.settings.editor__printMargin": {
       handler(newValue) {
         if (this.$ace.value) {
           newValue = +newValue;
@@ -390,28 +382,28 @@ export default defineComponent({
         }
       },
     },
-    "$store.state.settings.editor.showInvisible": {
+    "$store.state.settings.editor__showInvisible": {
       handler(newValue) {
         if (this.$ace.value) {
           this.$ace.value.setShowInvisibles(newValue);
         }
       },
     },
-    "$store.state.settings.editor.useSoftTabs": {
+    "$store.state.settings.editor__useSoftTabs": {
       handler(newValue) {
         if (this.$ace.value) {
           this.$ace.value.session.setUseSoftTabs(newValue);
         }
       },
     },
-    "$store.state.settings.editor.tabSize": {
+    "$store.state.settings.editor__tabSize": {
       handler(newValue) {
         if (this.$ace.value) {
           this.$ace.value.session.setTabSize(+newValue);
         }
       },
     },
-    "$store.state.settings.editor.wordWrap": {
+    "$store.state.settings.editor__wordWrap": {
       handler(newValue) {
         if (this.$ace.value) {
           this.$ace.value.session.setUseWrapMode(newValue);
@@ -544,6 +536,39 @@ export default defineComponent({
     },
 
     formatCode() {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserAngular = require("prettier/parser-angular");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserBabel = require("prettier/parser-babel");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserEspree = require("prettier/parser-espree");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserFlow = require("prettier/parser-flow");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserGraphql = require("prettier/parser-graphql");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserHtml = require("prettier/parser-html");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserMarkdown = require("prettier/parser-markdown");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserMeriyah = require("prettier/parser-meriyah");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserPostcss = require("prettier/parser-postcss");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserTypescript = require("prettier/parser-typescript");
+
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const parserYaml = require("prettier/parser-yaml");
+
       if (this.$ace.value) {
         const code = this.$ace.value.getValue();
 
@@ -556,13 +581,13 @@ export default defineComponent({
             plugins: [
               parserAngular,
               parserBabel,
-              parserEspress,
+              parserEspree,
               parserFlow,
               parserGraphql,
-              parserHTML,
+              parserHtml,
               parserMarkdown,
               parserMeriyah,
-              parserPostCSS,
+              parserPostcss,
               parserTypescript,
               parserYaml,
             ],

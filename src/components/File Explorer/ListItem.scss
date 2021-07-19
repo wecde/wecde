@@ -12,11 +12,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    > div:last-child {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
+  }
+
+  &__rename {
+    min-width: 0;
   }
 
   &-hidden {
@@ -92,8 +91,9 @@
     }
   }
   &__prepend {
-    width: 24px;
-    height: 24px;
+    // width: 24px;
+    // height: 24px;
+    margin-right: 4px;
     > span {
       display: block;
       width: 1em;

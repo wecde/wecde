@@ -34,7 +34,7 @@
   "Project Name": "Project Name",
   "Project {name} is exists": "Project \"{name}\" is exists",
   "Project required name": "Project required name",
-  "Created project {name}": "Created project \"{name}\"",
+  
   "Created {type} {name}": "Created {type} \"{name}\"",
   "file": "file",
   "folder": "folder",
