@@ -8,6 +8,10 @@ import i18n from "@/i18n";
 import ISO from "iso-639-1";
 import { basename } from "path";
 
+export interface State {
+  [group: string]: any;
+}
+
 export const stateDescription = [
   {
     label: "Clone GIT",
@@ -396,13 +400,11 @@ export const stateDescription = [
   },
 ];
 
-const state = Object.create(null);
+const state: State = Object.create(null);
 
 stateDescription.forEach((stateGroup) => {
-  state[stateGroup.prop] = {};
-
   stateGroup.props.forEach((prop: any) => {
-    state[stateGroup.prop][prop.prop] = prop.default;
+    state[stateGroup.prop + "__" + prop.prop] = prop.default;
   });
 });
 
@@ -414,57 +416,19 @@ export const providersGIT = {
   "*": "Other",
 };
 
-export interface State {
-  git: {
-    [hostname: string]: {
-      username: string;
-      secure: string;
-      email: string;
-      name: string;
-    };
-  };
-  [group: string]: {
-    [prop: string]: any;
+for (const host in providersGIT) {
+  state[`git__${host}`] = {
+    username: "",
+    secure: "",
+    email: "",
+    name: "",
   };
 }
+
 const store: Module<State, unknown> = {
   namespaced: true,
 
-  state: {
-    git: {
-      "github.com": {
-        username: "",
-        secure: "",
-        email: "",
-        name: "",
-      },
-      "bitbucket.org": {
-        username: "",
-        secure: "",
-        email: "",
-        name: "",
-      },
-      "gitlab.com": {
-        username: "",
-        secure: "",
-        email: "",
-        name: "",
-      },
-      "dev.azure.com": {
-        username: "",
-        secure: "",
-        email: "",
-        name: "",
-      },
-      "*": {
-        username: "",
-        secure: "",
-        email: "",
-        name: "",
-      },
-    },
-    ...state,
-  },
+  state,
 
   mutations: {
     setState(
@@ -477,13 +441,9 @@ const store: Module<State, unknown> = {
         value: any;
       }
     ): void {
-      const props = prop.split("/");
+      const props = prop.split("/").join("__");
 
-      props.slice(0, props.length - 1).forEach((prop: string) => {
-        state = (state as any)[prop];
-      });
-
-      (state as any)[props[props.length - 1]] = value;
+      (state as any)[props] = value;
     },
   },
 };

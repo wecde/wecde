@@ -10,29 +10,32 @@ const i18n = new VueI18n({
 });
 
 const loadedLanguages = ["en"]; // our default language that is preloaded
+const allLanguages = require
+  .context("@/locales", true, /[a-zA-Z_-]+\.json$/)
+  .keys();
 
 function setI18nLanguage(lang: string): void {
   i18n.locale = lang;
   document.querySelector("html")?.setAttribute("lang", lang);
 }
 
-export function loadLanguageAsync(lang: string): Promise<void> {
+export async function loadLanguageAsync(lang: string): Promise<void> {
   // If the same language
   if (i18n.locale === lang) {
     return Promise.resolve(setI18nLanguage(lang));
   }
 
-  // If the language was already loaded
   if (loadedLanguages.includes(lang)) {
     return Promise.resolve(setI18nLanguage(lang));
   }
 
-  // If the language hasn't been loaded yet
-  return import(`@/locales/${lang}.json`).then((messages) => {
-    i18n.setLocaleMessage(lang, messages.default);
-    loadedLanguages.push(lang);
-    return setI18nLanguage(lang);
-  });
+  if (allLanguages.includes(lang)) {
+    await import(`@/locales/${lang}.json`).then((messages) => {
+      i18n.setLocaleMessage(lang, messages.default);
+      loadedLanguages.push(lang);
+      return setI18nLanguage(lang);
+    });
+  }
 }
 
 if ("locale" in localStorage === false) {
