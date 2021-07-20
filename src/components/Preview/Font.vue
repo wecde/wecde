@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex align-center justify-center text-center">
+  <div class="d-flex align-center justify-center text-center px-3">
     ABCDEFGHIJKLM<br />
     NOPQRSTUVWXYZ<br />
     abcdefghijklm<br />

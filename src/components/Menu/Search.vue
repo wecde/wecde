@@ -148,7 +148,6 @@
                   ></span
                 ><span class="chip blue">{{ item.match.length }}</span>
               </div>
-              <span></span>
             </div>
           </template>
 

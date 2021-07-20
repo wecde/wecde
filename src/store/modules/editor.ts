@@ -52,23 +52,39 @@ const store: Module<State, unknown> = {
     changeSession(state, session: number): void {
       state.session = session;
 
-      if (state.historySession[state.historySession.length - 1] !== session) {
+      if (
+        state.historySession[state.historySession.length - 1] !== session &&
+        session in state.sessions
+      ) {
         state.historySession.push(session);
       }
     },
     removeSession(state, session: number): void {
-      state.sessions.splice(session, 1);
-      let indexSession = state.historySession.lastIndexOf(session);
-      state.historySession = state.historySession.filter(
-        (item) => item !== session
-      );
-
-      if (state.session === session) {
-        if (indexSession === -1) {
-          indexSession = state.sessions.length - 1;
+      if (session === state.session) {
+        const index = Math.max(
+          Math.min(
+            state.historySession[
+              state.historySession.lastIndexOf(session) - 1
+            ] ?? Infinity,
+            state.sessions.length - 1 - 1
+          ),
+          state.sessions.length - 1 - 1,
+          0
+        );
+        state.session = index;
+        state.sessions.splice(session, 1);
+        state.historySession = state.historySession.filter(
+          (item) => item !== session
+        );
+      } else {
+        // 千葉区点線
+        if (state.session >= session) {
+          state.session--;
         }
-
-        state.session = indexSession;
+        state.sessions.splice(session, 1);
+        state.historySession = state.historySession.filter(
+          (item) => item !== session
+        );
       }
     },
 

@@ -2,8 +2,6 @@
   <div v-if="adding">
     <div class="file--system__item">
       <div class="d-flex align-center">
-        <span class="file--system__prepend"> </span>
-
         <FileExplorer-Rename
           :is-folder="isFolder"
           :renaming="adding"
@@ -18,8 +16,6 @@
           class="d-inline-flex"
         />
       </div>
-
-      <div class="file--system__more"></div>
     </div>
   </div>
 </template>

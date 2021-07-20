@@ -1,10 +1,11 @@
 import { Filesystem, Directory, StatResult } from "@capacitor/filesystem";
 import { alwayBase64 } from "@/utils";
 import { arrayBufferToBase64 } from "../utils";
-import { join, basename, resolve } from "path";
+import { join, basename } from "path";
 import { sort } from "fast-sort";
 import escapeStringRegexp from "escape-string-regexp";
 import eventBus from "./event-bus";
+import { encode } from "base-64";
 
 const PUBLIC_STORAGE_APPLICATION = "Shin Code Editor";
 
@@ -38,7 +39,7 @@ export async function mkdir(
       directory,
       recursive: true,
     });
-    eventBus.emit("create:dir", resolve(path));
+    eventBus.emit("create:dir", path);
     // eslint-disable-next-line no-empty
   } catch {}
 }
@@ -53,7 +54,7 @@ export async function rmdir(
       directory,
       recursive: true,
     });
-    eventBus.emit("remove:dir", resolve(path));
+    eventBus.emit("remove:dir", path);
     // eslint-disable-next-line no-empty
   } catch {}
 }
@@ -73,7 +74,7 @@ export async function writeFile(
   } else if (data instanceof Blob) {
     data = arrayBufferToBase64(await data.arrayBuffer());
   } else {
-    data = btoa(data);
+    data = encode(data);
   }
 
   try {
@@ -86,9 +87,9 @@ export async function writeFile(
 
     // eslint-disable-next-line no-extra-boolean-cast
     if (!!data) {
-      eventBus.emit("write:file", resolve(path));
+      eventBus.emit("write:file", path);
     } else {
-      eventBus.emit("create:file", resolve(path));
+      eventBus.emit("create:file", path);
     }
     // eslint-disable-next-line no-empty
   } catch {
@@ -102,9 +103,9 @@ export async function writeFile(
 
       // eslint-disable-next-line no-extra-boolean-cast
       if (!!data) {
-        eventBus.emit("write:file", resolve(path));
+        eventBus.emit("write:file", path);
       } else {
-        eventBus.emit("create:file", resolve(path));
+        eventBus.emit("create:file", path);
       }
     } catch (err) {
       console.error(err);
@@ -141,7 +142,7 @@ export async function unlink(
       directory,
     });
 
-    eventBus.emit("remove:file", resolve(path));
+    eventBus.emit("remove:file", path);
   }
 }
 
@@ -160,7 +161,7 @@ export async function rename(
       toDirectory,
     });
 
-    eventBus.emit("move", resolve(from), resolve(to));
+    eventBus.emit("move", from, to);
   });
 }
 
@@ -178,7 +179,7 @@ export async function copy(
       toDirectory,
     });
 
-    eventBus.emit("copy", resolve(from), resolve(to));
+    eventBus.emit("copy", from, to);
   });
 }
 
@@ -225,9 +226,7 @@ function filterExclude(
   });
 }
 export interface ReaddirStatItem {
-  name: string;
   directory: string;
-  dirname: string;
   stat: StatResult;
   fullpath: string;
 }
@@ -266,8 +265,8 @@ export function sortFolder(items: ReaddirStatItem[]): ReaddirStatItem[] {
   });
 
   return [
-    ...sort<ReaddirStatItem>(folders).asc((item) => item.name),
-    ...sort<ReaddirStatItem>(files).asc((item) => item.name),
+    ...sort<ReaddirStatItem>(folders).asc((item) => basename(item.fullpath)),
+    ...sort<ReaddirStatItem>(files).asc((item) => basename(item.fullpath)),
   ];
 }
 
@@ -298,9 +297,7 @@ export async function readFilesFolder(
         {
           key: pathToFile,
           value: {
-            name,
             directory,
-            dirname: path,
             stat: thisStat,
             data,
             fullpath: pathToFile,

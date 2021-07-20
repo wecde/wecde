@@ -6,7 +6,7 @@
       :key="index"
       @removed="$emit(`removed-file`, index)"
       @refresh-parent="$emit(`refresh`)"
-      :names-exists="filesList.map((item) => item.name)"
+      :names-exists="filesList.map((item) => basename(item.fullpath))"
     />
   </div>
 </template>
@@ -15,6 +15,7 @@
 import { defineComponent, PropType } from "@vue/composition-api";
 import FileExplorerListItem from "./ListItem.vue";
 import type { ReaddirStatItem } from "@/modules/filesystem";
+import { basename } from "path";
 
 export default defineComponent({
   components: {
@@ -25,6 +26,9 @@ export default defineComponent({
       type: Array as PropType<ReaddirStatItem[]>,
       required: true,
     },
+  },
+  methods: {
+    basename,
   },
 });
 </script>

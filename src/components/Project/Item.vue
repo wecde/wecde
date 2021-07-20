@@ -34,7 +34,7 @@
           :is-folder="true"
           :names-exists="namesExists"
           dirname="projects"
-          v-model="project.name"
+          v-model="project.fullpath"
           no-icon
           allow-update-store
           :allow-rename="true"
@@ -99,6 +99,7 @@ import FileExplorerRename from "../File Explorer/Rename.vue";
 import exportZip from "@/modules/export-zip";
 import { Toast } from "@capacitor/toast";
 import type { ReaddirStatItem } from "@/modules/filesystem";
+import { basename } from "path";
 
 export default defineComponent({
   components: {
@@ -128,7 +129,7 @@ export default defineComponent({
         Toast.show({
           text: this.$t("Exported {type} {name}", {
             type: this.$t("project"),
-            name: this.project.name,
+            name: basename(this.project.fullpath),
           }) as string,
         });
       } catch (err) {

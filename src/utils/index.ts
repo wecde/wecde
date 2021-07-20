@@ -1,5 +1,7 @@
 import { extname as _extname, basename, relative, resolve } from "path";
 import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons.json";
+import isBinaryPath from "is-binary-path";
+import { encode, decode } from "base-64";
 
 export function extname(path: string): string {
   return _extname(path).replace(/^\./g, "");
@@ -10,7 +12,7 @@ export function b64toBlob(
   contentType = "",
   sliceSize = 512
 ): Blob {
-  const byteCharacters = atob(b64Data);
+  const byteCharacters = decode(b64Data);
   const byteArrays = [];
 
   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
@@ -30,23 +32,7 @@ export function b64toBlob(
 }
 
 export function isPlainText(path: string): boolean {
-  return (
-    !extname(path) ||
-    (extname(path) in fileExtensions &&
-      [
-        "image",
-        "pdf",
-        "table",
-        "zip",
-        "exe",
-        "word",
-        "lib",
-        "video",
-        "audio",
-        "android",
-        "3d",
-      ].includes(fileExtensions[extname(path)]) === false)
-  );
+  return isBinaryPath(path) === false;
 }
 
 export function getType(path: string): string {
@@ -62,6 +48,8 @@ export function getEditor(path: string): string {
     case "i18n":
     case "settings":
       return "json";
+    case "react":
+      return "jsx";
   }
 
   return type;
@@ -69,7 +57,7 @@ export function getEditor(path: string): string {
 
 export function isBase64(str: string): boolean {
   try {
-    return btoa(atob(str)) === str;
+    return encode(decode(str)) === str;
   } catch (err) {
     return false;
   }
@@ -77,7 +65,7 @@ export function isBase64(str: string): boolean {
 
 export function rawText(str: string): string {
   if (isBase64(str)) {
-    return atob(str);
+    return decode(str);
   }
 
   return str;
@@ -90,7 +78,7 @@ export function alwayBase64(str: string): string {
       return str;
     }
 
-    return btoa(str);
+    return encode(str);
   } else {
     return str;
   }
@@ -103,11 +91,11 @@ export function arrayBufferToBase64(buffer: ArrayBuffer): string {
   for (let i = 0; i < len; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
-  return btoa(binary);
+  return encode(binary);
 }
 
 export function base64ToArrayBuffer(base64: string): ArrayBuffer {
-  const binary_string = atob(base64);
+  const binary_string = decode(base64);
   const len = binary_string.length;
   const bytes = new Uint8Array(len);
   for (let i = 0; i < len; i++) {

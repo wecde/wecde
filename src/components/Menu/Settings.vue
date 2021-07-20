@@ -82,7 +82,7 @@
                 ></v-switch>
                 <select
                   v-else-if="state.type === `list`"
-                  :input-value="
+                  :value="
                     $store.state.settings[stateGroup.prop + '__' + state.prop]
                   "
                   @change="
@@ -91,6 +91,7 @@
                       value: $event.target.value,
                     })
                   "
+                  :placeholder="state.default"
                 >
                   <option
                     v-for="item in state.select"
@@ -103,9 +104,10 @@
                 <input
                   v-else
                   :type="state.type"
-                  :input-value="
+                  :value="
                     $store.state.settings[stateGroup.prop + '__' + state.prop]
                   "
+                  :placeholder="state.default"
                   @input="
                     $store.commit(`settings/setState`, {
                       prop: `${stateGroup.prop}/${state.prop}`,

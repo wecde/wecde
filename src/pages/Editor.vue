@@ -108,7 +108,7 @@
         v-else-if="plaintext"
         @change="scrollSessionWrapperToSessionActive"
       />
-      <div class="editor" v-else>
+      <div class="editor pt-4 text-caption px-6 pb-6" v-else>
         This file is not displayed in the text editor because it is either
         binary or uses an unsupported text encoding.
       </div>

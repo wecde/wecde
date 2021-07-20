@@ -4,7 +4,7 @@
       :fullpath="fullpath"
       @change="
         $emit(`change`);
-        previewing && refreshMarkdown();
+        previewing && refreshSVG();
       "
       class="fill-width fill-height"
       v-show="!previewing"

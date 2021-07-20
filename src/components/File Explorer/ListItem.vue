@@ -18,8 +18,7 @@
         :is-folder="isFolder"
         :renaming.sync="renaming"
         :names-exists="namesExists"
-        v-model="file.name"
-        :dirname="file.dirname"
+        v-model="file.fullpath"
         allow-rename
         allow-update-store
         class="d-flex align-center file--system__rename"
@@ -207,6 +206,7 @@ import { Toast } from "@capacitor/toast";
 import type { ReaddirStatItem } from "@/modules/filesystem";
 import ImportFiles from "@/components/Import/Files.vue";
 import store from "@/store";
+import { basename } from "path";
 
 export default defineComponent({
   components: {
@@ -231,14 +231,15 @@ export default defineComponent({
     const renaming = ref<boolean>(false);
     const adding = ref<boolean>(false);
     const addingFolder = ref<boolean>(false);
-    const nameLocal = ref<string>("");
     const isFolder = computed<boolean>(
       () => file.value.stat.type === "directory"
     );
-    const hidden = computed<boolean>(() => file.value.name.startsWith("."));
+    const hidden = computed<boolean>(() =>
+      basename(file.value.fullpath).startsWith(".")
+    );
     const files = ref<ReaddirStatItem[]>([]);
     const namesChildrenExists = computed<string[]>(() =>
-      files.value.map((file) => file.name)
+      files.value.map((file) => basename(file.fullpath))
     );
     const editing = computed<boolean>(
       () =>
@@ -272,7 +273,6 @@ export default defineComponent({
       renaming,
       adding,
       addingFolder,
-      nameLocal,
       isFolder,
       hidden,
       files,
@@ -280,14 +280,6 @@ export default defineComponent({
       refreshFolder,
       editing,
     };
-  },
-  watch: {
-    "file.name": {
-      handler(newValue) {
-        this.nameLocal = newValue || "";
-      },
-      immediate: true,
-    },
   },
   methods: {
     getIcon,
@@ -358,7 +350,7 @@ export default defineComponent({
         this.$store.commit("system/setProgress", true);
         const data = await readFile(this.file.fullpath);
 
-        saveAs(b64toBlob(data), this.file.name);
+        saveAs(b64toBlob(data), basename(this.file.fullpath));
         this.$store.commit("system/setProgress", false);
         Toast.show({
           text: this.$t("Exported {type} {name}", {

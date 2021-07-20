@@ -122,6 +122,7 @@ export async function unzip({
         : base64ToArrayBuffer(await readFile(file, directory))
       : file
   );
+
   store.commit(
     "terminal/print",
     i18n.t("Extract file {name}", {
@@ -134,7 +135,7 @@ export async function unzip({
     store.commit(
       "terminal/print",
       i18n.t("Extracing {type} {name}", {
-        type: zip.files[path].dir ? "directory" : "file",
+        type: i18n.t(zip.files[path].dir ? "directory" : "file"),
         name: path,
       })
     );

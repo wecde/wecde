@@ -1,6 +1,9 @@
 <template>
-  <div class="d-flex align-center justify-center">
-    <img :src="`data:image/${ext};base64,${base64}`" alt="" />
+  <div class="d-flex align-center justify-center px-3">
+    <img
+      :src="`data:image/${ext};base64,${base64}`"
+      :alt="basename(fullpath)"
+    />
   </div>
 </template>
 
@@ -14,6 +17,7 @@ import {
 } from "@vue/composition-api";
 import { readFile } from "@/modules/filesystem";
 import { extname } from "@/utils";
+import { basename } from "path";
 
 export default defineComponent({
   props: {
@@ -48,6 +52,9 @@ export default defineComponent({
       base64,
       ext,
     };
+  },
+  methods: {
+    basename,
   },
 });
 </script>

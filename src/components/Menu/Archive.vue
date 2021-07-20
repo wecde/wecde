@@ -156,9 +156,9 @@
         <v-list>
           <Project-Item
             v-for="item in projects"
-            :key="item.name"
+            :key="item.fullpath"
             :project="item"
-            :names-exists="projects.map((item) => item.name)"
+            :names-exists="projects.map((item) => basename(item.fullpath))"
             @click:delete="projectRemoving = item"
             @click.native="$emit(`toFiles`)"
           />
@@ -181,7 +181,9 @@
           <v-card-text class="pb-0">
             {{ $t("Type") }} <span class="blue--text">{{ code }}</span>
             {{ $t("to confirm.") }}
-            <span class="blue--text">{{ projectRemoving.name }}</span>
+            <span class="blue--text">{{
+              basename(projectRemoving.fullpath)
+            }}</span>
             {{ $t("will permanently deleted. It can NOT be recovered!") }}
             <v-text-field
               :rules="[
@@ -221,6 +223,7 @@ import { random } from "@/utils";
 import { Toast } from "@capacitor/toast";
 import GitProvide from "@/components/Git/ModalGitProvide.vue";
 import GitClone from "@/components/Git/ModalGitClone.vue";
+import { basename } from "path";
 
 export default defineComponent({
   components: {
@@ -268,6 +271,8 @@ export default defineComponent({
     await this.reloadListProjects();
   },
   methods: {
+    basename,
+
     async reloadListProjects(notification = false): Promise<void> {
       this.$store.commit("system/setProgress", true);
       try {
@@ -313,14 +318,14 @@ export default defineComponent({
           Toast.show({
             text: this.$t(`Removed {type} {name}`, {
               type: this.$t("project"),
-              name: this.projectRemoving.name,
+              name: basename(this.projectRemoving.fullpath),
             }) as string,
           });
         } catch {
           Toast.show({
             text: this.$t(`Remove {type} {name} failed`, {
               type: this.$t("project"),
-              name: this.projectRemoving.name,
+              name: basename(this.projectRemoving.fullpath),
             }) as string,
           });
         }

@@ -14,7 +14,7 @@
             light: false,
             isOpen: false,
             isFolder,
-            name: renaming ? newFilename : filename,
+            name: renaming ? newFilename : basename(fullpath),
           })
         "
       />
@@ -39,7 +39,7 @@
       </div>
       <div class="text-truncate" v-else>
         <span @click="onClickName" style="cursor: text"
-          >{{ filename }} <slot name="append-text"
+          >{{ basename(fullpath) }} <slot name="append-text"
         /></span>
       </div>
     </span>
@@ -58,14 +58,13 @@ import {
   toRefs,
 } from "@vue/composition-api";
 import { rename } from "@/modules/filesystem";
-import { join, relative, basename, extname } from "path";
+import { join, relative, basename, extname, dirname } from "path";
 import { Toast } from "@capacitor/toast";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
-import { isParentFolder } from "@/utils";
 
 export default defineComponent({
   model: {
-    prop: "filename",
+    prop: "fullpath",
     event: "rename",
   },
   props: {
@@ -81,11 +80,7 @@ export default defineComponent({
       type: Array as PropType<string[]>,
       required: true,
     },
-    filename: {
-      type: String,
-      required: true,
-    },
-    dirname: {
+    fullpath: {
       type: String,
       required: true,
     },
@@ -105,21 +100,21 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const { filename, renaming, namesExists } = toRefs(props);
+    const { fullpath, renaming, namesExists } = toRefs(props);
     const newFilename = ref<string>("");
     const firstChangedName = ref<boolean>(false);
 
     watch(
-      filename,
+      fullpath,
       () => {
-        newFilename.value = filename.value;
+        newFilename.value = basename(fullpath.value);
       },
       {
         immediate: true,
       }
     );
     watch(renaming, () => {
-      newFilename.value = filename.value;
+      newFilename.value = basename(fullpath.value);
       firstChangedName.value = false;
     });
     watch(newFilename, () => {
@@ -137,7 +132,8 @@ export default defineComponent({
 
         if (
           namesExists.value.some(
-            (name) => name === newFilename.value && name !== filename.value
+            (name) =>
+              name === newFilename.value && name !== basename(fullpath.value)
           )
         ) {
           return `A file or folder <strong>${newFilename.value}</strong> already exists at this localtion. Please choose a different name.`;
@@ -150,9 +146,10 @@ export default defineComponent({
   },
   methods: {
     getIcon,
+    basename,
     async blur(): Promise<void> {
       if (
-        this.newFilename !== this.filename &&
+        this.newFilename !== basename(this.fullpath) &&
         this.error === false &&
         this.running === false
       ) {
@@ -163,8 +160,8 @@ export default defineComponent({
           //// rename
 
           const [to, from] = [
-            join(this.dirname, this.newFilename),
-            join(this.dirname, this.filename),
+            join(dirname(this.fullpath), this.newFilename),
+            this.fullpath,
           ];
           try {
             await rename(from, to);
@@ -188,38 +185,7 @@ export default defineComponent({
           }
           this.$store.commit("system/setProgress", false);
 
-          if (this.allowUpdateStore) {
-            /// update project
-            if (isParentFolder(from, this.$store.state.editor.project)) {
-              this.$store.commit(
-                "editor/setProject",
-                this.$store.state.editor.project.replace(from, to)
-              );
-            }
-            /// update sessions
-            this.$store.state.editor.sessions.forEach(
-              (item: string, index: number): void => {
-                if (isParentFolder(from, item)) {
-                  /// update
-                  this.$store.commit("editor/updateSession", {
-                    index,
-                    value: item.replace(from, to),
-                  });
-                }
-              }
-            );
-            /// update store scroll
-            for (const file in this.$store.state.editor.scrollEnhance) {
-              if (isParentFolder(from, file)) {
-                this.$store.commit("editor/updateFileScrollEnhance", {
-                  file,
-                  newFile: file.replace(from, to),
-                });
-              }
-            }
-          }
-
-          this.$emit("rename", this.newFilename);
+          this.$emit("rename", to);
         } else {
           this.$emit("cancel", this.newFilename);
         }

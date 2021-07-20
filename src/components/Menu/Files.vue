@@ -137,7 +137,7 @@
           :dirname="$store.state.editor.project"
           @created="reloadListFile"
           allow-open-editor
-          :names-exists="tree.map((item) => item.name)"
+          :names-exists="tree.map((item) => basename(item.fullpath))"
         />
 
         <FileExplorer-List
@@ -234,6 +234,8 @@ export default defineComponent({
     },
   },
   methods: {
+    basename,
+
     async reloadListFile(notification = false): Promise<void> {
       try {
         if (

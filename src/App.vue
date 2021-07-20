@@ -44,7 +44,15 @@ export default defineComponent({
     "$store.state.settings.appearance__language": {
       async handler(newValue: string) {
         // console.log(newValue);
-        await loadLanguageAsync(newValue);
+        // eslint-disable-next-line no-extra-boolean-cast
+        if (!!newValue) {
+          await loadLanguageAsync(newValue);
+        } else {
+          this.$i18n.locale = navigator.language
+            .split("-")
+            .slice(0, -1)
+            .join("-");
+        }
       },
       immediate: true,
     },

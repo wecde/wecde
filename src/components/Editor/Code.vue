@@ -157,6 +157,7 @@ import "ace-builds/src-noconflict/keybinding-sublime";
 import "ace-builds/src-noconflict/keybinding-vim";
 import "ace-builds/src-noconflict/keybinding-vscode";
 import "ace-builds/src-noconflict/ext-spellcheck";
+import "ace-builds/src-noconflict/ext-prompt";
 import { getEditor, rawText } from "@/utils";
 import { readFile, writeFile } from "@/modules/filesystem";
 import store from "@/store";
@@ -182,6 +183,8 @@ export default defineComponent({
     );
 
     const EditorCode = ref<HTMLElement | null>(null);
+
+    const isLock = ref<boolean>(false);
 
     const $ace: {
       value: ace.Ace.Editor | null;
@@ -217,7 +220,7 @@ export default defineComponent({
               fullpath.value,
               $ace.value?.getValue() || ""
             ));
-          }, 100);
+          }, 1000);
 
           emit("change");
         });
@@ -271,11 +274,31 @@ export default defineComponent({
         $ace.value.session.setUseWrapMode(
           store.state.settings.editor__wordWrap
         );
+
+        watch(
+          typeEditor,
+          () => {
+            $ace.value?.session.setMode(`ace/mode/${typeEditor.value}`);
+          },
+          {
+            immediate: true,
+          }
+        );
       }
     }
 
     onMounted(() => {
       createEditor();
+
+      watch(
+        isLock,
+        (newValue) => {
+          $ace.value?.setReadOnly(newValue);
+        },
+        {
+          immediate: true,
+        }
+      );
 
       watch(fullpath, () => void savePostionEditor());
 
@@ -298,7 +321,6 @@ export default defineComponent({
             $ace.value?.moveCursorTo(cursorRow, cursorColumn);
           }, 1);
 
-          $ace.value.session.setMode(`ace/mode/${typeEditor.value}`);
           ace.require(`ace/snippets/${typeEditor.value}`);
         }
       });
@@ -331,8 +353,9 @@ export default defineComponent({
     return {
       $ace,
       EditorCode,
-      isLock: ref<boolean>(false),
+      isLock,
       tabToolsBottom: ref<number>(0),
+      typeEditor,
     };
   },
 
@@ -484,7 +507,7 @@ export default defineComponent({
       }
     },
     openCommand() {
-      console.log("open command");
+      this.$ace.value?.execCommand("openCommandPallete");
     },
     openBot() {
       console.log("open bot");

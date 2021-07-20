@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import createPersistedState from "vuex-persistedstate";
+import hydrator from "./hydrator";
 
 import system, { State as StateSystem } from "./modules/system";
 import settings, { State as StateSettings } from "./modules/settings";
@@ -36,5 +37,7 @@ const store = new Vuex.Store<{
     }),
   ],
 });
+
+hydrator(store);
 
 export default store;
