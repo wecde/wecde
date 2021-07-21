@@ -12,7 +12,15 @@ export interface State {
   [group: string]: any;
 }
 
-export const stateDescription = [
+export const stateDescription: {
+  label: string;
+  prop: string;
+  props: {
+    label: string;
+    prop: string;
+    type: "string" | "number" | "boolean" | "int"
+  }[]
+}[] = [
   {
     label: "Clone GIT",
     prop: "cloneGit",
@@ -38,7 +46,7 @@ export const stateDescription = [
       {
         label: "Depth",
         prop: "depth",
-        type: "tel",
+        type: "number",
         default: 10,
       },
       {
@@ -89,83 +97,83 @@ export const stateDescription = [
         default: "ace/theme/dracula",
         type: "list",
       },
-      {
-        label: "Amoled Screen",
-        prop: "amoled",
-        default: false,
-        type: "switch",
-      },
-      {
-        label: "Topbar transparent",
-        prop: "topBarTransparent",
-        default: "solid",
-        select: [
-          {
-            label: "Solid",
-            value: "solid",
-          },
-          {
-            label: "Transparent",
-            value: "transparent",
-          },
-          {
-            label: "Transparency",
-            value: "transparency",
-          },
-        ],
-        type: "list",
-      },
+      // {
+      //   label: "Amoled Screen",
+      //   prop: "amoled",
+      //   default: false,
+      //   type: "switch",
+      // },
+      // {
+      //   label: "Topbar transparent",
+      //   prop: "topBarTransparent",
+      //   default: "solid",
+      //   select: [
+      //     {
+      //       label: "Solid",
+      //       value: "solid",
+      //     },
+      //     {
+      //       label: "Transparent",
+      //       value: "transparent",
+      //     },
+      //     {
+      //       label: "Transparency",
+      //       value: "transparency",
+      //     },
+      //   ],
+      //   type: "list",
+      // },
     ],
   },
-  {
-    label: "BOT",
-    prop: "bot",
+  // {
+  //   label: "BOT",
+  //   prop: "bot",
 
-    props: [
-      {
-        label: "Enabled",
-        prop: "enabled",
-        type: "switch",
-        default: true,
-      },
-      {
-        label: "Trigger autocomplete",
-        prop: "autocompleteTrigger",
-        type: "list",
-        default: "input",
-        select: [
-          {
-            label: "Input",
-            value: "input",
-          },
-          {
-            label: "Focus",
-            value: "focus",
-          },
-        ],
-      },
-      {
-        label: "Display autocomplete",
-        prop: "autocompleteDisplay",
-        type: "list",
-        default: "enabled",
-        select: [
-          {
-            label: "Enabled",
-            value: "enabled",
-          },
-          {
-            label: "Minimal",
-            value: "minimal",
-          },
-          {
-            label: "Disabled",
-            value: "disabled",
-          },
-        ],
-      },
-    ],
-  },
+  //   props: [
+  //     {
+  //       label: "Enabled",
+  //       prop: "enabled",
+  //       type: "switch",
+  //       default: true,
+  //     },
+  //     {
+  //       label: "Trigger autocomplete",
+  //       prop: "autocompleteTrigger",
+  //       type: "list",
+  //       default: "input",
+  //       select: [
+  //         {
+  //           label: "Input",
+  //           value: "input",
+  //         },
+  //         {
+  //           label: "Focus",
+  //           value: "focus",
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       label: "Display autocomplete",
+  //       prop: "autocompleteDisplay",
+  //       type: "list",
+  //       default: "enabled",
+  //       select: [
+  //         {
+  //           label: "Enabled",
+  //           value: "enabled",
+  //         },
+  //         {
+  //           label: "Minimal",
+  //           value: "minimal",
+  //         },
+  //         {
+  //           label: "Disabled",
+  //           value: "disabled",
+  //         },
+  //       ],
+  //     },
+  //   ],
+  // },
   {
     label: "Editor",
     prop: "editor",
@@ -213,22 +221,22 @@ export const stateDescription = [
           },
         ],
       },
-      {
-        label: "Font",
-        prop: "font",
-        type: "list",
-        default: "12",
-        select: [
-          {
-            label: "8",
-            value: "8",
-          },
-          {
-            label: "12",
-            value: "12",
-          },
-        ],
-      },
+      // {
+      //   label: "Font",
+      //   prop: "font",
+      //   type: "list",
+      //   default: "12",
+      //   select: [
+      //     {
+      //       label: "8",
+      //       value: "8",
+      //     },
+      //     {
+      //       label: "12",
+      //       value: "12",
+      //     },
+      //   ],
+      // },
       {
         label: "Keybinding",
         prop: "keybinding",
@@ -337,12 +345,12 @@ export const stateDescription = [
     prop: "preview",
 
     props: [
-      {
-        label: "Live",
-        prop: "live",
-        type: "switch",
-        default: true,
-      },
+      // {
+      //   label: "Live",
+      //   prop: "live",
+      //   type: "switch",
+      //   default: true,
+      // },
       {
         label: "Port",
         prop: "port",
