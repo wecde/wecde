@@ -156,3 +156,8 @@ declare module "escape-string-regexp" {
 
   export default value;
 }
+declare module "vue-directive-long-press" {
+  const value: any;
+
+  export default value;
+}

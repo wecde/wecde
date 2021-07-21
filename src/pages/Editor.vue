@@ -1,7 +1,7 @@
 <template>
   <div class="fill-height" v-if="fullpath">
     <App-Hammer>
-      <div class="session mr-1" ref="sessionWrapper">
+      <div class="session mr-2" ref="sessionWrapper">
         <div
           class="session--item"
           v-for="(item, index) in $store.state.editor.sessions"
@@ -34,37 +34,34 @@
           </v-icon>
         </div>
       </div>
-      <v-icon v-if="plaintext">mdi-magnify</v-icon>
-      <v-icon
-        color="#0dbf7f"
-        class="ml-2"
-        @click="serverStatus = !serverStatus"
-        >{{
-          serverLoading
-            ? "mdi-loading mdi-spin"
-            : serverStatus
-            ? "mdi-pause"
-            : "mdi-play"
-        }}</v-icon
-      >
-      <WebView
-        ref="WebView"
-        :port="port"
-        :value="serverStatus && !serverLoading"
-      >
-        <template v-slot:fab="{ on }">
-          <v-icon
-            class="ml-2"
-            color="decoration"
-            :style="{
-              opacity: serverStatus && !serverLoading ? 1 : 0.5,
-            }"
-            :disabled="!serverStatus || serverLoading"
-            v-on="on"
-            >mdi-web</v-icon
+
+      <div class="buttons-task-bar">
+        <v-icon
+          v-if="EditorCodeComponent && previewing === false"
+          @click="toggleSearchAce"
+          >mdi-magnify</v-icon
+        >
+
+        <v-icon v-if="EditorPreviewComponent" @click="preview">{{
+          previewing ? "mdi-pen" : "mdi-folder-image"
+        }}</v-icon>
+
+        <template>
+          <v-badge
+            bordered
+            bottom
+            color="blue"
+            small
+            dot
+            offset-x="10"
+            offset-y="10"
+            v-if="serverStatus"
           >
+            <v-icon color="#0dbf7f" @click="openBrowser">mdi-play</v-icon>
+          </v-badge>
+          <v-icon color="#0dbf7f" @click="openBrowser" v-else>mdi-play</v-icon>
         </template>
-      </WebView>
+      </div>
     </App-Hammer>
 
     <div class="editor dark">
@@ -91,22 +88,23 @@
       <Editor-SVG
         class="editor"
         :fullpath="fullpath"
-        :previewing="previewing"
         v-else-if="typeEditor === 'svg'"
         @change="scrollSessionWrapperToSessionActive"
+        ref="editorComponent"
       />
       <Editor-Markdown
         class="editor"
         :fullpath="fullpath"
-        :previewing="previewing"
         v-else-if="typeEditor === 'markdown'"
         @change="scrollSessionWrapperToSessionActive"
+        ref="editorComponent"
       />
       <Editor-Code
         class="editor"
         :fullpath="fullpath"
         v-else-if="plaintext"
         @change="scrollSessionWrapperToSessionActive"
+        ref="editorComponent"
       />
       <div class="editor pt-4 text-caption px-6 pb-6" v-else>
         This file is not displayed in the text editor because it is either
@@ -132,7 +130,6 @@ import i18n from "@/i18n";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 import { basename } from "path";
 import { WebServer } from "@/modules/webserver";
-import WebView from "@/components/WebView/Index.vue";
 import { Toast } from "@capacitor/toast";
 import Vue from "vue";
 import { isPlainText, getEditor } from "@/utils";
@@ -143,11 +140,11 @@ import PreviewAudio from "@/components/Preview/Audio.vue";
 import EditorSVG from "@/components/Editor/SVG.vue";
 import EditorMarkdown from "@/components/Editor/Markdown.vue";
 import EditorCode from "@/components/Editor/Code.vue";
+import { Browser } from "@capacitor/browser";
 
 export default defineComponent({
   components: {
     AppHammer,
-    WebView,
     PreviewFont,
     PreviewImage,
     PreviewVideo,
@@ -162,10 +159,9 @@ export default defineComponent({
       () => getEditor(fullpath.value) || "text"
     );
 
-    const WebView = ref<Vue | null>(null);
+    const editorComponent = ref<Vue | null>(null);
 
     const serverStatus = ref<boolean>(false);
-    const serverLoading = ref<boolean>(false);
     const port = computed<string>(() => $store.state.settings.preview__port);
     const plaintext = computed<boolean>(() => isPlainText(fullpath.value));
 
@@ -187,6 +183,14 @@ export default defineComponent({
       }
     );
 
+    async function openWebView() {
+      await Browser.open({
+        url: `http://localhost:${$store.state.settings.preview__port}`,
+        toolbarColor: "#212121",
+        presentationStyle: "popover",
+      });
+    }
+
     async function startServer(port: string): Promise<void> {
       await WebServer.start(port).catch((err: any) => console.log(err));
 
@@ -195,7 +199,6 @@ export default defineComponent({
           port,
         }) as string,
       });
-      await (WebView.value as any).openWebView();
     }
     async function stopServer() {
       await WebServer.stop();
@@ -210,26 +213,34 @@ export default defineComponent({
     }
 
     watch(serverStatus, async (newValue) => {
-      serverLoading.value = true;
       try {
         if (newValue) {
           await startServer($store.state.settings.preview__port);
-          // await openWebView();
+          await openWebView();
         } else {
           await stopServer();
         }
       } catch (err) {
         console.error(err);
       }
-      serverLoading.value = false;
     });
     watch(port, async (newValue) => {
-      serverLoading.value = true;
       if (serverStatus.value) {
         await changePort(newValue);
       }
-      serverLoading.value = false;
     });
+
+    function openBrowser(): void {
+      if (serverStatus.value) {
+        try {
+          openWebView();
+        } catch (err) {
+          console.error(err);
+        }
+      } else {
+        serverStatus.value = true;
+      }
+    }
 
     function scrollSessionWrapperToSessionActive() {
       setTimeout(() => {
@@ -262,18 +273,67 @@ export default defineComponent({
       getIcon,
       serverStatus,
       port,
-      serverLoading,
       sessionWrapper,
-      WebView,
+      editorComponent,
       scrollSessionWrapperToSessionActive,
       plaintext,
       typeEditor,
-      previewing: ref<boolean>(false),
+      openBrowser,
     };
+  },
+  computed: {
+    EditorCodeComponent(): Vue | null {
+      let EditorCodeComponent: any = this.editorComponent;
+
+      while (
+        EditorCodeComponent &&
+        EditorCodeComponent?.$options.name !== "Editor-Code"
+      ) {
+        EditorCodeComponent = EditorCodeComponent.codeEditor ?? null;
+      }
+
+      return EditorCodeComponent?.$options.name === "Editor-Code"
+        ? EditorCodeComponent
+        : null;
+    },
+    EditorPreviewComponent(): Vue | null {
+      let EditorPreviewComponent: any = this.editorComponent;
+
+      while (
+        EditorPreviewComponent &&
+        EditorPreviewComponent?.$options.name.startsWith("Editor-Preview-") ===
+          false
+      ) {
+        EditorPreviewComponent = EditorPreviewComponent.codeEditor ?? null;
+      }
+
+      return EditorPreviewComponent?.$options.name.startsWith("Editor-Preview-")
+        ? EditorPreviewComponent
+        : null;
+    },
+    previewing: {
+      get(): boolean {
+        return !!(
+          this.EditorPreviewComponent &&
+          (this.EditorPreviewComponent as any).previewing
+        );
+      },
+      set(value: boolean): void {
+        this.EditorPreviewComponent &&
+          ((this.EditorPreviewComponent as any).previewing = value);
+      },
+    },
   },
   methods: {
     extname,
     isPlainText,
+
+    toggleSearchAce(): void {
+      (this.EditorCodeComponent as any)?.$ace.value?.execCommand("find");
+    },
+    preview(): void {
+      this.previewing = !this.previewing;
+    },
   },
 });
 </script>
@@ -359,4 +419,13 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @import "~@/sass/global.scss";
+
+.buttons-task-bar {
+  > * {
+    margin-left: 8px;
+    &:first-child {
+      margin-left: 0;
+    }
+  }
+}
 </style>

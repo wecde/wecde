@@ -5,6 +5,7 @@
       fixed
       height="41"
       class="d-block order-2 bottom-tools"
+      :input-value="inputValue"
     >
       <div
         class="bottom-tools__group justify-space-between"
@@ -168,10 +169,15 @@ import { format, getSupportInfo } from "prettier";
 // import standalone from "prettier/standalone";
 
 export default defineComponent({
+  name: "Editor-Code",
   props: {
     fullpath: {
       type: String,
       required: true,
+    },
+    inputValue: {
+      type: Boolean,
+      default: true,
     },
   },
   setup(props, { emit }) {

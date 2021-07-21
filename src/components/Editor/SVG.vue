@@ -8,6 +8,8 @@
       "
       class="fill-width fill-height"
       v-show="!previewing"
+      :input-value="!previewing"
+      ref="codeEditor"
     />
     <div
       class="
@@ -29,8 +31,10 @@ import { defineComponent, ref, toRefs, watch } from "@vue/composition-api";
 import EditorCode from "./Code.vue";
 import { readFile } from "@/modules/filesystem";
 import { rawText } from "@/utils";
+import Vue from "vue";
 
 export default defineComponent({
+  name: "Editor-Preview-SVG",
   components: {
     EditorCode,
   },
@@ -39,14 +43,12 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    previewing: {
-      type: Boolean,
-      required: true,
-    },
   },
   setup(props) {
-    const { previewing, fullpath } = toRefs(props);
+    const { fullpath } = toRefs(props);
+    const previewing = ref<boolean>(false);
     const svg = ref<string>("");
+    const codeEditor = ref<Vue | null>(null);
 
     async function refreshSVG() {
       svg.value = rawText(await readFile(fullpath.value));
@@ -72,6 +74,8 @@ export default defineComponent({
     return {
       svg,
       refreshSVG,
+      codeEditor,
+      previewing,
     };
   },
 });

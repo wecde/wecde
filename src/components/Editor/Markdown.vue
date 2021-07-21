@@ -8,6 +8,8 @@
       "
       class="fill-width fill-height"
       v-show="!previewing"
+      :input-value="!previewing"
+      ref="codeEditor"
     />
     <div
       class="fill-width fill-height px-6 pb-6"
@@ -23,8 +25,10 @@ import EditorCode from "./Code.vue";
 import { readFile } from "@/modules/filesystem";
 import { rawText } from "@/utils";
 import marked from "marked";
+import Vue from "vue";
 
 export default defineComponent({
+  name: "Editor-Preview-Markdown",
   components: {
     EditorCode,
   },
@@ -33,14 +37,12 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    previewing: {
-      type: Boolean,
-      required: true,
-    },
   },
   setup(props) {
-    const { previewing, fullpath } = toRefs(props);
+    const { fullpath } = toRefs(props);
+    const previewing = ref<boolean>(false);
     const html = ref<string>("");
+    const codeEditor = ref<Vue | null>(null);
 
     async function refreshMarkdown() {
       html.value = marked(rawText(await readFile(fullpath.value)));
@@ -66,6 +68,8 @@ export default defineComponent({
     return {
       html,
       refreshMarkdown,
+      codeEditor,
+      previewing,
     };
   },
 });

@@ -5355,16 +5355,9 @@ is-binary-path@^1.0.0:
   dependencies:
     binary-extensions "^1.0.0"
 
-is-binary-path@^2.1.0:
+is-binary-path@^2.1.0, is-binary-path@~2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/is-binary-path/-/is-binary-path-2.1.0.tgz#ea1f7f3b80f064236e83470f86c09c254fb45b09"
-  integrity sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==
-  dependencies:
-    binary-extensions "^2.0.0"
-
-is-binary-path@~2.1.0:
-  version "2.1.0"
-  resolved "https://registry.npmjs.org/is-binary-path/-/is-binary-path-2.1.0.tgz"
   integrity sha512-ZMERYes6pDydyuGidse7OsHxtbI7WVeUEozgR/g7rd0xUimYNlvZRE/K2MgZTjWy725IfelLeVcEM97mmtRGXw==
   dependencies:
     binary-extensions "^2.0.0"
@@ -9258,16 +9251,6 @@ vm-browserify@^1.0.1:
   resolved "https://registry.npmjs.org/vm-browserify/-/vm-browserify-1.1.2.tgz"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
-vue-bus@^1.2.1:
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/vue-bus/-/vue-bus-1.2.1.tgz#50577b0b73fc1af9cda8a475fef2f7f0fdad7045"
-  integrity sha512-uCSJEWFWoDZz+GV/Pj/wXAC7WVBLD18V62l+2ezd4UCsZWZB27Hz3K0M9WUcbNum/yKBoN+OkOCIrU6A9xqWhw==
-
-vue-class-component@^7.2.3:
-  version "7.2.6"
-  resolved "https://registry.npmjs.org/vue-class-component/-/vue-class-component-7.2.6.tgz"
-  integrity sha512-+eaQXVrAm/LldalI272PpDe3+i4mPis0ORiMYxF6Ae4hyuCh15W8Idet7wPUEs4N4YptgFHGys4UrgNQOMyO6w==
-
 vue-cli-plugin-i18n@~2.1.1:
   version "2.1.1"
   resolved "https://registry.npmjs.org/vue-cli-plugin-i18n/-/vue-cli-plugin-i18n-2.1.1.tgz"
@@ -9290,6 +9273,11 @@ vue-cli-plugin-vuetify@~2.4.1:
     null-loader "^3.0.0"
     semver "^7.1.2"
     shelljs "^0.8.3"
+
+vue-directive-long-press@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/vue-directive-long-press/-/vue-directive-long-press-1.1.0.tgz#ef30e3aa846c81b843a28589f288a7496a852d0a"
+  integrity sha512-OHhR4N1kuuKaK87SPmqkcm5Y81HjXgv5DfWr96flIkTYveWps1AozKiNrabsIirq+ibSZWFr3IUr0en+Ce3fAA==
 
 vue-eslint-parser@^7.0.0:
   version "7.8.0"

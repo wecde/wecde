@@ -30,14 +30,12 @@ import i18n from "./i18n";
 import vuetify from "./plugins/vuetify";
 import timeagojs from "vue-timeago.js";
 import VueCompositionAPI from "@vue/composition-api";
-import Bus from "vue-bus";
 
 /// * register module and WebServer ( not start )
 import "./webserver";
 
 Vue.use(VueCompositionAPI);
 Vue.use(timeagojs);
-Vue.use(Bus);
 Vue.config.productionTip = false;
 
 (Vue.util as any).defineReactive(self, "__ERUDA__", false);
