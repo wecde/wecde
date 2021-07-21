@@ -25,6 +25,8 @@
             :placeholder="$t('URL (Start with https://)')"
             hide-details
             v-model="url"
+            required
+            @keypress.enter="cloneRepo"
           />
         </v-card-text>
         <v-card-actions class="justify-space-between">
@@ -64,7 +66,6 @@ export default defineComponent({
           ref: "master",
         });
 
-        this.$store.commit("terminal/clear");
         Toast.show({
           text: this.$t(`Clone repo {url} successfuly`, {
             url: this.url,
@@ -73,6 +74,8 @@ export default defineComponent({
 
         this.state = false;
         this.$emit("done");
+
+        this.$store.commit("terminal/clear");
       } catch (err) {
         this.$store.commit("terminal/error", err);
         Toast.show({
