@@ -53,7 +53,6 @@ import {
   defineComponent,
   ref,
   PropType,
-  computed,
   watch,
   toRefs,
 } from "@vue/composition-api";
@@ -61,6 +60,7 @@ import { rename } from "@/modules/filesystem";
 import { join, relative, basename, extname, dirname } from "path";
 import { Toast } from "@capacitor/toast";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
+import nameFileValidates from "@/validator/nameFileValidates";
 
 export default defineComponent({
   model: {
@@ -125,22 +125,12 @@ export default defineComponent({
       timeClick: ref<number>(0),
       newFilename,
       firstChangedName,
-      error: computed<string | false>(() => {
-        if (!newFilename.value && firstChangedName.value) {
-          return "A file or folder name must be provided.";
-        }
-
-        if (
-          namesExists.value.some(
-            (name) =>
-              name === newFilename.value && name !== basename(fullpath.value)
-          )
-        ) {
-          return `A file or folder <strong>${newFilename.value}</strong> already exists at this localtion. Please choose a different name.`;
-        }
-
-        return false;
-      }),
+      error: nameFileValidates(
+        newFilename,
+        fullpath,
+        namesExists,
+        firstChangedName
+      ),
       running: ref<boolean>(false),
     };
   },

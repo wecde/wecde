@@ -125,7 +125,7 @@
         <Project-Create
           v-model="creatingProject"
           @created="reloadListProjects"
-          :projects="projects"
+          :names-exists="projects.map((item) => basename(item.fullpath))"
         />
       </div>
     </div>

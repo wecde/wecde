@@ -55,7 +55,7 @@
             {{ $t("Create Project") }}
           </v-card-title>
           <div>
-            <v-btn text color="blue" @click="create">
+            <v-btn text color="blue" @click="create" :disabled="!!error">
               {{ $t("Create") }}
             </v-btn>
             <v-btn icon color="rgb(183, 185, 195)" @click="stateLocal = false">
@@ -68,25 +68,16 @@
           <v-text-field
             v-model.trim="templateSelected.name"
             class="pt-0"
-            :rules="[
-              () =>
-                nameProjects.some(
-                  (projectName) =>
-                    templateSelected &&
-                    projectName === templateSelected.name.trim()
-                )
-                  ? $t(`Project {name} already exists`, {
-                      name: templateSelected && templateSelected.name,
-                    })
-                  : true,
-              () =>
-                templateSelected && !!templateSelected.name.trim()
-                  ? true
-                  : $t(`Project required name`),
-            ]"
+            :rules="[error === false ? true : error]"
+            :error="!!error"
             required
             @keypress.enter="create"
-          />
+            autofocus
+          >
+            <template v-slot:message="{ message }">
+              <span v-html="message" class="font-weight-medium" />
+            </template>
+          </v-text-field>
 
           <div class="mt-8">Template</div>
           <div
@@ -112,11 +103,18 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from "@vue/composition-api";
+import {
+  defineComponent,
+  ref,
+  PropType,
+  toRefs,
+  computed,
+} from "@vue/composition-api";
 import templates, { Template } from "@/assets/templates/Release.json";
 import { unzip } from "@/modules/zip";
 import { mkdir } from "@/modules/filesystem";
 import { Toast } from "@capacitor/toast";
+import nameFileValidates from "@/validator/nameFileValidates";
 
 export default defineComponent({
   props: {
@@ -124,20 +122,28 @@ export default defineComponent({
       type: Boolean,
       default: false,
     },
-    nameProjects: {
+    namesExists: {
       type: Array as PropType<string[]>,
-      required: false,
-      default: () => [],
+      required: true,
     },
   },
   model: {
     prop: "state",
     event: "input",
   },
-  setup() {
+  setup(props) {
+    const { namesExists } = toRefs(props);
+    const templateSelected = ref<Template | null>(null);
+
     return {
       templates,
-      templateSelected: ref<Template | null>(null),
+      templateSelected,
+      error: nameFileValidates(
+        computed(() => templateSelected.value?.name || ""),
+        false,
+        namesExists,
+        true
+      ),
     };
   },
   computed: {
