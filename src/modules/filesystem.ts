@@ -204,14 +204,15 @@ function exists(regexps: Array<string | RegExp> = [], uri: string): boolean {
     }
 
     if (item.startsWith(".")) {
-      return new RegExp(`${escapeStringRegexp(item)}(?:\\/|\\0$)`).test(uri);
+      return new RegExp(`${escapeStringRegexp(item)}(?:\\/|$)`).test(uri);
     }
 
-    return new RegExp(
-      `(?:\\/|^\\\0)${escapeStringRegexp(item)}(?:\\/|\\\0$)`
-    ).test(uri);
+    return new RegExp(`(?:\\/|^)${escapeStringRegexp(item)}(?:\\/|$)`).test(
+      uri
+    );
   });
 }
+
 function filterExclude(
   files: string[],
   exclude: Array<string | RegExp> = [],
@@ -220,8 +221,9 @@ function filterExclude(
 ): string[] {
   return files.filter((name) => {
     return (
-      !exists(exclude, join(dirname, name)) &&
-      (include.length === 0 || exists(include, join(dirname, name)))
+      !exists(exclude, join(dirname.replace(/^projects\//, ""), name)) &&
+      (include.length === 0 ||
+        exists(include, join(dirname.replace(/^projects\//, ""), name)))
     );
   });
 }
@@ -338,18 +340,38 @@ export async function foreach(
   exclude: Array<string | RegExp> = [],
   include: Array<string | RegExp> = [],
   callback: {
-    (dirname: string, name: string): void;
-  }
+    (dirname: string, name: string): Promise<void>;
+  },
+  pathParentMatch = ""
 ): Promise<void> {
   await Promise.all(
-    filterExclude(await readdir(path), exclude, include, path).map(
-      async (item) => {
-        if ((await stat(join(path, item))).type === "directory") {
-          await foreach(join(path, item), exclude, include, callback);
-        } else {
-          await callback(path, item);
+    (
+      await readdir(path)
+    ).map(async (item) => {
+      // check is continue
+
+      if (exclude.length > 0) {
+        if (exists(exclude, join(pathParentMatch, item)) === true) {
+          return void 0;
         }
       }
-    )
+
+      if ((await stat(join(path, item))).type === "directory") {
+        await foreach(
+          join(path, item),
+          exclude,
+          include,
+          callback,
+          join(pathParentMatch, item)
+        );
+      } else {
+        if (include.length > 0) {
+          if (exists(include, join(pathParentMatch, item)) === false) {
+            return void 0;
+          }
+        }
+        await callback(path, item);
+      }
+    })
   );
 }

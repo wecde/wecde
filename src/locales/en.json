@@ -144,5 +144,6 @@
   "to access Private Repository": "to access Private Repository",
   "Search": "Search",
   "Replace": "Replace",
-  "files to include": "files to include"
+  "files to include": "files to include",
+  "files to exclude": "files to exclude"
 }

@@ -4,7 +4,7 @@
       app
       fixed
       height="41"
-      class="d-block order-2 bottom-tools"
+      class="d-block order-2 bottom-tools d-md-none"
       :input-value="inputValue"
     >
       <div

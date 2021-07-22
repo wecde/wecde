@@ -33,10 +33,10 @@
       </div>
     </div>
 
-    <div class="fill-height d-flex flex-column">
+    <div class="fill-height d-flex flex-column main-search">
       <div class="px-3 pt-3">
         <div class="d-flex align-center justify-space-between">
-          <div>
+          <div class="ml-n2">
             <v-icon size="20px" @click="openReplace = !openReplace">
               mdi-chevron-right
             </v-icon>
@@ -58,9 +58,13 @@
                 rounded
                 class="py-1 grey-4 mx-0"
                 hide-details
-                v-mode="keywordReplace"
+                v-model="keywordReplace"
               />
-              <v-icon class="ml-1" size="16px" @click="replaceAll"
+              <v-icon
+                class="ml-1"
+                size="16px"
+                @click="replaceAll"
+                v-ripple="false"
                 >mdi-check-all</v-icon
               >
             </div>
@@ -79,6 +83,7 @@
                 class="py-1 grey-4 mx-0"
                 hide-details
                 v-model="include"
+                placeholder="(e.g *.ts, src/**/include)"
               />
             </div>
             <div class="mt-2">
@@ -91,13 +96,14 @@
                 class="py-1 grey-4 mx-0"
                 hide-details
                 v-model="exclude"
+                placeholder="(e.g *.ts, src/**/exclude)"
               />
             </div>
           </div>
         </div>
       </div>
       <div
-        class="fill-height overflow-y-scroll mb-10"
+        class="fill-height overflow-y-scroll mb-10 mt-1"
         style="position: relative"
       >
         <v-progress-linear
@@ -216,25 +222,46 @@ export default defineComponent({
 
     async function searchInFile(file: string): Promise<Result | void> {
       if (isPlainText(file)) {
+        // const regexp = new RegExp(
+        //   `(?:[^\n]{0,28}(${
+        //     modeRegexp.value
+        //       ? keywordSearch.value
+        //       : escapeRegExp(keywordSearch.value)
+        //   })${modeWordBox.value ? "\\s|$" : ""}[^\n]{0,28}){1}?`,
+        //   "g" + (modeLetterCase.value ? "" : "i")
+        // );
         const regexp = new RegExp(
-          `(?:[^\n]{0,28}(${
+          `(?:(${
             modeRegexp.value
               ? keywordSearch.value
               : escapeRegExp(keywordSearch.value)
-          })(${modeWordBox.value ? "\\s|\\0$" : ""})[^\n]{0,28}){1}?`,
+          })${modeWordBox.value ? "\\s|$" : ""}){1}?`,
           "g" + (modeLetterCase.value ? "" : "i")
         );
-        const rawMatch = rawText(await readFile(file)).matchAll(regexp);
+        const rawT = rawText(await readFile(file));
+        const rawMatch = rawT.matchAll(regexp);
 
         if (rawMatch) {
           const match = [...(rawMatch || [])].map((item) => {
-            const [firstValue = "", lastValue = ""] = item[0].split(item[1]);
+            const firstNewline = rawT.indexOf("\n", item.index || 0);
+            // const lastNewline = rawT.indexOf(
+            //   "\n",
+            //   (item.index || 0) + item[1].length
+            // );
 
+            const firstIndexCut = Math.max(
+              firstNewline,
+              (item.index || 0) - 28
+            );
+            // const lastIndexCut = Math.min
             return {
-              index: item.index || -1,
-              firstValue,
+              index: item.index || 0,
+              firstValue: rawT.slice(
+                firstIndexCut,
+                Math.max((item.index || 0) - firstIndexCut, 0)
+              ),
               value: item[1],
-              lastValue,
+              lastValue: "",
             };
           });
 
@@ -262,17 +289,17 @@ export default defineComponent({
             [
               "^.git",
               ...exclude.value
-                .replace(/\s+,\s+/g, ",")
+                .replace(/(?:\s)+,(?:\s)+/g, ",")
                 .split(",")
                 .filter(Boolean),
             ],
             [
-              ...exclude.value
-                .replace(/\s+,\s+/g, ",")
+              ...include.value
+                .replace(/(?:\s)+,(?:\s)+/g, ",")
                 .split(",")
                 .filter(Boolean),
             ],
-            async (dirname, filename) => {
+            async (dirname: string, filename: string): Promise<void> => {
               const file = join(dirname, filename);
 
               const result = await searchInFile(file);
@@ -290,12 +317,14 @@ export default defineComponent({
     watch(modeRegexp, () => void search());
     watch(modeLetterCase, () => void search());
     watch(modeWordBox, () => void search());
-    watch(keywordSearch, () => void search());
+    // watch(keywordSearch, () => void search());
 
     return {
       modeRegexp,
       modeLetterCase,
       modeWordBox,
+
+      search,
 
       openReplace: ref<boolean>(false),
       openRules: ref<boolean>(false),
@@ -303,7 +332,6 @@ export default defineComponent({
       searching,
       searchInFile,
       results,
-      search,
 
       keywordSearch,
       keywordReplace,
@@ -317,11 +345,10 @@ export default defineComponent({
     async replaceSearch(item: Result, matchIndex: number): Promise<void> {
       this.$store.commit("system/setProgress", true);
       const { file } = item;
+      const context = rawText(await readFile(file));
       const { index, value } = item.match[matchIndex];
 
-      const context = rawText(await readFile(file));
-
-      const newContext =
+      let newContext =
         context.slice(0, index) +
         (this.modeRegexp
           ? value.replace(new RegExp(this.keywordSearch), this.keywordReplace)
@@ -333,7 +360,8 @@ export default defineComponent({
       const newResult = await this.searchInFile(file);
 
       if (newResult) {
-        this.results.splice(this.results.indexOf(item), 1, newResult);
+        const index = this.results.indexOf(item);
+        this.results.splice(index, 1, newResult);
       } else {
         this.results.splice(this.results.indexOf(item), 1);
       }
@@ -341,7 +369,7 @@ export default defineComponent({
     },
 
     async replaceAll(): Promise<void> {
-      for await (const item of this.results) {
+      for (const item of this.results) {
         for (const index in item.match) {
           await this.replaceSearch(item, +index);
         }
@@ -370,5 +398,11 @@ export default defineComponent({
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.main-search::v-deep {
+  .v-input__slot {
+    padding: 0 18px !important;
+  }
 }
 </style>

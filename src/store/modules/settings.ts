@@ -18,8 +18,15 @@ export const stateDescription: {
   props: {
     label: string;
     prop: string;
-    type: "string" | "number" | "boolean" | "int"
-  }[]
+    type: "string" | "number" | "boolean" | "int" | "date" | "tel";
+    default: boolean | number | string | Date | null;
+    list:
+      | {
+          label: string;
+          value: any;
+        }[]
+      | false;
+  }[];
 }[] = [
   {
     label: "Clone GIT",
@@ -28,38 +35,44 @@ export const stateDescription: {
       {
         label: "Single branch",
         prop: "singleBranch",
-        type: "switch",
+        type: "boolean",
         default: true,
+        list: false,
       },
       {
         label: "No checkout",
         prop: "noCheckout",
-        type: "switch",
+        type: "boolean",
         default: false,
+        list: false,
       },
       {
         label: "No tags",
         prop: "noTags",
-        type: "switch",
+        type: "boolean",
         default: false,
+        list: false,
       },
       {
         label: "Depth",
         prop: "depth",
-        type: "number",
+        type: "int",
         default: 10,
+        list: false,
       },
       {
         label: "Since date",
         prop: "since",
         type: "date",
         default: null,
+        list: false,
       },
       {
         label: "Exclude",
         prop: "exclude",
-        type: "text",
+        type: "string",
         default: null,
+        list: false,
       },
     ],
   },
@@ -71,7 +84,9 @@ export const stateDescription: {
       {
         label: "Language",
         prop: "language",
-        select: require
+        type: "string",
+        default: i18n.locale,
+        list: require
           .context("@/locales", true, /[a-zA-Z_-]+\.json$/)
           .keys()
           .map((file) => {
@@ -82,20 +97,18 @@ export const stateDescription: {
               value: code,
             };
           }),
-        default: i18n.locale,
-        type: "list",
       },
       {
         label: "Theme",
         prop: "theme",
-        select: Object.values(themesByName).map((theme: any) => {
+        type: "string",
+        default: "ace/theme/dracula",
+        list: Object.values(themesByName).map((theme: any) => {
           return {
             label: theme.caption,
             value: theme.theme,
           };
         }),
-        default: "ace/theme/dracula",
-        type: "list",
       },
       // {
       //   label: "Amoled Screen",
@@ -182,8 +195,9 @@ export const stateDescription: {
       {
         label: "Autocomplete / Check Syntax",
         prop: "autocomplete",
-        type: "switch",
+        type: "boolean",
         default: true,
+        list: false,
       },
       // {
       //   label: "Cursor Style",
@@ -208,16 +222,16 @@ export const stateDescription: {
       {
         label: "Font Size",
         prop: "fontSize",
-        type: "list",
-        default: "12",
-        select: [
+        type: "number",
+        default: 12,
+        list: [
           {
             label: "8",
-            value: "8",
+            value: 8,
           },
           {
             label: "12",
-            value: "12",
+            value: 12,
           },
         ],
       },
@@ -240,9 +254,9 @@ export const stateDescription: {
       {
         label: "Keybinding",
         prop: "keybinding",
-        type: "list",
+        type: "string",
         default: "",
-        select: [
+        list: [
           {
             label: "Ace",
             value: "",
@@ -268,75 +282,79 @@ export const stateDescription: {
       {
         label: "Line number",
         prop: "lineNumber",
-        type: "switch",
+        type: "boolean",
         default: true,
+        list: false,
       },
       {
         label: "Print margin",
         prop: "printMargin",
-        type: "list",
-        default: "0",
-        select: [
+        type: "number",
+        default: 0,
+        list: [
           {
             label: "0",
-            value: "0",
+            value: 0,
           },
           {
             label: "80",
-            value: "80",
+            value: 80,
           },
           {
             label: "120",
-            value: "120",
+            value: 120,
           },
         ],
       },
       {
         label: "Show invisible",
         prop: "showInvisible",
-        type: "switch",
+        type: "boolean",
         default: false,
+        list: false,
       },
       {
         label: "Use soft tabs",
         prop: "useSoftTabs",
-        type: "switch",
+        type: "boolean",
         default: true,
+        list: false,
       },
       {
         label: "Tab size",
         prop: "tabSize",
-        type: "list",
-        default: "2",
-        select: [
+        type: "number",
+        default: 2,
+        list: [
           {
             label: "1",
-            value: "1",
+            value: 1,
           },
           {
             label: "2",
-            value: "2",
+            value: 2,
           },
           {
             label: "3",
-            value: "3",
+            value: 3,
           },
 
           {
             label: "4",
-            value: "4",
+            value: 4,
           },
           {
             label: "8",
-            value: "8",
+            value: 8,
           },
         ],
       },
       {
         label: "Word wrap",
         prop: "wordWrap",
-        type: "switch",
+        type: "boolean",
         default: true,
+        list: false,
       },
     ],
   },
@@ -356,6 +374,7 @@ export const stateDescription: {
         prop: "port",
         type: "tel",
         default: "8080",
+        list: false,
       },
     ],
   },
@@ -367,21 +386,23 @@ export const stateDescription: {
       {
         label: "Tablet",
         prop: "tablet",
-        type: "switch",
+        type: "boolean",
         default: false,
+        list: false,
       },
       {
         label: "Haptic keypress",
         prop: "hapticKeypress",
-        type: "switch",
+        type: "boolean",
         default: false,
+        list: false,
       },
       {
         label: "Keyboard position",
         prop: "keyboardPosition",
-        type: "list",
+        type: "string",
         default: "bottom",
-        select: [
+        list: [
           {
             label: "Top",
             value: "top",
@@ -395,14 +416,16 @@ export const stateDescription: {
       {
         label: "Extra keyboard",
         prop: "extraKeyboard",
-        type: "switch",
+        type: "boolean",
         default: true,
+        list: false,
       },
       {
         label: "Touch keyboard",
         prop: "touchKeyboard",
-        type: "switch",
+        type: "boolean",
         default: true,
+        list: false,
       },
     ],
   },

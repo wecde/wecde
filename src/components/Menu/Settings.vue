@@ -64,57 +64,77 @@
             <div class="list-item" :key="state.prop">
               <div class="left">{{ $t(state.label) }}</div>
               <div class="right">
-                <v-switch
-                  inset
-                  small
-                  v-if="state.type === `switch`"
-                  hide-details
-                  class="mt-0"
-                  :input-value="
-                    $store.state.settings[stateGroup.prop + '__' + state.prop]
-                  "
-                  @change="
-                    $store.commit(`settings/setState`, {
-                      prop: `${stateGroup.prop}/${state.prop}`,
-                      value: $event,
-                    })
-                  "
-                ></v-switch>
-                <select
-                  v-else-if="state.type === `list`"
-                  :value="
-                    $store.state.settings[stateGroup.prop + '__' + state.prop]
-                  "
-                  @change="
-                    $store.commit(`settings/setState`, {
-                      prop: `${stateGroup.prop}/${state.prop}`,
-                      value: $event.target.value,
-                    })
-                  "
-                  :placeholder="state.default"
-                >
-                  <option
-                    v-for="item in state.select"
-                    :value="item.value"
-                    :key="item.value"
+                <template v-if="state.list">
+                  <select
+                    :value="
+                      $store.state.settings[stateGroup.prop + '__' + state.prop]
+                    "
+                    @change="
+                      $store.commit(`settings/setState`, {
+                        prop: `${stateGroup.prop}/${state.prop}`,
+                        value:
+                          state.type === `string`
+                            ? $event.target.value
+                            : +$event.target.value,
+                      })
+                    "
+                    :placeholder="state.default"
                   >
-                    {{ $t(item.label) }}
-                  </option>
-                </select>
-                <input
-                  v-else
-                  :type="state.type"
-                  :value="
-                    $store.state.settings[stateGroup.prop + '__' + state.prop]
-                  "
-                  :placeholder="state.default"
-                  @input="
-                    $store.commit(`settings/setState`, {
-                      prop: `${stateGroup.prop}/${state.prop}`,
-                      value: $event.target.value,
-                    })
-                  "
-                />
+                    <option
+                      v-for="item in state.list"
+                      :value="item.value"
+                      :key="item.value"
+                    >
+                      {{ $t(item.label) }}
+                    </option>
+                  </select>
+                </template>
+                <template v-else>
+                  <v-switch
+                    inset
+                    small
+                    v-if="state.type === `boolean`"
+                    hide-details
+                    class="mt-0"
+                    :input-value="
+                      $store.state.settings[stateGroup.prop + '__' + state.prop]
+                    "
+                    @change="
+                      $store.commit(`settings/setState`, {
+                        prop: `${stateGroup.prop}/${state.prop}`,
+                        value: $event,
+                      })
+                    "
+                  />
+                  <input
+                    v-else-if="state.type === `int`"
+                    type="tel"
+                    :value="
+                      $store.state.settings[stateGroup.prop + '__' + state.prop]
+                    "
+                    :placeholder="state.default"
+                    @input="
+                      $store.commit(`settings/setState`, {
+                        prop: `${stateGroup.prop}/${state.prop}`,
+                        value: +$event.target.value,
+                      })
+                    "
+                  />
+                  <input
+                    v-else
+                    :type="state.type"
+                    :value="
+                      $store.state.settings[stateGroup.prop + '__' + state.prop]
+                    "
+                    :placeholder="state.default"
+                    @input="
+                      $store.commit(`settings/setState`, {
+                        prop: `${stateGroup.prop}/${state.prop}`,
+                        value: +$event.target.value,
+                      })
+                    "
+                  />
+                </template>
               </div>
             </div>
           </template>
@@ -154,26 +174,6 @@
             <div class="list-item">
               <div class="left">{{ $t("WebView Version") }}</div>
               <div class="right">{{ device.webViewVersion }}</div>
-            </div>
-            <div class="list-item">
-              <div>{{ $t("Disk Free") }}</div>
-              <div>
-                {{ size(device.diskFree || 0) }}({{
-                  (device.diskFree / device.diskTotal).toFixed(2)
-                }}%)
-              </div>
-            </div>
-            <div class="list-item">
-              <div>{{ $t("Disk Used") }}</div>
-              <div>
-                {{ size(device.memUsed || 0) }}({{
-                  (device.memUsed / device.diskTotal).toFixed(2)
-                }}%)
-              </div>
-            </div>
-            <div class="list-item">
-              <div>{{ $t("Disk Total") }}</div>
-              <div>{{ size(device.diskTotal || 0) }}</div>
             </div>
             <div class="list-item">
               <div>{{ $t("Toggle Developer Tools") }}</div>
