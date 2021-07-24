@@ -143,5 +143,19 @@
   "Username": "اسم المستخدم",
   "file(s)": "ملف (ملفات)",
   "folder(s)": "مجلد (مجلدات)",
-  "project(s)": "مشروع (ق)"
+  "project(s)": "مشروع (ق)",
+  "A file or folder <strong>{name}</strong> already exists at this localtion": {
+    " Please choose a different name": "ملف أو مجلد <strong> {name} </strong> موجود بالفعل في هذه المنطقة المحلية. \nالرجاء اختيار اسم مختلف."
+  },
+  "A file or folder name must be provided": "يجب تقديم اسم ملف أو مجلد.",
+  "Copy": "ينسخ",
+  "Cut": "يقطع",
+  "Import Files": "استيراد الملفات",
+  "Paste": "معجون",
+  "Replace": "يستبدل",
+  "Search": "بحث",
+  "Set Credentials": "تعيين أوراق الاعتماد",
+  "files to exclude": "ملفات لاستبعادها",
+  "files to include": "الملفات المراد تضمينها",
+  "to access Private Repository": "للوصول إلى المستودع الخاص"
 }

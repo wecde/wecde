@@ -1,6 +1,7 @@
 import type { ComputedRef, Ref } from "@vue/composition-api";
 import { computed } from "@vue/composition-api";
 import { basename } from "path";
+import i18n from "@/i18n";
 
 export default function nameFileValidates(
   nameCheck: Ref<string>,
@@ -10,7 +11,7 @@ export default function nameFileValidates(
 ): ComputedRef<string | false> {
   return computed<string | false>(() => {
     if (!nameCheck.value && (checkNameEmpty === true || checkNameEmpty.value)) {
-      return "A file or folder name must be provided.";
+      return i18n.t("A file or folder name must be provided") + "";
     }
 
     if (
@@ -20,7 +21,14 @@ export default function nameFileValidates(
           (oldName === false ? true : name !== basename(oldName.value))
       )
     ) {
-      return `A file or folder <strong>${nameCheck.value}</strong> already exists at this localtion. Please choose a different name.`;
+      return (
+        i18n.t(
+          "A file or folder <strong>{name}</strong> already exists at this localtion. Please choose a different names",
+          {
+            name: nameCheck.value,
+          }
+        ) + ""
+      );
     }
 
     return false;

@@ -19,7 +19,6 @@
     "@capacitor/core": "^3.1.1",
     "@capacitor/device": "^1.0.2",
     "@capacitor/filesystem": "^1.0.2",
-    "@capacitor/keyboard": "^1.0.2",
     "@capacitor/toast": "^1.0.2",
     "@desislavsd/vue-teleport": "^0.1.2",
     "@ionic-native/core": "^5.34.0",

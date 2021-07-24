@@ -34,7 +34,6 @@
   "Project Name": "Project Name",
   "Project {name} is exists": "Project \"{name}\" is exists",
   "Project required name": "Project required name",
-  
   "Created {type} {name}": "Created {type} \"{name}\"",
   "file": "file",
   "folder": "folder",
@@ -144,5 +143,19 @@
   "Username": "ユーザー名",
   "file(s)": "ファイル",
   "folder(s)": "フォルダ",
-  "project(s)": "プロジェクト"
+  "project(s)": "プロジェクト",
+  "A file or folder <strong>{name}</strong> already exists at this localtion": {
+    " Please choose a different name": "ファイルまたはフォルダ<strong> {name} </ strong>はこの地域にすでに存在します。\n別の名前を選択してください。"
+  },
+  "A file or folder name must be provided": "ファイル名またはフォルダー名を指定する必要があります。",
+  "Copy": "コピー",
+  "Cut": "切る",
+  "Import Files": "ファイルのインポート",
+  "Paste": "ペースト",
+  "Replace": "交換",
+  "Search": "探す",
+  "Set Credentials": "クレデンシャルを設定する",
+  "files to exclude": "除外するファイル",
+  "files to include": "含めるファイル",
+  "to access Private Repository": "プライベートリポジトリにアクセスするには"
 }

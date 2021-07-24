@@ -143,5 +143,19 @@
   "Reload list {type}": "Tải lại danh sách {type}",
   "file(s)": "các tập tin)",
   "folder(s)": "thư mục)",
-  "project(s)": "(các) dự án"
+  "project(s)": "(các) dự án",
+  "A file or folder <strong>{name}</strong> already exists at this localtion": {
+    " Please choose a different name": "Tệp hoặc thư mục <strong> {name} </strong> đã tồn tại ở bản địa phương này. \nVui lòng chọn một tên khác."
+  },
+  "A file or folder name must be provided": "Tên tệp hoặc thư mục phải được cung cấp.",
+  "Copy": "Sao chép",
+  "Cut": "Cắt tỉa",
+  "Import Files": "Nhập tệp",
+  "Paste": "Dán",
+  "Replace": "Thay thế",
+  "Search": "Tìm kiếm",
+  "Set Credentials": "Đặt thông tin xác thực",
+  "files to exclude": "các tập tin để loại trừ",
+  "files to include": "các tập tin để bao gồm",
+  "to access Private Repository": "để truy cập Kho lưu trữ riêng tư"
 }

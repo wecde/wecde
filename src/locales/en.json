@@ -145,5 +145,15 @@
   "Search": "Search",
   "Replace": "Replace",
   "files to include": "files to include",
-  "files to exclude": "files to exclude"
+  "files to exclude": "files to exclude",
+  "A file or folder name must be provided": "A file or folder name must be provided.",
+  "A file or folder <strong>{name}</strong> already exists at this localtion. Please choose a different name": "A file or folder <strong>{name}</strong> already exists at this localtion. Please choose a different name.",
+  "Import File": "",
+  "Imported file(s) {list}": "",
+  "Imported project {list}": "",
+  "Reload list file(s)": "",
+  "Reload list projects": "",
+  "Reload project": "",
+  "Removed project {name}": "",
+  "Renamed project {old} to {new}": ""
 }
