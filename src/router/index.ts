@@ -1,17 +1,20 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
 
+import Home from "@/pages/Home.vue";
+import Editor from "@/pages/Editor.vue";
+
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "/",
-    component: () => import("../pages/Home.vue"),
+    component: Home,
   },
   {
     path: "/editor",
     name: "editor",
-    component: () => import("../pages/Editor.vue"),
+    component: Editor,
   },
 ];
 

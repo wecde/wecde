@@ -220,16 +220,9 @@ export default defineComponent({
     const include = ref<string>("");
     const exclude = ref<string>("");
 
+    const OFFSET_RESULT_SEARCH = 15;
     async function searchInFile(file: string): Promise<Result | void> {
       if (isPlainText(file)) {
-        // const regexp = new RegExp(
-        //   `(?:[^\n]{0,28}(${
-        //     modeRegexp.value
-        //       ? keywordSearch.value
-        //       : escapeRegExp(keywordSearch.value)
-        //   })${modeWordBox.value ? "\\s|$" : ""}[^\n]{0,28}){1}?`,
-        //   "g" + (modeLetterCase.value ? "" : "i")
-        // );
         const regexp = new RegExp(
           `(?:(${
             modeRegexp.value
@@ -238,30 +231,48 @@ export default defineComponent({
           })${modeWordBox.value ? "\\s|$" : ""}){1}?`,
           "g" + (modeLetterCase.value ? "" : "i")
         );
-        const rawT = rawText(await readFile(file));
-        const rawMatch = rawT.matchAll(regexp);
+        const textContentFile = rawText(await readFile(file));
+        const rawMatch = textContentFile.matchAll(regexp);
 
         if (rawMatch) {
           const match = [...(rawMatch || [])].map((item) => {
-            const firstNewline = rawT.indexOf("\n", item.index || 0);
-            // const lastNewline = rawT.indexOf(
-            //   "\n",
-            //   (item.index || 0) + item[1].length
-            // );
-
-            const firstIndexCut = Math.max(
-              firstNewline,
-              (item.index || 0) - 28
+            const indexSearch = item.index || 0;
+            const indexNewlineBeforeSearch = textContentFile.lastIndexOf(
+              "\n",
+              indexSearch - 1
             );
-            // const lastIndexCut = Math.min
+            const indexNewLineAfterSearch = textContentFile.indexOf(
+              "\n",
+              indexSearch + 1 + item[1].length
+            );
+
+            const distIndexNewlineBeforeSearch =
+              indexSearch - indexNewlineBeforeSearch;
+            const distIndexNewlineAfterSearch =
+              indexNewLineAfterSearch - (indexSearch + item[0].length);
+            console.log({
+              textContentFile,
+              distIndexNewlineBeforeSearch,
+              indexNewlineBeforeSearch,
+              indexSearch,
+            });
             return {
-              index: item.index || 0,
-              firstValue: rawT.slice(
-                firstIndexCut,
-                Math.max((item.index || 0) - firstIndexCut, 0)
+              index: indexSearch,
+              firstValue: textContentFile.substring(
+                distIndexNewlineBeforeSearch < OFFSET_RESULT_SEARCH &&
+                  indexNewlineBeforeSearch !== -1
+                  ? indexNewlineBeforeSearch
+                  : indexSearch - OFFSET_RESULT_SEARCH,
+                indexSearch
               ),
               value: item[1],
-              lastValue: "",
+              lastValue: textContentFile.substring(
+                indexSearch + item[1].length,
+                distIndexNewlineAfterSearch < OFFSET_RESULT_SEARCH &&
+                  indexNewLineAfterSearch !== -1
+                  ? indexNewLineAfterSearch
+                  : indexSearch + item[1].length + OFFSET_RESULT_SEARCH
+              ),
             };
           });
 
@@ -382,9 +393,6 @@ export default defineComponent({
 <style lang="scss" scoped>
 @import "~@/sass/global.scss";
 @import "~@/sass/list-mouseright.scss";
-</style>
-
-<style lang="scss" scoped>
 @import "@/components/File Explorer/ListItem.scss";
 @import "@/components/File Explorer/Rename.scss";
 
