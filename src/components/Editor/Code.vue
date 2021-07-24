@@ -6,6 +6,7 @@
       height="41"
       class="d-block order-2 bottom-tools d-md-none"
       :input-value="inputValue"
+      @click="fixBlurEditor"
     >
       <div
         class="bottom-tools__group justify-space-between"
@@ -137,7 +138,6 @@
 </template>
 
 <script lang="ts">
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   defineComponent,
   toRefs,
@@ -165,6 +165,17 @@ import store from "@/store";
 import { Clipboard } from "@capacitor/clipboard";
 import { extname } from "path";
 import { format, getSupportInfo } from "prettier";
+import parserAngular from "prettier/parser-angular";
+import parserBabel from "prettier/parser-babel";
+import parserEspree from "prettier/parser-espree";
+import parserFlow from "prettier/parser-flow";
+import parserGraphql from "prettier/parser-graphql";
+import parserHtml from "prettier/parser-html";
+import parserMarkdown from "prettier/parser-markdown";
+import parserMeriyah from "prettier/parser-meriyah";
+import parserPostcss from "prettier/parser-postcss";
+import parserTypescript from "prettier/parser-typescript";
+import parserYaml from "prettier/parser-yaml";
 
 // import standalone from "prettier/standalone";
 
@@ -183,6 +194,7 @@ export default defineComponent({
   setup(props, { emit }) {
     const { fullpath } = toRefs(props);
     const base64 = ref<string | null>(null);
+    const isFocused = ref<boolean>(false);
 
     const typeEditor = computed<string>(
       () => getEditor(fullpath.value) || "text"
@@ -197,6 +209,14 @@ export default defineComponent({
     } = {
       value: null,
     };
+
+    function fixBlurEditor(): void {
+      if (isFocused.value) {
+        $ace.value?.focus();
+      } else {
+        $ace.value?.blur();
+      }
+    }
 
     function savePostionEditor(): void {
       store.commit("editor/setScrollEnhance", {
@@ -242,6 +262,12 @@ export default defineComponent({
           "changeCursor",
           () => void savePostionEditor()
         );
+        $ace.value.on("focus", () => {
+          isFocused.value = true;
+        });
+        $ace.value.on("blur", () => {
+          isFocused.value = false;
+        });
 
         $ace.value.setOptions({
           enableLinking: true,
@@ -362,6 +388,7 @@ export default defineComponent({
       isLock,
       tabToolsBottom: ref<number>(0),
       typeEditor,
+      fixBlurEditor,
     };
   },
 
@@ -565,39 +592,6 @@ export default defineComponent({
     },
 
     formatCode() {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserAngular = require("prettier/parser-angular");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserBabel = require("prettier/parser-babel");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserEspree = require("prettier/parser-espree");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserFlow = require("prettier/parser-flow");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserGraphql = require("prettier/parser-graphql");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserHtml = require("prettier/parser-html");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserMarkdown = require("prettier/parser-markdown");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserMeriyah = require("prettier/parser-meriyah");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserPostcss = require("prettier/parser-postcss");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserTypescript = require("prettier/parser-typescript");
-
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const parserYaml = require("prettier/parser-yaml");
-
       if (this.$ace.value) {
         const code = this.$ace.value.getValue();
 
