@@ -57,7 +57,7 @@
 <script lang="ts">
 import { defineComponent, computed, ref } from "@vue/composition-api";
 import AppNavigationDrawer from "@/components/App/NavigationDrawer.vue";
-import Terminal from "@/components/Terminal/Index.vue";
+import Terminal from "@/components/Terminal.vue";
 import { loadLanguageAsync } from "@/i18n";
 import store from "@/store";
 import { stat } from "@/modules/filesystem";

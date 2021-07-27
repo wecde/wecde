@@ -46,7 +46,7 @@
       </v-list-item-subtitle>
     </v-list-item-content>
 
-    <v-list-item-action>
+    <v-list-item-action class="ml-0">
       <v-menu internal-activator bottom left>
         <template v-slot:activator="{ on, attrs }">
           <v-btn dark icon v-bind="attrs" v-on="on">

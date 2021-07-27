@@ -103,7 +103,10 @@
               </v-list-item-content>
             </v-list-item>
             <v-divider />
-            <v-list-item class="min-height-0">
+            <v-list-item
+              class="min-height-0"
+              @click="$router.push(`/?tab=1`)"
+            >
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
                 <v-icon>mdi-message-text-outline</v-icon>
               </v-list-item-icon>
@@ -111,7 +114,7 @@
                 <v-list-item-title> {{ $t("Change Logs") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
-            <v-list-item class="min-height-0">
+            <v-list-item class="min-height-0" @click="$router.push(`/`)">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
                 <v-icon>mdi-cube-outline</v-icon>
               </v-list-item-icon>

@@ -161,6 +161,14 @@
             class="d-flex align-center justify-space-between mx-4 mt-1"
             v-for="(match, index) in item.match"
             :key="match.index"
+            v-ripple
+            @click="
+              gotoEditor(
+                item.file,
+                match.index,
+                match.index + match.value.length
+              )
+            "
           >
             <div class="text-truncate" style="font-size: 15px">
               {{ match.firstValue
@@ -168,7 +176,7 @@
               >{{ match.lastValue }}
             </div>
 
-            <v-icon size="18px" @click="replaceSearch(item, index)"
+            <v-icon size="18px" @click.prevent.stop="replaceSearch(item, index)"
               >mdi-check</v-icon
             >
           </div>
@@ -250,12 +258,7 @@ export default defineComponent({
               indexSearch - indexNewlineBeforeSearch;
             const distIndexNewlineAfterSearch =
               indexNewLineAfterSearch - (indexSearch + item[0].length);
-            console.log({
-              textContentFile,
-              distIndexNewlineBeforeSearch,
-              indexNewlineBeforeSearch,
-              indexSearch,
-            });
+
             return {
               index: indexSearch,
               firstValue: textContentFile.substring(
@@ -387,6 +390,15 @@ export default defineComponent({
           await this.replaceSearch(item, +index);
         }
       }
+    },
+
+    gotoEditor(file: string, start: number, stop: number): void {
+      this.$router.push({
+        name: "editor",
+        query: {
+          selection: `${start}->${stop}`,
+        },
+      });
     },
   },
 });

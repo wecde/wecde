@@ -1,5 +1,5 @@
 <template>
-  <div class="fill-height" v-if="fullpath">
+  <div class="fill-height">
     <App-Hammer>
       <div class="session mr-2" ref="sessionWrapper">
         <div
@@ -65,51 +65,43 @@
     </App-Hammer>
 
     <div class="editor dark">
-      <Preview-Font
-        class="editor"
-        :fullpath="fullpath"
-        v-if="typeEditor === 'font'"
-      />
-      <Preview-Image
-        class="editor"
-        :fullpath="fullpath"
-        v-else-if="typeEditor === 'image'"
-      />
-      <Preview-Video
-        class="editor"
-        :fullpath="fullpath"
-        v-else-if="typeEditor === 'video'"
-      />
-      <Preview-Audio
-        class="editor"
-        :fullpath="fullpath"
-        v-else-if="typeEditor === 'audio'"
-      />
-      <Editor-SVG
-        class="editor"
-        :fullpath="fullpath"
-        v-else-if="typeEditor === 'svg'"
-        @change="scrollSessionWrapperToSessionActive"
-        ref="editorComponent"
-      />
-      <Editor-Markdown
-        class="editor"
-        :fullpath="fullpath"
-        v-else-if="typeEditor === 'markdown'"
-        @change="scrollSessionWrapperToSessionActive"
-        ref="editorComponent"
-      />
-      <Editor-Code
-        class="editor"
-        :fullpath="fullpath"
-        v-else-if="plaintext"
-        @change="scrollSessionWrapperToSessionActive"
-        ref="editorComponent"
-      />
-      <div class="editor pt-4 text-caption px-6 pb-6" v-else>
-        This file is not displayed in the text editor because it is either
-        binary or uses an unsupported text encoding.
-      </div>
+      <template v-if="fullpath && typeEditor">
+        <Preview
+          class="editor"
+          :fullpath="fullpath"
+          v-if="TypeSupportPreview.includes(typeEditor)"
+        />
+        <Editor-SVG
+          class="editor"
+          :fullpath="fullpath"
+          v-else-if="typeEditor === 'svg'"
+          @change="scrollSessionWrapperToSessionActive"
+          ref="editorComponent"
+        />
+        <Editor-Markdown
+          class="editor"
+          :fullpath="fullpath"
+          v-else-if="typeEditor === 'markdown'"
+          @change="scrollSessionWrapperToSessionActive"
+          ref="editorComponent"
+        />
+        <Editor-Code
+          class="editor"
+          :fullpath="fullpath"
+          v-else-if="plaintext"
+          @change="scrollSessionWrapperToSessionActive"
+          ref="editorComponent"
+        />
+        <div class="editor pt-4 text-caption px-6 pb-6" v-else>
+          This file is not displayed in the text editor because it is either
+          binary or uses an unsupported text encoding.
+        </div>
+      </template>
+      <template v-else>
+        <div class="editor pt-4 text-caption px-6 pb-6">
+          <img class="image-shallow" :src="require(`@/assets/favicon.svg`)" />
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -125,7 +117,6 @@ import {
 import AppHammer from "@/components/App/Hammer.vue";
 import { createTimeoutBy, extname } from "@/utils";
 import $store from "@/store";
-import $router from "@/router";
 import i18n from "@/i18n";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 import { basename } from "path";
@@ -134,47 +125,40 @@ import { Toast } from "@capacitor/toast";
 import Vue from "vue";
 import { isPlainText, getEditor } from "@/utils";
 import { Browser } from "@capacitor/browser";
+import Preview from "@/components/Preview/Font.vue";
+import EditorSVG from "@/components/Editor/SVG.vue";
+import EditorMarkdown from "@/components/Editor/Markdown.vue";
+import EditorCode from "@/components/Editor/Code.vue";
 
 export default defineComponent({
   components: {
     AppHammer,
-    PreviewFont: () => import("@/components/Preview/Font.vue"),
-    PreviewImage: () => import("@/components/Preview/Image.vue"),
-    PreviewVideo: () => import("@/components/Preview/Video.vue"),
-    PreviewAudio: () => import("@/components/Preview/Audio.vue"),
-    EditorSVG: () => import("@/components/Editor/SVG.vue"),
-    EditorMarkdown: () => import("@/components/Editor/Markdown.vue"),
-    EditorCode: () => import("@/components/Editor/Code.vue"),
+    Preview,
+    EditorSVG,
+    EditorMarkdown,
+    EditorCode,
   },
   setup() {
-    const fullpath = computed<string>(() => $store.getters["editor/session"]);
-    const typeEditor = computed<string>(
-      () => getEditor(fullpath.value) || "text"
+    const fullpath = computed<string | null>(
+      () => $store.getters["editor/session"]
+    );
+    const typeEditor = computed<string | null>(() =>
+      fullpath.value ? getEditor(fullpath.value) || "text" : null
     );
 
     const editorComponent = ref<Vue | null>(null);
 
     const serverStatus = ref<boolean>(false);
     const port = computed<string>(() => $store.state.settings.preview__port);
-    const plaintext = computed<boolean>(() => isPlainText(fullpath.value));
+    const plaintext = computed<boolean>(() =>
+      fullpath.value ? isPlainText(fullpath.value) : false
+    );
 
     const sessionWrapper = ref<Element | null>(null);
 
     let isMounted = false;
 
     onMounted(() => void (isMounted = true));
-
-    watch(
-      fullpath,
-      (newValue) => {
-        if (!newValue) {
-          $router.push("/");
-        }
-      },
-      {
-        immediate: true,
-      }
-    );
 
     async function openWebView() {
       await Browser.open({
@@ -266,8 +250,6 @@ export default defineComponent({
 
     return {
       fullpath,
-      basename,
-      getIcon,
       serverStatus,
       port,
       sessionWrapper,
@@ -276,6 +258,7 @@ export default defineComponent({
       plaintext,
       typeEditor,
       openBrowser,
+      TypeSupportPreview: ["image", "video", "audio", "font"],
     };
   },
   computed: {
@@ -324,6 +307,8 @@ export default defineComponent({
   methods: {
     extname,
     isPlainText,
+    getIcon,
+    basename,
 
     toggleSearchAce(): void {
       (this.EditorCodeComponent as any)?.$ace.value?.execCommand("find");
@@ -424,5 +409,14 @@ export default defineComponent({
       margin-left: 0;
     }
   }
+}
+
+.image-shallow {
+  filter: grayscale(100%);
+  position: relative;
+  transform: translate(-50%, -50%);
+  top: 50%;
+  left: 50%;
+  max-width: 230px;
 }
 </style>

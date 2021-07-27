@@ -56,5 +56,13 @@ export default defineComponent({
       tab: ref<number | null>(null),
     };
   },
+  watch: {
+    "$route.query.tab": {
+      handler(newValue) {
+        this.tab = Number(newValue) ?? null;
+      },
+      immediate: true,
+    },
+  },
 });
 </script>

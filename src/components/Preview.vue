@@ -1,9 +1,36 @@
 <template>
-  <div class="d-flex align-center justify-center px-3">
+  <div class="d-flex align-center justify-center text-center px-3">
     <img
       :src="`data:image/${ext};base64,${base64}`"
       :alt="basename(fullpath)"
+      v-if="type === `image`"
     />
+    <video
+      :src="`data:video/${ext};base64,${base64}`"
+      :alt="basename(fullpath)"
+      controls
+      v-else-if="type === `video`"
+    />
+    <audio
+      :src="`data:audio/${ext};base64,${base64}`"
+      :alt="basename(fullpath)"
+      controls
+      class="fill-width"
+      v-else-if="type === `audio`"
+    />
+
+    <font v-else-if="type === `font`">
+      ABCDEFGHIJKLM<br />
+      NOPQRSTUVWXYZ<br />
+      abcdefghijklm<br />
+      nopqrstuvwxyz<br />
+      1 2 3 4 5 6 7 8 9 0
+      <component v-bind:is="`style`">
+        @font-face { font-family: "Font Preview"; font-display: block; src:
+        url(data:font/truetype;charset=utf-8;base64,{{ base64 }})
+        format("truetype"); font-weight: normal; font-style: normal; }
+      </component>
+    </font>
   </div>
 </template>
 
@@ -22,6 +49,10 @@ import { basename } from "path";
 export default defineComponent({
   props: {
     fullpath: {
+      type: String,
+      required: true,
+    },
+    type: {
       type: String,
       required: true,
     },
@@ -62,5 +93,18 @@ export default defineComponent({
 <style lang="scss" scoped>
 img {
   max-width: 100%;
+}
+
+video {
+  max-width: 100%;
+}
+
+font {
+  font-family: "Font Preview";
+  font-size: 32px;
+  line-height: 36px;
+  letter-spacing: 5px;
+  padding: 24px;
+  word-break: break-all;
 }
 </style>
