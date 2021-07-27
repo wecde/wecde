@@ -61,6 +61,7 @@ import { join, relative, basename, extname, dirname } from "path";
 import { Toast } from "@capacitor/toast";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
 import nameFileValidates from "@/validator/nameFileValidates";
+import { createTimeoutBy } from "@/utils";
 
 export default defineComponent({
   model: {
@@ -187,17 +188,21 @@ export default defineComponent({
       (this.$refs?.input as any)?.blur();
     },
     focusInput() {
-      setTimeout(() => {
-        const { input } = this.$refs as { input: any };
-        input.focus();
-        input.click();
+      createTimeoutBy(
+        "file explorer.rename.fix-async-dom",
+        () => {
+          const { input } = this.$refs as { input: any };
+          input.focus();
+          input.click();
 
-        input.select();
-        input.setSelectionRange(
-          0,
-          basename(input.value, extname(input.value)).length
-        );
-      }, 70);
+          input.select();
+          input.setSelectionRange(
+            0,
+            basename(input.value, extname(input.value)).length
+          );
+        },
+        70
+      );
     },
     onClickName(): void {
       if (Date.now() - this.timeClick < 500) {

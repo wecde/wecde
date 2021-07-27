@@ -123,7 +123,7 @@ import {
   onMounted,
 } from "@vue/composition-api";
 import AppHammer from "@/components/App/Hammer.vue";
-import { extname } from "@/utils";
+import { createTimeoutBy, extname } from "@/utils";
 import $store from "@/store";
 import $router from "@/router";
 import i18n from "@/i18n";
@@ -133,25 +133,18 @@ import { WebServer } from "@/modules/webserver";
 import { Toast } from "@capacitor/toast";
 import Vue from "vue";
 import { isPlainText, getEditor } from "@/utils";
-import PreviewFont from "@/components/Preview/Font.vue";
-import PreviewImage from "@/components/Preview/Image.vue";
-import PreviewVideo from "@/components/Preview/Video.vue";
-import PreviewAudio from "@/components/Preview/Audio.vue";
-import EditorSVG from "@/components/Editor/SVG.vue";
-import EditorMarkdown from "@/components/Editor/Markdown.vue";
-import EditorCode from "@/components/Editor/Code.vue";
 import { Browser } from "@capacitor/browser";
 
 export default defineComponent({
   components: {
     AppHammer,
-    PreviewFont,
-    PreviewImage,
-    PreviewVideo,
-    PreviewAudio,
-    EditorSVG,
-    EditorMarkdown,
-    EditorCode,
+    PreviewFont: () => import("@/components/Preview/Font.vue"),
+    PreviewImage: () => import("@/components/Preview/Image.vue"),
+    PreviewVideo: () => import("@/components/Preview/Video.vue"),
+    PreviewAudio: () => import("@/components/Preview/Audio.vue"),
+    EditorSVG: () => import("@/components/Editor/SVG.vue"),
+    EditorMarkdown: () => import("@/components/Editor/Markdown.vue"),
+    EditorCode: () => import("@/components/Editor/Code.vue"),
   },
   setup() {
     const fullpath = computed<string>(() => $store.getters["editor/session"]);
@@ -243,12 +236,16 @@ export default defineComponent({
     }
 
     function scrollSessionWrapperToSessionActive() {
-      setTimeout(() => {
-        const wrapper = sessionWrapper.value as HTMLElement;
-        const active = wrapper.querySelector(".active") as HTMLElement;
+      createTimeoutBy(
+        "pages.editor.fix-async-dom-scroll-to-tab-session-active",
+        () => {
+          const wrapper = sessionWrapper.value as HTMLElement;
+          const active = wrapper.querySelector(".active") as HTMLElement;
 
-        wrapper.scrollTo(active?.offsetLeft || 0, 0);
-      }, 70);
+          wrapper.scrollTo(active?.offsetLeft || 0, 0);
+        },
+        70
+      );
     }
 
     watch(

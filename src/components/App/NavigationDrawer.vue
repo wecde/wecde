@@ -57,7 +57,6 @@ import MenuArchive from "@/components/Menu/Archive.vue";
 import MenuFiles from "@/components/Menu/Files.vue";
 import MenuSearch from "@/components/Menu/Search.vue";
 import MenuSettings from "@/components/Menu/Settings.vue";
-import { stat } from "@/modules/filesystem";
 import store from "@/store";
 
 export default defineComponent({
@@ -81,25 +80,8 @@ export default defineComponent({
     };
   },
 
-  watch: {
-    "$store.state.editor.project": {
-      async handler(newValue) {
-        try {
-          if ((await stat(newValue)).type !== "directory") {
-            throw new Error(`IS_NOT_DIR`);
-          }
-
-          this.navigationTabs = 1;
-        } catch {
-          this.$store.commit("editor/setProject", null);
-        }
-      },
-      immediate: true,
-    },
-  },
-
   created() {
-    if (this.$store.state.editor.session > -1) {
+    if (this.$store.state.editor.project) {
       this.navigationTabs = 1;
     }
   },

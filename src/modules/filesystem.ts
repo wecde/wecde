@@ -315,12 +315,6 @@ export async function readFilesFolder(
   return thisChildren;
 }
 
-export async function requestPermissions(): Promise<void> {
-  if ((await Filesystem.checkPermissions()).publicStorage !== "granted") {
-    await Filesystem.requestPermissions();
-  }
-}
-
 export async function getUri(
   path: string,
   directory: Directory = Directory.Documents

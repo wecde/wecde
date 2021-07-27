@@ -186,7 +186,7 @@ import {
   writeFile,
 } from "@/modules/filesystem";
 import store from "@/store";
-import { isPlainText, rawText } from "@/utils";
+import { createTimeoutBy, isPlainText, rawText } from "@/utils";
 import { join, basename } from "path";
 import escapeRegExp from "escape-string-regexp";
 import AppCollapse from "@/components/App/Collapse.vue";
@@ -287,42 +287,44 @@ export default defineComponent({
       }
     }
 
-    let timeoutSearch: any;
     async function search(): Promise<void> {
-      clearTimeout(timeoutSearch);
-      setTimeout(async () => {
-        results.value.splice(0);
+      createTimeoutBy(
+        "menu.search.timeout-search",
+        async () => {
+          results.value.splice(0);
 
-        searching.value = true;
-        if (store.state.editor.project) {
-          await foreachFiles(
-            store.state.editor.project,
-            [
-              "^.git",
-              ...exclude.value
-                .replace(/(?:\s)+,(?:\s)+/g, ",")
-                .split(",")
-                .filter(Boolean),
-            ],
-            [
-              ...include.value
-                .replace(/(?:\s)+,(?:\s)+/g, ",")
-                .split(",")
-                .filter(Boolean),
-            ],
-            async (dirname: string, filename: string): Promise<void> => {
-              const file = join(dirname, filename);
+          searching.value = true;
+          if (store.state.editor.project) {
+            await foreachFiles(
+              store.state.editor.project,
+              [
+                "^.git",
+                ...exclude.value
+                  .replace(/(?:\s)+,(?:\s)+/g, ",")
+                  .split(",")
+                  .filter(Boolean),
+              ],
+              [
+                ...include.value
+                  .replace(/(?:\s)+,(?:\s)+/g, ",")
+                  .split(",")
+                  .filter(Boolean),
+              ],
+              async (dirname: string, filename: string): Promise<void> => {
+                const file = join(dirname, filename);
 
-              const result = await searchInFile(file);
+                const result = await searchInFile(file);
 
-              if (result) {
-                results.value.push(result);
+                if (result) {
+                  results.value.push(result);
+                }
               }
-            }
-          );
-        }
-        searching.value = false;
-      }, 500);
+            );
+          }
+          searching.value = false;
+        },
+        500
+      );
     }
 
     watch(modeRegexp, () => void search());

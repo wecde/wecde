@@ -133,3 +133,24 @@ export function isParentFolder(a: string, b: string): boolean {
     pathsA.every((value, index) => value === pathsB[index])
   );
 }
+
+const storeTimeoutBy = new Map<string, NodeJS.Timeout | number>();
+export function createTimeoutBy(
+  id: string,
+  callback: {
+    (): void;
+  },
+  ms?: number
+): NodeJS.Timeout | number {
+  if (storeTimeoutBy.has(id)) {
+    clearTimeout(storeTimeoutBy.get(id) as number);
+  }
+
+  const timeout = setTimeout(() => {
+    callback();
+    storeTimeoutBy.delete(id);
+  }, ms);
+  storeTimeoutBy.set(id, timeout);
+
+  return timeout;
+}

@@ -6,39 +6,93 @@
       height="41"
       class="d-block order-2 bottom-tools d-md-none"
       :input-value="inputValue"
-      @click="fixBlurEditor"
     >
       <div
         class="bottom-tools__group justify-space-between"
         v-if="tabToolsBottom === 0"
       >
-        <div class="item" v-ripple @click="tab">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="tab"
+        >
           <v-icon>mdi-keyboard-tab</v-icon>
         </div>
-        <div class="item" v-ripple @click="cursorUp">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="cursorUp"
+        >
           <v-icon>mdi-chevron-up</v-icon>
         </div>
-        <div class="item" v-ripple @click="cursorDown">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="cursorDown"
+        >
           <v-icon>mdi-chevron-down</v-icon>
         </div>
-        <div class="item" v-ripple @click="cursorLeft">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="cursorLeft"
+        >
           <v-icon>mdi-chevron-left</v-icon>
         </div>
-        <div class="item" v-ripple @click="cursorRight">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="cursorRight"
+        >
           <v-icon>mdi-chevron-right</v-icon>
         </div>
-        <div class="item" v-ripple @click="openCommand">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="openCommand"
+        >
           <v-icon>mdi-apple-keyboard-command</v-icon>
         </div>
-        <div class="item" v-ripple @click="openBot">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="openBot"
+        >
           <v-icon>mdi-robot</v-icon>
         </div>
-        <div class="item" v-ripple @click="toggleLock">
-          <v-icon>{{
-            isLock ? "mdi-lock-open-variant-outline" : "mdi-lock-outline"
-          }}</v-icon>
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="toggleLock"
+          :class="{
+            'blue--text': isLock,
+          }"
+        >
+          <v-icon>mdi-lock-outline</v-icon>
         </div>
-        <div class="item" v-ripple @click="toolsNext">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="toolsNext"
+        >
           <v-icon>mdi-chevron-double-right</v-icon>
         </div>
       </div>
@@ -46,25 +100,67 @@
         class="bottom-tools__group justify-space-between"
         v-else-if="tabToolsBottom === 1"
       >
-        <div class="item" v-ripple @click="toolsPrev">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="toolsPrev"
+        >
           <v-icon>mdi-chevron-double-left</v-icon>
         </div>
-        <div class="item" v-ripple @click="undo">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="undo"
+        >
           <v-icon>mdi-undo-variant</v-icon>
         </div>
-        <div class="item" v-ripple @click="redo">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="redo"
+        >
           <v-icon>mdi-redo-variant</v-icon>
         </div>
-        <div class="item" v-ripple @click="selectAll">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="selectAll"
+        >
           <v-icon>mdi-select-all</v-icon>
         </div>
-        <div class="item" v-ripple @click="copy">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="copy"
+        >
           <v-icon>mdi-content-copy</v-icon>
         </div>
-        <div class="item" v-ripple @click="cut">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="cut"
+        >
           <v-icon>mdi-content-cut</v-icon>
         </div>
-        <div class="item" v-ripple @click="paste">
+        <div
+          class="item"
+          v-ripple
+          @mousedown="fixBlurEditor"
+          @touchstart="fixBlurEditor"
+          @click="paste"
+        >
           <v-icon>mdi-content-paste</v-icon>
         </div>
         <v-menu
@@ -77,7 +173,13 @@
           transition="slide-y-reverse-transition"
         >
           <template v-slot:activator="{ on, attrs }">
-            <div class="item" v-ripple v-on="on">
+            <div
+              class="item"
+              v-ripple
+              v-on="on"
+              @mousedown="fixBlurEditor"
+              @touchstart="fixBlurEditor"
+            >
               <v-icon v-bind="attrs">mdi-plus</v-icon>
             </div>
           </template>
@@ -88,6 +190,8 @@
                 <div
                   class="item"
                   v-ripple
+                  @mousedown="fixBlurEditor"
+                  @touchstart="fixBlurEditor"
                   @click="formatCode"
                   :style="{
                     opacity: supportFormat ? 1 : 0.5,
@@ -97,13 +201,21 @@
                   <v-icon size="1em">mdi-format-align-right</v-icon>
                   <span>Format</span>
                 </div>
-                <div class="item" v-ripple>
+                <div
+                  class="item"
+                  v-ripple
+                  @mousedown="fixBlurEditor"
+                  @touchstart="fixBlurEditor"
+                  @click="findAll"
+                >
                   <v-icon size="1em">mdi-magnify</v-icon>
                   <span>Find All</span>
                 </div>
                 <div
                   class="item"
                   v-ripple
+                  @mousedown="fixBlurEditor"
+                  @touchstart="fixBlurEditor"
                   @click="nextError"
                   :style="{
                     opacity: !!nextErrorer ? 1 : 0.5,
@@ -159,25 +271,37 @@ import "ace-builds/src-noconflict/keybinding-vim";
 import "ace-builds/src-noconflict/keybinding-vscode";
 import "ace-builds/src-noconflict/ext-spellcheck";
 import "ace-builds/src-noconflict/ext-prompt";
-import { getEditor, rawText } from "@/utils";
+import { createTimeoutBy, getEditor, rawText } from "@/utils";
 import { readFile, writeFile } from "@/modules/filesystem";
 import store from "@/store";
 import { Clipboard } from "@capacitor/clipboard";
 import { extname } from "path";
 import { format, getSupportInfo } from "prettier";
-import parserAngular from "prettier/parser-angular";
-import parserBabel from "prettier/parser-babel";
-import parserEspree from "prettier/parser-espree";
-import parserFlow from "prettier/parser-flow";
-import parserGraphql from "prettier/parser-graphql";
-import parserHtml from "prettier/parser-html";
-import parserMarkdown from "prettier/parser-markdown";
-import parserMeriyah from "prettier/parser-meriyah";
-import parserPostcss from "prettier/parser-postcss";
-import parserTypescript from "prettier/parser-typescript";
-import parserYaml from "prettier/parser-yaml";
 
 // import standalone from "prettier/standalone";
+
+let prettierPlugins: any[];
+async function loadPrettierPlugins(): Promise<any[]> {
+  if (!prettierPlugins) {
+    console.time("load plugin prettier");
+    prettierPlugins = await Promise.all([
+      import("prettier/parser-angular"),
+      import("prettier/parser-babel"),
+      import("prettier/parser-espree"),
+      import("prettier/parser-flow"),
+      import("prettier/parser-graphql"),
+      import("prettier/parser-html"),
+      import("prettier/parser-markdown"),
+      import("prettier/parser-meriyah"),
+      import("prettier/parser-postcss"),
+      import("prettier/parser-typescript"),
+      import("prettier/parser-yaml"),
+    ]);
+    console.timeEnd("load plugin prettier");
+  }
+
+  return prettierPlugins;
+}
 
 export default defineComponent({
   name: "Editor-Code",
@@ -194,29 +318,21 @@ export default defineComponent({
   setup(props, { emit }) {
     const { fullpath } = toRefs(props);
     const base64 = ref<string | null>(null);
-    const isFocused = ref<boolean>(false);
-
     const typeEditor = computed<string>(
       () => getEditor(fullpath.value) || "text"
     );
-
     const EditorCode = ref<HTMLElement | null>(null);
-
     const isLock = ref<boolean>(false);
-
     const $ace: {
       value: ace.Ace.Editor | null;
     } = {
       value: null,
     };
-
-    function fixBlurEditor(): void {
-      if (isFocused.value) {
-        $ace.value?.focus();
-      } else {
-        $ace.value?.blur();
-      }
-    }
+    const aceInfo = ref<{
+      row: number;
+      column: number;
+    } | null>(null);
+    const nextErrorer = ref<ace.Ace.Annotation | null>(null);
 
     function savePostionEditor(): void {
       store.commit("editor/setScrollEnhance", {
@@ -230,23 +346,42 @@ export default defineComponent({
       });
     }
 
-    let timeoutSaveFile: any;
-
     function createEditor() {
       if (EditorCode.value) {
         $ace.value = ace.edit(EditorCode.value);
 
-        clearTimeout(timeoutSaveFile);
-
         $ace.value.on("change", () => {
-          clearTimeout(timeoutSaveFile);
+          createTimeoutBy(
+            "editor.code.timeout-saving-file",
+            async () => {
+              if ($ace.value) {
+                writeFile(fullpath.value, $ace.value.getValue());
 
-          timeoutSaveFile = setTimeout(async () => {
-            void (await writeFile(
-              fullpath.value,
-              $ace.value?.getValue() || ""
-            ));
-          }, 1000);
+                const { row, column } = $ace.value.getCursorPosition();
+                const annotations = $ace.value.session
+                  .getAnnotations()
+                  .filter((item) => item.type === "error");
+
+                nextErrorer.value =
+                  (annotations.find((error) => {
+                    if (error.row !== undefined && error.row > row) {
+                      return true;
+                    }
+
+                    if (
+                      error.row === row &&
+                      error.column !== undefined &&
+                      error.column > column
+                    ) {
+                      return true;
+                    }
+                  }) ||
+                    annotations[0]) ??
+                  null;
+              }
+            },
+            1000
+          );
 
           emit("change");
         });
@@ -262,11 +397,11 @@ export default defineComponent({
           "changeCursor",
           () => void savePostionEditor()
         );
-        $ace.value.on("focus", () => {
-          isFocused.value = true;
-        });
-        $ace.value.on("blur", () => {
-          isFocused.value = false;
+        $ace.value.session.selection.on("changeCursor", () => {
+          aceInfo.value = {
+            row: $ace.value?.getCursorPosition()?.row || 0,
+            column: $ace.value?.getCursorPosition()?.column || 0,
+          };
         });
 
         $ace.value.setOptions({
@@ -310,7 +445,9 @@ export default defineComponent({
         watch(
           typeEditor,
           () => {
-            $ace.value?.session.setMode(`ace/mode/${typeEditor.value}`);
+            if ($ace.value) {
+              $ace.value.session.setMode(`ace/mode/${typeEditor.value}`);
+            }
           },
           {
             immediate: true,
@@ -347,11 +484,15 @@ export default defineComponent({
           $ace.value.setValue(rawText(newValue || ""));
           $ace.value.clearSelection();
 
-          setTimeout(() => {
-            $ace.value?.session.setScrollLeft(x);
-            $ace.value?.session.setScrollTop(y);
-            $ace.value?.moveCursorTo(cursorRow, cursorColumn);
-          }, 1);
+          createTimeoutBy(
+            "editor.code.fix-async-scroll-behavior",
+            () => {
+              $ace.value?.session.setScrollLeft(x);
+              $ace.value?.session.setScrollTop(y);
+              $ace.value?.moveCursorTo(cursorRow, cursorColumn);
+            },
+            1
+          );
 
           ace.require(`ace/snippets/${typeEditor.value}`);
         }
@@ -363,8 +504,8 @@ export default defineComponent({
           try {
             base64.value = await readFile(newValue);
           } catch {
-            base64.value = null;
-            console.error(`file ${newValue} not ready`);
+            base64.value = "";
+            console.warn(`file ${newValue} not exists.`);
           }
         },
         {
@@ -388,14 +529,14 @@ export default defineComponent({
       isLock,
       tabToolsBottom: ref<number>(0),
       typeEditor,
-      fixBlurEditor,
+      aceInfo,
+      nextErrorer,
     };
   },
 
   watch: {
     "$store.state.settings.appearance__theme": {
       handler(newValue) {
-        console.log("theme changed");
         if (this.$ace.value) {
           this.$ace.value.setTheme(`${newValue}`);
         }
@@ -479,91 +620,83 @@ export default defineComponent({
     supportFormat(): boolean {
       return !!this.parser;
     },
-    nextErrorer(): any {
-      if (this.$ace.value) {
-        const { row, column } = this.$ace.value.getCursorPosition() || {
-          row: 0,
-          column: 0,
-        };
-
-        return (
-          this.$ace.value.session.getAnnotations().find((error: any) => {
-            return (
-              error.type === "error" &&
-              (error.row > row || (error.row === row && error.column > column))
-            );
-          }) ||
-          this.$ace.value.session
-            .getAnnotations()
-            .find((error) => error.type === "error")
-        );
-      }
-
-      return null;
-    },
   },
 
   methods: {
-    tab() {
+    fixBlurEditor(event: any): void {
+      if (event.type === "mousedown") {
+        event.preventDefault();
+      }
+    },
+    tab(): void {
       this.$ace.value?.insert("\t");
     },
-    cursorUp() {
-      const isEmpty = this.$ace.value?.session.selection.isEmpty();
-      this.$ace.value?.session.selection.moveCursorUp();
+    cursorUp(): void {
+      const isEmpty = this.$ace.value?.selection.isEmpty();
 
       if (isEmpty) {
+        this.$ace.value?.session.selection.moveCursorUp();
+
         this.$ace.value?.clearSelection();
+      } else {
+        this.$ace.value?.session.selection.moveCursorUp();
       }
     },
-    cursorDown() {
-      const isEmpty = this.$ace.value?.session.selection.isEmpty();
-      this.$ace.value?.session.selection.moveCursorDown();
+    cursorDown(): void {
+      const isEmpty = this.$ace.value?.selection.isEmpty();
 
       if (isEmpty) {
+        this.$ace.value?.session.selection.moveCursorDown();
         this.$ace.value?.clearSelection();
+      } else {
+        this.$ace.value?.session.selection.moveCursorDown();
       }
     },
-    cursorLeft() {
-      const isEmpty = this.$ace.value?.session.selection.isEmpty();
-      this.$ace.value?.session.selection.moveCursorLeft();
+    cursorLeft(): void {
+      const isEmpty = this.$ace.value?.selection.isEmpty();
 
       if (isEmpty) {
+        this.$ace.value?.session.selection.moveCursorLeft();
         this.$ace.value?.clearSelection();
+      } else {
+        this.$ace.value?.session.selection.moveCursorLeft();
       }
     },
-    cursorRight() {
-      const isEmpty = this.$ace.value?.session.selection.isEmpty();
-      this.$ace.value?.session.selection.moveCursorRight();
+    cursorRight(): void {
+      const isEmpty = this.$ace.value?.selection.isEmpty();
 
       if (isEmpty) {
+        this.$ace.value?.session.selection.moveCursorRight();
         this.$ace.value?.clearSelection();
+      } else {
+        this.$ace.value?.session.selection.moveCursorRight();
       }
     },
-    openCommand() {
+    openCommand(): void {
       this.$ace.value?.execCommand("openCommandPallete");
     },
-    openBot() {
+    openBot(): void {
       console.log("open bot");
     },
-    toggleLock() {
+    toggleLock(): void {
       this.isLock = !this.isLock;
     },
-    toolsNext() {
+    toolsNext(): void {
       this.tabToolsBottom = 1;
     },
-    toolsPrev() {
+    toolsPrev(): void {
       this.tabToolsBottom = 0;
     },
-    undo() {
+    undo(): void {
       this.$ace.value?.undo();
     },
-    redo() {
+    redo(): void {
       this.$ace.value?.redo();
     },
-    selectAll() {
+    selectAll(): void {
       this.$ace.value?.selectAll();
     },
-    async copy() {
+    async copy(): Promise<void> {
       const string = this.$ace.value?.getCopyText();
       this.$ace.value?.execCommand("copy");
 
@@ -573,7 +706,7 @@ export default defineComponent({
         });
       }
     },
-    async cut() {
+    async cut(): Promise<void> {
       const string = this.$ace.value?.getCopyText();
       this.$ace.value?.execCommand("cut");
 
@@ -583,7 +716,7 @@ export default defineComponent({
         });
       }
     },
-    async paste() {
+    async paste(): Promise<void> {
       const { type, value } = await Clipboard.read();
 
       if (type === "text/plain") {
@@ -591,7 +724,7 @@ export default defineComponent({
       }
     },
 
-    formatCode() {
+    async formatCode(): Promise<void> {
       if (this.$ace.value) {
         const code = this.$ace.value.getValue();
 
@@ -601,25 +734,13 @@ export default defineComponent({
               this.parser.parsers[0] === "babel"
                 ? "babel-flow"
                 : this.parser.parsers[0],
-            plugins: [
-              parserAngular,
-              parserBabel,
-              parserEspree,
-              parserFlow,
-              parserGraphql,
-              parserHtml,
-              parserMarkdown,
-              parserMeriyah,
-              parserPostcss,
-              parserTypescript,
-              parserYaml,
-            ],
+            plugins: await loadPrettierPlugins(),
           })
         );
         this.$ace.value.clearSelection();
       }
     },
-    nextError() {
+    nextError(): void {
       if (this.$ace.value) {
         if (this.nextErrorer) {
           this.$ace.value.moveCursorTo(
@@ -627,6 +748,12 @@ export default defineComponent({
             this.nextErrorer.column || 0
           );
         }
+      }
+    },
+    findAll(): void {
+      if (this.$ace.value) {
+        const keyword = this.$ace.value.getCopyText();
+        console.log(`find all "${keyword}`);
       }
     },
   },

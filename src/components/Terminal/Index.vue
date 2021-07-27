@@ -19,8 +19,9 @@
 </template>
 
 <script lang="ts">
+import { createTimeoutBy } from "@/utils";
 import { defineComponent } from "@vue/composition-api";
-let timeout: any;
+
 export default defineComponent({
   computed: {
     lines() {
@@ -29,15 +30,17 @@ export default defineComponent({
   },
   watch: {
     lines() {
-      clearTimeout(timeout);
-
       if (this.$refs.terminal) {
-        timeout = setTimeout(() => {
-          (this.$refs.terminal as Element).scrollTo(
-            0,
-            (this.$refs.terminal as Element).scrollHeight
-          );
-        }, 70);
+        createTimeoutBy(
+          "terminal.index.fix-async-dom-scroll",
+          () => {
+            (this.$refs.terminal as Element).scrollTo(
+              0,
+              (this.$refs.terminal as Element).scrollHeight
+            );
+          },
+          70
+        );
       }
     },
   },
