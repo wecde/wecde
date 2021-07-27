@@ -69,6 +69,7 @@
         <Preview
           class="editor"
           :fullpath="fullpath"
+          :type="typeEditor"
           v-if="TypeSupportPreview.includes(typeEditor)"
         />
         <Editor-SVG
@@ -125,7 +126,7 @@ import { Toast } from "@capacitor/toast";
 import Vue from "vue";
 import { isPlainText, getEditor } from "@/utils";
 import { Browser } from "@capacitor/browser";
-import Preview from "@/components/Preview/Font.vue";
+import Preview from "@/components/Preview.vue";
 import EditorSVG from "@/components/Editor/SVG.vue";
 import EditorMarkdown from "@/components/Editor/Markdown.vue";
 import EditorCode from "@/components/Editor/Code.vue";
