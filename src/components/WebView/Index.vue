@@ -34,7 +34,7 @@
               @touchend="onMouseOut"
               ref="btn"
             >
-              <v-icon>mdi-web</v-icon>
+              <v-icon>{{ mdiWeb }}</v-icon>
             </v-btn>
           </v-fab-transition>
         </template>
@@ -61,6 +61,7 @@ import {
 import $store from "@/store";
 import { Browser } from "@capacitor/browser";
 import Vue from "vue";
+import { mdiWeb } from "@mdi/js";
 
 export default defineComponent({
   props: {
@@ -221,6 +222,8 @@ export default defineComponent({
     }
 
     return {
+      mdiWeb,
+
       x,
       y,
       hover,

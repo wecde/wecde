@@ -950,13 +950,6 @@
   resolved "https://registry.yarnpkg.com/@capacitor/toast/-/toast-1.0.2.tgz#3984960b797a6dc6ac971b0602bf8c363b39394f"
   integrity sha512-4R4aUP/BeqQ9/CRJpuoE+U+3tO1pmoZE8fNPhmcXZJYNedprX/uZfNzxBDz6kCJ90RETjrF4e/BxtBFXLiXxxQ==
 
-"@desislavsd/vue-teleport@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/@desislavsd/vue-teleport/-/vue-teleport-0.1.2.tgz#99ce5de5f59cd8a00240bd16fa67502c42c31d51"
-  integrity sha512-Rm0X1hYUFul0DsQCcVHxGrn1yler80eY4wTOZ3bOXF9etTGOSIViBWIkvwuNwa/bEZbuqQgsj4vBadko6xLA4A==
-  dependencies:
-    vue "^2.5.22"
-
 "@hapi/address@2.x.x":
   version "2.1.4"
   resolved "https://registry.yarnpkg.com/@hapi/address/-/address-2.1.4.tgz#5d67ed43f3fd41a69d4b9ff7b56e7c0d1d0a81e5"
@@ -1191,6 +1184,11 @@
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@types/parse-json/-/parse-json-4.0.0.tgz#2f8bb441434d163b35fb8ffdccd7138927ffb8c0"
   integrity sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==
+
+"@types/prettier@^2.3.2":
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/@types/prettier/-/prettier-2.3.2.tgz#fc8c2825e4ed2142473b4a81064e6e081463d1b3"
+  integrity sha512-eI5Yrz3Qv4KPUa/nSIAi0h+qX0XyewOliug5F2QAtuRg6Kjg6jfmxe1GIwoIRhZspD1A0RP8ANrPwvEXXtRFog==
 
 "@types/q@^1.5.1":
   version "1.5.5"
@@ -9427,7 +9425,7 @@ vue-timeago.js@^0.0.1:
   dependencies:
     timeago.js "^4.0.2"
 
-vue@^2.5.22, vue@^2.6.11, vue@^2.6.14:
+vue@^2.6.11, vue@^2.6.14:
   version "2.6.14"
   resolved "https://registry.yarnpkg.com/vue/-/vue-2.6.14.tgz#e51aa5250250d569a3fbad3a8a5a687d6036e235"
   integrity sha512-x2284lgYvjOMj3Za7kqzRcUSxBboHqtgRE2zlos1qWaOye5yUmHn42LB1250NJBLRwEcdrB0JRwyPTEPhfQjiQ==

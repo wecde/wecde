@@ -31,20 +31,19 @@
                 $store.state["bookmark-labs"].labs.findIndex(
                   (item) => item.name === lab.name
                 ) > -1
-                  ? "mdi-bookmark-check"
-                  : "mdi-bookmark-outline"
+                  ? mdiBookmarkCheck
+                  : mdiBookmarkOutline
               }}</v-icon>
-              <!-- mdi-bookmark-check-outline -->
             </v-btn>
             <template v-slot:placeholder>
               <div class="placeholder-lab">
-                <v-icon absolute>mdi-loading mdi-spin</v-icon>
+                <v-icon absolute>{{ mdiLoading }}</v-icon>
               </div>
             </template>
           </v-img>
           <v-img v-else :aspect-ratio="177.5 / 142.13">
             <div class="placeholder-lab">
-              <v-icon absolute>mdi-loading mdi-spin</v-icon>
+              <v-icon absolute>{{ mdiLoading }}</v-icon>
             </div>
           </v-img>
 
@@ -69,10 +68,15 @@
 <script lang="ts">
 import { defineComponent } from "@vue/composition-api";
 import Labs from "@/assets/labs/Release.json";
+import { mdiBookmarkCheck, mdiBookmarkOutline, mdiLoading } from "@mdi/js";
 
 export default defineComponent({
   setup() {
     return {
+      mdiBookmarkCheck,
+      mdiBookmarkOutline,
+      mdiLoading,
+
       Labs,
     };
   },

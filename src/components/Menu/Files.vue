@@ -12,16 +12,16 @@
     >
       <div class="d-flex align-center justify-space-between order-1">
         <v-btn icon @click="search = !search" :color="search ? `blue` : null">
-          <v-icon>mdi-magnify</v-icon>
+          <v-icon>{{ mdiMagnify }}</v-icon>
         </v-btn>
         <v-btn icon @click="reloadListFile(true)">
-          <v-icon>mdi-reload</v-icon>
+          <v-icon>{{ mdiReload }}</v-icon>
         </v-btn>
 
         <v-menu internal-activator bottom left>
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon>mdi-plus</v-icon>
+              <v-icon>{{ mdiPlus }}</v-icon>
             </v-btn>
           </template>
 
@@ -33,7 +33,7 @@
                 :disabled="notAllowPaste"
               >
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-content-paste</v-icon>
+                  <v-icon>{{ mdiContentPaste }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title> {{ $t("Paste") }} </v-list-item-title>
@@ -49,7 +49,7 @@
               "
             >
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-file-outline</v-icon>
+                <v-icon>{{ mdiFileOutline }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title> {{ $t("New File") }} </v-list-item-title>
@@ -63,7 +63,7 @@
               "
             >
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-folder-outline</v-icon>
+                <v-icon>{{ mdiFolderOutline }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title> {{ $t("New Folder") }} </v-list-item-title>
@@ -76,7 +76,7 @@
               <template v-slot:default="{ on }">
                 <v-list-item class="min-height-0" v-on="on">
                   <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                    <v-icon>mdi-download</v-icon>
+                    <v-icon>{{ mdiDownload }}</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
@@ -89,7 +89,7 @@
             <v-divider />
             <v-list-item class="min-height-0">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-undo</v-icon>
+                <v-icon>{{ mdiUndo }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title> {{ $t("Undo") }} </v-list-item-title>
@@ -97,7 +97,7 @@
             </v-list-item>
             <v-list-item class="min-height-0">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-redo</v-icon>
+                <v-icon>{{ mdiRedo }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title> {{ $t("Redo") }} </v-list-item-title>
@@ -109,7 +109,7 @@
 
       <div class="d-flex order-0 text-truncate">
         <v-btn icon>
-          <v-icon>mdi-chevron-down</v-icon>
+          <v-icon>{{ mdiChevronDown }}</v-icon>
         </v-btn>
         <span class="app-title text-truncate">{{ projectName }}</span>
       </div>
@@ -123,7 +123,7 @@
         class="py-1 grey-4 mx-2"
         hide-details
         close-on-click
-        append-icon="mdi-close"
+        :append-icon="mdiClose"
         v-if="search"
       />
       <div
@@ -166,7 +166,19 @@ import { Toast } from "@capacitor/toast";
 import { basename } from "path";
 import store from "@/store";
 import ImportFiles from "@/components/Import/Files.vue";
-// import { statusMatrix, has as hasGIT } from "@/modules/git";
+import {
+  mdiMagnify,
+  mdiReload,
+  mdiPlus,
+  mdiContentPaste,
+  mdiFileOutline,
+  mdiFolderOutline,
+  mdiDownload,
+  mdiUndo,
+  mdiRedo,
+  mdiChevronDown,
+  mdiClose,
+} from "@mdi/js";
 
 export default defineComponent({
   components: {
@@ -184,39 +196,19 @@ export default defineComponent({
       project.value ? basename(project.value) : null
     );
 
-    // let timeoutGetStatusGit: any;
-    // async function getStatusGit() {
-    //   clearTimeout(timeoutGetStatusGit);
-    //   if (
-    //     !!project.value &&
-    //     (await hasGIT({
-    //       dir: project.value,
-    //     }))
-    //   ) {
-    //     console.time();
-    //     console.log(
-    //       await statusMatrix({
-    //         dir: project.value || "",
-    //       })
-    //     );
-    //     console.timeEnd();
-    //     timeoutGetStatusGit = setTimeout(() => void getStatusGit(), 1000);
-    //   }
-    // }
-
-    // watch(project, (newValue: string | null) => {
-    //   clearTimeout(timeoutGetStatusGit);
-    //   // eslint-disable-next-line no-extra-boolean-cast
-    //   if (!!newValue) {
-    //     getStatusGit();
-    //   }
-    // });
-
-    // onBeforeMount(() => clearTimeout(timeoutGetStatusGit));
-
-    // getStatusGit();
-
     return {
+      mdiMagnify,
+      mdiReload,
+      mdiPlus,
+      mdiContentPaste,
+      mdiFileOutline,
+      mdiFolderOutline,
+      mdiDownload,
+      mdiUndo,
+      mdiRedo,
+      mdiChevronDown,
+      mdiClose,
+
       search,
       adding,
       addingFolder,

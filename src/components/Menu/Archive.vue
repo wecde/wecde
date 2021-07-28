@@ -3,17 +3,17 @@
     <div class="navigation--toolbar grey-2" style="z-index: 2">
       <div>
         <v-btn icon>
-          <v-icon>mdi-chevron-down</v-icon>
+          <v-icon>{{ mdiChevronDown }}</v-icon>
         </v-btn>
         <span class="app-title"> {{ $t("Project") }} </span>
       </div>
 
       <div>
         <v-btn icon @click="search = !search" :color="search ? `blue` : null">
-          <v-icon>mdi-magnify</v-icon>
+          <v-icon>{{ mdiMagnify }}</v-icon>
         </v-btn>
         <v-btn icon @click="reloadListProjects(true)">
-          <v-icon>mdi-reload</v-icon>
+          <v-icon>{{ mdiReload }}</v-icon>
         </v-btn>
 
         <v-menu
@@ -25,7 +25,7 @@
         >
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon>mdi-git</v-icon>
+              <v-icon>{{ mdiGit }}</v-icon>
             </v-btn>
           </template>
 
@@ -45,7 +45,7 @@
                   class="min-height-0"
                 >
                   <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                    <v-icon>mdi-git</v-icon>
+                    <v-icon>{{ mdiGit }}</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>{{
@@ -64,7 +64,7 @@
                   class="min-height-0"
                 >
                   <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                    <v-icon>mdi-lock-outline</v-icon>
+                    <v-icon>{{ mdiLockOutline }}</v-icon>
                   </v-list-item-icon>
                   <v-list-item-content>
                     <v-list-item-title>
@@ -80,14 +80,14 @@
         <v-menu bottom left close-on-click close-on-content-click>
           <template v-slot:activator="{ on, attrs }">
             <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon>mdi-plus</v-icon>
+              <v-icon>{{ mdiPlus }}</v-icon>
             </v-btn>
           </template>
 
           <v-list color="grey-4" class="list--mouseright">
             <v-list-item class="min-height-0" @click="creatingProject = true">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-archive-outline</v-icon>
+                <v-icon>{{ mdiArchiveOutline }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title> {{ $t("New Project") }} </v-list-item-title>
@@ -96,19 +96,16 @@
 
             <v-list-item class="min-height-0" @click="importProjectFromZip">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-zip-box-outline</v-icon>
+                <v-icon>{{ mdiZipBoxOutline }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title> {{ $t("Import ZIP") }} </v-list-item-title>
               </v-list-item-content>
             </v-list-item>
             <v-divider />
-            <v-list-item
-              class="min-height-0"
-              @click="$router.push(`/?tab=1`)"
-            >
+            <v-list-item class="min-height-0" @click="$router.push(`/?tab=1`)">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-message-text-outline</v-icon>
+                <v-icon>{{ mdiMessageTextOutline }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title> {{ $t("Change Logs") }} </v-list-item-title>
@@ -116,7 +113,7 @@
             </v-list-item>
             <v-list-item class="min-height-0" @click="$router.push(`/`)">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>mdi-cube-outline</v-icon>
+                <v-icon>{{ mdiCubeOutline }}</v-icon>
               </v-list-item-icon>
               <v-list-item-content>
                 <v-list-item-title> {{ $t("View Labs") }} </v-list-item-title>
@@ -137,7 +134,7 @@
       <div class="navigation--toolbar">
         <div>
           <v-btn icon>
-            <v-icon>mdi-chevron-down</v-icon>
+            <v-icon>{{ mdiChevronDown }}</v-icon>
           </v-btn>
           <span class="app-title"> {{ $t("Project") }} </span>
         </div>
@@ -150,7 +147,7 @@
         class="py-1 grey-4 mx-3"
         hide-details
         close-on-click
-        append-icon="mdi-close"
+        :append-icon="mdiClose"
         v-if="search"
         v-model="keywordSearch"
       />
@@ -227,6 +224,19 @@ import { Toast } from "@capacitor/toast";
 import GitProvide from "@/components/Git/ModalGitProvide.vue";
 import GitClone from "@/components/Git/ModalGitClone.vue";
 import { basename } from "path";
+import {
+  mdiChevronDown,
+  mdiMagnify,
+  mdiReload,
+  mdiGit,
+  mdiLockOutline,
+  mdiPlus,
+  mdiArchiveOutline,
+  mdiZipBoxOutline,
+  mdiMessageTextOutline,
+  mdiCubeOutline,
+  mdiClose,
+} from "@mdi/js";
 
 export default defineComponent({
   components: {
@@ -256,6 +266,18 @@ export default defineComponent({
     });
 
     return {
+      mdiChevronDown,
+      mdiMagnify,
+      mdiReload,
+      mdiGit,
+      mdiLockOutline,
+      mdiPlus,
+      mdiArchiveOutline,
+      mdiZipBoxOutline,
+      mdiMessageTextOutline,
+      mdiCubeOutline,
+      mdiClose,
+
       search,
 
       projects,

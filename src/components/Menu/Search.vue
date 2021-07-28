@@ -3,7 +3,7 @@
     <div class="navigation--toolbar grey-2">
       <div>
         <v-btn icon>
-          <v-icon>mdi-chevron-down</v-icon>
+          <v-icon>{{ mdiChevronDown }}</v-icon>
         </v-btn>
         <span class="app-title"> {{ $t("Find") }} </span>
       </div>
@@ -14,21 +14,21 @@
           :color="modeRegexp ? `blue` : undefined"
           @click="modeRegexp = !modeRegexp"
         >
-          <v-icon>mdi-regex</v-icon>
+          <v-icon>{{ mdiRegex }}</v-icon>
         </v-btn>
         <v-btn
           icon
           :color="modeLetterCase ? `blue` : undefined"
           @click="modeLetterCase = !modeLetterCase"
         >
-          <v-icon>mdi-format-letter-case</v-icon>
+          <v-icon>{{ mdiFormatLetterCase }}</v-icon>
         </v-btn>
         <v-btn
           icon
           :color="modeWordBox ? `blue` : undefined"
           @click="modeWordBox = !modeWordBox"
         >
-          <v-icon>mdi-file-word-box-outline</v-icon>
+          <v-icon>{{ mdiFileWordBoxOutline }}</v-icon>
         </v-btn>
       </div>
     </div>
@@ -37,9 +37,9 @@
       <div class="px-3 pt-3">
         <div class="d-flex align-center justify-space-between">
           <div class="ml-n2">
-            <v-icon size="20px" @click="openReplace = !openReplace">
-              mdi-chevron-right
-            </v-icon>
+            <v-icon size="20px" @click="openReplace = !openReplace">{{
+              mdiChevronRight
+            }}</v-icon>
           </div>
           <div class="fill-width">
             <v-text-field
@@ -65,13 +65,15 @@
                 size="16px"
                 @click="replaceAll"
                 v-ripple="false"
-                >mdi-check-all</v-icon
+                >{{ mdiCheckAll }}</v-icon
               >
             </div>
           </div>
         </div>
         <div class="text-right">
-          <v-icon @click="openRules = !openRules">mdi-dots-horizontal</v-icon>
+          <v-icon @click="openRules = !openRules">{{
+            mdiDotsHorizontal
+          }}</v-icon>
           <div class="text-left" v-if="openRules">
             <div>
               <small class="text-caption text--secondary">{{
@@ -128,7 +130,7 @@
               <div class="d-inline d-flex align-center order-0 text-truncate">
                 <span class="file--system__prepend">
                   <v-icon style="color: inherit">
-                    {{ state ? "mdi-chevron-down" : "mdi-chevron-right" }}
+                    {{ state ? mdiChevronDown : mdiChevronRight }}
                   </v-icon>
                 </span>
                 <span class="file--system__icon">
@@ -176,8 +178,10 @@
               >{{ match.lastValue }}
             </div>
 
-            <v-icon size="18px" @click.prevent.stop="replaceSearch(item, index)"
-              >mdi-check</v-icon
+            <v-icon
+              size="18px"
+              @click.prevent.stop="replaceSearch(item, index)"
+              >{{ mdiCheck }}</v-icon
             >
           </div>
         </App-Collapse>
@@ -199,6 +203,16 @@ import { join, basename } from "path";
 import escapeRegExp from "escape-string-regexp";
 import AppCollapse from "@/components/App/Collapse.vue";
 import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
+import {
+  mdiChevronDown,
+  mdiRegex,
+  mdiFormatLetterCase,
+  mdiFileWordBoxOutline,
+  mdiChevronRight,
+  mdiCheckAll,
+  mdiDotsHorizontal,
+  mdiCheck,
+} from "@mdi/js";
 
 interface Result {
   file: string;
@@ -336,6 +350,15 @@ export default defineComponent({
     // watch(keywordSearch, () => void search());
 
     return {
+      mdiChevronDown,
+      mdiRegex,
+      mdiFormatLetterCase,
+      mdiFileWordBoxOutline,
+      mdiChevronRight,
+      mdiCheckAll,
+      mdiDotsHorizontal,
+      mdiCheck,
+
       modeRegexp,
       modeLetterCase,
       modeWordBox,

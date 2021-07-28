@@ -11,11 +11,11 @@
           v-model="tab"
         >
           <v-tab class="primary--text">
-            <v-icon>mdi-cube-outline</v-icon>
+            <v-icon>{{ mdiCubeOutline }}</v-icon>
           </v-tab>
 
           <v-tab class="primary--text">
-            <v-icon>mdi-android-messages</v-icon>
+            <v-icon>{{ mdiAndroidMessages }}</v-icon>
           </v-tab>
         </v-tabs>
       </div>
@@ -44,6 +44,7 @@ import { defineComponent, ref } from "@vue/composition-api";
 import AppHammer from "@/components/App/Hammer.vue";
 import HomeLabs from "@/components/Home/Labs.vue";
 import HomeChangelog from "@/components/Home/Changelog.vue";
+import { mdiCubeOutline, mdiAndroidMessages } from "@mdi/js";
 
 export default defineComponent({
   components: {
@@ -53,6 +54,9 @@ export default defineComponent({
   },
   setup() {
     return {
+      mdiCubeOutline,
+      mdiAndroidMessages,
+
       tab: ref<number | null>(null),
     };
   },

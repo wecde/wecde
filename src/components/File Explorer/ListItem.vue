@@ -26,13 +26,13 @@
         <template v-slot:prepend>
           <span class="file--system__prepend" v-if="isFolder">
             <v-icon style="color: inherit">
-              {{ collapse ? "mdi-chevron-down" : "mdi-chevron-right" }}
+              {{ collapse ? mdiChevronDown : mdiChevronRight }}
             </v-icon>
           </span>
         </template>
 
         <template v-slot:append-text v-if="editing">
-          <v-icon size="1em" color="blue">mdi-circle-medium</v-icon>
+          <v-icon size="1em" color="blue">{{ mdiCircleMedium }}</v-icon>
         </template>
       </FileExplorer-Rename>
 
@@ -47,7 +47,7 @@
               width="32px"
               height="32px"
             >
-              <v-icon>mdi-dots-vertical</v-icon>
+              <v-icon>{{ mdiDotsVertical }}</v-icon>
             </v-btn>
           </template>
 
@@ -59,7 +59,7 @@
                 :disabled="notAllowPaste"
               >
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-content-paste</v-icon>
+                  <v-icon>{{ mdiContentPaste }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title> {{ $t("Paste") }} </v-list-item-title>
@@ -76,7 +76,7 @@
                 "
               >
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-file-outline</v-icon>
+                  <v-icon>{{ mdiFileOutline }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title> {{ $t("New File") }}</v-list-item-title>
@@ -90,7 +90,7 @@
                 "
               >
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-folder-outline</v-icon>
+                  <v-icon>{{ mdiFolderOutline }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>
@@ -102,7 +102,7 @@
                 <template v-slot:default="{ on }">
                   <v-list-item class="min-height-0" v-on="on">
                     <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                      <v-icon>mdi-download</v-icon>
+                      <v-icon>{{ mdiDownload }}</v-icon>
                     </v-list-item-icon>
                     <v-list-item-content>
                       <v-list-item-title>
@@ -117,7 +117,7 @@
             <template>
               <v-list-item class="min-height-0" @click="cut">
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-content-cut</v-icon>
+                  <v-icon>{{ mdiContentCut }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title> {{ $t("Cut") }} </v-list-item-title>
@@ -125,7 +125,7 @@
               </v-list-item>
               <v-list-item class="min-height-0" @click="copy">
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-content-copy</v-icon>
+                  <v-icon>{{ mdiContentCopy }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title> {{ $t("Copy") }} </v-list-item-title>
@@ -133,7 +133,7 @@
               </v-list-item>
               <v-list-item class="min-height-0" @click="renaming = true">
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-pen</v-icon>
+                  <v-icon>{{ mdiPen }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title> {{ $t("Rename") }} </v-list-item-title>
@@ -141,7 +141,7 @@
               </v-list-item>
               <v-list-item class="min-height-0" @click="remove">
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-delete-outline</v-icon>
+                  <v-icon>{{ mdiDeleteOutline }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title> {{ $t("Delete") }} </v-list-item-title>
@@ -149,7 +149,7 @@
               </v-list-item>
               <v-list-item class="min-height-0" @click="exportZip">
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>mdi-export-variant</v-icon>
+                  <v-icon>{{ mdiExportVariant }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
                   <v-list-item-title>
@@ -207,6 +207,21 @@ import type { ReaddirStatItem } from "@/modules/filesystem";
 import ImportFiles from "@/components/Import/Files.vue";
 import store from "@/store";
 import { basename } from "path";
+import {
+  mdiChevronDown,
+  mdiChevronRight,
+  mdiCircleMedium,
+  mdiDotsVertical,
+  mdiContentPaste,
+  mdiFileOutline,
+  mdiFolderOutline,
+  mdiDownload,
+  mdiContentCut,
+  mdiContentCopy,
+  mdiPen,
+  mdiDeleteOutline,
+  mdiExportVariant,
+} from "@mdi/js";
 
 export default defineComponent({
   components: {
@@ -269,6 +284,20 @@ export default defineComponent({
     });
 
     return {
+      mdiChevronDown,
+      mdiChevronRight,
+      mdiCircleMedium,
+      mdiDotsVertical,
+      mdiContentPaste,
+      mdiFileOutline,
+      mdiFolderOutline,
+      mdiDownload,
+      mdiContentCut,
+      mdiContentCopy,
+      mdiPen,
+      mdiDeleteOutline,
+      mdiExportVariant,
+
       collapse,
       renaming,
       adding,

@@ -18,7 +18,7 @@
           @touchstart="fixBlurEditor"
           @click="tab"
         >
-          <v-icon>mdi-keyboard-tab</v-icon>
+          <v-icon>{{ mdiKeyboardTab }}</v-icon>
         </div>
         <div
           class="item"
@@ -27,7 +27,7 @@
           @touchstart="fixBlurEditor"
           @click="cursorUp"
         >
-          <v-icon>mdi-chevron-up</v-icon>
+          <v-icon>{{ mdiChevronUp }}</v-icon>
         </div>
         <div
           class="item"
@@ -36,7 +36,7 @@
           @touchstart="fixBlurEditor"
           @click="cursorDown"
         >
-          <v-icon>mdi-chevron-down</v-icon>
+          <v-icon>{{ mdiChevronDown }}</v-icon>
         </div>
         <div
           class="item"
@@ -45,7 +45,7 @@
           @touchstart="fixBlurEditor"
           @click="cursorLeft"
         >
-          <v-icon>mdi-chevron-left</v-icon>
+          <v-icon>{{ mdiChevronLeft }}</v-icon>
         </div>
         <div
           class="item"
@@ -54,7 +54,7 @@
           @touchstart="fixBlurEditor"
           @click="cursorRight"
         >
-          <v-icon>mdi-chevron-right</v-icon>
+          <v-icon>{{ mdiChevronRight }}</v-icon>
         </div>
         <div
           class="item"
@@ -63,7 +63,7 @@
           @touchstart="fixBlurEditor"
           @click="openCommand"
         >
-          <v-icon>mdi-apple-keyboard-command</v-icon>
+          <v-icon>{{ mdiAppleKeyboardCommand }}</v-icon>
         </div>
         <div
           class="item"
@@ -72,7 +72,7 @@
           @touchstart="fixBlurEditor"
           @click="openBot"
         >
-          <v-icon>mdi-robot</v-icon>
+          <v-icon>{{ mdiRobot }}</v-icon>
         </div>
         <div
           class="item"
@@ -84,7 +84,7 @@
             'blue--text': isLock,
           }"
         >
-          <v-icon>mdi-lock-outline</v-icon>
+          <v-icon>{{ mdiLockOutline }}</v-icon>
         </div>
         <div
           class="item"
@@ -93,7 +93,7 @@
           @touchstart="fixBlurEditor"
           @click="toolsNext"
         >
-          <v-icon>mdi-chevron-double-right</v-icon>
+          <v-icon>{{ mdiChevronDoubleRight }}</v-icon>
         </div>
       </div>
       <div
@@ -107,7 +107,7 @@
           @touchstart="fixBlurEditor"
           @click="toolsPrev"
         >
-          <v-icon>mdi-chevron-double-left</v-icon>
+          <v-icon>{{ mdiChevronDoubleLeft }}</v-icon>
         </div>
         <div
           class="item"
@@ -116,7 +116,7 @@
           @touchstart="fixBlurEditor"
           @click="undo"
         >
-          <v-icon>mdi-undo-variant</v-icon>
+          <v-icon>{{ mdiUndoVariant }}</v-icon>
         </div>
         <div
           class="item"
@@ -125,7 +125,7 @@
           @touchstart="fixBlurEditor"
           @click="redo"
         >
-          <v-icon>mdi-redo-variant</v-icon>
+          <v-icon>{{ mdiRedoVariant }}</v-icon>
         </div>
         <div
           class="item"
@@ -134,7 +134,7 @@
           @touchstart="fixBlurEditor"
           @click="selectAll"
         >
-          <v-icon>mdi-select-all</v-icon>
+          <v-icon>{{ mdiSelectAll }}</v-icon>
         </div>
         <div
           class="item"
@@ -143,7 +143,7 @@
           @touchstart="fixBlurEditor"
           @click="copy"
         >
-          <v-icon>mdi-content-copy</v-icon>
+          <v-icon>{{ mdiContentCopy }}</v-icon>
         </div>
         <div
           class="item"
@@ -152,7 +152,7 @@
           @touchstart="fixBlurEditor"
           @click="cut"
         >
-          <v-icon>mdi-content-cut</v-icon>
+          <v-icon>{{ mdiContentCut }}</v-icon>
         </div>
         <div
           class="item"
@@ -161,7 +161,7 @@
           @touchstart="fixBlurEditor"
           @click="paste"
         >
-          <v-icon>mdi-content-paste</v-icon>
+          <v-icon>{{ mdiContentPaste }}</v-icon>
         </div>
         <v-menu
           content-class="menu-tools-addons"
@@ -180,7 +180,7 @@
               @mousedown="fixBlurEditor"
               @touchstart="fixBlurEditor"
             >
-              <v-icon v-bind="attrs">mdi-plus</v-icon>
+              <v-icon v-bind="attrs">{{ mdiPlus }}</v-icon>
             </div>
           </template>
 
@@ -198,8 +198,8 @@
                   }"
                   :disabled="supportFormat === false"
                 >
-                  <v-icon size="1em">mdi-format-align-right</v-icon>
-                  <span>Format</span>
+                  <v-icon size="1em">{{ mdiFormatAlignRight }}</v-icon>
+                  <span>{{ $t("Format") }}</span>
                 </div>
                 <div
                   class="item"
@@ -208,8 +208,8 @@
                   @touchstart="fixBlurEditor"
                   @click="findAll"
                 >
-                  <v-icon size="1em">mdi-magnify</v-icon>
-                  <span>Find All</span>
+                  <v-icon size="1em">{{ mdiMagnify }}</v-icon>
+                  <span>{{ $t("Find All") }}</span>
                 </div>
                 <div
                   class="item"
@@ -222,22 +222,22 @@
                   }"
                   :disabled="!!nextErrorer === false"
                 >
-                  <v-icon size="1em">mdi-chevron-down-circle-outline</v-icon>
-                  <span>Next Error</span>
+                  <v-icon size="1em">{{ mdiChevronDownCircleOutline }}</v-icon>
+                  <span>{{ $t("Next Error") }}</span>
                 </div>
               </v-flex>
               <v-flex>
                 <div class="item" v-ripple>
-                  <v-icon size="1em">mdi-lightning-bolt-outline</v-icon>
-                  <span>Definition</span>
+                  <v-icon size="1em">{{ mdiLightningBoltOutline }}</v-icon>
+                  <span>{{ $t("Definition") }}</span>
                 </div>
                 <div class="item" v-ripple>
-                  <v-icon size="1em">mdi-comment-processing-outline</v-icon>
-                  <span>Signature</span>
+                  <v-icon size="1em">{{ mdiCommentProcessingOutline }}</v-icon>
+                  <span>{{ $t("Signature") }}</span>
                 </div>
                 <div class="item" v-ripple>
-                  <v-icon size="1em">mdi-information-variant</v-icon>
-                  <span>Show Info</span>
+                  <v-icon size="1em">{{ mdiInformationVariant }}</v-icon>
+                  <span>{{ $t("Show Info") }}</span>
                 </div>
               </v-flex>
             </v-layout>
@@ -277,7 +277,31 @@ import store from "@/store";
 import { Clipboard } from "@capacitor/clipboard";
 import { extname } from "path";
 import { format, getSupportInfo } from "prettier";
-
+import {
+  mdiKeyboardTab,
+  mdiChevronUp,
+  mdiChevronDown,
+  mdiChevronLeft,
+  mdiChevronRight,
+  mdiAppleKeyboardCommand,
+  mdiRobot,
+  mdiLockOutline,
+  mdiChevronDoubleRight,
+  mdiChevronDoubleLeft,
+  mdiUndoVariant,
+  mdiRedoVariant,
+  mdiSelectAll,
+  mdiContentCopy,
+  mdiContentCut,
+  mdiContentPaste,
+  mdiPlus,
+  mdiFormatAlignRight,
+  mdiMagnify,
+  mdiChevronDownCircleOutline,
+  mdiLightningBoltOutline,
+  mdiCommentProcessingOutline,
+  mdiInformationVariant,
+} from "@mdi/js";
 // import standalone from "prettier/standalone";
 
 let prettierPlugins: any[];
@@ -524,6 +548,30 @@ export default defineComponent({
     onBeforeUnmount(() => void removeEditor());
 
     return {
+      mdiKeyboardTab,
+      mdiChevronUp,
+      mdiChevronDown,
+      mdiChevronLeft,
+      mdiChevronRight,
+      mdiAppleKeyboardCommand,
+      mdiRobot,
+      mdiLockOutline,
+      mdiChevronDoubleRight,
+      mdiChevronDoubleLeft,
+      mdiUndoVariant,
+      mdiRedoVariant,
+      mdiSelectAll,
+      mdiContentCopy,
+      mdiContentCut,
+      mdiContentPaste,
+      mdiPlus,
+      mdiFormatAlignRight,
+      mdiMagnify,
+      mdiChevronDownCircleOutline,
+      mdiLightningBoltOutline,
+      mdiCommentProcessingOutline,
+      mdiInformationVariant,
+
       $ace,
       EditorCode,
       isLock,

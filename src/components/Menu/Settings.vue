@@ -3,14 +3,14 @@
     <div class="navigation--toolbar grey-2">
       <div>
         <v-btn icon>
-          <v-icon>mdi-chevron-down</v-icon>
+          <v-icon>{{ mdiChevronDown }}</v-icon>
         </v-btn>
         <span class="app-title"> {{ $t("Settings") }} </span>
       </div>
 
       <div>
         <v-btn icon>
-          <v-icon>mdi-magnify</v-icon>
+          <v-icon>{{ mdiMagnify }}</v-icon>
         </v-btn>
       </div>
     </div>
@@ -20,9 +20,7 @@
         <App-Collapse eager class="list--group">
           <template v-slot:activator="{ on, state }">
             <div class="list-action" v-on="on">
-              <v-icon>{{
-                state ? "mdi-chevron-down" : "mdi-chevron-right"
-              }}</v-icon>
+              <v-icon>{{ state ? mdiChevronDown : mdiChevronRight }}</v-icon>
               {{ $t("GIT") }}
             </div>
           </template>
@@ -53,9 +51,7 @@
         >
           <template v-slot:activator="{ on, state }">
             <div class="list-action" v-on="on">
-              <v-icon>{{
-                state ? "mdi-chevron-down" : "mdi-chevron-right"
-              }}</v-icon>
+              <v-icon>{{ state ? mdiChevronDown : mdiChevronRight }}</v-icon>
               {{ $t(stateGroup.label) }}
             </div>
           </template>
@@ -144,9 +140,7 @@
           <App-Collapse eager class="list--group">
             <template v-slot:activator="{ on, state }">
               <div class="list-action" v-on="on">
-                <v-icon>{{
-                  state ? "mdi-chevron-down" : "mdi-chevron-right"
-                }}</v-icon>
+                <v-icon>{{ state ? mdiChevronDown : mdiChevronRight }}</v-icon>
                 {{ $t("About") }}
               </div>
             </template>
@@ -212,6 +206,7 @@ import AppCollapse from "@/components/App/Collapse.vue";
 import { Device } from "@capacitor/device";
 import filesize from "filesize";
 import GitProvide from "@/components/Git/ModalGitProvide.vue";
+import { mdiChevronDown, mdiMagnify, mdiChevronRight, mdiClose } from "@mdi/js";
 
 export default defineComponent({
   components: {
@@ -244,6 +239,11 @@ export default defineComponent({
     refreshInfoDevice();
 
     return {
+      mdiChevronDown,
+      mdiMagnify,
+      mdiChevronRight,
+      mdiClose,
+
       stateDescription,
       device,
       size: filesize.partial({

@@ -21,7 +21,7 @@
               color="rgb(183, 185, 195)"
               @click="dialog.value = false"
             >
-              <v-icon>mdi-close</v-icon>
+              <v-icon>{{ mdiClose }}</v-icon>
             </v-btn>
           </div>
         </div>
@@ -75,6 +75,7 @@
 import { defineComponent, ref, watch } from "@vue/composition-api";
 import { providersGIT } from "@/store/modules/settings";
 import $store from "@/store";
+import { mdiClose } from "@mdi/js";
 
 export default defineComponent({
   setup() {
@@ -98,6 +99,8 @@ export default defineComponent({
     );
 
     return {
+      mdiClose,
+
       providersGIT,
       provideSelected,
 

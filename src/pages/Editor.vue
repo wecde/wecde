@@ -24,14 +24,13 @@
             "
           />
           {{ basename(item) }}
-          <template v-if="isPlainText(item) === false">(read only)</template>
+          <!-- <template v-if="isPlainText(item) === false">(read only)</template> -->
           <v-icon
             size="inherit"
             class="times"
             @click.prevent.stop="$store.commit(`editor/removeSession`, index)"
+            >{{ mdiClose }}</v-icon
           >
-            mdi-close
-          </v-icon>
         </div>
       </div>
 
@@ -39,11 +38,11 @@
         <v-icon
           v-if="EditorCodeComponent && previewing === false"
           @click="toggleSearchAce"
-          >mdi-magnify</v-icon
+          >{{ mdiMagnify }}</v-icon
         >
 
         <v-icon v-if="EditorPreviewComponent" @click="preview">{{
-          previewing ? "mdi-pen" : "mdi-folder-image"
+          previewing ? mdiPen : mdiFolderImage
         }}</v-icon>
 
         <template>
@@ -57,9 +56,11 @@
             offset-y="10"
             v-if="serverStatus"
           >
-            <v-icon color="#0dbf7f" @click="openBrowser">mdi-play</v-icon>
+            <v-icon color="#0dbf7f" @click="openBrowser">{{ mdiPlay }}</v-icon>
           </v-badge>
-          <v-icon color="#0dbf7f" @click="openBrowser" v-else>mdi-play</v-icon>
+          <v-icon color="#0dbf7f" @click="openBrowser" v-else>{{
+            mdiPlay
+          }}</v-icon>
         </template>
       </div>
     </App-Hammer>
@@ -130,6 +131,7 @@ import Preview from "@/components/Preview.vue";
 import EditorSVG from "@/components/Editor/SVG.vue";
 import EditorMarkdown from "@/components/Editor/Markdown.vue";
 import EditorCode from "@/components/Editor/Code.vue";
+import { mdiClose, mdiMagnify, mdiPen, mdiFolderImage, mdiPlay } from "@mdi/js";
 
 export default defineComponent({
   components: {
@@ -250,6 +252,12 @@ export default defineComponent({
     );
 
     return {
+      mdiClose,
+      mdiMagnify,
+      mdiPen,
+      mdiFolderImage,
+      mdiPlay,
+
       fullpath,
       serverStatus,
       port,

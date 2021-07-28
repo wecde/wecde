@@ -13,7 +13,7 @@
           </v-card-title>
           <div>
             <v-btn icon color="rgb(183, 185, 195)" @click="stateLocal = false">
-              <v-icon>mdi-close</v-icon>
+              <v-icon>{{ mdiClose }}</v-icon>
             </v-btn>
           </div>
         </div>
@@ -59,7 +59,7 @@
               {{ $t("Create") }}
             </v-btn>
             <v-btn icon color="rgb(183, 185, 195)" @click="stateLocal = false">
-              <v-icon>mdi-close</v-icon>
+              <v-icon>{{ mdiClose }}</v-icon>
             </v-btn>
           </div>
         </div>
@@ -115,6 +115,7 @@ import { unzip } from "@/modules/zip";
 import { mkdir } from "@/modules/filesystem";
 import { Toast } from "@capacitor/toast";
 import nameFileValidates from "@/validator/nameFileValidates";
+import { mdiClose } from "@mdi/js";
 
 export default defineComponent({
   props: {
@@ -136,6 +137,8 @@ export default defineComponent({
     const templateSelected = ref<Template | null>(null);
 
     return {
+      mdiClose,
+
       templates,
       templateSelected,
       error: nameFileValidates(

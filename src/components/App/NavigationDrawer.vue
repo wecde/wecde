@@ -20,16 +20,16 @@
         v-model="navigationTabs"
       >
         <v-tab>
-          <v-icon>mdi-archive-outline</v-icon>
+          <v-icon>{{ mdiArchiveOutline }}</v-icon>
         </v-tab>
         <v-tab>
-          <v-icon>mdi-file-multiple-outline</v-icon>
+          <v-icon>{{ mdiFileMultipleOutline }}</v-icon>
         </v-tab>
         <v-tab>
-          <v-icon>mdi-magnify</v-icon>
+          <v-icon>{{ mdiMagnify }}</v-icon>
         </v-tab>
         <v-tab>
-          <v-icon>mdi-cog-outline</v-icon>
+          <v-icon>{{ mdiCogOutline }}</v-icon>
         </v-tab>
       </v-tabs>
 
@@ -58,6 +58,12 @@ import MenuFiles from "@/components/Menu/Files.vue";
 import MenuSearch from "@/components/Menu/Search.vue";
 import MenuSettings from "@/components/Menu/Settings.vue";
 import store from "@/store";
+import {
+  mdiArchiveOutline,
+  mdiFileMultipleOutline,
+  mdiMagnify,
+  mdiCogOutline,
+} from "@mdi/js";
 
 export default defineComponent({
   components: {
@@ -68,6 +74,11 @@ export default defineComponent({
   },
   setup() {
     return {
+      mdiArchiveOutline,
+      mdiFileMultipleOutline,
+      mdiMagnify,
+      mdiCogOutline,
+
       navigationTabs: ref<number | null>(null),
       navigation: computed<boolean>({
         get() {
