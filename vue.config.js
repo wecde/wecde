@@ -1,5 +1,43 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { ESBuildMinifyPlugin } = require("esbuild-loader");
+
 module.exports = {
+  chainWebpack: (config) => {
+    const jsRule = config.module.rule("js");
+    jsRule.uses.clear();
+    jsRule
+      .use("esbuild-loader")
+      .loader("esbuild-loader")
+      .tap(() => {
+        return {
+          loader: "js",
+          target: "es2015",
+        };
+      })
+      .end();
+
+    const tsRule = config.module.rule("ts");
+    tsRule.uses.clear();
+    tsRule
+      .use("esbuild-loader")
+      .loader("esbuild-loader")
+      .tap(() => {
+        return {
+          loader: "ts",
+          target: "es2015",
+        };
+      })
+      .end();
+  },
   configureWebpack: {
+    optimization: {
+      minimizer: [
+        new ESBuildMinifyPlugin({
+          target: "es2015",
+          css: true,
+        }),
+      ],
+    },
     module: {
       rules: [
         {
@@ -32,8 +70,6 @@ module.exports = {
   },
 
   transpileDependencies: ["vuetify"],
-
-  productionSourceMap: process.env.NODE_ENV != "production",
 
   pwa: {
     manifestOptions: {
