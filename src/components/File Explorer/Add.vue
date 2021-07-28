@@ -102,7 +102,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
 @import "~@/sass/list-mouseright.scss";
 
 .file--system {

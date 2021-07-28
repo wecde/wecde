@@ -31,7 +31,13 @@
         </v-card-text>
         <v-card-actions class="justify-space-between">
           <v-btn text @click="dialog.value = false"> {{ $t("Cancel") }} </v-btn>
-          <v-btn text @click="cloneRepo">
+          <v-btn
+            text
+            @click="
+              dialog.value = false;
+              cloneRepo();
+            "
+          >
             {{ $t("OK") }}
           </v-btn>
         </v-card-actions>
@@ -72,7 +78,6 @@ export default defineComponent({
           }) as string,
         });
 
-        this.state = false;
         this.$emit("done");
 
         this.$store.commit("terminal/clear");

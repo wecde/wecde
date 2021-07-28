@@ -59,14 +59,6 @@
               <v-list-item-title> {{ $t("Rename") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item class="min-height-0">
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiExportVariant }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("Move to") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
           <v-list-item class="min-height-0" @click="$emit(`click:delete`)">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiDeleteOutline }}</v-icon>
@@ -144,7 +136,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
 @import "~@/sass/list-mouseright.scss";
 
 .list-project__item {

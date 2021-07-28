@@ -1,21 +1,8 @@
 <template>
-  <div class="fill-width fill-height">
-    <div class="navigation--toolbar grey-2">
-      <div>
-        <v-btn icon>
-          <v-icon>{{ mdiChevronDown }}</v-icon>
-        </v-btn>
-        <span class="app-title"> {{ $t("Settings") }} </span>
-      </div>
+  <Template-Tab>
+    <template v-slot:title>{{ $t("Settings") }}</template>
 
-      <div>
-        <v-btn icon>
-          <v-icon>{{ mdiMagnify }}</v-icon>
-        </v-btn>
-      </div>
-    </div>
-
-    <div class="fill-height overflow-y-scroll">
+    <template v-slot:contents>
       <div class="list">
         <App-Collapse eager class="list--group">
           <template v-slot:activator="{ on, state }">
@@ -135,86 +122,26 @@
             </div>
           </template>
         </App-Collapse>
-
-        <template v-if="device">
-          <App-Collapse eager class="list--group">
-            <template v-slot:activator="{ on, state }">
-              <div class="list-action" v-on="on">
-                <v-icon>{{ state ? mdiChevronDown : mdiChevronRight }}</v-icon>
-                {{ $t("About") }}
-              </div>
-            </template>
-            <div class="list-item">
-              <div class="left">{{ device.name || $t("Device") }}</div>
-              <div class="right">
-                <span class="primary--text"> {{ device.osVersion }} </span>
-              </div>
-            </div>
-            <div class="list-item">
-              <div class="left">{{ $t("Platform") }}</div>
-              <div class="right">{{ device.platform }}</div>
-            </div>
-            <div class="list-item">
-              <div class="left">{{ $t("OS") }}</div>
-              <div class="right">
-                {{ device.isVirtual ? "virtual ~ " : "" }}
-                {{ device.operatingSystem }} ({{ device.osVersion }})
-              </div>
-            </div>
-            <div class="list-item">
-              <div class="left">{{ $t("Manufacturer") }}</div>
-              <div class="right">{{ device.manufacturer }}</div>
-            </div>
-            <div class="list-item">
-              <div class="left">{{ $t("WebView Version") }}</div>
-              <div class="right">{{ device.webViewVersion }}</div>
-            </div>
-            <div class="list-item">
-              <div>{{ $t("Toggle Developer Tools") }}</div>
-              <div>
-                <span
-                  class="primary--text text-capitalize"
-                  style="cursor: pointer"
-                  @click="stateDevTools = !stateDevTools"
-                  >{{ stateDevTools ? $t("Hide") : $t("Open") }}</span
-                >
-              </div>
-            </div>
-          </App-Collapse>
-
-          <div
-            class="
-              list-item
-              text-caption text-center text-center
-              mt-3
-              d-block
-              text--secondary
-            "
-          >
-            {{ device.uuid.replace(/-/g, "") }}
-          </div>
-        </template>
       </div>
-    </div>
-  </div>
+    </template>
+  </Template-Tab>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "@vue/composition-api";
+import { defineComponent, computed } from "@vue/composition-api";
+import TemplateTab from "./template/Tab.vue";
 import { stateDescription } from "@/store/modules/settings";
 import AppCollapse from "@/components/App/Collapse.vue";
-import { Device } from "@capacitor/device";
-import filesize from "filesize";
 import GitProvide from "@/components/Git/ModalGitProvide.vue";
-import { mdiChevronDown, mdiMagnify, mdiChevronRight, mdiClose } from "@mdi/js";
+import { mdiChevronDown, mdiChevronRight, mdiClose } from "@mdi/js";
 
 export default defineComponent({
   components: {
+    TemplateTab,
     AppCollapse,
     GitProvide,
   },
   setup() {
-    const device = ref<null | any>(null);
     const stateDevTools = computed<boolean>({
       get() {
         return (self as any).__ERUDA__ || false;
@@ -224,31 +151,12 @@ export default defineComponent({
       },
     });
 
-    async function refreshInfoDevice() {
-      const [{ uuid }, info] = await Promise.all([
-        Device.getId(),
-        Device.getInfo(),
-      ]);
-
-      device.value = {
-        uuid,
-        ...info,
-      };
-    }
-
-    refreshInfoDevice();
-
     return {
       mdiChevronDown,
-      mdiMagnify,
       mdiChevronRight,
       mdiClose,
 
       stateDescription,
-      device,
-      size: filesize.partial({
-        standard: "iec",
-      }),
       stateDevTools,
     };
   },
@@ -256,8 +164,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
-
 select,
 input {
   margin: 0;
@@ -289,8 +195,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 input[type="date"] {
   padding-right: 0;
 }
-</style>
-<style lang="scss" scoped>
+
 .list {
   margin: 0 15px;
 

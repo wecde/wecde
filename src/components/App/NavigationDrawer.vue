@@ -48,6 +48,9 @@
           <Menu-Files />
         </v-tab-item>
         <v-tab-item>
+          <Menu-Git />
+        </v-tab-item>
+        <v-tab-item>
           <Menu-Search />
         </v-tab-item>
         <v-tab-item>
@@ -62,6 +65,7 @@
 import { defineComponent, ref, computed } from "@vue/composition-api";
 import MenuArchive from "@/components/Menu/Archive.vue";
 import MenuFiles from "@/components/Menu/Files.vue";
+import MenuGit from "@/components/Menu/Git.vue";
 import MenuSearch from "@/components/Menu/Search.vue";
 import MenuSettings from "@/components/Menu/Settings.vue";
 import store from "@/store";
@@ -77,6 +81,7 @@ export default defineComponent({
   components: {
     MenuArchive,
     MenuFiles,
+    MenuGit,
     MenuSearch,
     MenuSettings,
   },
@@ -109,7 +114,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
 @import "~@/sass/tabs-navigator.scss";
 
 .tabs {

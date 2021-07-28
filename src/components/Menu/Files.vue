@@ -1,163 +1,123 @@
 <template>
-  <div class="fill-width fill-height">
-    <div
-      class="
-        navigation--toolbar
-        grey-2
-        d-flex
-        align-center
-        justify-space-between
-        fill-width
-      "
-    >
-      <div class="d-flex align-center justify-space-between order-1">
-        <v-btn icon @click="search = !search" :color="search ? `blue` : null">
-          <v-icon>{{ mdiMagnify }}</v-icon>
-        </v-btn>
-        <v-btn icon @click="reloadListFile(true)">
-          <v-icon>{{ mdiReload }}</v-icon>
-        </v-btn>
+  <Template-Tab>
+    <template v-slot:title>{{ projectName }}</template>
 
-        <v-menu internal-activator bottom left>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon>{{ mdiPlus }}</v-icon>
-            </v-btn>
+    <template v-slot:addons>
+      <v-btn icon @click="reloadListFile(true)">
+        <v-icon>{{ mdiReload }}</v-icon>
+      </v-btn>
+
+      <v-menu internal-activator bottom left>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>{{ mdiPlus }}</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list color="grey-4" class="list--mouseright">
+          <template v-if="clipboardExists">
+            <v-list-item
+              class="min-height-0"
+              @click="paste"
+              :disabled="notAllowPaste"
+            >
+              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                <v-icon>{{ mdiContentPaste }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title> {{ $t("Paste") }} </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider />
           </template>
-
-          <v-list color="grey-4" class="list--mouseright">
-            <template v-if="clipboardExists">
-              <v-list-item
-                class="min-height-0"
-                @click="paste"
-                :disabled="notAllowPaste"
-              >
+          <v-list-item
+            class="min-height-0"
+            @click="
+              adding = true;
+              addingFolder = false;
+            "
+          >
+            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+              <v-icon>{{ mdiFileOutline }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title> {{ $t("New File") }} </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item
+            class="min-height-0"
+            @click="
+              adding = true;
+              addingFolder = true;
+            "
+          >
+            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+              <v-icon>{{ mdiFolderOutline }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title> {{ $t("New Folder") }} </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <Import-Files
+            :dirname="$store.state.editor.project"
+            @imported="reloadListFile"
+          >
+            <template v-slot:default="{ on }">
+              <v-list-item class="min-height-0" v-on="on">
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>{{ mdiContentPaste }}</v-icon>
+                  <v-icon>{{ mdiDownload }}</v-icon>
                 </v-list-item-icon>
                 <v-list-item-content>
-                  <v-list-item-title> {{ $t("Paste") }} </v-list-item-title>
+                  <v-list-item-title>
+                    {{ $t("Import Files") }}
+                  </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
-              <v-divider />
             </template>
-            <v-list-item
-              class="min-height-0"
-              @click="
-                adding = true;
-                addingFolder = false;
-              "
-            >
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiFileOutline }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("New File") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item
-              class="min-height-0"
-              @click="
-                adding = true;
-                addingFolder = true;
-              "
-            >
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiFolderOutline }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("New Folder") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <Import-Files
-              :dirname="$store.state.editor.project"
-              @imported="reloadListFile"
-            >
-              <template v-slot:default="{ on }">
-                <v-list-item class="min-height-0" v-on="on">
-                  <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                    <v-icon>{{ mdiDownload }}</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ $t("Import Files") }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </template>
-            </Import-Files>
-            <v-divider />
-            <v-list-item class="min-height-0">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiUndo }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("Undo") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item class="min-height-0">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiRedo }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("Redo") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-      </div>
+          </Import-Files>
+          <v-divider />
+          <v-list-item class="min-height-0">
+            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+              <v-icon>{{ mdiUndo }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title> {{ $t("Undo") }} </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="min-height-0">
+            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+              <v-icon>{{ mdiRedo }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title> {{ $t("Redo") }} </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-menu>
+    </template>
 
-      <div class="d-flex order-0 text-truncate">
-        <v-btn icon>
-          <v-icon>{{ mdiChevronDown }}</v-icon>
-        </v-btn>
-        <span class="app-title text-truncate">{{ projectName }}</span>
-      </div>
-    </div>
-
-    <div class="fill-height">
-      <v-text-field
-        placeholder="Search"
-        outline
-        rounded
-        class="py-1 grey-4 mx-2"
-        hide-details
-        close-on-click
-        :append-icon="mdiClose"
-        v-if="search"
+    <template v-slot:contents>
+      <FileExplorer-Add
+        :adding.sync="adding"
+        :is-folder="addingFolder"
+        :dirname="$store.state.editor.project"
+        @created="reloadListFile"
+        allow-open-editor
+        :names-exists="tree.map((item) => basename(item.fullpath))"
       />
-      <div
-        class="fill-height overflow-y-scroll"
-        style="padding-bottom: 150px"
-        v-if="tree"
-      >
-        <FileExplorer-Add
-          :adding.sync="adding"
-          :is-folder="addingFolder"
-          :dirname="$store.state.editor.project"
-          @created="reloadListFile"
-          allow-open-editor
-          :names-exists="tree.map((item) => basename(item.fullpath))"
-        />
 
-        <FileExplorer-List
-          :files-list="tree"
-          @removed-file="tree.splice($event, 1)"
-          @refresh="reloadListFile"
-        />
-      </div>
-    </div>
-  </div>
+      <FileExplorer-List
+        :files-list="tree"
+        @removed-file="tree.splice($event, 1)"
+        @refresh="reloadListFile"
+      />
+    </template>
+  </Template-Tab>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  computed,
-  // watch,
-  // onBeforeMount,
-} from "@vue/composition-api";
+import { defineComponent, ref, computed } from "@vue/composition-api";
+import TemplateTab from "./template/Tab.vue";
 import FileExplorerList from "@/components/File Explorer/List.vue";
 import FileExplorerAdd from "@/components/File Explorer/Add.vue";
 import { stat, readdirStat } from "@/modules/filesystem";
@@ -167,7 +127,6 @@ import { basename } from "path";
 import store from "@/store";
 import ImportFiles from "@/components/Import/Files.vue";
 import {
-  mdiMagnify,
   mdiReload,
   mdiPlus,
   mdiContentPaste,
@@ -182,12 +141,12 @@ import {
 
 export default defineComponent({
   components: {
+    TemplateTab,
     FileExplorerList,
     FileExplorerAdd,
     ImportFiles,
   },
   setup() {
-    const search = ref<boolean>(false);
     const adding = ref<boolean>(false);
     const addingFolder = ref<boolean>(false);
     const tree = ref<ReaddirStatItem[]>([]);
@@ -197,7 +156,6 @@ export default defineComponent({
     );
 
     return {
-      mdiMagnify,
       mdiReload,
       mdiPlus,
       mdiContentPaste,
@@ -209,7 +167,6 @@ export default defineComponent({
       mdiChevronDown,
       mdiClose,
 
-      search,
       adding,
       addingFolder,
       tree,
@@ -280,6 +237,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
 @import "~@/sass/list-mouseright.scss";
 </style>

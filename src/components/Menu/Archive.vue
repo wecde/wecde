@@ -1,170 +1,137 @@
 <template>
-  <div class="fill-width fill-height">
-    <div class="navigation--toolbar grey-2" style="z-index: 2">
-      <div>
-        <v-btn icon>
-          <v-icon>{{ mdiChevronDown }}</v-icon>
-        </v-btn>
-        <span class="app-title"> {{ $t("Project") }} </span>
-      </div>
+  <Template-Tab>
+    <template v-slot:title>{{ $t("Project") }}</template>
 
-      <div>
-        <v-btn icon @click="search = !search" :color="search ? `blue` : null">
-          <v-icon>{{ mdiMagnify }}</v-icon>
-        </v-btn>
-        <v-btn icon @click="reloadListProjects(true)">
-          <v-icon>{{ mdiReload }}</v-icon>
-        </v-btn>
+    <template v-slot:addons>
+      <v-btn icon @click="reloadListProjects(true)">
+        <v-icon>{{ mdiReload }}</v-icon>
+      </v-btn>
 
-        <v-menu
-          internal-activator
-          bottom
-          left
-          close-on-click
-          close-on-content-click
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon>{{ mdiGit }}</v-icon>
-            </v-btn>
-          </template>
-
-          <template v-slot="menu">
-            <v-list color="grey-4" class="list--mouseright">
-              <Git-Clone
-                @done="
-                  menu.value = false;
-                  reloadListProjects();
-                "
-              >
-                <v-list-item
-                  slot="activator"
-                  slot-scope="{ on, attr }"
-                  v-on="on"
-                  v-bind="attr"
-                  class="min-height-0"
-                >
-                  <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                    <v-icon>{{ mdiGit }}</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>{{
-                      $t("Clone Repo")
-                    }}</v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </Git-Clone>
-
-              <Git-Provide>
-                <v-list-item
-                  slot="activator"
-                  slot-scope="{ on, attr }"
-                  v-on="on"
-                  v-bind="attr"
-                  class="min-height-0"
-                >
-                  <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                    <v-icon>{{ mdiLockOutline }}</v-icon>
-                  </v-list-item-icon>
-                  <v-list-item-content>
-                    <v-list-item-title>
-                      {{ $t("Credentials") }}
-                    </v-list-item-title>
-                  </v-list-item-content>
-                </v-list-item>
-              </Git-Provide>
-            </v-list>
-          </template>
-        </v-menu>
-
-        <v-menu bottom left close-on-click close-on-content-click>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn icon v-bind="attrs" v-on="on">
-              <v-icon>{{ mdiPlus }}</v-icon>
-            </v-btn>
-          </template>
-
-          <v-list color="grey-4" class="list--mouseright">
-            <v-list-item class="min-height-0" @click="creatingProject = true">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiArchiveOutline }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("New Project") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-
-            <v-list-item class="min-height-0" @click="importProjectFromZip">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiZipBoxOutline }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("Import ZIP") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider />
-            <v-list-item class="min-height-0" @click="$router.push(`/?tab=1`)">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiMessageTextOutline }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("Change Logs") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item class="min-height-0" @click="$router.push(`/`)">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiCubeOutline }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("View Labs") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </v-menu>
-
-        <Project-Create
-          v-model="creatingProject"
-          @created="reloadListProjects"
-          :names-exists="projects.map((item) => basename(item.fullpath))"
-        />
-      </div>
-    </div>
-
-    <div class="fill-height">
-      <div class="navigation--toolbar">
-        <div>
-          <v-btn icon>
-            <v-icon>{{ mdiChevronDown }}</v-icon>
-          </v-btn>
-          <span class="app-title"> {{ $t("Project") }} </span>
-        </div>
-      </div>
-
-      <v-text-field
-        placeholder="Search"
-        outline
-        rounded
-        class="py-1 grey-4 mx-3"
-        hide-details
+      <v-menu
+        internal-activator
+        bottom
+        left
         close-on-click
-        :append-icon="mdiClose"
-        v-if="search"
-        v-model="keywordSearch"
-      />
+        close-on-content-click
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>{{ mdiGit }}</v-icon>
+          </v-btn>
+        </template>
 
-      <div class="fill-height overflow-y-scroll">
-        <v-list>
-          <Project-Item
-            v-for="item in projects"
-            :key="item.fullpath"
-            :project="item"
-            :names-exists="projects.map((item) => basename(item.fullpath))"
-            @click:delete="projectRemoving = item"
-            @click.native="$emit(`toFiles`)"
-          />
+        <template v-slot="menu">
+          <v-list color="grey-4" class="list--mouseright">
+            <Git-Clone
+              @done="
+                menu.value = false;
+                reloadListProjects();
+              "
+            >
+              <v-list-item
+                slot="activator"
+                slot-scope="{ on, attr }"
+                v-on="on"
+                v-bind="attr"
+                class="min-height-0"
+              >
+                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                  <v-icon>{{ mdiGit }}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </Git-Clone>
+
+            <Git-Provide>
+              <v-list-item
+                slot="activator"
+                slot-scope="{ on, attr }"
+                v-on="on"
+                v-bind="attr"
+                class="min-height-0"
+              >
+                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                  <v-icon>{{ mdiLockOutline }}</v-icon>
+                </v-list-item-icon>
+                <v-list-item-content>
+                  <v-list-item-title>
+                    {{ $t("Credentials") }}
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+            </Git-Provide>
+          </v-list>
+        </template>
+      </v-menu>
+
+      <v-menu bottom left close-on-click close-on-content-click>
+        <template v-slot:activator="{ on, attrs }">
+          <v-btn icon v-bind="attrs" v-on="on">
+            <v-icon>{{ mdiPlus }}</v-icon>
+          </v-btn>
+        </template>
+
+        <v-list color="grey-4" class="list--mouseright">
+          <v-list-item class="min-height-0" @click="creatingProject = true">
+            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+              <v-icon>{{ mdiArchiveOutline }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title> {{ $t("New Project") }} </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+
+          <v-list-item class="min-height-0" @click="importProjectFromZip">
+            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+              <v-icon>{{ mdiZipBoxOutline }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title> {{ $t("Import ZIP") }} </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-divider />
+          <v-list-item class="min-height-0" @click="$router.push(`/?tab=1`)">
+            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+              <v-icon>{{ mdiMessageTextOutline }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title> {{ $t("Change Logs") }} </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item class="min-height-0" @click="$router.push(`/`)">
+            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+              <v-icon>{{ mdiCubeOutline }}</v-icon>
+            </v-list-item-icon>
+            <v-list-item-content>
+              <v-list-item-title> {{ $t("View Labs") }} </v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
         </v-list>
-      </div>
+      </v-menu>
 
+      <Project-Create
+        v-model="creatingProject"
+        @created="reloadListProjects"
+        :names-exists="projects.map((item) => basename(item.fullpath))"
+      />
+    </template>
+
+    <template v-slot:contents>
+      <v-list color="transparent">
+        <Project-Item
+          v-for="item in projects"
+          :key="item.fullpath"
+          :project="item"
+          :names-exists="projects.map((item) => basename(item.fullpath))"
+          @click:delete="projectRemoving = item"
+          @click.native="$emit(`toFiles`)"
+        />
+      </v-list>
+    </template>
+
+    <template v-slot:others>
       <v-dialog
         transition="dialog-top-transition"
         max-width="600"
@@ -208,12 +175,13 @@
           </div>
         </v-card>
       </v-dialog>
-    </div>
-  </div>
+    </template>
+  </Template-Tab>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "@vue/composition-api";
+import TemplateTab from "./template/Tab.vue";
 import { readdirStat, rmdir } from "@/modules/filesystem";
 import type { ReaddirStatItem } from "@/modules/filesystem";
 import ProjectItem from "@/components/Project/Item.vue";
@@ -225,8 +193,6 @@ import GitProvide from "@/components/Git/ModalGitProvide.vue";
 import GitClone from "@/components/Git/ModalGitClone.vue";
 import { basename } from "path";
 import {
-  mdiChevronDown,
-  mdiMagnify,
   mdiReload,
   mdiGit,
   mdiLockOutline,
@@ -240,19 +206,18 @@ import {
 
 export default defineComponent({
   components: {
+    TemplateTab,
     ProjectItem,
     ProjectCreate,
     GitProvide,
     GitClone,
   },
   setup() {
-    const search = ref<boolean>(false);
     const projects = ref<ReaddirStatItem[]>([]);
     const creatingProject = ref<boolean>(false);
     const projectRemoving = ref<null | ReaddirStatItem>(null);
     const code = ref<null | string>(null);
     const codeInput = ref<null | string>(null);
-    const keywordSearch = ref<string>("");
 
     watch(projectRemoving, (newValue) => {
       if (newValue) {
@@ -266,8 +231,6 @@ export default defineComponent({
     });
 
     return {
-      mdiChevronDown,
-      mdiMagnify,
       mdiReload,
       mdiGit,
       mdiLockOutline,
@@ -278,8 +241,6 @@ export default defineComponent({
       mdiCubeOutline,
       mdiClose,
 
-      search,
-
       projects,
 
       creatingProject,
@@ -288,8 +249,6 @@ export default defineComponent({
 
       code,
       codeInput,
-
-      keywordSearch,
     };
   },
   async created() {
@@ -365,17 +324,5 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
 @import "~@/sass/list-mouseright.scss";
-</style>
-
-<style lang="scss">
-.dialog--remove-project {
-  height: 100%;
-  box-shadow: none;
-  > *:first-child {
-    box-shadow: 0px 11px 15px -7px rgb(0 0 0 / 20%),
-      0px 24px 38px 3px rgb(0 0 0 / 14%), 0px 9px 46px 8px rgb(0 0 0 / 12%);
-  }
-}
 </style>

@@ -1,10 +1,11 @@
 <template>
-  <v-dialog
-    max-width="600"
-    :value="lines.length > 0"
-    content-class="dialog--terminal"
-  >
-    <template>
+  <div>
+    <v-dialog
+      max-width="600"
+      :value="lines.length > 0"
+      content-class="dialog--terminal"
+      persistent
+    >
       <div class="terminal" ref="terminal">
         <div
           v-for="(line, index) in lines"
@@ -14,8 +15,14 @@
           {{ line.message }}
         </div>
       </div>
-    </template>
-  </v-dialog>
+    </v-dialog>
+    <div
+      class="disable-events"
+      v-if="lines.length > 0"
+      @click.prevent.stop="() => false"
+      @mousedown.prevent.stop="() => false"
+    />
+  </div>
 </template>
 
 <script lang="ts">
@@ -90,6 +97,15 @@ export default defineComponent({
       transform: translateY(10%);
     }
   }
+}
+
+.disable-events {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 9999999999;
 }
 </style>
 

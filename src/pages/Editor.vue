@@ -409,8 +409,6 @@ export default defineComponent({
 </style>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
-
 .buttons-task-bar {
   > * {
     margin-left: 8px;

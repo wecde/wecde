@@ -240,7 +240,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
 .webview--heads__btn {
   transition: top 0.33s ease, left 0.33s ease, opacity 0.33s ease-in-out;
 

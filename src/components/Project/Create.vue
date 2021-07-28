@@ -83,7 +83,7 @@
             class="list-templates__group-icons mt-1"
             v-if="templateSelected.icons"
           >
-            <v-img
+            <img
               width="56px"
               height="56px"
               v-for="(item, index) in templateSelected.icons"
@@ -93,7 +93,7 @@
                 }/${item}`)
               "
               :key="index"
-            ></v-img>
+            />
           </div>
         </v-card-text>
       </v-card>

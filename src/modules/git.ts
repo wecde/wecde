@@ -403,30 +403,30 @@ export async function has({ dir }: { dir: string }): Promise<boolean> {
   }
 }
 
-(async () => {
-  console.time("get list files");
-  const listFiles = await git.listFiles({
-    fs,
-    dir: "projects/fcanvas",
-  });
-  console.timeEnd("get list files");
+// (async () => {
+//   console.time("get list files");
+//   const listFiles = await git.listFiles({
+//     fs,
+//     dir: "projects/fcanvas",
+//   });
+//   console.timeEnd("get list files");
 
-  const statusMatrix = [];
-  const cache = Object.create(null);
+//   const statusMatrix = [];
+//   const cache = Object.create(null);
 
-  console.time("get status files");
-  for (const filepath of listFiles) {
-    statusMatrix.push({
-      filepath,
-      status: await git.status({
-        fs,
-        dir: "projects/fcanvas",
-        filepath,
-        cache,
-      }),
-    });
-  }
-  console.timeEnd("get status files");
+//   console.time("get status files");
+//   for (const filepath of listFiles) {
+//     statusMatrix.push({
+//       filepath,
+//       status: await git.status({
+//         fs,
+//         dir: "projects/fcanvas",
+//         filepath,
+//         cache,
+//       }),
+//     });
+//   }
+//   console.timeEnd("get status files");
 
-  console.log(statusMatrix);
-})();
+//   console.log(statusMatrix);
+// })();

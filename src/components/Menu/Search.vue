@@ -1,39 +1,32 @@
 <template>
-  <div class="fill-width fill-height">
-    <div class="navigation--toolbar grey-2">
-      <div>
-        <v-btn icon>
-          <v-icon>{{ mdiChevronDown }}</v-icon>
-        </v-btn>
-        <span class="app-title"> {{ $t("Find") }} </span>
-      </div>
+  <Template-Tab>
+    <template v-slot:title>{{ $t("Find") }}</template>
 
-      <div>
-        <v-btn
-          icon
-          :color="modeRegexp ? `blue` : undefined"
-          @click="modeRegexp = !modeRegexp"
-        >
-          <v-icon>{{ mdiRegex }}</v-icon>
-        </v-btn>
-        <v-btn
-          icon
-          :color="modeLetterCase ? `blue` : undefined"
-          @click="modeLetterCase = !modeLetterCase"
-        >
-          <v-icon>{{ mdiFormatLetterCase }}</v-icon>
-        </v-btn>
-        <v-btn
-          icon
-          :color="modeWordBox ? `blue` : undefined"
-          @click="modeWordBox = !modeWordBox"
-        >
-          <v-icon>{{ mdiFileWordBoxOutline }}</v-icon>
-        </v-btn>
-      </div>
-    </div>
+    <template v-slot:addons>
+      <v-btn
+        icon
+        :color="modeRegexp ? `blue` : undefined"
+        @click="modeRegexp = !modeRegexp"
+      >
+        <v-icon>{{ mdiRegex }}</v-icon>
+      </v-btn>
+      <v-btn
+        icon
+        :color="modeLetterCase ? `blue` : undefined"
+        @click="modeLetterCase = !modeLetterCase"
+      >
+        <v-icon>{{ mdiFormatLetterCase }}</v-icon>
+      </v-btn>
+      <v-btn
+        icon
+        :color="modeWordBox ? `blue` : undefined"
+        @click="modeWordBox = !modeWordBox"
+      >
+        <v-icon>{{ mdiFileWordBoxOutline }}</v-icon>
+      </v-btn>
+    </template>
 
-    <div class="fill-height d-flex flex-column main-search">
+    <template v-slot:contents>
       <div class="px-3 pt-3">
         <div class="d-flex align-center justify-space-between">
           <div class="ml-n2">
@@ -186,12 +179,13 @@
           </div>
         </App-Collapse>
       </div>
-    </div>
-  </div>
+    </template>
+  </Template-Tab>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, watch } from "@vue/composition-api";
+import TemplateTab from "./template/Tab.vue";
 import {
   foreach as foreachFiles,
   readFile,
@@ -227,6 +221,7 @@ interface Result {
 
 export default defineComponent({
   components: {
+    TemplateTab,
     AppCollapse,
   },
   setup() {
@@ -428,7 +423,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/global.scss";
 @import "~@/sass/list-mouseright.scss";
 @import "@/components/File Explorer/ListItem.scss";
 @import "@/components/File Explorer/Rename.scss";
@@ -445,9 +439,7 @@ export default defineComponent({
   justify-content: center;
 }
 
-.main-search::v-deep {
-  .v-input__slot {
-    padding: 0 18px !important;
-  }
+.v-input__slot {
+  padding: 0 18px !important;
 }
 </style>

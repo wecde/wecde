@@ -202,12 +202,6 @@ export default defineComponent({
   width: 100%;
 }
 
-.overflow-y-scroll {
-  overflow-y: scroll;
-
-  padding-bottom: 40px;
-}
-
 .fill-height {
   height: 100%;
 }
