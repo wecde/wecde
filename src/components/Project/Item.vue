@@ -4,27 +4,15 @@
     @click="$store.commit(`editor/setProject`, project.fullpath)"
   >
     <v-list-item-avatar size="40px">
-      <svg
-        id="image1"
-        class="uk-margin-small-right"
-        width="40"
-        height="40"
-        viewBox="0 0 40 40"
-        preserveAspectRatio="xMidYMid meet"
-      >
-        <path
-          fill="#e8c4ba"
-          d="M20 4L20 12L16 12ZM28 12L20 12L20 8ZM20 36L20 28L24 28ZM12 28L20 28L20 32ZM12 12L12 20L8 20ZM36 20L28 20L28 16ZM28 28L28 20L32 20ZM4 20L12 20L12 24Z"
-        ></path>
-        <path
-          fill="#a85238"
-          d="M8 4L12 8L8 12L4 8ZM36 8L32 12L28 8L32 4ZM32 36L28 32L32 28L36 32ZM4 32L8 28L12 32L8 36Z"
-        ></path>
-        <path
-          fill="#d18a75"
-          d="M20 12L20 18L16 12ZM28 20L22 20L28 16ZM20 28L20 22L24 28ZM12 20L18 20L12 24Z"
-        ></path>
-      </svg>
+      <img
+        :src="
+          require(`@/assets/extensions/material-icon-theme/icons/${
+            pathEquals(project.fullpath, $store.state.editor.project)
+              ? 'folder-project-open.svg'
+              : 'folder-project.svg'
+          }`)
+        "
+      />
     </v-list-item-avatar>
 
     <v-list-item-content>
@@ -100,6 +88,7 @@ import exportZip from "@/modules/export-zip";
 import { Toast } from "@capacitor/toast";
 import type { ReaddirStatItem } from "@/modules/filesystem";
 import { basename } from "path";
+import { pathEquals } from "@/utils";
 
 export default defineComponent({
   components: {
@@ -121,6 +110,7 @@ export default defineComponent({
     };
   },
   methods: {
+    pathEquals,
     async exportZip() {
       try {
         await exportZip(this.project.fullpath);
