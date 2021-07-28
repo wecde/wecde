@@ -15,6 +15,17 @@ export default function nameFileValidates(
     }
 
     if (
+      nameCheck.value.length > 255 ||
+      nameCheck.value.split("/").some((item) => {
+        if (navigator.userAgent.match(/window/)) {
+          if (/^(con|prn|aux|nul|com\d|lpt\d)$/i.test(item)) {
+            return true;
+          }
+        }
+
+        // eslint-disable-next-line no-control-regex
+        return /[<>:"/\\|?*\u0000-\u001F]/g.test(item);
+      }) ||
       namesExists.value.some(
         (name) =>
           name === nameCheck.value &&
@@ -23,7 +34,7 @@ export default function nameFileValidates(
     ) {
       return (
         i18n.t(
-          "A file or folder <strong>{name}</strong> already exists at this localtion. Please choose a different names",
+          "A file or folder <strong>{name}</strong> already exists at this localtion Please choose a different names",
           {
             name: nameCheck.value,
           }

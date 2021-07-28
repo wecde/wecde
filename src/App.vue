@@ -58,7 +58,7 @@
 import { defineComponent, computed, ref } from "@vue/composition-api";
 import AppNavigationDrawer from "@/components/App/NavigationDrawer.vue";
 import Terminal from "@/components/Terminal.vue";
-import { loadLanguageAsync } from "@/i18n";
+import i18n, { loadLanguageAsync } from "@/i18n";
 import store from "@/store";
 import { stat } from "@/modules/filesystem";
 import { Filesystem } from "@capacitor/filesystem";
@@ -70,7 +70,7 @@ const progress: {
   };
 }[] = [
   {
-    message: "Loading resources...",
+    message: i18n.t("Loading resources") as string,
     async handler() {
       if (document.readyState === "complete") {
         return true;
@@ -90,7 +90,7 @@ const progress: {
     },
   },
   {
-    message: "Checking last session...",
+    message: i18n.t("Checking last session") as string,
     async handler() {
       if (store.state.editor.project) {
         try {
@@ -106,7 +106,7 @@ const progress: {
     },
   },
   {
-    message: "Checking permissing storage...",
+    message: i18n.t("Checking permissing storage") as string,
     async handler() {
       if ((await Filesystem.checkPermissions()).publicStorage !== "granted") {
         await Filesystem.requestPermissions();

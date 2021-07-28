@@ -395,14 +395,6 @@ export async function status({
   });
 }
 
-export async function statusMatrix({ dir }: { dir: string }): Promise<any> {
-  return await git.statusMatrix({
-    fs,
-    dir,
-    cache: cache.statusMatrix,
-  });
-}
-
 export async function has({ dir }: { dir: string }): Promise<boolean> {
   try {
     return !!(await stat(join(dir, ".git")));
@@ -410,3 +402,31 @@ export async function has({ dir }: { dir: string }): Promise<boolean> {
     return false;
   }
 }
+
+(async () => {
+  console.time("get list files");
+  const listFiles = await git.listFiles({
+    fs,
+    dir: "projects/fcanvas",
+  });
+  console.timeEnd("get list files");
+
+  const statusMatrix = [];
+  const cache = Object.create(null);
+
+  console.time("get status files");
+  for (const filepath of listFiles) {
+    statusMatrix.push({
+      filepath,
+      status: await git.status({
+        fs,
+        dir: "projects/fcanvas",
+        filepath,
+        cache,
+      }),
+    });
+  }
+  console.timeEnd("get status files");
+
+  console.log(statusMatrix);
+})();

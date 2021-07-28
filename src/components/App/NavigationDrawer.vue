@@ -26,6 +26,9 @@
           <v-icon>{{ mdiFileMultipleOutline }}</v-icon>
         </v-tab>
         <v-tab>
+          <v-icon>{{ mdiGit }}</v-icon>
+        </v-tab>
+        <v-tab>
           <v-icon>{{ mdiMagnify }}</v-icon>
         </v-tab>
         <v-tab>
@@ -33,7 +36,11 @@
         </v-tab>
       </v-tabs>
 
-      <v-tabs-items v-model="navigationTabs" class="fill-width fill-height">
+      <v-tabs-items
+        v-model="navigationTabs"
+        touchless
+        class="fill-width fill-height"
+      >
         <v-tab-item>
           <Menu-Archive @toFiles="navigationTabs = 1" />
         </v-tab-item>
@@ -61,6 +68,7 @@ import store from "@/store";
 import {
   mdiArchiveOutline,
   mdiFileMultipleOutline,
+  mdiGit,
   mdiMagnify,
   mdiCogOutline,
 } from "@mdi/js";
@@ -76,6 +84,7 @@ export default defineComponent({
     return {
       mdiArchiveOutline,
       mdiFileMultipleOutline,
+      mdiGit,
       mdiMagnify,
       mdiCogOutline,
 

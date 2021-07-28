@@ -31,16 +31,15 @@
             >
               <div>
                 <div class="list-templates__group-icons" v-if="template.icons">
-                  <v-img
+                  <img
                     width="56px"
                     height="56px"
-                    eager
                     v-for="(item, index) in template.icons"
                     :src="
                       require(`@/assets/templates/${template['directory-name']}/${item}`)
                     "
                     :key="index"
-                  ></v-img>
+                  />
                 </div>
 
                 <div class="label">{{ template.name }}</div>

@@ -147,7 +147,7 @@
   "files to include": "files to include",
   "files to exclude": "files to exclude",
   "A file or folder name must be provided": "A file or folder name must be provided.",
-  "A file or folder <strong>{name}</strong> already exists at this localtion. Please choose a different name": "A file or folder <strong>{name}</strong> already exists at this localtion. Please choose a different name.",
+  "A file or folder <strong>{name}</strong> already exists at this localtion Please choose a different name": "A file or folder <strong>{name}</strong> already exists at this localtion. Please choose a different name.",
   "Import File": "",
   "Imported file(s) {list}": "",
   "Imported project {list}": "",
@@ -155,5 +155,14 @@
   "Reload list projects": "",
   "Reload project": "",
   "Removed project {name}": "",
-  "Renamed project {old} to {new}": ""
+  "Renamed project {old} to {new}": "",
+  "Loading resources": "Loading resources...",
+  "Checking last session": "Checking last session...",
+  "Checking permissing storage": "Checking permissing storage...",
+  "Format": "Format",
+  "Find All": "Find All",
+  "Next Error": "Next Error",
+  "Definition": "Definition",
+  "Signature": "Signature",
+  "Show Info": "Show Info"
 }
