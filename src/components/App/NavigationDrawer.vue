@@ -114,8 +114,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/tabs-navigator.scss";
-
 .tabs {
   &::v-deep .v-tab--active {
     background-color: #424242;
@@ -133,6 +131,34 @@ export default defineComponent({
 
     .v-window-item {
       height: 100%;
+    }
+  }
+}
+</style>
+
+<style lang="scss" scoped>
+.tabs--navigation {
+  width: 100%;
+
+  &::v-deep {
+    .v-item-group {
+      width: 100%;
+    }
+
+    .v-slide-group__prev,
+    .v-slide-group__next {
+      display: none !important;
+    }
+
+    .v-slide-group__wrapper {
+      position: relative;
+      .v-slide-group__content {
+        width: 100%;
+        position: relative;
+        .v-tab {
+          min-width: 0px;
+        }
+      }
     }
   }
 }

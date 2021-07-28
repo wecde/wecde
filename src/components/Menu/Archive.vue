@@ -21,7 +21,7 @@
         </template>
 
         <template v-slot="menu">
-          <v-list color="grey-4" class="list--mouseright">
+          <v-list color="grey-4">
             <Git-Clone
               @done="
                 menu.value = false;
@@ -33,7 +33,6 @@
                 slot-scope="{ on, attr }"
                 v-on="on"
                 v-bind="attr"
-                class="min-height-0"
               >
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
                   <v-icon>{{ mdiGit }}</v-icon>
@@ -50,7 +49,6 @@
                 slot-scope="{ on, attr }"
                 v-on="on"
                 v-bind="attr"
-                class="min-height-0"
               >
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
                   <v-icon>{{ mdiLockOutline }}</v-icon>
@@ -73,8 +71,8 @@
           </v-btn>
         </template>
 
-        <v-list color="grey-4" class="list--mouseright">
-          <v-list-item class="min-height-0" @click="creatingProject = true">
+        <v-list color="grey-4">
+          <v-list-item @click="creatingProject = true">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiArchiveOutline }}</v-icon>
             </v-list-item-icon>
@@ -83,7 +81,7 @@
             </v-list-item-content>
           </v-list-item>
 
-          <v-list-item class="min-height-0" @click="importProjectFromZip">
+          <v-list-item @click="importProjectFromZip">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiZipBoxOutline }}</v-icon>
             </v-list-item-icon>
@@ -92,7 +90,7 @@
             </v-list-item-content>
           </v-list-item>
           <v-divider />
-          <v-list-item class="min-height-0" @click="$router.push(`/?tab=1`)">
+          <v-list-item @click="$router.push(`/?tab=1`)">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiMessageTextOutline }}</v-icon>
             </v-list-item-icon>
@@ -100,7 +98,7 @@
               <v-list-item-title> {{ $t("Change Logs") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item class="min-height-0" @click="$router.push(`/`)">
+          <v-list-item @click="$router.push(`/`)">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiCubeOutline }}</v-icon>
             </v-list-item-icon>
@@ -322,7 +320,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-@import "~@/sass/list-mouseright.scss";
-</style>

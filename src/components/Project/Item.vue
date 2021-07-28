@@ -42,8 +42,8 @@
           </v-btn>
         </template>
 
-        <v-list color="grey-4" class="list--mouseright">
-          <v-list-item class="min-height-0" @click="exportZip">
+        <v-list color="grey-4">
+          <v-list-item @click="exportZip">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiArchiveOutline }}</v-icon>
             </v-list-item-icon>
@@ -51,7 +51,7 @@
               <v-list-item-title> {{ $t("Export ZIP") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item class="min-height-0" @click="renaming = true" v-ripple>
+          <v-list-item @click="renaming = true" v-ripple>
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiPen }}</v-icon>
             </v-list-item-icon>
@@ -59,7 +59,7 @@
               <v-list-item-title> {{ $t("Rename") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item class="min-height-0" @click="$emit(`click:delete`)">
+          <v-list-item @click="$emit(`click:delete`)">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiDeleteOutline }}</v-icon>
             </v-list-item-icon>
@@ -136,8 +136,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/list-mouseright.scss";
-
 .list-project__item {
   &::v-deep {
     .v-list-item__content,

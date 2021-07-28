@@ -102,8 +102,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/list-mouseright.scss";
-
 .file--system {
   &__item {
     font-size: 16px;

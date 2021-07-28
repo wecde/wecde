@@ -423,7 +423,6 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "~@/sass/list-mouseright.scss";
 @import "@/components/File Explorer/ListItem.scss";
 @import "@/components/File Explorer/Rename.scss";
 

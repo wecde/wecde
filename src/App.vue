@@ -194,7 +194,7 @@ export default defineComponent({
   user-select: none;
 }
 
-.min-height-0 {
+.v-list-item {
   min-height: 0;
 }
 
@@ -204,6 +204,21 @@ export default defineComponent({
 
 .fill-height {
   height: 100%;
+}
+
+.v-list.v-sheet.theme--dark {
+  .v-icon,
+  .v-list-item__title {
+    color: #b9bbc1 !important;
+  }
+  .v-list-item--disabled .v-icon,
+  .v-list-item--disabled .v-list-item__title {
+    color: rgba($color: #b9bbc1, $alpha: 0.5) !important;
+  }
+  .v-list-item__title {
+    font-size: 15px !important;
+    font-weight: 400px !important;
+  }
 }
 
 * {

@@ -14,13 +14,9 @@
           </v-btn>
         </template>
 
-        <v-list color="grey-4" class="list--mouseright">
+        <v-list color="grey-4">
           <template v-if="clipboardExists">
-            <v-list-item
-              class="min-height-0"
-              @click="paste"
-              :disabled="notAllowPaste"
-            >
+            <v-list-item @click="paste" :disabled="notAllowPaste">
               <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
                 <v-icon>{{ mdiContentPaste }}</v-icon>
               </v-list-item-icon>
@@ -31,7 +27,6 @@
             <v-divider />
           </template>
           <v-list-item
-            class="min-height-0"
             @click="
               adding = true;
               addingFolder = false;
@@ -45,7 +40,6 @@
             </v-list-item-content>
           </v-list-item>
           <v-list-item
-            class="min-height-0"
             @click="
               adding = true;
               addingFolder = true;
@@ -63,7 +57,7 @@
             @imported="reloadListFile"
           >
             <template v-slot:default="{ on }">
-              <v-list-item class="min-height-0" v-on="on">
+              <v-list-item v-on="on">
                 <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
                   <v-icon>{{ mdiDownload }}</v-icon>
                 </v-list-item-icon>
@@ -76,7 +70,7 @@
             </template>
           </Import-Files>
           <v-divider />
-          <v-list-item class="min-height-0">
+          <v-list-item>
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiUndo }}</v-icon>
             </v-list-item-icon>
@@ -84,7 +78,7 @@
               <v-list-item-title> {{ $t("Undo") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item class="min-height-0">
+          <v-list-item>
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiRedo }}</v-icon>
             </v-list-item-icon>
@@ -235,7 +229,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-@import "~@/sass/list-mouseright.scss";
-</style>
