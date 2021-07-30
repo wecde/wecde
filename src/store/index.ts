@@ -11,6 +11,7 @@ import bookmarkLabs, {
   State as StateBookmarkLabs,
 } from "./modules/bookmark-labs";
 import clipboardFs, { State as StateClipboardFs } from "./modules/clipboard-fs";
+import gitProject, { State as StateGitProject } from "./modules/git-project";
 
 Vue.use(Vuex);
 
@@ -21,6 +22,7 @@ const store = new Vuex.Store<{
   terminal: StateTerminal;
   "bookmark-labs": StateBookmarkLabs;
   "clipboard-fs": StateClipboardFs;
+  "git-project": StateGitProject;
 }>({
   strict: process.env.NODE_ENV !== "production",
   modules: {
@@ -30,10 +32,20 @@ const store = new Vuex.Store<{
     terminal,
     "bookmark-labs": bookmarkLabs,
     "clipboard-fs": clipboardFs,
+    "git-project": gitProject,
   },
   plugins: [
     createPersistedState({
-      paths: ["settings", "system", "editor", "bookmark-labs"],
+      paths: [
+        "settings",
+        "system",
+        "editor.project",
+        "editor.sessions",
+        "editor.session",
+        "editor.historySession",
+        "scrollEnhance",
+        "bookmark-labs",
+      ],
     }),
   ],
 });

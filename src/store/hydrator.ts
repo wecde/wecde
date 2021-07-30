@@ -37,6 +37,13 @@ export default (store: any): void => {
       }
     }
   });
+  store.watch(
+    () => store.state.editor.project,
+    () => void store.dispatch("git-project/refresh"),
+    {
+      immediate: true,
+    }
+  );
 
   // ?? hydrator
 };

@@ -2,12 +2,9 @@ import { Module } from "vuex";
 
 export interface State {
   project: string | null;
-  statusMatrix: Array<[string, number, number, number]> | null;
   sessions: string[];
   session: number;
   historySession: number[];
-  floatingBrowserX: number | null;
-  floatingBrowserY: number | null;
   scrollEnhance: {
     [fullpath: string]: {
       x: number;
@@ -21,14 +18,10 @@ const store: Module<State, unknown> = {
   namespaced: true,
   state: {
     project: null,
-    statusMatrix: null,
 
     sessions: [],
     session: -1,
     historySession: [],
-
-    floatingBrowserX: null,
-    floatingBrowserY: null,
 
     scrollEnhance: {},
   },
@@ -99,13 +92,6 @@ const store: Module<State, unknown> = {
       }
     ): void {
       state.sessions.splice(index, 1, value);
-    },
-
-    setFloatingBrowserX(state, value: number): void {
-      state.floatingBrowserX = value;
-    },
-    setFloatingBrowserY(state, value: number): void {
-      state.floatingBrowserY = value;
     },
 
     setScrollEnhance(

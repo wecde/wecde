@@ -26,7 +26,26 @@
           <v-icon>{{ mdiFileMultipleOutline }}</v-icon>
         </v-tab>
         <v-tab>
-          <v-icon>{{ mdiGit }}</v-icon>
+          <v-badge
+            bordered
+            overlap
+            bottom
+            avatar
+            color="transparent"
+            v-if="$store.state['git-project'].isLoading"
+          >
+            <template v-slot:badge>
+              <v-icon
+                size="1em"
+                color="white"
+                class="blue"
+                style="border-radius: 50%; font-weight: bold"
+                >{{ mdiClockOutline }}</v-icon
+              >
+            </template>
+            <v-icon>{{ mdiGit }}</v-icon>
+          </v-badge>
+          <v-icon v-else>{{ mdiGit }}</v-icon>
         </v-tab>
         <v-tab>
           <v-icon>{{ mdiMagnify }}</v-icon>
@@ -73,6 +92,7 @@ import {
   mdiArchiveOutline,
   mdiFileMultipleOutline,
   mdiGit,
+  mdiClockOutline,
   mdiMagnify,
   mdiCogOutline,
 } from "@mdi/js";
@@ -90,6 +110,7 @@ export default defineComponent({
       mdiArchiveOutline,
       mdiFileMultipleOutline,
       mdiGit,
+      mdiClockOutline,
       mdiMagnify,
       mdiCogOutline,
 

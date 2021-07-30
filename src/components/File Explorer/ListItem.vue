@@ -3,8 +3,13 @@
     <div
       class="file--system__item"
       :class="{
-        'file--system-hidden': hidden || isBeginCut,
+        'file--system-hidden': gitStatus === `ignored` || isBeginCut,
         'file--system-folder': isFolder,
+        'file--system__changed': gitStatus === `*modified`,
+        'file--system__deleted':
+          gitStatus === `*deleted` || gitStatus === `*undeleted`,
+        'file--system__new': gitStatus === `*added`,
+        'file--system__loading': gitStatus === `loading`,
       }"
       v-ripple
       @click="clickToFile"
@@ -21,7 +26,7 @@
         v-model="file.fullpath"
         allow-rename
         allow-update-store
-        class="d-flex align-center file--system__rename"
+        class="d-flex align-center file--system__rename mr-2"
       >
         <template v-slot:prepend>
           <span class="file--system__prepend" v-if="isFolder">
@@ -216,6 +221,7 @@ import {
   mdiDeleteOutline,
   mdiExportVariant,
 } from "@mdi/js";
+import { join } from "path";
 
 export default defineComponent({
   components: {
@@ -407,6 +413,64 @@ export default defineComponent({
         this.$store.getters["clipboard-fs/allowPaste"](this.file.fullpath) ===
         false
       );
+    },
+    gitStatus(): string | void {
+      if (this.$store.state["git-project"].state !== "unready") {
+        if (this.isFolder) {
+          // const allStatus: {
+          //   [status: string]: number;
+          // } = {};
+
+          let added = false;
+          for (const fileTest in this.$store.state["git-project"]
+            .matrixStatus) {
+            if (
+              isParentFolder(
+                this.file.fullpath,
+                join(this.$store.state.editor.project, fileTest)
+              )
+            ) {
+              const status =
+                this.$store.state["git-project"].matrixStatus[fileTest];
+
+              if (status === "*modified") {
+                return "*modified";
+              }
+
+              if (status === "*added") {
+                added = true;
+              }
+
+              // if (status in allStatus) {
+              //   allStatus[status]++;
+              // } else {
+              //   allStatus[status] = 1;
+              // }
+            }
+
+            if (added) {
+              return "*added";
+            }
+          }
+          // return Object.entries(allStatus).sort((a, b) => b[1] - a[1])[0]?.[0];
+        } else {
+          for (const fileTest in this.$store.state["git-project"]
+            .matrixStatus) {
+            if (
+              pathEquals(
+                join(this.$store.state.editor.project, fileTest),
+                this.file.fullpath
+              )
+            ) {
+              return this.$store.state["git-project"].matrixStatus[fileTest];
+            }
+          }
+        }
+
+        if (this.$store.state["git-project"].isLoading) {
+          return "loading";
+        }
+      }
     },
   },
 });

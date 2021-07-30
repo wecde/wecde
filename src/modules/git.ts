@@ -14,8 +14,12 @@ import $store from "@/store";
 import { Toast } from "@capacitor/toast";
 import { StatResult } from "@capacitor/filesystem";
 import i18n from "@/i18n";
-import { join } from "path";
+import { join, relative } from "path";
 import { providersGIT } from "@/store/modules/settings";
+import type { Ignore } from "ignore";
+// import ignore from "ignore"
+// import parseIgnore from "parser-gitignore"
+
 const cache = {
   clone: {},
   commit: {},
@@ -383,15 +387,17 @@ export async function fetch({
 export async function status({
   dir,
   filepath,
+  cache,
 }: {
   dir: string;
   filepath: string;
+  cache?: any;
 }): Promise<string> {
   return await git.status({
     fs,
     dir,
     filepath,
-    cache: cache.status,
+    cache,
   });
 }
 
@@ -403,30 +409,86 @@ export async function has({ dir }: { dir: string }): Promise<boolean> {
   }
 }
 
-// (async () => {
-//   console.time("get list files");
-//   const listFiles = await git.listFiles({
-//     fs,
-//     dir: "projects/fcanvas",
-//   });
-//   console.timeEnd("get list files");
+export async function listFiles({
+  dir,
+  ref,
+}: {
+  dir: string;
+  ref?: string;
+}): Promise<string[]> {
+  return await git.listFiles({
+    fs,
+    dir,
+    ref,
+  });
+}
 
-//   const statusMatrix = [];
-//   const cache = Object.create(null);
+export async function statusMatrix({
+  dir,
+  ref,
+  cache,
+}: {
+  dir: string;
+  ref?: string;
+  cache?: any;
+}): Promise<[string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][]> {
+  return await git.statusMatrix({
+    fs,
+    dir,
+    ref,
+    cache,
+  });
+}
 
-//   console.time("get status files");
-//   for (const filepath of listFiles) {
-//     statusMatrix.push({
-//       filepath,
-//       status: await git.status({
-//         fs,
-//         dir: "projects/fcanvas",
-//         filepath,
-//         cache,
-//       }),
-//     });
-//   }
-//   console.timeEnd("get status files");
+export async function scanRepo({
+  dir,
+  ref,
+}: {
+  dir: string;
+  ref?: string;
+}): Promise<string[]> {
+  return await listFiles({ dir, ref });
+  // const cache = Object.create(null);
+  // const [lists, status] = await Promise.all([
+  //   await listFiles({ dir, ref }), // ? fast!
+  //   await (statusMatrix({ dir, ref, cache }).then((item) =>
+  //     item.map((item) => item[0])
+  //   ) as Promise<string[]>), // ! long.....
+  // ]);
 
-//   console.log(statusMatrix);
-// })();
+  // return new Set<string>([...lists, ...status].sort());
+}
+
+export async function scanDir(
+  dir: string,
+  ig: Ignore,
+  dirname: string
+): Promise<string[]> {
+  const files = ig
+    .filter(
+      (await readdir(dir)).map((item) => join(relative(dirname, dir), item))
+    )
+    .map((item) => {
+      return relative(relative(dirname, dir), item);
+    });
+
+  return (
+    await Promise.all(
+      files.map(async (item) => {
+        item = join(dir, item);
+
+        try {
+          const result = await scanDir(item, ig, dirname);
+
+          if (result.length === 0) {
+            throw new Error("DIR_EMPTY");
+          }
+
+          return result;
+        } catch {
+          return item;
+        }
+      })
+    )
+  ).flat(2);
+}

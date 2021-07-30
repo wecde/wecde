@@ -7,29 +7,47 @@ class Event<Events> {
   > = new Map();
 
   on(
-    name: Events,
+    name: Events | Events[],
     callback: {
       (...params: any[]): void;
     }
-  ): void {
-    if (this.store.has(name) === false) {
-      this.store.set(name, [callback]);
-    } else {
-      this.store.set(name, [...(this.store.get(name) || []), callback]);
+  ): {
+    (): void;
+  } {
+    if (Array.isArray(name) === false) {
+      name = [name as Events];
     }
+
+    (name as Events[]).forEach((item) => {
+      if (this.store.has(item) === false) {
+        this.store.set(item, [callback]);
+      } else {
+        this.store.set(item, [...(this.store.get(item) || []), callback]);
+      }
+    });
+
+    return () => {
+      this.off(name, callback);
+    };
   }
   off(
-    name: Events,
+    name: Events | Events[],
     callback: {
       (...params: any[]): void;
     }
   ): void {
-    if (this.store.has(name)) {
-      this.store.set(
-        name,
-        this.store.get(name)?.filter((item) => item !== callback) as any
-      );
+    if (Array.isArray(name) === false) {
+      name = [name as Events];
     }
+
+    (name as Events[]).forEach((item) => {
+      if (this.store.has(item)) {
+        this.store.set(
+          item,
+          this.store.get(item)?.filter((item) => item !== callback) as any
+        );
+      }
+    });
   }
   once(
     name: Events,

@@ -17,16 +17,18 @@ async function fixStartsWidth<T>(callback: { (): Promise<T> }): Promise<T> {
   return result;
 }
 
-export async function readdir(
+export function readdir(
   path: string,
   directory: Directory = Directory.Documents
 ): Promise<string[]> {
-  return (
-    await Filesystem.readdir({
+  return new Promise((resolve, reject) => {
+    Filesystem.readdir({
       path: join(PUBLIC_STORAGE_APPLICATION, path),
       directory,
     })
-  ).files;
+      .then(({ files }) => resolve(files))
+      .catch(() => void reject());
+  });
 }
 
 export async function mkdir(

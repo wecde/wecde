@@ -36,6 +36,7 @@ import "./webserver";
 
 Vue.use(VueCompositionAPI);
 Vue.config.productionTip = false;
+Vue.config.performance = true;
 
 (Vue.util as any).defineReactive(self, "__ERUDA__", false);
 
