@@ -59,6 +59,7 @@
         v-model="navigationTabs"
         touchless
         class="fill-width fill-height"
+        continuous
       >
         <v-tab-item>
           <Menu-Archive @toFiles="navigationTabs = 1" />

@@ -46,7 +46,7 @@
     "vue-property-decorator": "^9.1.2",
     "vue-router": "^3.5.2",
     "vue-timeago.js": "^0.0.1",
-    "vuetify": "^2.5.7",
+    "vuetify": "^2.5.8",
     "vuex": "^3.6.2",
     "vuex-persistedstate": "^4.0.0-beta.3"
   },

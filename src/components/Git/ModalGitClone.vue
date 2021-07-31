@@ -4,13 +4,9 @@
     max-width="600"
     top
     content-class="dialog--git-provid align-self-start"
-    v-model="state"
+    :value="value"
   >
-    <template v-slot:activator="{ on, attr }">
-      <slot name="activator" :on="on" :attr="attr" />
-    </template>
-
-    <template v-slot="dialog">
+    <template>
       <v-card dark>
         <div class="fill-width">
           <v-card-title class="text-body-1">
@@ -30,14 +26,10 @@
           />
         </v-card-text>
         <v-card-actions class="justify-space-between">
-          <v-btn text @click="dialog.value = false"> {{ $t("Cancel") }} </v-btn>
-          <v-btn
-            text
-            @click="
-              dialog.value = false;
-              cloneRepo();
-            "
-          >
+          <v-btn text @click="$emit(`input`, false)">
+            {{ $t("Cancel") }}
+          </v-btn>
+          <v-btn text @click="cloneRepo()">
             {{ $t("OK") }}
           </v-btn>
         </v-card-actions>
@@ -47,18 +39,32 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "@vue/composition-api";
+import { defineComponent, ref, watch } from "@vue/composition-api";
 import { clone } from "@/modules/git";
 import { Toast } from "@capacitor/toast";
 // import $store from "@/store";
 
 export default defineComponent({
-  setup() {
+  props: {
+    value: {
+      type: Boolean,
+      required: true,
+    },
+  },
+  setup(props) {
     const url = ref<string>("");
+
+    watch(
+      () => props.value,
+      (newValue) => {
+        if (newValue === true) {
+          url.value = "";
+        }
+      }
+    );
 
     return {
       url,
-      state: ref<boolean>(false),
     };
   },
   methods: {
@@ -89,6 +95,8 @@ export default defineComponent({
           }) as string,
         });
       }
+
+      this.$emit(`input`, false);
     },
   },
 });

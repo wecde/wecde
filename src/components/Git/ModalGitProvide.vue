@@ -4,12 +4,9 @@
     max-width="600"
     top
     content-class="dialog--git-provide"
+    :value="value"
   >
-    <template v-slot:activator="{ on, attr }">
-      <slot name="activator" :on="on" :attr="attr" />
-    </template>
-
-    <template v-slot="dialog">
+    <template>
       <v-card dark>
         <div class="d-flex justify-space-between align-center fill-width">
           <v-card-title class="text-body-1">
@@ -19,7 +16,7 @@
             <v-btn
               icon
               color="rgb(183, 185, 195)"
-              @click="dialog.value = false"
+              @click="$emit(`input`, false)"
             >
               <v-icon>{{ mdiClose }}</v-icon>
             </v-btn>
@@ -55,12 +52,14 @@
           />
         </v-card-text>
         <v-card-actions class="justify-space-between">
-          <v-btn text @click="dialog.value = false"> {{ $t("Cancel") }} </v-btn>
+          <v-btn text @click="$emit(`input`, false)">
+            {{ $t("Cancel") }}
+          </v-btn>
           <v-btn
             text
             @click="
               save();
-              dialog.value = false;
+              $emit(`input`, false);
             "
           >
             {{ $t("OK") }}
@@ -78,6 +77,12 @@ import $store from "@/store";
 import { mdiClose } from "@mdi/js";
 
 export default defineComponent({
+  props: {
+    value: {
+      type: Boolean,
+      required: true,
+    },
+  },
   setup() {
     const provideSelected = ref("github.com");
 

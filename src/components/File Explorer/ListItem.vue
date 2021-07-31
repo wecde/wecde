@@ -42,7 +42,7 @@
       </FileExplorer-Rename>
 
       <div class="file--system__more">
-        <v-menu internal-activator bottom left>
+        <v-menu internal-activator bottom left offset-y>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               icon

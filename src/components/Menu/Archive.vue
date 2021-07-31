@@ -13,6 +13,7 @@
         left
         close-on-click
         close-on-content-click
+        offset-y
       >
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon v-bind="attrs" v-on="on">
@@ -20,51 +21,31 @@
           </v-btn>
         </template>
 
-        <template v-slot="menu">
+        <template>
           <v-list color="grey-4">
-            <Git-Clone
-              @done="
-                menu.value = false;
-                reloadListProjects();
-              "
-            >
-              <v-list-item
-                slot="activator"
-                slot-scope="{ on, attr }"
-                v-on="on"
-                v-bind="attr"
-              >
-                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>{{ mdiGit }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </Git-Clone>
-
-            <Git-Provide>
-              <v-list-item
-                slot="activator"
-                slot-scope="{ on, attr }"
-                v-on="on"
-                v-bind="attr"
-              >
-                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>{{ mdiLockOutline }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $t("Credentials") }}
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
-            </Git-Provide>
+            <v-list-item @click="statePopupGitClone = true">
+              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                <v-icon>{{ mdiGit }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
+            <v-list-item @click="statePopupGitProvide = true">
+              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
+                <v-icon>{{ mdiLockOutline }}</v-icon>
+              </v-list-item-icon>
+              <v-list-item-content>
+                <v-list-item-title>
+                  {{ $t("Credentials") }}
+                </v-list-item-title>
+              </v-list-item-content>
+            </v-list-item>
           </v-list>
         </template>
       </v-menu>
 
-      <v-menu bottom left close-on-click close-on-content-click>
+      <v-menu bottom left close-on-click close-on-content-click offset-y>
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon v-bind="attrs" v-on="on">
             <v-icon>{{ mdiPlus }}</v-icon>
@@ -80,7 +61,6 @@
               <v-list-item-title> {{ $t("New Project") }} </v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-
           <v-list-item @click="importProjectFromZip">
             <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
               <v-icon>{{ mdiZipBoxOutline }}</v-icon>
@@ -108,12 +88,6 @@
           </v-list-item>
         </v-list>
       </v-menu>
-
-      <Project-Create
-        v-model="creatingProject"
-        @created="reloadListProjects"
-        :names-exists="projects.map((item) => basename(item.fullpath))"
-      />
     </template>
 
     <template v-slot:contents>
@@ -173,6 +147,20 @@
           </div>
         </v-card>
       </v-dialog>
+
+      <Git-Clone
+        v-model="statePopupGitClone"
+        @done="
+          statePopupGitClone = false;
+          reloadListProjects();
+        "
+      />
+      <Git-Provide v-model="statePopupGitProvide" />
+      <Project-Create
+        v-model="creatingProject"
+        @created="reloadListProjects"
+        :names-exists="projects.map((item) => basename(item.fullpath))"
+      />
     </template>
   </Template-Tab>
 </template>
@@ -247,6 +235,8 @@ export default defineComponent({
 
       code,
       codeInput,
+      statePopupGitClone: ref<boolean>(false),
+      statePopupGitProvide: ref<boolean>(false),
     };
   },
   async created() {
