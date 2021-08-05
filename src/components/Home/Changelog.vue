@@ -1,11 +1,12 @@
 <template>
-  <div v-html="changelog" />
+  <div v-html="changelog" class="markdown-preview" />
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/composition-api";
 import marked from "marked";
-import changelog from "raw-loader!@/assets/changelog.md";
+import { defineComponent } from "vue";
+
+import changelog from "!raw-loader!src/assets/changelog.md";
 
 export default defineComponent({
   setup() {
@@ -15,3 +16,10 @@ export default defineComponent({
   },
 });
 </script>
+
+<style lang="sass" scoped>
+.markdown-preview
+  all: revert
+  :deep(*)
+    all: revert
+</style>

@@ -1,41 +1,32 @@
 <template>
-  <div v-if="adding">
-    <div class="file--system__item">
-      <div class="d-flex align-center">
-        <FileExplorer-Rename
-          :is-folder="isFolder"
-          :renaming="adding"
-          @update:renaming="$emit(`update:adding`, $event)"
-          :names-exists="namesExists"
-          v-model="filename"
-          @cancel="filename = $event"
-          :dirname="dirname"
-          :allow-rename="false"
-          :no-icon="false"
-          :allow-update-store="false"
-          class="d-inline-flex"
-        />
-      </div>
-    </div>
+  <div class="file-object" v-show="adding">
+    <FileExplorer-Rename
+      :is-folder="isFolder"
+      :renaming="adding"
+      @update:renaming="$emit(`update:adding`, $event)"
+      :names-exists="namesExists"
+      v-model:fullpath="filename"
+      @cancel="filename = $event"
+      :dirname="dirname"
+      :allow-rename="false"
+      :no-icon="false"
+      :allow-update-store="false"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  PropType,
-  watch,
-  toRefs,
-} from "@vue/composition-api";
-import FileExplorerRename from "./Rename.vue";
-import { mkdir, writeFile } from "@/modules/filesystem";
 import { Toast } from "@capacitor/toast";
-import { join } from "path";
-import i18n from "@/i18n";
-import store from "@/store";
+import { join } from "path-cross";
+import { mkdir, writeFile } from "src/modules/filesystem";
+import { useStore } from "src/store";
+import { defineComponent, PropType, ref, toRefs, watch } from "vue";
+import { useI18n } from "vue-i18n";
+
+import FileExplorerRename from "./Rename.vue";
 
 export default defineComponent({
+  emits: ["update:adding", "created"],
   components: {
     FileExplorerRename,
   },
@@ -49,7 +40,7 @@ export default defineComponent({
       required: true,
     },
     namesExists: {
-      type: Array as PropType<string[]>,
+      type: Array as PropType<readonly string[]>,
       required: true,
     },
     dirname: {
@@ -62,6 +53,8 @@ export default defineComponent({
     },
   },
   setup(props, { emit }) {
+    const store = useStore();
+    const i18n = useI18n();
     const { adding, dirname, isFolder, allowOpenEditor } = toRefs(props);
     const filename = ref<string>("");
 
@@ -79,11 +72,11 @@ export default defineComponent({
           await writeFile(pathTo, "");
         }
 
-        Toast.show({
-          text: i18n.t("Created {type} {name}", {
-            type: i18n.t(isFolder.value ? "folder" : "file"),
+        void Toast.show({
+          text: i18n.rt("Created {type} {name}", {
+            type: i18n.rt(isFolder.value ? "folder" : "file"),
             name: pathTo,
-          }) as string,
+          }),
         });
 
         if (allowOpenEditor.value) {
@@ -102,77 +95,10 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.file--system {
-  &__item {
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    padding: 5px 13px 5px 10px;
-    color: #b9bbc1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    > div:last-child {
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-    }
-  }
+@import "./ListItem.scss";
 
-  &-hidden {
-    color: rgb(127, 127, 127) !important;
-  }
-
-  &__more::before {
-    font-size: 14px;
-  }
-
-  &__changed {
-    color: rgb(121, 184, 255);
-
-    .file--system__more::before {
-      content: "M";
-    }
-  }
-  &__new {
-    color: rgb(52, 208, 88);
-
-    .file--system__more::before {
-      content: "U";
-    }
-  }
-
-  &__changed.file--system-folder .file--system__more::before,
-  &__new.file--system-folder .file--system__more::before {
-    content: "";
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: currentColor;
-    opacity: 0.7;
-  }
-
-  &__prepend {
-    margin-right: 5px;
-  }
-  &__icon {
-    margin-right: 8px;
-
-    img {
-      width: 24px;
-      height: 24px;
-      margin: auto;
-      display: block;
-      object-fit: cover;
-      margin-top: 3px;
-    }
-  }
-  &__prepend,
-  &__icon {
-    font-size: 20px;
-    width: 1em;
-    height: 1em;
-    display: inline-block;
-  }
+.file-object {
+  @include file-object($enable-git: false);
+  margin-right: 32px;
 }
 </style>

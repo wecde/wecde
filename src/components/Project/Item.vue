@@ -1,101 +1,106 @@
 <template>
-  <v-list-item
-    class="list-project__item"
+  <q-item
+    clickable
+    v-ripple
     @click="$store.commit(`editor/setProject`, project.fullpath)"
   >
-    <v-list-item-avatar size="40px">
-      <img
+    <q-item-section avatar>
+      <q-img
         :src="
-          require(`@/assets/extensions/material-icon-theme/icons/${
+          require(`src/assets/extensions/material-icon-theme/icons/${
+            $store.state.editor.project &&
             pathEquals(project.fullpath, $store.state.editor.project)
               ? 'folder-project-open.svg'
               : 'folder-project.svg'
           }`)
         "
+        :size="40"
       />
-    </v-list-item-avatar>
-    <!-- -->
-    <v-list-item-content>
-      <v-list-item-title>
+    </q-item-section>
+
+    <q-item-section>
+      <q-item-label>
         <FileExplorer-Rename
-          :renaming.sync="renaming"
+          v-model:renaming="renaming"
           :is-folder="true"
           :names-exists="namesExists"
           dirname="projects"
-          v-model="project.fullpath"
+          v-model:fullpath="project.fullpath"
           no-icon
           allow-update-store
           :allow-rename="true"
         />
-      </v-list-item-title>
-      <v-list-item-subtitle style="font-size: 12px">
+      </q-item-label>
+      <q-item-label caption>
         {{ $t("Modified") }}
         <vue-timeagojs :time="new Date(project.stat.mtime)" />
-      </v-list-item-subtitle>
-    </v-list-item-content>
+      </q-item-label>
+    </q-item-section>
 
-    <v-list-item-action class="ml-0">
-      <v-menu internal-activator bottom left offset-y>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn dark icon v-bind="attrs" v-on="on">
-            <v-icon>{{ mdiDotsVertical }}</v-icon>
-          </v-btn>
-        </template>
-
-        <v-list color="grey-4">
-          <v-list-item @click="exportZip">
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiArchiveOutline }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("Export ZIP") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item @click="renaming = true" v-ripple>
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiPen }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("Rename") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item @click="$emit(`click:delete`)">
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiDeleteOutline }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("Delete") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-menu>
-    </v-list-item-action>
-  </v-list-item>
+    <q-item-section side top>
+      <q-btn :icon="mdiDotsVertical" flat round padding="none">
+        <q-menu
+          transition-show="jump-down"
+          transition-hide="jump-up"
+          anchor="bottom right"
+          self="top right"
+        >
+          <q-list bordered>
+            <q-item clickable v-close-popup v-ripple @click="exportZip">
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiArchiveOutline" />
+              </q-item-section>
+              <q-item-section>{{ $t("Export ZIP") }}</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup v-ripple @click="renaming = true">
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiPen" />
+              </q-item-section>
+              <q-item-section>{{ $t("Rename") }}</q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="$emit(`click:delete`)"
+            >
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiDeleteOutline" />
+              </q-item-section>
+              <q-item-section>{{ $t("Delete") }}</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
+    </q-item-section>
+  </q-item>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, PropType } from "@vue/composition-api";
-import FileExplorerRename from "../File Explorer/Rename.vue";
-import exportZip from "@/modules/export-zip";
 import { Toast } from "@capacitor/toast";
-import type { ReaddirStatItem } from "@/modules/filesystem";
-import { basename } from "path";
-import { pathEquals } from "@/utils";
 import {
-  mdiDotsVertical,
   mdiArchiveOutline,
-  mdiPen,
-  mdiExportVariant,
   mdiDeleteOutline,
-} from "@mdi/js";
+  mdiDotsVertical,
+  mdiExportVariant,
+  mdiPen,
+} from "@quasar/extras/mdi-v5";
+import { basename } from "path-cross";
+import exportZip from "src/modules/export-zip";
+import type { StatItem } from "src/modules/filesystem";
+import { pathEquals } from "src/utils";
+import { defineComponent, PropType, ref } from "vue";
+
+import FileExplorerRename from "../File Explorer/Rename.vue";
 
 export default defineComponent({
+  emits: ["click:delete"],
   components: {
     FileExplorerRename,
   },
   props: {
     project: {
-      type: Object as PropType<ReaddirStatItem>,
+      type: Object as PropType<StatItem>,
       required: true,
     },
     namesExists: {
@@ -121,11 +126,11 @@ export default defineComponent({
         await exportZip(this.project.fullpath);
         this.$store.commit("terminal/clear");
 
-        Toast.show({
-          text: this.$t("Exported {type} {name}", {
+        void Toast.show({
+          text: this.$rt("Exported {type} {name}", {
             type: this.$t("project"),
             name: basename(this.project.fullpath),
-          }) as string,
+          }),
         });
       } catch (err) {
         this.$store.commit("terminal/error", err);
@@ -134,14 +139,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.list-project__item {
-  &::v-deep {
-    .v-list-item__content,
-    .v-list-item__title {
-      overflow: visible !important;
-    }
-  }
-}
-</style>

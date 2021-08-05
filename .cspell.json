@@ -1,0 +1,31 @@
+{
+    "version": "0.1",
+    "$schema": "https://raw.githubusercontent.com/streetsidesoftware/cspell/master/cspell.schema.json",
+    "language": "en",
+    "flagWords": [],
+    "ignorePaths": [
+        "package.json",
+        "package-lock.json",
+        "yarn.lock",
+        "tsconfig.json",
+        "node_modules/**",
+        "quasar.conf.js"
+    ],
+    "words": [
+        "backboardd",
+        "Dreamweaver",
+        "espree",
+        "gruvbox",
+        "Katzen",
+        "Kuroir",
+        "merbivore",
+        "meriyah",
+        "nord",
+        "normalised",
+        "nosync",
+        "Oget",
+        "repos",
+        "sqlserver",
+        "Whitespaces"
+    ]
+}

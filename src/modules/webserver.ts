@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { IonicNativePlugin, cordova } from "@ionic-native/core";
+import { cordova, IonicNativePlugin } from "@ionic-native/core";
 
 class WebServerOriginal {
   public static readonly pluginName = "WebServer";
@@ -9,25 +10,26 @@ class WebServerOriginal {
     "https://github.com/nguyenthanh1995/cordova-plugin-webserver2.git";
   public static readonly platforms = ["Android", "iOS"];
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  start(...props: any[]): any {
-    return cordova(this, "start", { callbackOrder: "reverse" }, arguments);
+  // eslint-disable-next-line functional/functional-parameters
+  start(..._props: readonly any[]): any {
+    return cordova(this, "start", { callbackOrder: "reverse" }, [..._props]);
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  stop(...props: any[]): any {
-    return cordova(this, "stop", {}, arguments);
+  // eslint-disable-next-line functional/functional-parameters
+  stop(..._props: readonly any[]): any {
+    return cordova(this, "stop", {}, [..._props]);
   }
-  onRequest(): any {
+  // eslint-disable-next-line functional/functional-parameters
+  onRequest(..._props: readonly any[]): any {
     return cordova(
       this,
       "onRequest",
       { callbackOrder: "reverse", observable: true, clearFunction: "stop" },
-      arguments
+      [..._props]
     );
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  sendResponse(...props: any[]): any {
-    return cordova(this, "sendResponse", {}, arguments);
+  // eslint-disable-next-line functional/functional-parameters
+  sendResponse(..._props: readonly any[]): any {
+    return cordova(this, "sendResponse", {}, [..._props]);
   }
 }
 

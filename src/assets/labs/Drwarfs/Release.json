@@ -1,0 +1,11 @@
+{
+  "name": "Drwarfs",
+  "directory-name": "Drwarfs",
+  "images": [
+    "image_drwarfs.png"
+  ],
+  "isTemplate": true,
+  "MD5": "b318b67bfd4384fa7514b89df281418c",
+  "mtimeMs": 1627279245027.1252,
+  "description": "Incremental Game"
+}

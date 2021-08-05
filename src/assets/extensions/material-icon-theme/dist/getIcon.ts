@@ -1,11 +1,12 @@
-import * as MaterialIcons from "./material-icons.json";
-import { extname } from "@/utils";
-import { basename } from "path";
+import { basename } from "path-cross";
+import { extname } from "src/utils";
 
-function getIconById(id: string): string {
+import MaterialIcons from "./material-icons.json";
+
+function getIconById(id: keyof typeof MaterialIcons.iconDefinitions): string {
   return require(__dirname +
     "/../" +
-    MaterialIcons["iconDefinitions"][id].iconPath);
+    MaterialIcons.iconDefinitions[id].iconPath);
 }
 
 export default function getIcon({
@@ -15,12 +16,13 @@ export default function getIcon({
   name,
   language = "",
 }: {
-  light: boolean;
-  isOpen: boolean;
-  isFolder: boolean;
-  name: string;
-  language?: string;
+  readonly light: boolean;
+  readonly isOpen: boolean;
+  readonly isFolder: boolean;
+  readonly name: string;
+  readonly language?: string;
 }): string {
+  // eslint-disable-next-line functional/no-let
   let id;
   const ext = extname(name),
     ext2 = name.includes(".")
@@ -30,33 +32,59 @@ export default function getIcon({
   if (isFolder) {
     if (light) {
       if (isOpen) {
-        id = MaterialIcons.light.folderNamesExpanded[name];
+        id =
+          name in MaterialIcons.light.folderNamesExpanded
+            ? MaterialIcons.light.folderNamesExpanded[
+                name as keyof typeof MaterialIcons.light.folderNamesExpanded
+              ]
+            : undefined;
       }
 
-      id = id ?? MaterialIcons.light.folderNames[name];
+      id =
+        id ??
+        MaterialIcons.light.folderNamesExpanded[
+          name as keyof typeof MaterialIcons.light.folderNamesExpanded
+        ];
     }
 
     if (isOpen) {
-      id = MaterialIcons.folderNamesExpanded[name];
+      id =
+        MaterialIcons.folderNamesExpanded[
+          name as keyof typeof MaterialIcons.folderNamesExpanded
+        ];
     }
 
     id =
       id ??
-      MaterialIcons.folderNames[name] ??
-      MaterialIcons.languageIds[language] ??
+      MaterialIcons.folderNames[
+        name as keyof typeof MaterialIcons.folderNames
+      ] ??
+      MaterialIcons.languageIds[
+        language as keyof typeof MaterialIcons.languageIds
+      ] ??
       (isOpen ? "folder-open" : "folder");
   } else {
     if (light) {
       id =
-        MaterialIcons.light.fileNames[name] ??
-        MaterialIcons.light.fileExtensions[ext];
+        MaterialIcons.light.fileNames[
+          name as keyof typeof MaterialIcons.light.fileNames
+        ] ??
+        MaterialIcons.light.fileExtensions[
+          ext as keyof typeof MaterialIcons.light.fileExtensions
+        ];
     }
 
     id =
-      MaterialIcons.fileNames[name] ??
-      MaterialIcons.fileExtensions[ext2] ??
-      MaterialIcons.fileExtensions[ext] ??
-      MaterialIcons.languageIds[language] ??
+      MaterialIcons.fileNames[name as keyof typeof MaterialIcons.fileNames] ??
+      MaterialIcons.fileExtensions[
+        ext2 as keyof typeof MaterialIcons.fileExtensions
+      ] ??
+      MaterialIcons.fileExtensions[
+        ext as keyof typeof MaterialIcons.fileExtensions
+      ] ??
+      MaterialIcons.languageIds[
+        language as keyof typeof MaterialIcons.languageIds
+      ] ??
       (ext2 in MaterialIcons.iconDefinitions
         ? ext2
         : ext in MaterialIcons.iconDefinitions
@@ -65,5 +93,5 @@ export default function getIcon({
       "file";
   }
 
-  return getIconById(id);
+  return getIconById(id as keyof typeof MaterialIcons.iconDefinitions);
 }

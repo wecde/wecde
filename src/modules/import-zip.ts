@@ -1,16 +1,15 @@
+import { i18n } from "boot/i18n";
+import { join } from "path-cross";
+import { store } from "src/store";
+import { filename } from "src/utils";
+
 import selectFile, { fileToBuffer } from "./select-file";
-import { join } from "path";
 import { unzip } from "./zip";
-import { filename } from "@/utils";
-import store from "@/store";
-import i18n from "@/i18n";
-import { Directory } from "@capacitor/filesystem";
 
 export default async function importZip(
-  folderExtract: string,
-  directory?: Directory
-): Promise<string[]> {
-  store.commit("terminal/print", i18n.t("Import file(s)"));
+  folderExtract: string
+): Promise<readonly string[]> {
+  store.commit("terminal/print", i18n.global.rt("Import file(s)"));
   const files = await selectFile(".zip");
 
   if (files.length > 0) {
@@ -19,7 +18,6 @@ export default async function importZip(
         await unzip({
           file: await fileToBuffer(file),
           to: `${join(folderExtract, filename(file.name))}`,
-          directory,
         });
       })
     );

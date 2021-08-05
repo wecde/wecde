@@ -1,52 +1,68 @@
 <template>
-  <v-dialog
-    transition="dialog-top-transition"
-    max-width="600"
-    top
-    content-class="dialog--git-provid align-self-start"
-    :value="value"
+  <q-dialog
+    style="max-width: 600px"
+    class="inner-bottom-auto"
+    full-width
+    transition-show="jump-down"
+    transition-hide="jump-up"
+    :model-value="state"
+    @update:model-value="$emit('update:state', $event)"
   >
-    <template>
-      <v-card dark>
-        <div class="fill-width">
-          <v-card-title class="text-body-1">
-            {{ $t("Clone Repo") }}
-          </v-card-title>
+    <q-card>
+      <q-card-section class="row items-center q-pb-1 q-pt-2">
+        <div class="text-weight-medium text-subtitle1">
+          {{ $t("Clone Repo") }}
         </div>
-        <v-card-text>
-          <span class="blue--text">{{ $t("Set Credentials") }}</span>
-          {{ $t("to access Private Repository") }}
+        <q-space />
+        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+      </q-card-section>
 
-          <v-text-field
-            :placeholder="$t('URL (Start with https://)')"
-            hide-details
-            v-model="url"
-            required
-            @keypress.enter="cloneRepo"
-          />
-        </v-card-text>
-        <v-card-actions class="justify-space-between">
-          <v-btn text @click="$emit(`input`, false)">
-            {{ $t("Cancel") }}
-          </v-btn>
-          <v-btn text @click="cloneRepo()">
-            {{ $t("OK") }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </template>
-  </v-dialog>
+      <q-separator />
+
+      <q-card-section class="q-pt-2 q-pb-3">
+        <span class="text-blue text-weight-medium">{{
+          $t("Set Credentials")
+        }}</span>
+        {{ $t("to access Private Repository") }}
+
+        <q-input
+          dense
+          autofocus
+          :placeholder="$t('URL (Start with https://)')"
+          v-model.trim="url"
+          required
+          @keypress.enter="cloneRepo"
+          class="q-mt-2"
+        />
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat dense color="primary" v-close-popup :label="$t('Cancel')" />
+        <q-btn
+          flat
+          dense
+          color="primary"
+          @click="cloneRepo"
+          :label="$t('OK')"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "@vue/composition-api";
-import { clone } from "@/modules/git";
 import { Toast } from "@capacitor/toast";
-// import $store from "@/store";
+import { mdiClose } from "@quasar/extras/mdi-v5";
+import { stat } from "src/modules/filesystem";
+import { clone } from "src/modules/git";
+import { defineComponent, ref, watch } from "vue";
+
+// import $store from "src/store";
 
 export default defineComponent({
+  emits: ["update:state", "cloned"],
   props: {
-    value: {
+    state: {
       type: Boolean,
       required: true,
     },
@@ -55,7 +71,7 @@ export default defineComponent({
     const url = ref<string>("");
 
     watch(
-      () => props.value,
+      () => props.state,
       (newValue) => {
         if (newValue === true) {
           url.value = "";
@@ -64,46 +80,47 @@ export default defineComponent({
     );
 
     return {
+      mdiClose,
       url,
     };
   },
   methods: {
     async cloneRepo() {
       try {
-        const name = this.url.match(/([^/]+)(?:\.git)?$/)?.[1];
+        const name = /([^/]+)(?:\.git)?$/.exec(this.url)?.[1] || "";
 
+        if ((await stat(`projects/${name}`)).type === "directory") {
+          // eslint-disable-next-line functional/no-throw-statement
+          throw new Error("Project existst");
+        }
         await clone({
           dir: `projects/${name}`,
           url: this.url,
           ref: "master",
         });
 
-        Toast.show({
-          text: this.$t(`Clone repo {url} successfuly`, {
+        void Toast.show({
+          text: this.$rt("Clone repo {url} successfuly", {
             url: this.url,
-          }) as string,
+          }),
         });
 
-        this.$emit("done");
+        this.$emit("cloned");
 
         this.$store.commit("terminal/clear");
-      } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         this.$store.commit("terminal/error", err);
-        Toast.show({
-          text: this.$t(`Clone repo {url} failed`, {
+        void Toast.show({
+          text: this.$rt("Clone repo {url} failed: {message}", {
             url: this.url,
-          }) as string,
+            message: err.messaage,
+          }),
         });
       }
 
-      this.$emit(`input`, false);
+      this.$emit("update:state", false);
     },
   },
 });
 </script>
-
-<style lang="scss">
-.dialog--git-provide {
-  align-self: flex-start;
-}
-</style>

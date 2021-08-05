@@ -1,89 +1,81 @@
 <template>
-  <v-dialog
-    transition="dialog-top-transition"
-    max-width="600"
-    top
-    content-class="dialog--git-provide"
-    :value="value"
+  <q-dialog
+    style="max-width: 600px"
+    class="inner-bottom-auto"
+    full-width
+    transition-show="jump-down"
+    transition-hide="jump-up"
+    :model-value="state"
+    @update:model-value="$emit('update:state', $event)"
   >
-    <template>
-      <v-card dark>
-        <div class="d-flex justify-space-between align-center fill-width">
-          <v-card-title class="text-body-1">
-            {{ $t("Credentials") }}
-          </v-card-title>
-          <div>
-            <v-btn
-              icon
-              color="rgb(183, 185, 195)"
-              @click="$emit(`input`, false)"
-            >
-              <v-icon>{{ mdiClose }}</v-icon>
-            </v-btn>
-          </div>
+    <q-card>
+      <q-card-section class="row items-center q-pb-1 q-pt-2">
+        <div class="text-weight-medium text-subtitle1">
+          {{ $t("Credentials") }}
         </div>
-        <v-card-text>
-          <span style="color: #999">{{ $t("Provider") }}</span>
-          <select class="select--provide" v-model="provideSelected">
-            <option
-              v-for="(item, host) in $store.state.settings.git"
-              :key="host"
-              :value="host"
-            >
-              {{ getNameGIT(host + "") }}
-            </option>
-          </select>
+        <q-space />
+        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+      </q-card-section>
 
-          <v-text-field
-            :placeholder="$t('Username')"
-            hide-details
-            v-model="username"
-          />
-          <v-text-field
-            :placeholder="$t('Password')"
-            hide-details
-            v-model="password"
-          />
-          <v-text-field
-            :placeholder="$t('Email')"
-            type="email"
-            hide-details
-            v-model="email"
-          />
-        </v-card-text>
-        <v-card-actions class="justify-space-between">
-          <v-btn text @click="$emit(`input`, false)">
-            {{ $t("Cancel") }}
-          </v-btn>
-          <v-btn
-            text
-            @click="
-              save();
-              $emit(`input`, false);
+      <q-separator />
+
+      <q-card-section class="q-pt-2 q-pb-3">
+        <div class="flex no-wrap items-center">
+          <span class="text-weight-medium">{{ $t("Provider") }}</span>
+
+          <q-select
+            class="q-ml-4"
+            v-model="provideSelected"
+            :options="
+              Object.entries(providersGIT).map((item) => ({
+                label: item[1],
+                value: item[0],
+              }))
             "
-          >
-            {{ $t("OK") }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </template>
-  </v-dialog>
+            outline
+            dense
+            flat
+            map-options
+            emit-value
+          />
+        </div>
+
+        <q-input :placeholder="$t('Username')" dense v-model="username" />
+        <q-input :placeholder="$t('Password')" dense v-model="password" />
+        <q-input :placeholder="$t('Email')" dense v-model="email" />
+      </q-card-section>
+
+      <q-card-actions align="right">
+        <q-btn flat dense color="primary" :label="$t('Cancel')" v-close-popup />
+        <q-btn
+          flat
+          dense
+          color="primary"
+          :label="$t('OK')"
+          v-close-popup
+          @click="save"
+        />
+      </q-card-actions>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "@vue/composition-api";
-import { providersGIT } from "@/store/modules/settings";
-import $store from "@/store";
-import { mdiClose } from "@mdi/js";
+import { mdiClose } from "@quasar/extras/mdi-v5";
+import { useStore } from "src/store";
+import { providersGIT } from "src/store/settings/state";
+import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
+  emits: ["update:state"],
   props: {
-    value: {
+    state: {
       type: Boolean,
       required: true,
     },
   },
   setup() {
+    const store = useStore();
     const provideSelected = ref("github.com");
 
     const username = ref<string>("");
@@ -93,10 +85,11 @@ export default defineComponent({
     watch(
       provideSelected,
       (provide) => {
-        [username.value, password.value] = [
-          $store.state.settings["git__" + provide].username,
-          $store.state.settings["git__" + provide].secure,
-        ];
+        // [username.value, password.value] = [
+        //   (store.state.settings["git__" + provide] as GitInfo).username,
+        //   (store.state.settings["git__" + provide] as GitInfo).password,
+        // ];
+        console.log(provide);
       },
       {
         immediate: true,
@@ -114,48 +107,20 @@ export default defineComponent({
       password,
 
       save() {
-        $store.commit("settings/setState", {
+        store.commit("settings/setState", {
           prop: `git/${provideSelected.value}->username`,
           value: username.value,
         });
-        $store.commit("settings/setState", {
-          prop: `git/${provideSelected.value}->secure`,
+        store.commit("settings/setState", {
+          prop: `git/${provideSelected.value}->password`,
           value: password.value,
         });
-        $store.commit("settings/setState", {
+        store.commit("settings/setState", {
           prop: `git/${provideSelected.value}->email`,
           value: email.value,
         });
-      },
-
-      getNameGIT(host: string): string {
-        return (providersGIT as any)[host];
       },
     };
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.select--provide {
-  margin: 0;
-  border-radius: 0;
-  font: inherit;
-  vertical-align: middle;
-  outline: 0;
-  text-transform: none;
-  appearance: none;
-  margin-left: 16px !important;
-  user-select: none;
-  color: #5eaeff;
-  background: url("data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%2224%22%20height%3D%2212%22%20viewBox%3D%220%200%2020%2020%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%0A%20%20%20%20%3Cpolyline%20fill%3D%22none%22%20stroke%3D%22%23ccc%22%20stroke-width%3D%221.0%22%20points%3D%2216%207%2010%2013%204%207%22%20%2F%3E%0A%3C%2Fsvg%3E%0A")
-    no-repeat 100% 50%;
-  border: none;
-  padding: 0px;
-}
-</style>
-<style lang="scss">
-.dialog--git-provide {
-  align-self: flex-start;
-}
-</style>

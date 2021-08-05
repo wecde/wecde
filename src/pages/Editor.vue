@@ -1,137 +1,123 @@
 <template>
-  <div class="fill-height">
-    <App-Hammer>
-      <div class="session mr-2" ref="sessionWrapper">
-        <div
-          class="session--item"
-          v-for="(item, index) in $store.state.editor.sessions"
-          :key="item"
-          :class="{
-            active: index === $store.state.editor.session,
-          }"
-          v-ripple
-          @click="$store.commit(`editor/changeSession`, index)"
-        >
-          <img
-            :src="
-              getIcon({
-                light: false,
-                isOpen: false,
-                isFolder: false,
-                name: basename(item),
-                language: extname(item),
-              })
-            "
-          />
-          {{ basename(item) }}
-          <!-- <template v-if="isPlainText(item) === false">(read only)</template> -->
-          <v-icon
-            size="inherit"
-            class="times"
-            @click.prevent.stop="$store.commit(`editor/removeSession`, index)"
-            >{{ mdiClose }}</v-icon
-          >
-        </div>
+  <App-Hammer>
+    <div class="session mr-2" ref="sessionWrapper">
+      <div
+        class="session--item"
+        v-for="(item, index) in $store.state.editor.sessions"
+        :key="item"
+        :class="{
+          active: index === $store.state.editor.session,
+        }"
+        v-ripple
+        @click="$store.commit(`editor/changeSession`, index)"
+      >
+        <img
+          :src="
+            getIcon({
+              light: false,
+              isOpen: false,
+              isFolder: false,
+              name: basename(item),
+              language: extname(item),
+            })
+          "
+        />
+        {{ basename(item) }}
+        <!-- <template v-if="isPlainText(item) === false">(read only)</template> -->
+        <q-icon
+          class="times"
+          :name="mdiClose"
+          @click.prevent.stop="$store.commit(`editor/removeSession`, index)"
+        />
       </div>
-
-      <div class="buttons-task-bar">
-        <v-icon
-          v-if="EditorCodeComponent && previewing === false"
-          @click="toggleSearchAce"
-          >{{ mdiMagnify }}</v-icon
-        >
-
-        <v-icon v-if="EditorPreviewComponent" @click="preview">{{
-          previewing ? mdiPen : mdiFolderImage
-        }}</v-icon>
-
-        <template>
-          <v-badge
-            bordered
-            bottom
-            color="blue"
-            small
-            dot
-            offset-x="10"
-            offset-y="10"
-            v-if="serverStatus"
-          >
-            <v-icon color="#0dbf7f" @click="openBrowser">{{ mdiPlay }}</v-icon>
-          </v-badge>
-          <v-icon color="#0dbf7f" @click="openBrowser" v-else>{{
-            mdiPlay
-          }}</v-icon>
-        </template>
-      </div>
-    </App-Hammer>
-
-    <div class="editor dark">
-      <template v-if="fullpath && typeEditor">
-        <Preview
-          class="editor"
-          :fullpath="fullpath"
-          :type="typeEditor"
-          v-if="TypeSupportPreview.includes(typeEditor)"
-        />
-        <Editor-SVG
-          class="editor"
-          :fullpath="fullpath"
-          v-else-if="typeEditor === 'svg'"
-          @change="scrollSessionWrapperToSessionActive"
-          ref="editorComponent"
-        />
-        <Editor-Markdown
-          class="editor"
-          :fullpath="fullpath"
-          v-else-if="typeEditor === 'markdown'"
-          @change="scrollSessionWrapperToSessionActive"
-          ref="editorComponent"
-        />
-        <Editor-Code
-          class="editor"
-          :fullpath="fullpath"
-          v-else-if="plaintext"
-          @change="scrollSessionWrapperToSessionActive"
-          ref="editorComponent"
-        />
-        <div class="editor pt-4 text-caption px-6 pb-6" v-else>
-          This file is not displayed in the text editor because it is either
-          binary or uses an unsupported text encoding.
-        </div>
-      </template>
-      <template v-else>
-        <div class="editor pt-4 text-caption px-6 pb-6">
-          <img class="image-shallow" :src="require(`@/assets/favicon.svg`)" />
-        </div>
-      </template>
     </div>
+
+    <div class="buttons-task-bar">
+      <q-btn
+        flat
+        round
+        padding="none"
+        v-if="EditorCodeComponent && previewing === false"
+        @click="toggleSearchAce"
+        :icon="mdiMagnify"
+      />
+
+      <q-btn
+        flat
+        round
+        padding="none"
+        v-if="EditorPreviewComponent"
+        @click="preview"
+        :icon="previewing ? mdiPen : mdiFolderImage"
+      />
+
+      <q-btn flat round :icon="mdiPlay" padding="none">
+        <q-badge color="blue" floating v-if="serverStatus" />
+      </q-btn>
+    </div>
+  </App-Hammer>
+
+  <div class="absolute fit">
+    <template v-if="fullpath && typeEditor">
+      <Preview
+        :fullpath="fullpath"
+        :type="typeEditor"
+        v-if="TypeSupportPreview.includes(typeEditor)"
+      />
+      <Editor-SVG
+        :fullpath="fullpath"
+        v-else-if="typeEditor === 'svg'"
+        @change="scrollSessionWrapperToSessionActive"
+        ref="editorComponent"
+      />
+      <Editor-Markdown
+        :fullpath="fullpath"
+        v-else-if="typeEditor === 'markdown'"
+        @change="scrollSessionWrapperToSessionActive"
+        ref="editorComponent"
+      />
+      <Editor-Code
+        :fullpath="fullpath"
+        v-else-if="plaintext"
+        @change="scrollSessionWrapperToSessionActive"
+        ref="editorComponent"
+      />
+      <div class="q-pt-4 text-caption q-px-6 q-pb-6" v-else>
+        This file is not displayed in the text editor because it is either
+        binary or uses an unsupported text encoding.
+      </div>
+    </template>
+    <template v-else>
+      <div class="q-pt-4 text-caption q-px-6 q-pb-6">
+        <img class="image-shallow" :src="require('src/assets/favicon.svg')" />
+      </div>
+    </template>
   </div>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  watch,
-  computed,
-  onMounted,
-} from "@vue/composition-api";
-import AppHammer from "@/components/App/Hammer.vue";
-import { createTimeoutBy, extname } from "@/utils";
-import $store from "@/store";
-import i18n from "@/i18n";
-import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
-import { basename } from "path";
-import { WebServer } from "@/modules/webserver";
-import { Toast } from "@capacitor/toast";
-import Vue from "vue";
-import { isPlainText, getEditor } from "@/utils";
 import { Browser } from "@capacitor/browser";
-import Preview from "@/components/Preview.vue";
-import EditorSVG from "@/components/Editor/SVG.vue";
-import EditorMarkdown from "@/components/Editor/Markdown.vue";
-import EditorCode from "@/components/Editor/Code.vue";
-import { mdiClose, mdiMagnify, mdiPen, mdiFolderImage, mdiPlay } from "@mdi/js";
+import { Toast } from "@capacitor/toast";
+import {
+  mdiClose,
+  mdiFolderImage,
+  mdiMagnify,
+  mdiPen,
+  mdiPlay,
+} from "@quasar/extras/mdi-v5";
+import { basename } from "path-cross";
+import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
+import AppHammer from "src/components/App/Hammer.vue";
+import EditorCode from "src/components/Editor/Code.vue";
+import EditorMarkdown from "src/components/Editor/Markdown.vue";
+import EditorSVG from "src/components/Editor/SVG.vue";
+import Preview from "src/components/Preview.vue";
+import { WebServer } from "src/modules/webserver";
+import { useStore } from "src/store";
+import { createTimeoutBy, extname, getEditor, isPlainText } from "src/utils";
+import type { DefineComponent } from "vue";
+import { computed, defineComponent, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 export default defineComponent({
   components: {
@@ -142,49 +128,54 @@ export default defineComponent({
     EditorCode,
   },
   setup() {
+    const i18n = useI18n();
+    const store = useStore();
     const fullpath = computed<string | null>(
-      () => $store.getters["editor/session"]
+      () => store.getters["editor/session"] as string | null
     );
     const typeEditor = computed<string | null>(() =>
       fullpath.value ? getEditor(fullpath.value) || "text" : null
     );
 
-    const editorComponent = ref<Vue | null>(null);
+    const editorComponent = ref<DefineComponent | null>(null);
 
     const serverStatus = ref<boolean>(false);
-    const port = computed<string>(() => $store.state.settings.preview__port);
+    const port = computed<string>(
+      () => store.state.settings["preview**port"] as string
+    );
     const plaintext = computed<boolean>(() =>
       fullpath.value ? isPlainText(fullpath.value) : false
     );
 
     const sessionWrapper = ref<Element | null>(null);
 
+    // eslint-disable-next-line functional/no-let
     let isMounted = false;
 
     onMounted(() => void (isMounted = true));
 
     async function openWebView() {
       await Browser.open({
-        url: `http://localhost:${$store.state.settings.preview__port}`,
+        url: `http://localhost:${store.state.settings["preview**port"] as string}`,
         toolbarColor: "#212121",
         presentationStyle: "popover",
       });
     }
 
     async function startServer(port: string): Promise<void> {
-      await WebServer.start(port).catch((err: any) => console.log(err));
+      await WebServer.start(port).catch((err: unknown) => console.log(err));
 
-      Toast.show({
-        text: i18n.t(`WebServer started on port {port}`, {
+      void Toast.show({
+        text: i18n.rt("WebServer started on port {port}", {
           port,
-        }) as string,
+        }),
       });
     }
     async function stopServer() {
       await WebServer.stop();
 
-      Toast.show({
-        text: i18n.t(`WebServer closed`) as string,
+      void Toast.show({
+        text: i18n.rt("WebServer closed"),
       });
     }
     async function changePort(port: string): Promise<void> {
@@ -195,7 +186,7 @@ export default defineComponent({
     watch(serverStatus, async (newValue) => {
       try {
         if (newValue) {
-          await startServer($store.state.settings.preview__port);
+          await startServer(store.state.settings["preview**port"] as string);
           await openWebView();
         } else {
           await stopServer();
@@ -213,7 +204,7 @@ export default defineComponent({
     function openBrowser(): void {
       if (serverStatus.value) {
         try {
-          openWebView();
+          void openWebView();
         } catch (err) {
           console.error(err);
         }
@@ -271,9 +262,11 @@ export default defineComponent({
     };
   },
   computed: {
-    EditorCodeComponent(): Vue | null {
+    EditorCodeComponent(): DefineComponent | null {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/no-let
       let EditorCodeComponent: any = this.editorComponent;
 
+      // eslint-disable-next-line functional/no-loop-statement
       while (
         EditorCodeComponent &&
         EditorCodeComponent?.$options.name !== "Editor-Code"
@@ -285,9 +278,11 @@ export default defineComponent({
         ? EditorCodeComponent
         : null;
     },
-    EditorPreviewComponent(): Vue | null {
+    EditorPreviewComponent(): DefineComponent | null {
+      // eslint-disable-next-line functional/no-let, @typescript-eslint/no-explicit-any
       let EditorPreviewComponent: any = this.editorComponent;
 
+      // eslint-disable-next-line functional/no-loop-statement
       while (
         EditorPreviewComponent &&
         EditorPreviewComponent?.$options.name.startsWith("Editor-Preview-") ===
@@ -304,11 +299,13 @@ export default defineComponent({
       get(): boolean {
         return !!(
           this.EditorPreviewComponent &&
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (this.EditorPreviewComponent as any).previewing
         );
       },
       set(value: boolean): void {
         this.EditorPreviewComponent &&
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
           ((this.EditorPreviewComponent as any).previewing = value);
       },
     },
@@ -320,7 +317,8 @@ export default defineComponent({
     basename,
 
     toggleSearchAce(): void {
-      (this.EditorCodeComponent as any)?.$ace.value?.execCommand("find");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this.EditorCodeComponent as any)?.ace.value?.execCommand("find");
     },
     preview(): void {
       this.previewing = !this.previewing;
@@ -328,14 +326,6 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.editor {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-</style>
 
 <style lang="scss" scoped>
 .session {
@@ -406,9 +396,7 @@ export default defineComponent({
     }
   }
 }
-</style>
 
-<style lang="scss" scoped>
 .buttons-task-bar {
   > * {
     margin-left: 8px;

@@ -1,5 +1,5 @@
 <template>
-  <div class="d-flex align-center justify-center text-center px-3">
+  <div class="flex items-center justify-center text-center px-3">
     <img
       :src="`data:image/${ext};base64,${base64}`"
       :alt="basename(fullpath)"
@@ -35,16 +35,10 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  watch,
-  toRefs,
-  computed,
-} from "@vue/composition-api";
-import { readFile } from "@/modules/filesystem";
-import { extname } from "@/utils";
-import { basename } from "path";
+import { basename } from "path-cross";
+import { readFile } from "src/modules/filesystem";
+import { extname } from "src/utils";
+import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
   props: {

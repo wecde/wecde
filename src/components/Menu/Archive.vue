@@ -3,161 +3,180 @@
     <template v-slot:title>{{ $t("Project") }}</template>
 
     <template v-slot:addons>
-      <v-btn icon @click="reloadListProjects(true)">
-        <v-icon>{{ mdiReload }}</v-icon>
-      </v-btn>
-
-      <v-menu
-        internal-activator
-        bottom
-        left
-        close-on-click
-        close-on-content-click
-        offset-y
+      <q-btn
+        :icon="mdiReload"
+        @click="reloadListProjects(true)"
+        flat
+        round
+        padding="none"
+        size="1em"
+      />
+      <q-btn
+        :icon="mdiGit"
+        flat
+        round
+        padding="none"
+        size="1em"
+        class="q-ml-xs"
       >
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon v-bind="attrs" v-on="on">
-            <v-icon>{{ mdiGit }}</v-icon>
-          </v-btn>
-        </template>
+        <q-menu
+          transition-show="jump-down"
+          transition-hide="jump-up"
+          anchor="bottom right"
+          self="top right"
+        >
+          <q-list bordered>
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="statePopupGitClone = true"
+            >
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiGit" />
+              </q-item-section>
+              <q-item-section>{{ $t("Clone Repo") }}</q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="statePopupGitProvide = true"
+            >
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiLockOutline" />
+              </q-item-section>
+              <q-item-section>{{ $t("Credentials") }}</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
+      <q-btn
+        :icon="mdiPlus"
+        flat
+        round
+        padding="none"
+        size="1em"
+        class="q-ml-xs"
+      >
+        <q-menu
+          transition-show="jump-down"
+          transition-hide="jump-up"
+          anchor="bottom right"
+          self="top right"
+        >
+          <q-list bordered>
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="creatingProject = true"
+            >
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiArchiveOutline" />
+              </q-item-section>
+              <q-item-section>{{ $t("New Project") }}</q-item-section>
+            </q-item>
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="importProjectFromZip"
+            >
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiZipBoxOutline" />
+              </q-item-section>
+              <q-item-section>{{ $t("Import ZIP") }}</q-item-section>
+            </q-item>
 
-        <template>
-          <v-list color="grey-4">
-            <v-list-item @click="statePopupGitClone = true">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiGit }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>{{ $t("Clone Repo") }}</v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-list-item @click="statePopupGitProvide = true">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiLockOutline }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title>
-                  {{ $t("Credentials") }}
-                </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-          </v-list>
-        </template>
-      </v-menu>
+            <q-separator />
 
-      <v-menu bottom left close-on-click close-on-content-click offset-y>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon v-bind="attrs" v-on="on">
-            <v-icon>{{ mdiPlus }}</v-icon>
-          </v-btn>
-        </template>
-
-        <v-list color="grey-4">
-          <v-list-item @click="creatingProject = true">
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiArchiveOutline }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("New Project") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item @click="importProjectFromZip">
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiZipBoxOutline }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("Import ZIP") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-divider />
-          <v-list-item @click="$router.push(`/?tab=1`)">
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiMessageTextOutline }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("Change Logs") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item @click="$router.push(`/`)">
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiCubeOutline }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("View Labs") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="$router.push(`/?tab=1`)"
+            >
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiMessageTextOutline" />
+              </q-item-section>
+              <q-item-section>{{ $t("Change Logs") }}</q-item-section>
+            </q-item>
+            <q-item clickable v-close-popup v-ripple @click="$router.push(`/`)">
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiCubeOutline" />
+              </q-item-section>
+              <q-item-section>{{ $t("View Labs") }}</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
     </template>
 
     <template v-slot:contents>
-      <v-list color="transparent">
+      <q-list class="q-mx-n4">
         <Project-Item
           v-for="item in projects"
           :key="item.fullpath"
           :project="item"
           :names-exists="projects.map((item) => basename(item.fullpath))"
           @click:delete="projectRemoving = item"
-          @click.native="$emit(`toFiles`)"
         />
-      </v-list>
+      </q-list>
     </template>
 
     <template v-slot:others>
-      <v-dialog
-        transition="dialog-top-transition"
-        max-width="600"
-        content-class="dialog--remove-project"
-        :value="!!projectRemoving"
-        @input="$event ? (projectRemoveiing = null) : null"
+      <q-dialog
+        style="max-width: 600px"
+        :model-value="!!projectRemoving"
+        @update:model-value="$event ? (projectRemoveiing = null) : null"
       >
-        <v-card dark v-if="projectRemoving">
-          <div class="d-flex justify-space-between align-center fill-width">
-            <v-card-title class="text-body-1">
-              {{ $t("Delete") }} {{ $t("Project") }}
-            </v-card-title>
-          </div>
-          <v-card-text class="pb-0">
+        <q-card class="flex column no-wrap">
+          <q-card-section class="row items-center q-pb-1 q-pt-2">
+            <div class="text-weight-medium text-subtitle1">
+              {{ $t("Delete Project") }}
+            </div>
+            <q-space />
+            <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-section class="fit scroll q-pt-2 q-pb-3">
             {{ $t("Type") }} <span class="blue--text">{{ code }}</span>
             {{ $t("to confirm.") }}
             <span class="blue--text">{{
-              basename(projectRemoving.fullpath)
+              projectRemoving && basename(projectRemoving.fullpath)
             }}</span>
             {{ $t("will permanently deleted. It can NOT be recovered!") }}
-            <v-text-field
+            <q-input
+              dense
               :rules="[
                 () =>
                   code === codeInput
                     ? true
                     : $t('What you typed did not match {code}', { code }),
               ]"
-              class="pt-0 mt-3"
-              type="tel"
               required
-              v-model="codeInput"
+              v-model.trim="codeInput"
               @keypress.enter="remove"
+              autofocus
             />
-          </v-card-text>
+          </q-card-section>
 
-          <div class="d-flex align-center justify-space-between mt-3">
-            <v-btn text color="blue" @click="projectRemoving = null">
+          <div class="flex items-center justify-between mt-3">
+            <q-btn text color="blue" @click="projectRemoving = null">
               {{ $t("Cancel") }}
-            </v-btn>
-            <v-btn text color="blue" @click="remove"> {{ $t("OK") }} </v-btn>
+            </q-btn>
+            <q-btn text color="blue" @click="remove"> {{ $t("OK") }} </q-btn>
           </div>
-        </v-card>
-      </v-dialog>
+        </q-card>
+      </q-dialog>
 
-      <Git-Clone
-        v-model="statePopupGitClone"
-        @done="
-          statePopupGitClone = false;
-          reloadListProjects();
-        "
-      />
-      <Git-Provide v-model="statePopupGitProvide" />
+      <Git-Clone v-model:state="statePopupGitClone" @cloned="clonedRepo" />
+      <Git-Provide v-model:state="statePopupGitProvide" />
       <Project-Create
-        v-model="creatingProject"
+        v-model:state="creatingProject"
         @created="reloadListProjects"
         :names-exists="projects.map((item) => basename(item.fullpath))"
       />
@@ -166,31 +185,33 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "@vue/composition-api";
-import TemplateTab from "./template/Tab.vue";
-import { readdirStat, rmdir } from "@/modules/filesystem";
-import type { ReaddirStatItem } from "@/modules/filesystem";
-import ProjectItem from "@/components/Project/Item.vue";
-import ProjectCreate from "@/components/Project/Create.vue";
-import importZip from "@/modules/import-zip";
-import { random } from "@/utils";
 import { Toast } from "@capacitor/toast";
-import GitProvide from "@/components/Git/ModalGitProvide.vue";
-import GitClone from "@/components/Git/ModalGitClone.vue";
-import { basename } from "path";
 import {
-  mdiReload,
+  mdiArchiveOutline,
+  mdiClose,
+  mdiCubeOutline,
   mdiGit,
   mdiLockOutline,
-  mdiPlus,
-  mdiArchiveOutline,
-  mdiZipBoxOutline,
   mdiMessageTextOutline,
-  mdiCubeOutline,
-  mdiClose,
-} from "@mdi/js";
+  mdiPlus,
+  mdiReload,
+  mdiZipBoxOutline,
+} from "@quasar/extras/mdi-v5";
+import { basename } from "path-cross";
+import GitClone from "src/components/Git/ModalGitClone.vue";
+import GitProvide from "src/components/Git/ModalGitProvide.vue";
+import ProjectCreate from "src/components/Project/Create.vue";
+import ProjectItem from "src/components/Project/Item.vue";
+import { readdirStat, rmdir } from "src/modules/filesystem";
+import type { StatItem } from "src/modules/filesystem";
+import importZip from "src/modules/import-zip";
+import { random } from "src/utils";
+import { defineComponent, ref, watch } from "vue";
+
+import TemplateTab from "./template/Tab.vue";
 
 export default defineComponent({
+  emits: ["open:project"],
   components: {
     TemplateTab,
     ProjectItem,
@@ -199,9 +220,9 @@ export default defineComponent({
     GitClone,
   },
   setup() {
-    const projects = ref<ReaddirStatItem[]>([]);
+    const projects = ref<StatItem[]>([]);
     const creatingProject = ref<boolean>(false);
-    const projectRemoving = ref<null | ReaddirStatItem>(null);
+    const projectRemoving = ref<null | StatItem>(null);
     const code = ref<null | string>(null);
     const codeInput = ref<null | string>(null);
 
@@ -260,22 +281,22 @@ export default defineComponent({
       }
       this.$store.commit("system/setProgress", false);
       if (notification) {
-        await Toast.show({
-          text: this.$t("Reload list {type}", {
+        void Toast.show({
+          text: this.$rt("Reload list {type}", {
             type: this.$t("project"),
-          }) as string,
+          }),
         });
       }
     },
     async importProjectFromZip(): Promise<void> {
       try {
-        const names = await importZip(`projects/`);
+        const names = await importZip("projects/");
         this.$store.commit("terminal/clear");
-        Toast.show({
-          text: this.$t(`Imported {type} {list}`, {
+        void Toast.show({
+          text: this.$rt("Imported {type} {list}", {
             type: this.$t("project(s)"),
             list: names.map((item) => `"${item}"`).join(", "),
-          }) as string,
+          }),
         });
       } catch (err) {
         this.$store.commit("terminal/error", err);
@@ -287,18 +308,18 @@ export default defineComponent({
       if (this.code === this.codeInput && this.projectRemoving) {
         try {
           await rmdir(this.projectRemoving.fullpath);
-          Toast.show({
-            text: this.$t(`Removed {type} {name}`, {
+          void Toast.show({
+            text: this.$rt("Removed {type} {name}", {
               type: this.$t("project"),
               name: basename(this.projectRemoving.fullpath),
-            }) as string,
+            }),
           });
         } catch {
-          Toast.show({
-            text: this.$t(`Remove {type} {name} failed`, {
+          void Toast.show({
+            text: this.$rt("Remove {type} {name} failed", {
               type: this.$t("project"),
               name: basename(this.projectRemoving.fullpath),
-            }) as string,
+            }),
           });
         }
 
@@ -306,6 +327,10 @@ export default defineComponent({
         this.projectRemoving = null;
       }
       this.$store.commit("system/setProgress", false);
+    },
+    clonedRepo(): void {
+      this.statePopupGitClone = false;
+      void this.reloadListProjects();
     },
   },
 });

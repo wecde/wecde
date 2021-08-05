@@ -1,0 +1,11 @@
+{
+  "name": "React + TypeScript Pro",
+  "directory-name": "React + TypeScript Pro",
+  "icons": [
+    "icon_react.svg",
+    "icon_ts.svg"
+  ],
+  "isTemplate": true,
+  "MD5": "70f73d30e5488e9ca70d2d0999a23b1c",
+  "mtimeMs": 1627279260496.0227
+}

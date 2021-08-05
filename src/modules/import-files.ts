@@ -1,17 +1,16 @@
-import selectFile from "./select-file";
-import store from "@/store";
-import { writeFile } from "./filesystem";
+import { i18n } from "boot/i18n";
 import fileToArraybuffer from "file-to-array-buffer";
-import i18n from "@/i18n";
-import { Directory } from "@capacitor/filesystem";
-import { join } from "path";
+import { join } from "path-cross";
+import { store } from "src/store";
+
+import { writeFile } from "./filesystem";
+import selectFile from "./select-file";
 
 export default async function importFiles(
   folderSave: string,
-  multiple = true,
-  directory?: Directory
-): Promise<string[]> {
-  store.commit("terminal/print", i18n.t("Import file(s)"));
+  multiple = true
+): Promise<readonly string[]> {
+  store.commit("terminal/print", i18n.global.rt("Import file(s)"));
   const files = await selectFile("", multiple);
 
   if (files.length > 0) {
@@ -19,7 +18,7 @@ export default async function importFiles(
       files.map(async (file, index) => {
         store.commit(
           "terminal/print",
-          i18n.t("Saving file {name} {index}/{length}", {
+          i18n.global.rt("Saving file {name} {index}/{length}", {
             name: file.name,
             index: index + 1,
             length: files.length,
@@ -27,8 +26,7 @@ export default async function importFiles(
         );
         await writeFile(
           join(folderSave, file.name),
-          await fileToArraybuffer(file),
-          directory
+          await fileToArraybuffer(file)
         );
       })
     );

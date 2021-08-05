@@ -1,39 +1,73 @@
-import Vue from "vue";
-import Vuex from "vuex";
+import { store as storeSsr } from "quasar/wrappers";
+import { InjectionKey } from "vue";
+import {
+  createStore,
+  Store as VuexStore,
+  useStore as vuexUseStore,
+} from "vuex";
 import createPersistedState from "vuex-persistedstate";
+
+import bookmarkLabs from "./bookmark-labs";
+import type { BookmarkLabsStateInterface } from "./bookmark-labs/state";
+import clipboardFs from "./clipboard-fs";
+import type { ClipboardFStateInterface } from "./clipboard-fs/state";
+import editor from "./editor";
+import type { EditorStateInterface } from "./editor/state";
+import gitProject from "./git-project";
+import type { GitProjectStateInterface } from "./git-project/state";
 import hydrator from "./hydrator";
+import settings from "./settings";
+import type { SettingsStateInterface } from "./settings/state";
+import system from "./system";
+import type { SystemStateInterface } from "./system/state";
+import terminal from "./terminal";
+import type { TerminalStateInterface } from "./terminal/state";
 
-import system, { State as StateSystem } from "./modules/system";
-import settings, { State as StateSettings } from "./modules/settings";
-import editor, { State as StateEditor } from "./modules/editor";
-import terminal, { State as StateTerminal } from "./modules/terminal";
-import bookmarkLabs, {
-  State as StateBookmarkLabs,
-} from "./modules/bookmark-labs";
-import clipboardFs, { State as StateClipboardFs } from "./modules/clipboard-fs";
-import gitProject, { State as StateGitProject } from "./modules/git-project";
+/*
+ * If not building with SSR mode, you can
+ * directly export the Store instantiation;
+ *
+ * The function below can be async too; either use
+ * async/await or return a Promise which resolves
+ * with the Store instance.
+ */
 
-Vue.use(Vuex);
+export type StateInterface = {
+  readonly "bookmark-labs": BookmarkLabsStateInterface;
+  readonly "clipboard-fs": ClipboardFStateInterface;
+  readonly editor: EditorStateInterface;
+  readonly "git-project": GitProjectStateInterface;
+  readonly settings: SettingsStateInterface;
+  readonly system: SystemStateInterface;
+  readonly terminal: TerminalStateInterface;
+};
 
-const store = new Vuex.Store<{
-  system: StateSystem;
-  settings: StateSettings;
-  editor: StateEditor;
-  terminal: StateTerminal;
-  "bookmark-labs": StateBookmarkLabs;
-  "clipboard-fs": StateClipboardFs;
-  "git-project": StateGitProject;
-}>({
-  strict: process.env.NODE_ENV !== "production",
+// provide typings for `this.$store`
+declare module "@vue/runtime-core" {
+  // eslint-disable-next-line functional/prefer-type-literal
+  export interface ComponentCustomProperties {
+    readonly $store: VuexStore<StateInterface>;
+  }
+}
+
+// provide typings for `useStore` helper
+export const storeKey: InjectionKey<VuexStore<StateInterface>> =
+  Symbol("vuex-key");
+
+export const store = createStore<StateInterface>({
   modules: {
-    system,
-    settings,
-    editor,
-    terminal,
     "bookmark-labs": bookmarkLabs,
     "clipboard-fs": clipboardFs,
+    editor,
     "git-project": gitProject,
+    settings,
+    system,
+    terminal,
   },
+
+  // enable strict mode (adds overhead!)
+  // for dev mode and --debug builds only
+  strict: !!process.env.DEBUGGING,
   plugins: [
     createPersistedState({
       paths: [
@@ -52,4 +86,10 @@ const store = new Vuex.Store<{
 
 hydrator(store);
 
-export default store;
+export default storeSsr(function (/* { ssrContext } */) {
+  return store;
+});
+
+export function useStore() {
+  return vuexUseStore(storeKey);
+}

@@ -1,74 +1,56 @@
 <template>
-  <div class="mx-n3 pa-0">
-    <ul class="d-flex justify-center align-center flex-wrap">
-      <li
-        v-for="lab in Labs"
-        :key="lab.name"
-        class="item text-center pa-3 col-6 pt-0"
-      >
-        <v-card color="transparent" flat max-width="300px" class="mx-auto">
-          <v-img
-            v-if="lab.images && lab.images.length > 0"
-            :src="
-              require(`@/assets/labs/${lab['directory-name']}/${lab.images[0]}`)
+  <div class="row labs justify-center">
+    <div class="col-6 labs__item" v-for="lab in Labs" :key="lab.name">
+      <q-card color="transparent" flat max-width="300px" class="mx-auto">
+        <q-img
+          v-if="lab.images && lab.images.length > 0"
+          :src="
+            require(`src/assets/labs/${lab['directory-name']}/${lab.images[0]}`)
+          "
+          :aspect-ratio="177.5 / 142.13"
+        >
+          <q-btn
+            :color="`rgb(211, 212, 212)`"
+            class="labs__btn-fav"
+            padding="xs"
+            @click.prevent.stop="$store.commit(`bookmark-labs/toggle`, lab)"
+            :icon="
+              $store.state['bookmark-labs'].labs.findIndex(
+                (item) => item.name === lab.name
+              ) > -1
+                ? mdiBookmarkCheck
+                : mdiBookmarkOutline
             "
-            :aspect-ratio="177.5 / 142.13"
-          >
-            <v-btn
-              icon
-              top
-              :color="`rgb(211, 212, 212)`"
-              style="
-                position: absolute;
-                right: 0;
-                background-color: rgba(34, 34, 34, 0.6);
-              "
-              tile
-              small
-              @click.prevent.stop="$store.commit(`bookmark-labs/toggle`, lab)"
-            >
-              <v-icon>{{
-                $store.state["bookmark-labs"].labs.findIndex(
-                  (item) => item.name === lab.name
-                ) > -1
-                  ? mdiBookmarkCheck
-                  : mdiBookmarkOutline
-              }}</v-icon>
-            </v-btn>
-            <template v-slot:placeholder>
-              <div class="placeholder-lab">
-                <v-icon absolute>{{ mdiLoading }}</v-icon>
-              </div>
-            </template>
-          </v-img>
-          <v-img v-else :aspect-ratio="177.5 / 142.13">
-            <div class="placeholder-lab">
-              <v-icon absolute>{{ mdiLoading }}</v-icon>
+          />
+          <template v-slot:placeholder>
+            <div class="labs__item-placeholder">
+              <q-icon absolute :name="mdiLoading" />
             </div>
-          </v-img>
+          </template>
+        </q-img>
 
-          <v-card-text class="ma-0 pa-0">
-            <v-card-subtitle
-              class="py-1 text-center font-weight-medium"
-              style="color: rgb(211, 212, 218)"
-            >
-              {{ lab.name }}
-              <br />
-              <small class="text-caption font-weight-regular">
-                {{ lab.description }}
-              </small>
-            </v-card-subtitle>
-          </v-card-text>
-        </v-card>
-      </li>
-    </ul>
+        <q-card-section class="q-pt-xs">
+          <span class="text-subtitle2">
+            {{ lab.name }}
+          </span>
+          <br />
+          <small class="text-caption">
+            {{ lab.description }}
+          </small>
+        </q-card-section>
+      </q-card>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/composition-api";
-import Labs from "@/assets/labs/Release.json";
-import { mdiBookmarkCheck, mdiBookmarkOutline, mdiLoading } from "@mdi/js";
+import {
+  mdiBookmarkCheck,
+  mdiBookmarkOutline,
+  mdiLoading,
+} from "@quasar/extras/mdi-v5";
+import Labs from "assets/labs/Release.json";
+import { defineComponent } from "vue";
 
 export default defineComponent({
   setup() {
@@ -84,21 +66,36 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.item {
-  list-style: none;
-}
+.labs {
+  margin: {
+    left: -4px;
+    right: -4px;
+  }
 
-.placeholder-lab {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  &__item {
+    padding: {
+      left: 4px;
+      right: 4px;
+    }
+    text-align: center;
+    &-placeholder {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  &__btn-fav {
+    position: absolute;
+    right: 0;
+    background-color: rgba(34, 34, 34, 0.6);
+  }
 }
 </style>

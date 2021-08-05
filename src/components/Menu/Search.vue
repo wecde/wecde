@@ -3,157 +3,149 @@
     <template v-slot:title>{{ $t("Find") }}</template>
 
     <template v-slot:addons>
-      <v-btn
-        icon
+      <q-btn
+        flat
+        round
+        padding="none"
+        size="1em"
+        class="q-ml-xs"
+        :icon="mdiRegex"
         :color="modeRegexp ? `blue` : undefined"
         @click="modeRegexp = !modeRegexp"
-      >
-        <v-icon>{{ mdiRegex }}</v-icon>
-      </v-btn>
-      <v-btn
-        icon
+      />
+      <q-btn
+        flat
+        round
+        padding="none"
+        size="1em"
+        class="q-ml-xs"
+        :icon="mdiFormatLetterCase"
         :color="modeLetterCase ? `blue` : undefined"
         @click="modeLetterCase = !modeLetterCase"
-      >
-        <v-icon>{{ mdiFormatLetterCase }}</v-icon>
-      </v-btn>
-      <v-btn
-        icon
+      />
+      <q-btn
+        flat
+        round
+        padding="none"
+        size="1em"
+        class="q-ml-xs"
+        :icon="mdiFileWordBoxOutline"
         :color="modeWordBox ? `blue` : undefined"
         @click="modeWordBox = !modeWordBox"
-      >
-        <v-icon>{{ mdiFileWordBoxOutline }}</v-icon>
-      </v-btn>
+      />
     </template>
 
     <template v-slot:contents>
-      <div class="px-3 pt-3">
-        <div class="d-flex align-center justify-space-between">
-          <div class="ml-n2">
-            <v-icon size="20px" @click="openReplace = !openReplace">{{
-              mdiChevronRight
-            }}</v-icon>
-          </div>
-          <div class="fill-width">
-            <v-text-field
-              :placeholder="$t('Search')"
-              outline
-              rounded
-              class="py-1 grey-4 mx-0"
-              hide-details
-              v-model="keywordSearch"
-              @keypress.enter="search"
-            />
-            <div class="d-flex mt-2" v-if="openReplace">
-              <v-text-field
-                :placeholder="$t('Replace')"
-                outline
-                rounded
-                class="py-1 grey-4 mx-0"
-                hide-details
-                v-model="keywordReplace"
-              />
-              <v-icon
-                class="ml-1"
-                size="16px"
+      <div class="flex no-wrap items-center justify-between">
+        <q-icon
+          size="20px"
+          @click="openReplace = !openReplace"
+          :name="openReplace ? mdiChevronDown : mdiChevronRight"
+        />
+        <div class="full-width">
+          <q-input
+            :placeholder="$t('Search')"
+            rounded
+            dense
+            outlined
+            v-model="keywordSearch"
+            @keypress.enter="search"
+          />
+          <q-input
+            :placeholder="$t('Replace')"
+            rounded
+            dense
+            outlined
+            class="q-mt-1"
+            v-model="keywordReplace"
+            v-show="openReplace"
+          >
+            <template v-slot:append>
+              <q-icon
                 @click="replaceAll"
                 v-ripple="false"
-                >{{ mdiCheckAll }}</v-icon
-              >
-            </div>
-          </div>
-        </div>
-        <div class="text-right">
-          <v-icon @click="openRules = !openRules">{{
-            mdiDotsHorizontal
-          }}</v-icon>
-          <div class="text-left" v-if="openRules">
-            <div>
-              <small class="text-caption text--secondary">{{
-                $t("files to include")
-              }}</small>
-              <v-text-field
-                outline
-                rounded
-                class="py-1 grey-4 mx-0"
-                hide-details
-                v-model="include"
-                placeholder="(e.g *.ts, src/**/include)"
+                :name="mdiFileReplaceOutline"
+                size="0.85em"
               />
-            </div>
-            <div class="mt-2">
-              <small class="text-caption text--secondary">{{
-                $t("files to exclude")
-              }}</small>
-              <v-text-field
-                outline
-                rounded
-                class="py-1 grey-4 mx-0"
-                hide-details
-                v-model="exclude"
-                placeholder="(e.g *.ts, src/**/exclude)"
-              />
-            </div>
-          </div>
+            </template>
+          </q-input>
         </div>
       </div>
-      <div
-        class="fill-height overflow-y-scroll mb-10 mt-1"
-        style="position: relative"
-      >
-        <v-progress-linear
+      <div class="text-right">
+        <q-icon
+          size="20px"
+          @click="openRules = !openRules"
+          :name="mdiDotsHorizontal"
+        />
+        <div class="text-left" v-show="openRules">
+          <small class="text-caption">{{ $t("files to include") }}</small>
+          <q-input
+            rounded
+            dense
+            outlined
+            v-model="include"
+            placeholder="(e.g *.ts, src/**/include)"
+          />
+
+          <small class="text-caption q-mt-1">{{
+            $t("files to exclude")
+          }}</small>
+          <q-input
+            rounded
+            dense
+            outlined
+            v-model="exclude"
+            placeholder="(e.g *.ts, src/**/exclude)"
+          />
+        </div>
+      </div>
+
+      <div style="position: relative">
+        <q-linear-progress
           indeterminate
           color="cyan"
-          height="2px"
+          size="2px"
           rounded
-          absolute
-          top
+          style="position: absolute; top: 0"
           v-if="searching"
         />
 
-        <App-Collapse v-for="item in results" :key="item.file" :eager="true">
+        <App-Collapse
+          v-for="item in results"
+          :key="item.file"
+          :eager="true"
+          content-class="q-ml-4"
+        >
           <template v-slot:activator="{ state, on }">
-            <div
-              class="file--system__item"
-              v-on="on"
-              :style="{
-                height: '37px',
-              }"
-            >
-              <div class="d-inline d-flex align-center order-0 text-truncate">
-                <span class="file--system__prepend">
-                  <v-icon style="color: inherit">
-                    {{ state ? mdiChevronDown : mdiChevronRight }}
-                  </v-icon>
-                </span>
-                <span class="file--system__icon">
-                  <img
-                    :src="
-                      getIcon({
-                        light: false,
-                        isOpen: false,
-                        isFolder: false,
-                        name: item.basename,
-                      })
-                    "
-                  />
-                </span>
-                <span class="file--system__name text-truncate"
-                  >{{ item.basename }}
-                  <small
-                    class="text-caption text--decoration"
-                    :style="{
-                      color: `rgba(255, 255, 255, .5)`,
-                    }"
-                    >{{ item.file }}</small
-                  ></span
-                ><span class="chip blue">{{ item.match.length }}</span>
+            <div class="file-object" v-on="on" v-ripple>
+              <q-icon
+                size="20px"
+                :name="state ? mdiChevronDown : mdiChevronRight"
+              />
+              <img
+                class="icon-file"
+                :src="
+                  getIcon({
+                    light: false,
+                    isOpen: false,
+                    isFolder: false,
+                    name: item.basename,
+                  })
+                "
+              />
+
+              <div class="full-width text-truncate">
+                {{ item.basename }}
+                <small class="text-caption" style="opacity: 0.8">{{
+                  item.file
+                }}</small>
+                <span class="chip blue">{{ item.match.length }}</span>
               </div>
             </div>
           </template>
 
           <div
-            class="d-flex align-center justify-space-between mx-4 mt-1"
+            class="flex items-center justify-between"
             v-for="(match, index) in item.match"
             :key="match.index"
             v-ripple
@@ -171,11 +163,11 @@
               >{{ match.lastValue }}
             </div>
 
-            <v-icon
-              size="18px"
+            <q-icon
+              size="1em"
               @click.prevent.stop="replaceSearch(item, index)"
-              >{{ mdiCheck }}</v-icon
-            >
+              :name="mdiCheck"
+            />
           </div>
         </App-Collapse>
       </div>
@@ -184,29 +176,30 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "@vue/composition-api";
-import TemplateTab from "./template/Tab.vue";
+import {
+  mdiCheck,
+  mdiChevronDown,
+  mdiChevronRight,
+  mdiDotsHorizontal,
+  mdiFileReplaceOutline,
+  mdiFileWordBoxOutline,
+  mdiFormatLetterCase,
+  mdiRegex,
+} from "@quasar/extras/mdi-v5";
+import escapeRegExp from "escape-string-regexp";
+import { basename, join } from "path-cross";
+import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
+import AppCollapse from "src/components/App/Collapse.vue";
 import {
   foreach as foreachFiles,
   readFile,
   writeFile,
-} from "@/modules/filesystem";
-import store from "@/store";
-import { createTimeoutBy, isPlainText, rawText } from "@/utils";
-import { join, basename } from "path";
-import escapeRegExp from "escape-string-regexp";
-import AppCollapse from "@/components/App/Collapse.vue";
-import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
-import {
-  mdiChevronDown,
-  mdiRegex,
-  mdiFormatLetterCase,
-  mdiFileWordBoxOutline,
-  mdiChevronRight,
-  mdiCheckAll,
-  mdiDotsHorizontal,
-  mdiCheck,
-} from "@mdi/js";
+} from "src/modules/filesystem";
+import { useStore } from "src/store";
+import { createTimeoutBy, isPlainText, rawText } from "src/utils";
+import { defineComponent, ref, watch } from "vue";
+
+import TemplateTab from "./template/Tab.vue";
 
 interface Result {
   file: string;
@@ -225,6 +218,7 @@ export default defineComponent({
     AppCollapse,
   },
   setup() {
+    const store = useStore();
     const modeRegexp = ref<boolean>(false);
     const modeLetterCase = ref<boolean>(false);
     const modeWordBox = ref<boolean>(false);
@@ -299,14 +293,14 @@ export default defineComponent({
       }
     }
 
-    async function search(): Promise<void> {
+    function search(): void {
       createTimeoutBy(
         "menu.search.timeout-search",
-        async () => {
+        async (): Promise<void> => {
           results.value.splice(0);
 
           searching.value = true;
-          if (store.state.editor.project) {
+          if (store.state.editor.project && !!keywordSearch.value) {
             await foreachFiles(
               store.state.editor.project,
               [
@@ -350,7 +344,7 @@ export default defineComponent({
       mdiFormatLetterCase,
       mdiFileWordBoxOutline,
       mdiChevronRight,
-      mdiCheckAll,
+      mdiFileReplaceOutline,
       mdiDotsHorizontal,
       mdiCheck,
 
@@ -382,6 +376,7 @@ export default defineComponent({
       const context = rawText(await readFile(file));
       const { index, value } = item.match[matchIndex];
 
+      // eslint-disable-next-line functional/no-let
       let newContext =
         context.slice(0, index) +
         (this.modeRegexp
@@ -403,7 +398,9 @@ export default defineComponent({
     },
 
     async replaceAll(): Promise<void> {
+      // eslint-disable-next-line functional/no-loop-statement
       for (const item of this.results) {
+        // eslint-disable-next-line @typescript-eslint/no-for-in-array, functional/no-loop-statement
         for (const index in item.match) {
           await this.replaceSearch(item, +index);
         }
@@ -411,7 +408,7 @@ export default defineComponent({
     },
 
     gotoEditor(file: string, start: number, stop: number): void {
-      this.$router.push({
+      void this.$router.push({
         name: "editor",
         query: {
           selection: `${start}->${stop}`,
@@ -423,22 +420,17 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "@/components/File Explorer/ListItem.scss";
-@import "@/components/File Explorer/Rename.scss";
+@import "src/components/File Explorer/ListItem.scss";
+@import "src/components/File Explorer/Rename.scss";
 
-.chip {
-  font-size: 14px;
-  border-radius: (1.2em / 2);
-  min-width: 1.2em;
-  height: 1.2em;
-  text-align: center;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.file-object {
+  @include file-object($enable-git: false);
+  padding: {
+    left: 0;
+    right: 0;
+  }
 }
-
-.v-input__slot {
-  padding: 0 18px !important;
+.icon-file {
+  @include icon-file();
 }
 </style>

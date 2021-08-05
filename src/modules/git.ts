@@ -1,46 +1,32 @@
-import git, { ReadCommitResult, FetchResult } from "isomorphic-git";
-import http from "isomorphic-git/http/web/index.js";
-import {
-  readFile,
-  writeFile,
-  mkdir,
-  unlink,
-  stat,
-  readdir,
-  rmdir,
-} from "./filesystem";
-import { base64ToArrayBuffer, rawText } from "@/utils";
-import $store from "@/store";
-import { Toast } from "@capacitor/toast";
 import { StatResult } from "@capacitor/filesystem";
-import i18n from "@/i18n";
-import { join, relative } from "path";
-import { providersGIT } from "@/store/modules/settings";
+import { Toast } from "@capacitor/toast";
+import { i18n } from "boot/i18n";
 import type { Ignore } from "ignore";
+import git, { FetchResult, ReadCommitResult } from "isomorphic-git";
+import http from "isomorphic-git/http/web/index.js";
+import { join, relative } from "path-cross";
+import { store } from "src/store";
+import { providersGIT } from "src/store/settings/state";
+import { base64ToArrayBuffer, rawText } from "src/utils";
+
+import {
+  mkdir,
+  readdir,
+  readFile,
+  rmdir,
+  stat,
+  unlink,
+  writeFile,
+} from "./filesystem";
 // import ignore from "ignore"
 // import parseIgnore from "parser-gitignore"
 
-const cache = {
-  clone: {},
-  commit: {},
-  log: {},
-  fetch: {},
-  status: {},
-  statusMatrix: {},
-};
-
-setInterval(() => {
-  for (const key in cache) {
-    (cache as any)[key] = {};
-  }
-}, 5 * 60 * 1000);
-
-function Err(name: string): any {
+function Err(name: string) {
   return class extends Error {
-    public code: string = name;
+    public readonly code: string = name;
 
-    constructor(...args: any[]) {
-      super(...args);
+    constructor(err: string) {
+      super(err);
       if (this.message) {
         this.message = name + ": " + this.message;
       } else {
@@ -50,26 +36,22 @@ function Err(name: string): any {
   };
 }
 
-// eslint-disable-next-line no-unused-vars
 // const EEXIST = Err("EEXIST");
 const ENOENT = Err("ENOENT");
-// eslint-disable-next-line no-unused-vars
 // const ENOTDIR = Err("ENOTDIR");
-// eslint-disable-next-line no-unused-vars
 // const ENOTEMPTY = Err("ENOTEMPTY");
-// eslint-disable-next-line no-unused-vars
 // const ETIMEDOUT = Err("ETIMEDOUT");
 
 class Stat {
-  public type: string;
-  public mode = 16822;
-  public size: number;
-  public ino = 2814749767351612;
-  public mtimeMs: number;
-  public ctimeMs: number;
-  public uid = 1;
-  public gid = 1;
-  public dev = 1761345728;
+  public readonly type: string;
+  public readonly mode = 16822;
+  public readonly size: number;
+  public readonly ino = 2814749767351612;
+  public readonly mtimeMs: number;
+  public readonly ctimeMs: number;
+  public readonly uid = 1;
+  public readonly gid = 1;
+  public readonly dev = 1761345728;
 
   constructor(stats: StatResult) {
     this.type = stats.type;
@@ -92,7 +74,7 @@ const fs = {
   promises: {
     readFile(
       path: string,
-      { encoding }: { encoding?: "utf8" } = {}
+      { encoding }: { readonly encoding?: "utf8" } = {}
     ): Promise<ArrayBuffer | string> {
       return new Promise((resolve, reject) => {
         readFile(path)
@@ -147,7 +129,7 @@ const fs = {
     lstat(path: string): Promise<Stat> {
       return this.stat(path);
     },
-    readdir(path: string): Promise<string[]> {
+    readdir(path: string): Promise<readonly string[]> {
       return readdir(path);
     },
     readlink(path: string): Promise<ArrayBuffer | string> {
@@ -172,35 +154,44 @@ function getProvide(url: string): string {
   return "*";
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getAuthFromProvide(url: string): any {
   const provide = getProvide(url);
 
-  return $store.state.settings["git__" + provide];
+  return store.state.settings["git__" + provide];
 }
 
 /// utils
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onProgress(event: any): void {
-  $store.commit(
+  store.commit(
     "terminal/print",
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     `${event.phase} (${
+      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
       event.total
         ? Math.round((event.loaded / event.total) * 100) + "%"
         : event.loaded
     })`
   );
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onAuth(url: any): any {
   const auth = getAuthFromProvide(url);
 
-  $store.commit("terminal/warning", i18n.t("Git 403 Try login..."));
+  store.commit("terminal/warning", i18n.global.rt("Git 403 Try login..."));
 
   return auth;
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onAuthFailure(): any {
-  $store.commit("terminal/error", i18n.t("Access was denied Login failure!"));
-  Toast.show({
-    text: i18n.t("Login GIT failure") as string,
+  store.commit(
+    "terminal/error",
+    i18n.global.rt("Access was denied Login failure!")
+  );
+  void Toast.show({
+    text: i18n.global.rt("Login GIT failure"),
   });
 
   return {
@@ -208,12 +199,12 @@ function onAuthFailure(): any {
   };
 }
 function onAuthSuccess() {
-  $store.commit("terminal/success", i18n.t("Login success!"));
+  store.commit("terminal/success", i18n.global.rt("Login success!"));
 }
 
 // export
 
-export async function init({ dir }: { dir: string }): Promise<void> {
+export async function init(dir: string): Promise<void> {
   await git.init({ fs, dir });
 }
 
@@ -222,13 +213,13 @@ export async function clone({
   url,
   ref,
 }: {
-  dir: string;
-  url: string;
-  ref?: string;
+  readonly dir: string;
+  readonly url: string;
+  readonly ref?: string;
 }): Promise<void> {
-  $store.commit(
+  store.commit(
     "terminal/print",
-    i18n.t(`Cloning repo {url}`, {
+    i18n.global.rt("Cloning repo {url}", {
       url,
     })
   );
@@ -239,23 +230,29 @@ export async function clone({
     corsProxy: "https://cors.isomorphic-git.org",
     url,
     ref,
-    cache: cache.clone,
-    singleBranch: $store.state.settings.cloneGit__singleBranch,
-    noCheckout: $store.state.settings.cloneGit__noCheckout,
-    noTags: $store.state.settings.cloneGit__noTags,
-    ...(Number.isNaN(+$store.state.settings.cloneGit__depth)
+    cache: {},
+    singleBranch: store.state.settings["clone git**single branch"] as
+      | boolean
+      | undefined,
+    noCheckout: store.state.settings["clone git**no checkout"] as
+      | boolean
+      | undefined,
+    noTags: !!store.state.settings["clone git**no tags"],
+    ...(Number.isNaN(+(store.state.settings["clone git**depth"] as number))
       ? {}
       : {
-          depth: +$store.state.settings.cloneGit__depth,
+          depth: +(store.state.settings["clone git**depth"] as number),
         }),
-    // eslint-disable-next-line no-extra-boolean-cast
-    ...(!!$store.state.settings.cloneGit__since
+
+    ...(!!store.state.settings["clone git**single branch"]
       ? {
-          since: $store.state.settings.cloneGit__since,
+          since: store.state.settings["clone git**single branch"] as
+            | Date
+            | undefined,
         }
       : {}),
     exclude:
-      $store.state.settings.cloneGit__exclude
+      ((store.state.settings["clone git**exclude"] as string) || "")
         ?.replace(/,\s+/g, ",")
         .split(",")
         .filter(Boolean) ?? [],
@@ -272,32 +269,34 @@ export async function commit({
   dir,
   message,
 }: {
-  dir: string;
-  message: string;
-}): Promise<string> {
+  readonly dir: string;
+  readonly message: string;
+}): Promise<void> {
   const auth = await listRemotes({ dir });
   const provide = getProvide(auth?.[0].url || "");
 
-  return await git.commit({
+  void (await git.commit({
     fs,
     dir,
     message,
     onSign: onAuth,
-    cache: cache.commit,
+    cache: {},
     author: {
-      name: $store.state.settings["git__" + provide]?.name,
-      email: $store.state.settings["git__" + provide]?.email,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      name: (store.state.settings["git__" + provide] as any)?.name as string,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      email: (store.state.settings["git__" + provide] as any)?.email as string,
     },
-  });
+  }));
 }
 
-export async function listRemotes({ dir }: { dir: string }): Promise<
-  {
-    remote: string;
-    url: string;
+export function listRemotes({ dir }: { readonly dir: string }): Promise<
+  readonly {
+    readonly remote: string;
+    readonly url: string;
   }[]
 > {
-  return await git.listRemotes({
+  return git.listRemotes({
     fs,
     dir,
   });
@@ -308,27 +307,29 @@ export async function log({
   ref = "HEAD",
   force = false,
 }: {
-  dir: string;
-  ref: string;
-  depth: number;
-  force: boolean;
-}): Promise<ReadCommitResult[]> {
+  readonly dir: string;
+  readonly ref: string;
+  readonly depth: number;
+  readonly force: boolean;
+}): Promise<readonly ReadCommitResult[]> {
   return await git.log({
     fs,
     dir,
     ref,
 
-    cache: cache.log,
+    cache: {},
 
-    ...(Number.isNaN(+$store.state.settings.cloneGit__depth)
-      ? {}
-      : {
-          depth: +$store.state.settings.cloneGit__depth,
-        }),
-    // eslint-disable-next-line no-extra-boolean-cast
-    ...(!!$store.state.settings.cloneGit__since
+    ...(!!store.state.settings["clone git**depth"]
       ? {
-          since: $store.state.settings.cloneGit__since,
+          depth: store.state.settings["clone git**depth"] as number,
+        }
+      : {}),
+
+    ...(!!store.state.settings["clone git**since date"]
+      ? {
+          since: store.state.settings["clone git**since date"] as
+            | Date
+            | undefined,
         }
       : {}),
 
@@ -342,11 +343,11 @@ export async function fetch({
   ref,
   remoteRef,
 }: {
-  dir: string;
-  url: string;
-  ref: string;
-  remoteRef: string;
-  depth: number;
+  readonly dir: string;
+  readonly url: string;
+  readonly ref: string;
+  readonly remoteRef: string;
+  readonly depth: number;
 }): Promise<FetchResult> {
   return await git.fetch({
     fs,
@@ -355,7 +356,7 @@ export async function fetch({
     corsProxy: "https://cors.isomorphic-git.org",
     url,
     ref,
-    cache: cache.fetch,
+    cache: {},
 
     onProgress,
     onAuth,
@@ -364,20 +365,22 @@ export async function fetch({
 
     remoteRef,
 
-    singleBranch: $store.state.settings.cloneGit__singleBranch,
-    ...(Number.isNaN(+$store.state.settings.cloneGit__depth)
+    singleBranch: store.state.settings["clone git**single branch"] as boolean,
+    ...(!store.state.settings["clone git**depth"]
       ? {}
       : {
-          depth: +$store.state.settings.cloneGit__depth,
+          depth: store.state.settings["clone git**depth"] as number,
         }),
-    // eslint-disable-next-line no-extra-boolean-cast
-    ...(!!$store.state.settings.cloneGit__since
+
+    ...(!!store.state.settings["clone git**since date"]
       ? {
-          since: $store.state.settings.cloneGit__since,
+          since: store.state.settings["clone git**since date"] as
+            | Date
+            | undefined,
         }
       : {}),
     exclude:
-      $store.state.settings.cloneGit__exclude
+      (store.state.settings["clone git**exclude"] as string)
         ?.replace(/,\s+/g, ",")
         .split(",")
         .filter(Boolean) ?? [],
@@ -389,9 +392,10 @@ export async function status({
   filepath,
   cache,
 }: {
-  dir: string;
-  filepath: string;
-  cache?: any;
+  readonly dir: string;
+  readonly filepath: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly cache?: any;
 }): Promise<string> {
   return await git.status({
     fs,
@@ -401,7 +405,7 @@ export async function status({
   });
 }
 
-export async function has({ dir }: { dir: string }): Promise<boolean> {
+export async function has({ dir }: { readonly dir: string }): Promise<boolean> {
   try {
     return !!(await stat(join(dir, ".git")));
   } catch {
@@ -413,9 +417,9 @@ export async function listFiles({
   dir,
   ref,
 }: {
-  dir: string;
-  ref?: string;
-}): Promise<string[]> {
+  readonly dir: string;
+  readonly ref?: string;
+}): Promise<readonly string[]> {
   return await git.listFiles({
     fs,
     dir,
@@ -428,10 +432,11 @@ export async function statusMatrix({
   ref,
   cache,
 }: {
-  dir: string;
-  ref?: string;
-  cache?: any;
-}): Promise<[string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][]> {
+  readonly dir: string;
+  readonly ref?: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly cache?: any;
+}): Promise<readonly (readonly [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3])[]> {
   return await git.statusMatrix({
     fs,
     dir,
@@ -444,9 +449,9 @@ export async function scanRepo({
   dir,
   ref,
 }: {
-  dir: string;
-  ref?: string;
-}): Promise<string[]> {
+  readonly dir: string;
+  readonly ref?: string;
+}): Promise<readonly string[]> {
   return await listFiles({ dir, ref });
   // const cache = Object.create(null);
   // const [lists, status] = await Promise.all([
@@ -463,7 +468,7 @@ export async function scanDir(
   dir: string,
   ig: Ignore,
   dirname: string
-): Promise<string[]> {
+): Promise<readonly string[]> {
   const files = ig
     .filter(
       (await readdir(dir)).map((item) => join(relative(dirname, dir), item))
@@ -481,6 +486,7 @@ export async function scanDir(
           const result = await scanDir(item, ig, dirname);
 
           if (result.length === 0) {
+            // eslint-disable-next-line functional/no-throw-statement
             throw new Error("DIR_EMPTY");
           }
 

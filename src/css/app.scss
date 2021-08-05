@@ -1,0 +1,10 @@
+// app global css in SCSS form
+@import "./addons/spacing";
+@import "./addons/typography";
+@import "./addons/size";
+@import "./addons/other";
+@import "./addons/display";
+
+pwa-toast {
+  z-index: 9999;
+}

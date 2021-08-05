@@ -1,58 +1,51 @@
-import JSZip from "jszip";
-import { readFilesFolder, writeFile, readFile, mkdir } from "./filesystem";
-import { join } from "path";
-import store from "@/store";
-import { base64ToArrayBuffer } from "../utils";
-import i18n from "@/i18n";
 import { Directory } from "@capacitor/filesystem";
+import { i18n } from "boot/i18n";
+import JSZip from "jszip";
+import { join } from "path-cross";
+import { store } from "src/store";
+
+import { base64ToArrayBuffer } from "../utils";
+
+import { mkdir, readFile, readFilesFolder, writeFile } from "./filesystem";
 
 export async function zip({
   folder,
   to,
-  directory,
-  toDirectory,
   exclude,
 }: {
-  folder: string;
-  to: string;
-  directory?: Directory;
-  toDirectory?: Directory;
-  exclude: Array<string | RegExp>;
+  readonly folder: string;
+  readonly to: string;
+  readonly exclude: ReadonlyArray<string | RegExp>;
 }): Promise<void>;
 export async function zip({
   folder,
   to,
-  directory,
-  toDirectory,
   exclude,
 }: {
-  folder: string;
-  to: false;
-  directory?: Directory;
-  toDirectory?: Directory;
-  exclude: Array<string | RegExp>;
+  readonly folder: string;
+  readonly to: false;
+  readonly exclude: ReadonlyArray<string | RegExp>;
 }): Promise<ArrayBuffer>;
 export async function zip({
   folder,
   to,
-  directory,
-  toDirectory,
   exclude = [],
 }: {
-  folder: string;
-  to: string | false;
-  directory?: Directory;
-  toDirectory?: Directory;
-  exclude: Array<string | RegExp>;
+  readonly folder: string;
+  readonly to: string | false;
+  readonly directory?: Directory;
+  readonly toDirectory?: Directory;
+  readonly exclude: ReadonlyArray<string | RegExp>;
 }): Promise<ArrayBuffer | void> {
+  console.log(store);
   store.commit(
     "terminal/print",
-    i18n.t(`Ziping folder {name}`, {
+    i18n.global.rt("Ziping folder {name}", {
       name: folder,
     })
   );
   const zip = new JSZip();
-  (await readFilesFolder(folder, directory, exclude)).forEach(
+  (await readFilesFolder(folder, exclude)).forEach(
     ({ key: path, value: { stat, data } }) => {
       if (path.startsWith(folder)) {
         path = path.replace(folder, "").replace(/^\//g, "");
@@ -60,7 +53,7 @@ export async function zip({
 
       store.commit(
         "terminal/print",
-        i18n.t("Adding {type} {name}", {
+        i18n.global.rt("Adding {type} {name}", {
           type: stat.type,
           name: path,
         })
@@ -82,15 +75,15 @@ export async function zip({
   if (to) {
     store.commit(
       "terminal/print",
-      i18n.t("Successfuly zip saved in {name}", {
+      i18n.global.rt("Successfully zip saved in {name}", {
         name: to,
       })
     );
 
-    await writeFile(to, fileResult, toDirectory);
+    await writeFile(to, fileResult);
   }
 
-  store.commit("terminal/print", i18n.t(`Successfuly created zip`));
+  store.commit("terminal/print", i18n.global.rt("Successfully created zip"));
 
   return fileResult;
 }
@@ -98,65 +91,67 @@ export async function zip({
 export async function unzip({
   file,
   to,
-  directory,
-  toDirectory,
 }: {
-  file: string | ArrayBuffer;
-  to: string;
-  directory?: Directory;
-  toDirectory?: Directory;
+  readonly file: string | ArrayBuffer;
+  readonly to: string;
 }): Promise<void> {
+  console.log(store);
   store.commit(
     "terminal/print",
-    i18n.t(`Geting file zip from {name}`, {
+    i18n.global.rt("Getting file zip from {name}", {
       name: typeof file === "string" ? file : "tmp/buffer",
     })
   );
 
   const zip = await JSZip.loadAsync(
     typeof file === "string"
-      ? file.match(/^(?:(?:https?:\/\/)|\/)/)
+      ? /^(?:(?:https?:\/\/)|\/)/.exec(file)
         ? await fetch(file)
             .then((res) => res.blob())
             .then((blob) => blob.arrayBuffer())
-        : base64ToArrayBuffer(await readFile(file, directory))
+        : base64ToArrayBuffer(await readFile(file))
       : file
   );
 
   store.commit(
     "terminal/print",
-    i18n.t("Extract file {name}", {
+    i18n.global.rt("Extract file {name}", {
       name: typeof file === "string" ? file : "tmp/buffer",
     })
   );
   const allProcess = [];
 
+  // eslint-disable-next-line functional/no-loop-statement
   for (const path in zip.files) {
     store.commit(
       "terminal/print",
-      i18n.t("Extracing {type} {name}", {
-        type: i18n.t(zip.files[path].dir ? "directory" : "file"),
+      i18n.global.rt("Extracing {type} {name}", {
+        type: i18n.global.rt(zip.files[path].dir ? "directory" : "file"),
         name: path,
       })
     );
 
     if (zip.files[path].dir === false) {
-      allProcess.push(
-        writeFile(
-          join(to, path),
-          await (zip.file(path) as JSZip.JSZipObject).async("arraybuffer"),
-          toDirectory
-        )
-      );
+      if (zip.file(path)) {
+        // eslint-disable-next-line functional/immutable-data
+        allProcess.push(
+          writeFile(
+            join(to, path),
+
+            await (zip.file(path) as JSZip.JSZipObject).async("arraybuffer")
+          )
+        );
+      }
     } else {
-      allProcess.push(mkdir(join(to, path), toDirectory));
+      // eslint-disable-next-line functional/immutable-data
+      allProcess.push(mkdir(join(to, path)));
     }
   }
 
   await Promise.all(allProcess);
   store.commit(
     "terminal/print",
-    i18n.t(`Extracted zip to {to}`, {
+    i18n.global.rt("Extracted zip to {to}", {
       to,
     })
   );

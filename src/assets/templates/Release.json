@@ -1,0 +1,258 @@
+[
+  {
+    "name": "No Template",
+    "directory-name": "No Template",
+    "icons": [
+      "icon_js.svg"
+    ],
+    "isTemplate": false
+  },
+  {
+    "name": "ES8 Pro",
+    "directory-name": "ES8 Pro",
+    "icons": [
+      "icon_es8.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "9d8663a5581d17197774786619b9f7ef",
+    "mtimeMs": 1627279259868.8672
+  },
+  {
+    "name": "ES8 (SystemJS)",
+    "directory-name": "ES8 (SystemJS)",
+    "icons": [
+      "icon_es8.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "09097e1be73e9a141a56cc919feb4e62",
+    "mtimeMs": 1627279259119.2976
+  },
+  {
+    "name": "Typescript 4 Pro",
+    "directory-name": "Typescript 4 Pro",
+    "icons": [
+      "icon_ts.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "2533aae9bd175bb61e4115c11823035c",
+    "mtimeMs": 1627279260044.2812
+  },
+  {
+    "name": "TypeScript (SystemJS)",
+    "directory-name": "TypeScript (SystemJS)",
+    "icons": [
+      "icon_ts.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "33daab0e621a703e17f74901184672b6",
+    "mtimeMs": 1627279259211.244
+  },
+  {
+    "name": "HTML",
+    "directory-name": "HTML",
+    "icons": [
+      "icon_html.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "96fe99c860117891f11121450575626d",
+    "mtimeMs": 1627279259005.8464
+  },
+  {
+    "name": "HTML + Bootstrap 5",
+    "directory-name": "HTML + Bootstrap 5",
+    "icons": [
+      "icon_bootstrap5.svg",
+      "icon_html.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "6909b0df8f55f8ed6f7a47b7bb7c08d8",
+    "mtimeMs": 1627279259381.1467
+  },
+  {
+    "name": "HTML + Material UI Lite",
+    "directory-name": "HTML + Material UI Lite",
+    "icons": [
+      "icon_html.svg",
+      "icon_material-ui-lite.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "afb427a6422c10f0ce82f4180b9d5363",
+    "mtimeMs": 1627279260790.854
+  },
+  {
+    "name": "HTML + Semantic UI",
+    "directory-name": "HTML + Semantic UI",
+    "icons": [
+      "icon_html.svg",
+      "icon_semantic-ui.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "9a0e2d2174489e60e61443303818525f",
+    "mtimeMs": 1627434496664.9353
+  },
+  {
+    "name": "Angular (SystemJS)",
+    "directory-name": "Angular (SystemJS)",
+    "icons": [
+      "icon_angular.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "7d3fb0866be320d16e091cdde6f11aba",
+    "mtimeMs": 1627279259351.164
+  },
+  {
+    "name": "AngularJS (CDN)",
+    "directory-name": "AngularJS (CDN)",
+    "icons": [
+      "icon_angularjs.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "a16426d22055300b336758de52c4faa1",
+    "mtimeMs": 1627434496343.3782
+  },
+  {
+    "name": "React 16 Pro",
+    "directory-name": "React 16 Pro",
+    "icons": [
+      "icon_react.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "94baf1bc5ca8ab0a55e122f5a13a4bef",
+    "mtimeMs": 1627279260191.2031
+  },
+  {
+    "name": "React 17 + Hot-Reloader",
+    "directory-name": "React 17 + Hot-Reloader",
+    "icons": [
+      "icon_react.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "0a94dd871f017a8d937199d675a8fd9e",
+    "mtimeMs": 1627279260373.0928
+  },
+  {
+    "name": "React 16 + Less Pro",
+    "directory-name": "React 16 + Less Pro",
+    "icons": [
+      "icon_less.svg",
+      "icon_react.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "a981ed667856e67eba4c2add5c051dd2",
+    "mtimeMs": 1627279260965.755
+  },
+  {
+    "name": "React + TypeScript Pro",
+    "directory-name": "React + TypeScript Pro",
+    "icons": [
+      "icon_react.svg",
+      "icon_ts.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "70f73d30e5488e9ca70d2d0999a23b1c",
+    "mtimeMs": 1627279260496.0227
+  },
+  {
+    "name": "React 16 (SystemJS)",
+    "directory-name": "React 16 (SystemJS)",
+    "icons": [
+      "icon_react.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "680ab54e13f5a02adac148a020b378b7",
+    "mtimeMs": 1627279259036.3447
+  },
+  {
+    "name": "React 16 + Material UI Lite (SystemJS)",
+    "directory-name": "React 16 + Material UI Lite (SystemJS)",
+    "icons": [
+      "icon_react.svg",
+      "icon_material-ui-lite.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "f6da771a28a043ac2e7dc9f52dd0bbc9",
+    "mtimeMs": 1627279259795.9102
+  },
+  {
+    "name": "Svelte 3 Pro",
+    "directory-name": "Svelte 3 Pro",
+    "icons": [
+      "icon_svelte.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "b8396e9e2288af5f76f44742bd23dfac",
+    "mtimeMs": 1627279260011.3008
+  },
+  {
+    "name": "Svelte 3 + TypeScript Pro",
+    "directory-name": "Svelte 3 + TypeScript Pro",
+    "icons": [
+      "icon_svelte.svg",
+      "icon_ts.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "e7676fc572da22320aeb002ae7407701",
+    "mtimeMs": 1627279260842.825
+  },
+  {
+    "name": "Vue 2 Pro",
+    "directory-name": "Vue 2 Pro",
+    "icons": [
+      "icon_vue.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "666023227943e41895ac26981ae7cb29",
+    "mtimeMs": 1627279261597.3916
+  },
+  {
+    "name": "Vue 3 Pro",
+    "directory-name": "Vue 3 Pro",
+    "icons": [
+      "icon_vue3.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "2f487991a7a9bfb7c97fa40a6c5c3264",
+    "mtimeMs": 1627279261236.5994
+  },
+  {
+    "name": "Vue 2 + TypeScript Pro",
+    "directory-name": "Vue 2 + TypeScript Pro",
+    "icons": [
+      "icon_ts.svg",
+      "icon_vue.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "3ce66bde13cdbf0b5e391e52d62a0ddd",
+    "mtimeMs": 1627279261697.3357
+  },
+  {
+    "name": "Vue 2 (No Template)",
+    "directory-name": "Vue 2 (No Template)",
+    "icons": [
+      "icon_vue.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "1e943d21517b24c77beb07e3fcff7164",
+    "mtimeMs": 1627434496576.7126
+  },
+  {
+    "name": "Vue 2 (SystemJS)",
+    "directory-name": "Vue 2 (SystemJS)",
+    "icons": [
+      "icon_vue.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "c967086fe85a20ff20b26f22a052317a",
+    "mtimeMs": 1627279260490.0264
+  },
+  {
+    "name": "d3",
+    "directory-name": "d3",
+    "icons": [
+      "icon_d3.svg"
+    ],
+    "isTemplate": true,
+    "MD5": "90e1deab6932c4aebad7f704e40257fe",
+    "mtimeMs": 1627279260496.0227
+  }
+]
