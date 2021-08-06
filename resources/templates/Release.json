@@ -1,200 +1,259 @@
-[
-  {
+{
+  "0": {
     "name": "No Template",
     "directory-name": "No Template",
-    "icons": ["icon_js.svg"],
+    "icons": [
+      "icon_js.svg"
+    ],
     "isTemplate": false
   },
-  {
+  "1": {
     "name": "ES8 Pro",
     "directory-name": "ES8 Pro",
-    "icons": ["icon_es8.svg"],
+    "icons": [
+      "icon_es8.svg"
+    ],
     "isTemplate": true,
     "MD5": "7f133a1649fc8d250ae6a672e45b8326",
     "mtimeMs": 1626002001613.0942
   },
-  {
+  "2": {
     "name": "ES8 (SystemJS)",
     "directory-name": "ES8 (SystemJS)",
-    "icons": ["icon_es8.svg"],
+    "icons": [
+      "icon_es8.svg"
+    ],
     "isTemplate": true,
     "MD5": "38469352d1eda337dbc7b397ebdfe572",
     "mtimeMs": 1626002001282.821
   },
-  {
+  "3": {
     "name": "Typescript 4 Pro",
     "directory-name": "Typescript 4 Pro",
-    "icons": ["icon_ts.svg"],
+    "icons": [
+      "icon_ts.svg"
+    ],
     "isTemplate": true,
     "MD5": "0463b64164bc922570ee6e923fbaeec2",
     "mtimeMs": 1626002001732.0266
   },
-  {
+  "4": {
     "name": "TypeScript (SystemJS)",
     "directory-name": "TypeScript (SystemJS)",
-    "icons": ["icon_ts.svg"],
+    "icons": [
+      "icon_ts.svg"
+    ],
     "isTemplate": true,
     "MD5": "dc7f0cc3880e4024ae0b1fe897d72959",
     "mtimeMs": 1626002001298.8125
   },
-  {
+  "5": {
     "name": "HTML",
     "directory-name": "HTML",
-    "icons": ["icon_html.svg"],
+    "icons": [
+      "icon_html.svg"
+    ],
     "isTemplate": true,
     "MD5": "c7163c54720e7b860e73401903f14c90",
     "mtimeMs": 1626002001203.6443
   },
-  {
+  "6": {
     "name": "HTML + Bootstrap 5",
     "directory-name": "HTML + Bootstrap 5",
-    "icons": ["icon_html.svg"],
+    "icons": [
+      "icon_html.svg"
+    ],
     "isTemplate": true,
     "MD5": "46a081361dbd47b1d288a365e46c9cf4",
     "mtimeMs": 1626002001398.2168
   },
-  {
+  "7": {
     "name": "HTML + Material UI Lite",
     "directory-name": "HTML + Material UI Lite",
-    "icons": ["icon_html.svg", "icon_material-ui-lite.svg"],
+    "icons": [
+      "icon_html.svg",
+      "icon_material-ui-lite.svg"
+    ],
     "isTemplate": true,
     "MD5": "a10dcd3a3b0152d4f8d4d6a928cae4e5",
     "mtimeMs": 1626002001982.8828
   },
-  {
+  "8": {
     "name": "HTML + Semantic UI",
     "directory-name": "HTML + Semantic UI",
-    "icons": ["icon_html.svg", "icon_semantic-ui.svg"],
+    "icons": [
+      "icon_html.svg",
+      "icon_semantic-ui.svg"
+    ],
     "isTemplate": true,
     "MD5": "7c9f086b3863a2efadff8d0719bfba4b",
     "mtimeMs": 1626002002461.288
   },
-  {
+  "9": {
     "name": "Angular (SystemJS)",
     "directory-name": "Angular (SystemJS)",
-    "icons": ["icon_angular.svg"],
+    "icons": [
+      "icon_angular.svg"
+    ],
     "isTemplate": true,
     "MD5": "c6b9bd5b711aae963d3471f19d513cda",
     "mtimeMs": 1626002001382.2263
   },
-  {
+  "10": {
     "name": "AngularJS (CDN)",
     "directory-name": "AngularJS (CDN)",
-    "icons": ["icon_angularjs.svg"],
+    "icons": [
+      "icon_angularjs.svg"
+    ],
     "isTemplate": true,
     "MD5": "00a28bc49a2e2b00d780453f088a20a9",
     "mtimeMs": 1626002001562.1233
   },
-  {
+  "11": {
     "name": "React 16 Pro",
     "directory-name": "React 16 Pro",
-    "icons": ["icon_react.svg"],
+    "icons": [
+      "icon_react.svg"
+    ],
     "isTemplate": true,
     "MD5": "02b2f8a5bdfa7f4aa09f89c5290d44b6",
     "mtimeMs": 1626002001768.006
   },
-  {
+  "12": {
     "name": "React 17 + Hot-Reloader",
     "directory-name": "React 17 + Hot-Reloader",
-    "icons": ["icon_react.svg"],
+    "icons": [
+      "icon_react.svg"
+    ],
     "isTemplate": true,
     "MD5": "b4f4dd4782332d64de1a2b2466c5d703",
     "mtimeMs": 1626002001770.0046
   },
-  {
+  "13": {
     "name": "React 16 + Less Pro",
     "directory-name": "React 16 + Less Pro",
-    "icons": ["icon_react.svg"],
+    "icons": [
+      "icon_react.svg"
+    ],
     "isTemplate": true,
     "MD5": "98632623e6c46b87ee75cf96cc243662",
     "mtimeMs": 1626002001869.948
   },
-  {
+  "14": {
     "name": "React + TypeScript Pro",
     "directory-name": "React + TypeScript Pro",
-    "icons": ["icon_react.svg", "icon_ts.svg"],
+    "icons": [
+      "icon_react.svg",
+      "icon_ts.svg"
+    ],
     "isTemplate": true,
     "MD5": "ae86d42598ebf9aedfd71f403836be1c",
     "mtimeMs": 1626002001768.006
   },
-  {
+  "15": {
     "name": "React 16 (SystemJS)",
     "directory-name": "React 16 (SystemJS)",
-    "icons": ["icon_react.svg"],
+    "icons": [
+      "icon_react.svg"
+    ],
     "isTemplate": true,
     "MD5": "ae9eb250e6480efbf7c684640c59d71f",
     "mtimeMs": 1626002001214.7114
   },
-  {
+  "16": {
     "name": "React 16 + Material UI Lite (SystemJS)",
     "directory-name": "React 16 + Material UI Lite (SystemJS)",
-    "icons": ["icon_material-ui-lite.svg", "icon_react.svg"],
+    "icons": [
+      "icon_material-ui-lite.svg",
+      "icon_react.svg"
+    ],
     "isTemplate": true,
     "MD5": "bd4136bd2285397b1b5ff7775cd81cd9",
     "mtimeMs": 1626002001542.135
   },
-  {
+  "17": {
     "name": "Svelte 3 Pro",
     "directory-name": "Svelte 3 Pro",
-    "icons": ["icon_svelte.svg"],
+    "icons": [
+      "icon_svelte.svg"
+    ],
     "isTemplate": true,
     "MD5": "56b2a59312a75799c3d44a7422b2283b",
     "mtimeMs": 1626002001674.0593
   },
-  {
+  "18": {
     "name": "Svelte 3 + TypeScript Pro",
     "directory-name": "Svelte 3 + TypeScript Pro",
-    "icons": ["icon_svelte.svg", "icon_ts.svg"],
+    "icons": [
+      "icon_svelte.svg",
+      "icon_ts.svg"
+    ],
     "isTemplate": true,
     "MD5": "b8b265efbd5a822961be1faf5384b99a",
     "mtimeMs": 1626002001870.9463
   },
-  {
+  "19": {
     "name": "Vue 2 Pro",
     "directory-name": "Vue 2 Pro",
-    "icons": ["icon_vue.svg"],
+    "icons": [
+      "icon_vue.svg"
+    ],
     "isTemplate": true,
     "MD5": "cb137778ca27a21df4ddf28541a9c827",
     "mtimeMs": 1626002002223.744
   },
-  {
+  "20": {
     "name": "Vue 3 Pro",
     "directory-name": "Vue 3 Pro",
-    "icons": ["icon_vue3.svg"],
+    "icons": [
+      "icon_vue3.svg"
+    ],
     "isTemplate": true,
     "MD5": "bca0790b63577a5fa5b77af75ca4027d",
     "mtimeMs": 1626002002070.833
   },
-  {
+  "21": {
     "name": "Vue 2 + TypeScript Pro",
     "directory-name": "Vue 2 + TypeScript Pro",
-    "icons": ["icon_ts.svg", "icon_vue.svg"],
+    "icons": [
+      "icon_ts.svg",
+      "icon_vue.svg"
+    ],
     "isTemplate": true,
     "MD5": "4b3de70912401db39ccc3775e673832c",
     "mtimeMs": 1626002002262.7224
   },
-  {
+  "22": {
     "name": "Vue 2 (No Template)",
     "directory-name": "Vue 2 (No Template)",
-    "icons": ["icon_vue.svg"],
+    "icons": [
+      "icon_vue.svg"
+    ],
     "isTemplate": true,
     "MD5": "4fe5f524ae9d99726e3227c3ee9ec2bd",
     "mtimeMs": 1626002001673.059
   },
-  {
+  "23": {
     "name": "Vue 2 (SystemJS)",
     "directory-name": "Vue 2 (SystemJS)",
-    "icons": ["icon_vue.svg"],
+    "icons": [
+      "icon_vue.svg"
+    ],
     "isTemplate": true,
     "MD5": "992b3c426a51e49eedd8a063b14e6c6e",
     "mtimeMs": 1626002001864.951
   },
-  {
+  "24": {
     "name": "d3",
     "directory-name": "d3",
-    "icons": ["icon_d3.svg"],
+    "icons": [
+      "icon_d3.svg"
+    ],
     "isTemplate": true,
     "MD5": "247ba0d795537145d3d17b33b6d8c3b6",
     "mtimeMs": 1626002001922.9172
-  }
-]
+  },
+  "name": "templates",
+  "directory-name": "templates",
+  "isTemplate": false
+}

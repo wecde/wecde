@@ -63,6 +63,7 @@
     ".quasar",
     "node_modules",
     "assets/labs",
-    "assets/templates"
+    "assets/templates",
+    "resources"
   ]
 }

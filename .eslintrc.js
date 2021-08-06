@@ -123,4 +123,5 @@ module.exports = {
     "functional/no-class": "off",
     "functional/no-return-void": "off",
   },
+  ignorePatterns: ["node_modules", "resources"],
 };

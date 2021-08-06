@@ -12,7 +12,8 @@
     "dev:android": "quasar dev -m capacitor -T android",
     "dev:ios": "quasar dev -m capacitor -T ios",
     "build:android": "quasar build -m capacitor -T android",
-    "build:ios": "quasar build -m capacitor -T ios"
+    "build:ios": "quasar build -m capacitor -T ios",
+    "build:templates": "node resources/build.js"
   },
   "dependencies": {
     "@capacitor/browser": "^1.0.2",
