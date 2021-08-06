@@ -5,7 +5,7 @@
         flat
         round
         dense
-        icon="menu"
+        :icon="mdiMenu"
         @click="$store.commit(`system/setNavigation`, true)"
         v-if="showHammer"
       />
@@ -15,7 +15,9 @@
 </template>
 
 <script lang="ts">
+import { mdiMenu } from "@quasar/extras/mdi-v5";
 import { defineComponent } from "vue";
+
 export default defineComponent({
   props: {
     showHammer: {
@@ -23,6 +25,11 @@ export default defineComponent({
       default: true,
       required: false,
     },
+  },
+  setup() {
+    return {
+      mdiMenu,
+    };
   },
 });
 </script>

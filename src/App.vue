@@ -37,9 +37,11 @@
 <script lang="ts">
 import { Filesystem } from "@capacitor/filesystem";
 import { setI18nLanguage } from "boot/i18n";
+import { useQuasar } from "quasar";
 import { stat } from "src/modules/filesystem";
 import { useStore } from "src/store";
-import { defineComponent, ref } from "vue";
+import { isDark as themeIsDark } from "src/store/settings/options support/ace-themes";
+import { defineComponent, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 export default defineComponent({
@@ -133,6 +135,18 @@ export default defineComponent({
       ready.value = true;
     }
     void init();
+
+    const quasar = useQuasar();
+
+    watch(
+      () => store.state.settings["appearance**theme"],
+      (newValue) => {
+        quasar.dark.set(themeIsDark(newValue as string));
+      },
+      {
+        immediate: true,
+      }
+    );
 
     return {
       ready,

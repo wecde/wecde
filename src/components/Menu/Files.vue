@@ -72,7 +72,7 @@
               <q-item-section>{{ $t("New Folder") }}</q-item-section>
             </q-item>
 
-            <Import-Files
+            <Action-Import-Files
               :dirname="$store.state.editor.project"
               @imported="reloadListFile"
               v-if="$store.state.editor.project"
@@ -85,7 +85,7 @@
                   <q-item-section>{{ $t("Import Files") }}</q-item-section>
                 </q-item>
               </template>
-            </Import-Files>
+            </Action-Import-Files>
 
             <q-separator />
 
@@ -142,9 +142,9 @@ import {
   mdiReload,
   mdiUndo,
 } from "@quasar/extras/mdi-v5";
+import ActionImportFiles from "components/Action-ImportFiles.vue";
 import FileExplorerAdd from "components/File Explorer/Add.vue";
 import FileExplorerList from "components/File Explorer/List.vue";
-import ImportFiles from "components/Import/Files.vue";
 import { basename } from "path-cross";
 import { readdirStat } from "src/modules/filesystem";
 import type { StatItem } from "src/modules/filesystem";
@@ -158,7 +158,7 @@ export default defineComponent({
     TemplateTab,
     FileExplorerList,
     FileExplorerAdd,
-    ImportFiles,
+    ActionImportFiles,
   },
   setup() {
     const store = useStore();

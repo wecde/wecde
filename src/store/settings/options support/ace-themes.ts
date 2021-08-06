@@ -47,3 +47,9 @@ export const themes = themeData.map(function (data) {
   };
   return theme;
 });
+
+export function isDark(value: string): boolean {
+  return (
+    themeData.find((item) => "ace/theme/" + item[0] === value)?.[3] === "dark"
+  );
+}

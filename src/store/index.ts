@@ -15,13 +15,13 @@ import editor from "./editor";
 import type { EditorStateInterface } from "./editor/state";
 import gitProject from "./git-project";
 import type { GitProjectStateInterface } from "./git-project/state";
-import hydrator from "./hydrator";
 import settings from "./settings";
 import type { SettingsStateInterface } from "./settings/state";
 import system from "./system";
 import type { SystemStateInterface } from "./system/state";
 import terminal from "./terminal";
 import type { TerminalStateInterface } from "./terminal/state";
+import watcher from "./watcher";
 
 /*
  * If not building with SSR mode, you can
@@ -84,7 +84,7 @@ export const store = createStore<StateInterface>({
   ],
 });
 
-hydrator(store);
+watcher(store);
 
 export default storeSsr(function (/* { ssrContext } */) {
   return store;

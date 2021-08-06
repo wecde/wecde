@@ -4,7 +4,7 @@
     :class="{
       dark: $q.dark.isActive,
 
-      ignored: gitStatus === `ignored` || isBeginCut,
+      ignored: ignored || gitStatus === `ignored` || isBeginCut,
       'is-folder': isFolder,
 
       'star-modified': gitStatus === `*modified`,
@@ -102,7 +102,10 @@
                 <q-item-section>{{ $t("New Folder") }}</q-item-section>
               </q-item>
 
-              <Import-Files :dirname="file.fullpath" @imported="refreshFolder">
+              <Action-Import-Files
+                :dirname="file.fullpath"
+                @imported="refreshFolder"
+              >
                 <template v-slot:default="{ on }">
                   <q-item clickable v-close-popup v-ripple v-on="on">
                     <q-item-section avatar class="min-width-0">
@@ -111,7 +114,7 @@
                     <q-item-section>{{ $t("Import Files") }}</q-item-section>
                   </q-item>
                 </template>
-              </Import-Files>
+              </Action-Import-Files>
 
               <q-separator />
             </template>
@@ -197,16 +200,19 @@ import {
   mdiFolderOutline,
   mdiPen,
 } from "@quasar/extras/mdi-v5";
-import ImportFiles from "components/Import/Files.vue";
+import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
-import { basename, join } from "path-cross";
+import { basename, relative } from "path-cross";
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
+import eventBus from "src/modules/event-bus";
 import exportZip from "src/modules/export-zip";
 import { readdirStat, readFile, unlink } from "src/modules/filesystem";
 import type { StatItem } from "src/modules/filesystem";
+import { status } from "src/modules/git";
 import { useStore } from "src/store";
 import {
   b64toBlob,
+  createTimeoutBy,
   isParentFolder,
   pathEquals,
   removedPathProject,
@@ -215,14 +221,18 @@ import {
   computed,
   defineAsyncComponent,
   defineComponent,
+  onBeforeUnmount,
   PropType,
   ref,
   toRefs,
   watch,
+  watchEffect,
 } from "vue";
 
 import FileExplorerAdd from "./Add.vue";
 import FileExplorerRename from "./Rename.vue";
+
+import gitStatusCache from "./git-status-cache";
 
 export default defineComponent({
   emits: ["removed", "request:refresh"],
@@ -232,7 +242,7 @@ export default defineComponent({
     }),
     FileExplorerRename,
     FileExplorerAdd,
-    ImportFiles,
+    ActionImportFiles,
   },
   props: {
     file: {
@@ -254,9 +264,6 @@ export default defineComponent({
     const isFolder = computed<boolean>(
       () => file.value.stat.type === "directory"
     );
-    const hidden = computed<boolean>(() =>
-      basename(file.value.fullpath).startsWith(".")
-    );
     const files = ref<StatItem[]>([]);
     const namesChildrenExists = computed<string[]>(() =>
       files.value.map((file) => basename(file.fullpath))
@@ -268,6 +275,37 @@ export default defineComponent({
           ? isParentFolder(file.value.fullpath, store.getters["editor/session"])
           : pathEquals(store.getters["editor/session"], file.value.fullpath))
     );
+    const gitStatus = ref<string | null>(null);
+
+    function refreshGitStatus(): void {
+      createTimeoutBy(
+        `watch fs for git status ${props.file.fullpath}`,
+        async () => {
+          console.log( store.state["git-project"].state )
+          if (
+            store.state.editor.project &&
+            store.state["git-project"].state === "ready"
+          ) {
+            gitStatus.value = await status({
+              dir: store.state.editor.project,
+              filepath: relative(
+                store.state.editor.project,
+                props.file.fullpath
+              ),
+              cache: gitStatusCache,
+            });
+          }
+        },
+        3000
+      );
+    }
+    watchEffect(() => void refreshGitStatus());
+    const watcherFS = eventBus.on(
+      ["write:file"],
+      () => void refreshGitStatus()
+    );
+
+    onBeforeUnmount(() => void watcherFS());
 
     async function refreshFolder() {
       if (isFolder.value) {
@@ -311,11 +349,11 @@ export default defineComponent({
       adding,
       addingFolder,
       isFolder,
-      hidden,
       files,
       namesChildrenExists,
       refreshFolder,
       editing,
+      gitStatus,
     };
   },
   methods: {
@@ -422,70 +460,14 @@ export default defineComponent({
         false
       );
     },
-    gitStatus(): string | void {
-      if (this.$store.state.editor.project) {
-        if (this.$store.state["git-project"].state !== "unready") {
-          if (this.isFolder) {
-            // const allStatus: {
-            //   [status: string]: number;
-            // } = {};
-
-            // eslint-disable-next-line functional/no-let
-            let added = false;
-            // eslint-disable-next-line functional/no-loop-statement
-            for (const fileTest in this.$store.state["git-project"]
-              .matrixStatus) {
-              if (
-                isParentFolder(
-                  this.file.fullpath,
-                  join(this.$store.state.editor.project, fileTest)
-                )
-              ) {
-                const status =
-                  this.$store.state["git-project"].matrixStatus[fileTest];
-
-                if (status === "*modified") {
-                  return "*modified";
-                }
-
-                if (status === "*added") {
-                  added = true;
-                }
-
-                // if (status in allStatus) {
-                //   allStatus[status]++;
-                // } else {
-                //   allStatus[status] = 1;
-                // }
-              }
-
-              if (added) {
-                return "*added";
-              }
-            }
-            // return Object.entries(allStatus).sort((a, b) => b[1] - a[1])[0]?.[0];
-          } else {
-            // eslint-disable-next-line functional/no-loop-statement
-            for (const fileTest in this.$store.state["git-project"]
-              .matrixStatus) {
-              if (
-                pathEquals(
-                  join(this.$store.state.editor.project, fileTest),
-                  this.file.fullpath
-                )
-              ) {
-                return this.$store.state["git-project"].matrixStatus[fileTest];
-              }
-            }
-          }
-
-          if (this.$store.state["git-project"].isLoading) {
-            return "loading";
-          }
-        }
-      }
-
-      return void 0;
+    ignored(): boolean {
+      return (
+        this.$store.state["git-project"].state === "ready" &&
+        this.$store.state.editor.project &&
+        this.$store.getters["git-project/ignored"](
+          relative(this.$store.state.editor.project, this.file.fullpath)
+        )
+      );
     },
   },
 });
