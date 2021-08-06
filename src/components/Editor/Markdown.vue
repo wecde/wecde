@@ -10,7 +10,7 @@
     ref="codeEditor"
   />
   <div
-    class="full-width full-height px-6 pb-6"
+    class="full-width full-height"
     v-if="previewing"
     v-html="html"
   />

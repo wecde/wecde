@@ -10,7 +10,7 @@
     ref="codeEditor"
   />
   <div
-    class="full-width full-height px-6 pb-6 flex items-center justify-center"
+    class="full-width full-height flex items-center justify-center"
     v-if="previewing"
     v-html="svg"
   />

@@ -400,7 +400,7 @@ export default defineComponent({
     async replaceAll(): Promise<void> {
       // eslint-disable-next-line functional/no-loop-statement
       for (const item of this.results) {
-        // eslint-disable-next-line @typescript-eslint/no-for-in-array, functional/no-loop-statement
+        // eslint-disable-next-line functional/no-loop-statement
         for (const index in item.match) {
           await this.replaceSearch(item, +index);
         }

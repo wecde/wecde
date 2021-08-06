@@ -51,7 +51,7 @@ module.exports = configure(function (ctx) {
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
       "roboto-font", // optional, you are not bound to it
-      "material-icons", // optional, you are not bound to it
+      // "material-icons", // optional, you are not bound to it
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-build
@@ -166,32 +166,61 @@ module.exports = configure(function (ctx) {
         display: "standalone",
         orientation: "portrait",
         background_color: "#ffffff",
-        theme_color: "#027be3",
+        theme_color: "#010101",
         icons: [
           {
-            src: "icons/icon-128x128.png",
-            sizes: "128x128",
+            src: "/img/icons/favicon@16x16.png",
+            sizes: "16x16",
             type: "image/png",
+            purpose: "any maskable",
           },
           {
-            src: "icons/icon-192x192.png",
+            src: "/img/icons/favicon@32x32.png",
+            sizes: "32x32",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/img/icons/favicon@60x60.png",
+            sizes: "60x60",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/img/icons/favicon@64x64.png",
+            sizes: "64x64",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/img/icons/favicon@76x76.png",
+            sizes: "76x76",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/img/icons/favicon@120x120.png",
+            sizes: "120x120",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/img/icons/favicon@180x180.png",
+            sizes: "180x180",
+            type: "image/png",
+            purpose: "any maskable",
+          },
+          {
+            src: "/img/icons/favicon@192x192.png",
             sizes: "192x192",
             type: "image/png",
+            purpose: "any maskable",
           },
           {
-            src: "icons/icon-256x256.png",
-            sizes: "256x256",
-            type: "image/png",
-          },
-          {
-            src: "icons/icon-384x384.png",
-            sizes: "384x384",
-            type: "image/png",
-          },
-          {
-            src: "icons/icon-512x512.png",
+            src: "/img/icons/favicon@512x512.png",
             sizes: "512x512",
             type: "image/png",
+            purpose: "any maskable",
           },
         ],
       },

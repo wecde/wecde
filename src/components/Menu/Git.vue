@@ -17,6 +17,34 @@
           >Initialize Repository</q-btn
         >
       </template>
+
+      <template v-else>
+        <div
+          class="file-object"
+          v-ripple
+          v-for="item in results"
+          :key="item.file"
+        >
+          <img
+            class="icon-file"
+            :src="
+              getIcon({
+                light: false,
+                isOpen: false,
+                isFolder: false,
+                name: item.basename,
+              })
+            "
+          />
+
+          <div class="full-width text-truncate">
+            {{ item.basename }}
+            <small class="text-caption" style="opacity: 0.8">{{
+              item.file
+            }}</small>
+          </div>
+        </div>
+      </template>
     </template>
   </Template-Tab>
 </template>
@@ -27,6 +55,7 @@ import {
   mdiChevronRight,
   mdiClose,
 } from "@quasar/extras/mdi-v5";
+import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
 import { init as GitInit } from "src/modules/git";
 import { defineComponent } from "vue";
 
@@ -41,16 +70,24 @@ export default defineComponent({
       mdiChevronDown,
       mdiChevronRight,
       mdiClose,
+
+      getIcon,
+
+      results: [
+        {
+          file: "index.js",
+          basename: "index.js",
+        },
+      ],
     };
   },
   methods: {
     async initRepo(): Promise<void> {
-      this.$store.commit("system/setProgress" , true )
+      this.$store.commit("system/setProgress", true);
       if (this.$store.state.editor.project) {
         await GitInit(this.$store.state.editor.project);
-
       }
-      this.$store.commit("system/setProgress" , false )
+      this.$store.commit("system/setProgress", false);
     },
   },
 });

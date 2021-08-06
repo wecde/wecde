@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center justify-center text-center px-3">
+  <div class="flex items-center justify-center text-center">
     <img
       :src="`data:image/${ext};base64,${base64}`"
       :alt="basename(fullpath)"
