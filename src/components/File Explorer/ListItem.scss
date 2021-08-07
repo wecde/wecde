@@ -4,14 +4,13 @@
   padding: 2.5px 8px 2.5px 7px;
   // color: #b9bbc1;
   color: #4a4a49;
+  &.dark {
+    color: #b9bbc1;
+  }
   display: flex;
   align-items: center;
   justify-content: space-between;
   position: relative;
-
-  &.dark {
-    color: #b9bbc1;
-  }
 
   @if ($enable-git == true) {
     &:after {
@@ -21,19 +20,28 @@
     }
 
     &.ignored {
-      color: rgb(127, 127, 127) !important;
+      color: rgb(150, 150, 150);
+      &.dark {
+        color: rgb(127, 127, 127) !important;
+      }
     }
 
     /* {*modified} */
     &.star-modified {
-      color: rgb(121, 184, 255);
+      color: rgb(75, 156, 248);
+      &.dark {
+        color: rgb(121, 184, 255);
+      }
 
       &:after {
         content: "M";
       }
     }
     &.modified {
-      color: #e0bd96;
+      color: #dda769;
+      &.dark {
+        color: #e0bd96;
+      }
 
       &:after {
         content: "M";
@@ -52,14 +60,20 @@
     }
 
     &.star-added {
-      color: rgb(52, 208, 88);
+      color: rgb(29, 211, 71);
+      &.dark {
+        color: rgb(52, 208, 88);
+      }
 
       &:after {
         content: "U";
       }
     }
     &.added {
-      color: #33984a;
+      color: rgb(29, 211, 71);
+      &.dark {
+        color: rgb(52, 208, 88);
+      }
 
       &:after {
         content: "U";

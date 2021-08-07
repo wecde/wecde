@@ -1,5 +1,5 @@
 <template>
-  <div class="row labs justify-center">
+  <div class="row q-ml-n1 justify-center">
     <div class="col-6 labs__item" v-for="lab in Labs" :key="lab.name">
       <q-card color="transparent" flat max-width="300px" class="mx-auto">
         <q-img
@@ -22,11 +22,6 @@
                 : mdiBookmarkOutline
             "
           />
-          <template v-slot:placeholder>
-            <div class="labs__item-placeholder">
-              <q-icon absolute :name="mdiLoading" />
-            </div>
-          </template>
         </q-img>
 
         <q-card-section class="q-pt-xs">
@@ -64,38 +59,3 @@ export default defineComponent({
   },
 });
 </script>
-
-<style lang="scss" scoped>
-.labs {
-  margin: {
-    left: -4px;
-    right: -4px;
-  }
-
-  &__item {
-    padding: {
-      left: 4px;
-      right: 4px;
-    }
-    text-align: center;
-    &-placeholder {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-  }
-  &__btn-fav {
-    position: absolute;
-    right: 0;
-    background-color: rgba(34, 34, 34, 0.6);
-  }
-}
-</style>

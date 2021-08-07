@@ -2,6 +2,9 @@
   <q-footer
     style="height: 41px"
     class="bottom-tools hidden-md"
+    :class="{
+      dark: $q.dark.isActive,
+    }"
     elevated
     :model-value="inputValue"
   >
@@ -88,7 +91,13 @@
           transition-show="jump-up"
           transition-hide="jump-down"
         >
-          <q-card flat class="addons">
+          <q-card
+            flat
+            class="addons"
+            :class="{
+              dark: $q.dark.isActive,
+            }"
+          >
             <div class="row no-wrap">
               <div class="col-6">
                 <div
@@ -659,7 +668,10 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .bottom-tools {
-  background-color: #0e0e0e !important;
+  background-color: #f5f7f9;
+  &.dark {
+    background-color: #0e0e0e !important;
+  }
   width: 100%;
   padding: {
     left: 5px;
@@ -676,9 +688,18 @@ export default defineComponent({
   }
 
   .item {
+    color: rgb(86, 88, 92);
+  }
+
+  &.dark {
+    .item {
+      color: #b7b9c3;
+    }
+  }
+
+  .item {
     position: relative;
     padding: 0 5px;
-    color: #b7b9c3;
     font-size: 25px;
     height: 100%;
     line-height: 41px;
@@ -715,18 +736,30 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .addons {
-  background-color: #222;
+  background: #fff;
+  color: #56585c;
+  &.dark {
+    background-color: #222;
+    color: #d3d4da;
+  }
   box-shadow: 0 -1px 2px rgb(0 0 0 / 10%);
   border: none;
   width: 100%;
-  color: #d3d4da;
   padding: 8px 16px;
+
+  .item {
+    color: #b9bbc1;
+  }
+  &.dark {
+    .item {
+      color: #5e6d82;
+    }
+  }
 
   .item {
     display: block;
     text-decoration: none;
     padding: 0.25em 1.5em;
-    color: #b9bbc1;
 
     span {
       margin-left: 12px;
