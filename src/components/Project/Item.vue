@@ -32,7 +32,7 @@
         />
       </q-item-label>
       <q-item-label caption>
-        {{ $t("Modified") }}
+        {{ $t("label.modified") }}
         <vue-timeagojs :time="new Date(project.stat.mtime)" />
       </q-item-label>
     </q-item-section>
@@ -50,13 +50,13 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiArchiveOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("Export ZIP") }}</q-item-section>
+              <q-item-section>{{ $t("label.export-zip") }}</q-item-section>
             </q-item>
             <q-item clickable v-close-popup v-ripple @click="renaming = true">
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiPen" />
               </q-item-section>
-              <q-item-section>{{ $t("Rename") }}</q-item-section>
+              <q-item-section>{{ $t("label.rename") }}</q-item-section>
             </q-item>
             <q-item
               clickable
@@ -67,7 +67,7 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiDeleteOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("Delete") }}</q-item-section>
+              <q-item-section>{{ $t("label.delete") }}</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -127,8 +127,7 @@ export default defineComponent({
         this.$store.commit("terminal/clear");
 
         void Toast.show({
-          text: this.$rt("Exported {type} {name}", {
-            type: this.$t("project"),
+          text: this.$rt("alert.exported-project", {
             name: basename(this.project.fullpath),
           }),
         });

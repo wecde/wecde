@@ -11,7 +11,7 @@
     <q-card>
       <q-card-section class="row items-center q-pb-1 q-pt-2">
         <div class="text-weight-medium text-subtitle1">
-          {{ $t("Clone Repo") }}
+          {{ $t("label.clone-repo") }}
         </div>
         <q-space />
         <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
@@ -21,14 +21,14 @@
 
       <q-card-section class="q-pt-2 q-pb-3">
         <span class="text-blue text-weight-medium">{{
-          $t("Set Credentials")
+          $t("label.set-credentials")
         }}</span>
-        {{ $t("to access Private Repository") }}
+        {{ $t("label.to-access-private") }}
 
         <q-input
           dense
           autofocus
-          :placeholder="$t('URL (Start with https://)')"
+          :placeholder="$t('placeholder.git')"
           v-model.trim="url"
           required
           @keypress.enter="cloneRepo"
@@ -37,13 +37,13 @@
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat dense color="primary" v-close-popup :label="$t('Cancel')" />
+        <q-btn flat dense color="primary" v-close-popup :label="$t('label.cancel')" />
         <q-btn
           flat
           dense
           color="primary"
           @click="cloneRepo"
-          :label="$t('OK')"
+          :label="$t('label.ok')"
         />
       </q-card-actions>
     </q-card>
@@ -100,7 +100,7 @@ export default defineComponent({
         });
 
         void Toast.show({
-          text: this.$rt("Clone repo {url} successfuly", {
+          text: this.$rt("alert.clone-success", {
             url: this.url,
           }),
         });
@@ -112,7 +112,7 @@ export default defineComponent({
       } catch (err: any) {
         this.$store.commit("terminal/error", err);
         void Toast.show({
-          text: this.$rt("Clone repo {url} failed: {message}", {
+          text: this.$rt("alert.clone-failed", {
             url: this.url,
             message: err.messaage,
           }),

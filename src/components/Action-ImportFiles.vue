@@ -20,7 +20,7 @@ export default defineComponent({
       const names = await importFiles(this.dirname);
       this.$store.commit("terminal/clear");
       void Toast.show({
-        text: this.$rt("Imported {type} {list}", {
+        text: this.$rt("alert.imported-type", {
           type: this.$t("file(s)"),
           list: names.map((item) => `"${item}"`).join(", "),
         }),

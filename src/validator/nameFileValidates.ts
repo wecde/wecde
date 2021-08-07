@@ -11,7 +11,7 @@ export default function nameFileValidates(
 ): ComputedRef<string | false> {
   return computed<string | false>(() => {
     if (!nameCheck.value && (checkNameEmpty === true || checkNameEmpty.value)) {
-      return i18n.global.rt("A file or folder name must be provided") + "";
+      return i18n.global.rt("alert.file-name-not-empty");
     }
 
     if (
@@ -31,14 +31,9 @@ export default function nameFileValidates(
           (oldName === false ? true : name !== basename(oldName.value))
       )
     ) {
-      return (
-        i18n.global.rt(
-          "A file or folder <strong>{name}</strong> already exists at this location Please choose a different names",
-          {
-            name: nameCheck.value,
-          }
-        ) + ""
-      );
+      return i18n.global.rt("alert.file-name-invalidate", {
+        name: nameCheck.value,
+      });
     }
 
     return false;

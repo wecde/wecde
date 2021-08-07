@@ -1,6 +1,6 @@
 <template>
   <Template-Tab>
-    <template v-slot:title>{{ $t("Project") }}</template>
+    <template v-slot:title>{{ $t("label.project") }}</template>
 
     <template v-slot:addons>
       <q-btn
@@ -35,7 +35,7 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiGit" />
               </q-item-section>
-              <q-item-section>{{ $t("Clone Repo") }}</q-item-section>
+              <q-item-section>{{ $t("label.clone-repo") }}</q-item-section>
             </q-item>
             <q-item
               clickable
@@ -46,7 +46,7 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiLockOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("Credentials") }}</q-item-section>
+              <q-item-section>{{ $t("label.redentials") }}</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -75,7 +75,7 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiArchiveOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("New Project") }}</q-item-section>
+              <q-item-section>{{ $t("label.new-project") }}</q-item-section>
             </q-item>
             <q-item
               clickable
@@ -86,7 +86,7 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiZipBoxOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("Import ZIP") }}</q-item-section>
+              <q-item-section>{{ $t("label.import-zip") }}</q-item-section>
             </q-item>
 
             <q-separator />
@@ -95,18 +95,18 @@
               clickable
               v-close-popup
               v-ripple
-              @click="$router.push(`/?tab=1`)"
+              @click="$router.push(`/?tab=logs`)"
             >
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiMessageTextOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("Change Logs") }}</q-item-section>
+              <q-item-section>{{ $t("label.change-logs") }}</q-item-section>
             </q-item>
             <q-item clickable v-close-popup v-ripple @click="$router.push(`/`)">
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiCubeOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("View Labs") }}</q-item-section>
+              <q-item-section>{{ $t("label.view-labs") }}</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -134,7 +134,7 @@
         <q-card class="flex column no-wrap">
           <q-card-section class="row items-center q-pb-1 q-pt-2">
             <div class="text-weight-medium text-subtitle1">
-              {{ $t("Delete Project") }}
+              {{ $t("label.delete-project") }}
             </div>
             <q-space />
             <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
@@ -143,19 +143,19 @@
           <q-separator />
 
           <q-card-section class="fit scroll q-pt-2 q-pb-3">
-            {{ $t("Type") }} <span class="blue--text">{{ code }}</span>
-            {{ $t("to confirm.") }}
+            {{ $t("label.type") }} <span class="blue--text">{{ code }}</span>
+            {{ $t("label.to-confirm") }}
             <span class="blue--text">{{
               projectRemoving && basename(projectRemoving.fullpath)
             }}</span>
-            {{ $t("will permanently deleted. It can NOT be recovered!") }}
+            {{ $t("label.not-recovery") }}
             <q-input
               dense
               :rules="[
                 () =>
                   code === codeInput
                     ? true
-                    : $t('What you typed did not match {code}', { code }),
+                    : $t('error.match-code', { code }),
               ]"
               required
               v-model.trim="codeInput"
@@ -166,9 +166,9 @@
 
           <div class="flex items-center justify-between mt-3">
             <q-btn text color="blue" @click="projectRemoving = null">
-              {{ $t("Cancel") }}
+              {{ $t("label.cancel") }}
             </q-btn>
-            <q-btn text color="blue" @click="remove"> {{ $t("OK") }} </q-btn>
+            <q-btn text color="blue" @click="remove"> {{ $t("label.ok") }} </q-btn>
           </div>
         </q-card>
       </q-dialog>
@@ -282,9 +282,7 @@ export default defineComponent({
       this.$store.commit("system/setProgress", false);
       if (notification) {
         void Toast.show({
-          text: this.$rt("Reload list {type}", {
-            type: this.$t("project"),
-          }),
+          text: this.$rt("alert.reload-projects"),
         });
       }
     },
@@ -293,8 +291,7 @@ export default defineComponent({
         const names = await importZip("projects/");
         this.$store.commit("terminal/clear");
         void Toast.show({
-          text: this.$rt("Imported {type} {list}", {
-            type: this.$t("project(s)"),
+          text: this.$rt("alert.imported-project", {
             list: names.map((item) => `"${item}"`).join(", "),
           }),
         });
@@ -309,15 +306,13 @@ export default defineComponent({
         try {
           await rmdir(this.projectRemoving.fullpath);
           void Toast.show({
-            text: this.$rt("Removed {type} {name}", {
-              type: this.$t("project"),
+            text: this.$rt("alert.removed-project", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });
         } catch {
           void Toast.show({
-            text: this.$rt("Remove {type} {name} failed", {
-              type: this.$t("project"),
+            text: this.$rt("alert.remove-project-failed", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });

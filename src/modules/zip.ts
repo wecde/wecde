@@ -40,7 +40,7 @@ export async function zip({
   console.log(store);
   store.commit(
     "terminal/print",
-    i18n.global.rt("Ziping folder {name}", {
+    i18n.global.rt("alert.ziping", {
       name: folder,
     })
   );
@@ -53,7 +53,7 @@ export async function zip({
 
       store.commit(
         "terminal/print",
-        i18n.global.rt("Adding {type} {name}", {
+        i18n.global.rt(`alert.adding-${stat.type}`, {
           type: stat.type,
           name: path,
         })
@@ -75,7 +75,7 @@ export async function zip({
   if (to) {
     store.commit(
       "terminal/print",
-      i18n.global.rt("Successfully zip saved in {name}", {
+      i18n.global.rt("alert.zip-saved", {
         name: to,
       })
     );
@@ -83,7 +83,7 @@ export async function zip({
     await writeFile(to, fileResult);
   }
 
-  store.commit("terminal/print", i18n.global.rt("Successfully created zip"));
+  store.commit("terminal/print", i18n.global.rt("alert.created-zip"));
 
   return fileResult;
 }
@@ -98,7 +98,7 @@ export async function unzip({
   console.log(store);
   store.commit(
     "terminal/print",
-    i18n.global.rt("Getting file zip from {name}", {
+    i18n.global.rt("alert.extracting-zip", {
       name: typeof file === "string" ? file : "tmp/buffer",
     })
   );
@@ -115,7 +115,7 @@ export async function unzip({
 
   store.commit(
     "terminal/print",
-    i18n.global.rt("Extract file {name}", {
+    i18n.global.rt("alert.extract-file", {
       name: typeof file === "string" ? file : "tmp/buffer",
     })
   );
@@ -125,8 +125,7 @@ export async function unzip({
   for (const path in zip.files) {
     store.commit(
       "terminal/print",
-      i18n.global.rt("Extracing {type} {name}", {
-        type: i18n.global.rt(zip.files[path].dir ? "directory" : "file"),
+      i18n.global.rt(`alert.extract-${zip.files[path].dir ? "folder" : "file"}`, {
         name: path,
       })
     );
@@ -151,7 +150,7 @@ export async function unzip({
   await Promise.all(allProcess);
   store.commit(
     "terminal/print",
-    i18n.global.rt("Extracted zip to {to}", {
+    i18n.global.rt("alert.unzipped", {
       to,
     })
   );

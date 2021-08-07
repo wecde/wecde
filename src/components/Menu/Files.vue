@@ -37,7 +37,7 @@
                 <q-item-section avatar class="min-width-0">
                   <q-icon :name="mdiContentPaste" />
                 </q-item-section>
-                <q-item-section>{{ $t("Paste") }}</q-item-section>
+                <q-item-section>{{ $t("label.paste") }}</q-item-section>
               </q-item>
               <q-separator />
             </template>
@@ -54,7 +54,7 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiFileOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("New File") }}</q-item-section>
+              <q-item-section>{{ $t("label.new-file") }}</q-item-section>
             </q-item>
 
             <q-item
@@ -69,7 +69,7 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiFolderOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("New Folder") }}</q-item-section>
+              <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
             </q-item>
 
             <Action-Import-Files
@@ -82,7 +82,7 @@
                   <q-item-section avatar class="min-width-0">
                     <q-icon :name="mdiDownload" />
                   </q-item-section>
-                  <q-item-section>{{ $t("Import Files") }}</q-item-section>
+                  <q-item-section>{{ $t("label.import-files") }}</q-item-section>
                 </q-item>
               </template>
             </Action-Import-Files>
@@ -93,14 +93,14 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiUndo" />
               </q-item-section>
-              <q-item-section>{{ $t("Undo") }}</q-item-section>
+              <q-item-section>{{ $t("label.undo") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple>
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiRedo" />
               </q-item-section>
-              <q-item-section>{{ $t("Redo") }}</q-item-section>
+              <q-item-section>{{ $t("label.redo") }}</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -213,9 +213,7 @@ export default defineComponent({
 
         if (notification) {
           void Toast.show({
-            text: this.$rt("Reload list {type}", {
-              type: this.$t("file(s)"),
-            }),
+            text: this.$rt("alert.reload-files"),
           });
         }
       } catch (err) {

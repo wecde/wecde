@@ -66,7 +66,7 @@
                 <q-item-section avatar class="min-width-0">
                   <q-icon :name="mdiContentPaste" />
                 </q-item-section>
-                <q-item-section>{{ $t("Paste") }}</q-item-section>
+                <q-item-section>{{ $t("label.paste") }}</q-item-section>
               </q-item>
               <q-separator />
             </template>
@@ -84,7 +84,7 @@
                 <q-item-section avatar class="min-width-0">
                   <q-icon :name="mdiFileOutline" />
                 </q-item-section>
-                <q-item-section>{{ $t("New File") }}</q-item-section>
+                <q-item-section>{{ $t("label.new-file") }}</q-item-section>
               </q-item>
 
               <q-item
@@ -99,7 +99,7 @@
                 <q-item-section avatar class="min-width-0">
                   <q-icon :name="mdiFolderOutline" />
                 </q-item-section>
-                <q-item-section>{{ $t("New Folder") }}</q-item-section>
+                <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
               </q-item>
 
               <Action-Import-Files
@@ -111,7 +111,7 @@
                     <q-item-section avatar class="min-width-0">
                       <q-icon :name="mdiDownload" />
                     </q-item-section>
-                    <q-item-section>{{ $t("Import Files") }}</q-item-section>
+                    <q-item-section>{{ $t("label.import-files") }}</q-item-section>
                   </q-item>
                 </template>
               </Action-Import-Files>
@@ -123,14 +123,14 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiContentCut" />
               </q-item-section>
-              <q-item-section>{{ $t("Cut") }}</q-item-section>
+              <q-item-section>{{ $t("label.cut") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple @click="copy">
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiContentCopy" />
               </q-item-section>
-              <q-item-section>{{ $t("Copy") }}</q-item-section>
+              <q-item-section>{{ $t("label.copy") }}</q-item-section>
             </q-item>
 
             <q-item
@@ -142,14 +142,14 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiPen" />
               </q-item-section>
-              <q-item-section>{{ $t("Rename") }}</q-item-section>
+              <q-item-section>{{ $t("label.rename") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple @click="remove">
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiDeleteOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("Delete") }}</q-item-section>
+              <q-item-section>{{ $t("label.delete") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple @click="exportZip">
@@ -157,7 +157,7 @@
                 <q-icon :name="mdiExportVariant" />
               </q-item-section>
               <q-item-section>{{
-                $t(isFolder ? "Export ZIP" : "Export File")
+                $t(isFolder ? "label.export-folder" : "label.export-file")
               }}</q-item-section>
             </q-item>
           </q-list>
@@ -281,7 +281,7 @@ export default defineComponent({
       createTimeoutBy(
         `watch fs for git status ${props.file.fullpath}`,
         async () => {
-          console.log( store.state["git-project"].state )
+          console.log(store.state["git-project"].state);
           if (
             store.state.editor.project &&
             store.state["git-project"].state === "ready"
@@ -364,8 +364,7 @@ export default defineComponent({
       await unlink(this.file.fullpath);
 
       void Toast.show({
-        text: this.$rt("Removed {type} {name}", {
-          type: this.isFolder ? "folder" : "file",
+        text: this.$rt(`alert.removed-${this.isFolder ? "folder" : "file"}`, {
           name: `${removedPathProject(this.file.fullpath)}`,
         }),
       });
@@ -413,10 +412,12 @@ export default defineComponent({
           await exportZip(this.file.fullpath);
           this.$store.commit("terminal/clear");
           void Toast.show({
-            text: this.$rt("Exported {type} {name}", {
-              type: this.isFolder ? "folder" : "file",
-              name: removedPathProject(this.file.fullpath),
-            }),
+            text: this.$rt(
+              `alert.exported-${this.isFolder ? "folder" : "file"}`,
+              {
+                name: removedPathProject(this.file.fullpath),
+              }
+            ),
           });
         } catch (err) {
           this.$store.commit("terminal/error", err);
@@ -428,10 +429,12 @@ export default defineComponent({
         saveAs(b64toBlob(data), basename(this.file.fullpath));
         this.$store.commit("system/setProgress", false);
         void Toast.show({
-          text: this.$rt("Exported {type} {name}", {
-            type: this.isFolder ? "folder" : "file",
-            name: removedPathProject(this.file.fullpath),
-          }),
+          text: this.$rt(
+            `alert.exported-${this.isFolder ? "folder" : "file"}`,
+            {
+              name: removedPathProject(this.file.fullpath),
+            }
+          ),
         });
       }
     },

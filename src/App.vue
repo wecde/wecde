@@ -64,7 +64,7 @@ export default defineComponent({
       };
     }[] = [
       {
-        message: i18n.rt("Loading resources"),
+        message: i18n.rt("preload.loading-resources"),
         async handler() {
           if (document.readyState === "complete") {
             return true;
@@ -84,7 +84,7 @@ export default defineComponent({
         },
       },
       {
-        message: i18n.rt("Checking last session"),
+        message: i18n.rt("preload.checking-last-session"),
         async handler() {
           if (store.state.editor.project) {
             try {
@@ -103,7 +103,7 @@ export default defineComponent({
         },
       },
       {
-        message: i18n.rt("Checking permissing storage"),
+        message: i18n.rt("preload.checking-permission"),
         async handler() {
           if (
             (await Filesystem.checkPermissions()).publicStorage !== "granted"

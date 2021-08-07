@@ -1,6 +1,6 @@
 <template>
   <Template-Tab>
-    <template v-slot:title>{{ $t("Settings") }}</template>
+    <template v-slot:title>{{ $t("label.settings") }}</template>
 
     <template v-slot:contents>
       Settings have been moved to a separate tab for customization.

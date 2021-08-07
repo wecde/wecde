@@ -1,6 +1,6 @@
 <template>
   <Template-Tab>
-    <template v-slot:title>{{ $t("Find") }}</template>
+    <template v-slot:title>{{ $t("label.find") }}</template>
 
     <template v-slot:addons>
       <q-btn
@@ -44,7 +44,7 @@
         />
         <div class="full-width">
           <q-input
-            :placeholder="$t('Search')"
+            :placeholder="$t('placeholder.search')"
             rounded
             dense
             outlined
@@ -52,7 +52,7 @@
             @keypress.enter="search"
           />
           <q-input
-            :placeholder="$t('Replace')"
+            :placeholder="$t('placeholder.replace')"
             rounded
             dense
             outlined
@@ -78,7 +78,7 @@
           :name="mdiDotsHorizontal"
         />
         <div class="text-left" v-show="openRules">
-          <small class="text-caption">{{ $t("files to include") }}</small>
+          <small class="text-caption">{{ $t("label.files-include") }}</small>
           <q-input
             rounded
             dense
@@ -88,7 +88,7 @@
           />
 
           <small class="text-caption q-mt-1">{{
-            $t("files to exclude")
+            $t("label.files-exclude")
           }}</small>
           <q-input
             rounded

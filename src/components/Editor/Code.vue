@@ -111,7 +111,7 @@
                   :disable="supportFormat === false"
                 >
                   <q-icon size="1em" :name="mdiFormatAlignRight" />
-                  <span>{{ $t("Format") }}</span>
+                  <span>{{ $t("label.format") }}</span>
                 </div>
                 <div
                   class="item"
@@ -120,7 +120,7 @@
                   @click="findAll"
                 >
                   <q-icon size="1em" :name="mdiMagnify" />
-                  <span>{{ $t("Find All") }}</span>
+                  <span>{{ $t("label.find-all") }}</span>
                 </div>
                 <div
                   class="item"
@@ -133,21 +133,21 @@
                   :disable="!!nextErrorer === false"
                 >
                   <q-icon size="1em" :name="mdiChevronDownCircleOutline" />
-                  <span>{{ $t("Next Error") }}</span>
+                  <span>{{ $t("label.next-error") }}</span>
                 </div>
               </div>
               <div class="col-6">
                 <div class="item" v-ripple>
                   <q-icon size="1em" :name="mdiLightningBoltOutline" />
-                  <span>{{ $t("Definition") }}</span>
+                  <span>{{ $t("label.definition") }}</span>
                 </div>
                 <div class="item" v-ripple>
                   <q-icon size="1em" :name="mdiCommentProcessingOutline" />
-                  <span>{{ $t("Signature") }}</span>
+                  <span>{{ $t("label.signature") }}</span>
                 </div>
                 <div class="item" v-ripple>
                   <q-icon size="1em" :name="mdiInformationVariant" />
-                  <span>{{ $t("Show Info") }}</span>
+                  <span>{{ $t("label.show-info") }}</span>
                 </div>
               </div>
             </div>

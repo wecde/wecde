@@ -1,6 +1,6 @@
 <template>
   <Template-Tab>
-    <template v-slot:title>{{ $t("Settings") }}</template>
+    <template v-slot:title>{{ $t("label.ettings") }}</template>
 
     <template v-slot:contents>
       <template v-if="$store.state['git-project'].state === 'unready'">

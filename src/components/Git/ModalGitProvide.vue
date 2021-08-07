@@ -11,7 +11,7 @@
     <q-card>
       <q-card-section class="row items-center q-pb-1 q-pt-2">
         <div class="text-weight-medium text-subtitle1">
-          {{ $t("Credentials") }}
+          {{ $t("label.credentials") }}
         </div>
         <q-space />
         <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
@@ -21,7 +21,7 @@
 
       <q-card-section class="q-pt-2 q-pb-3">
         <div class="flex no-wrap items-center">
-          <span class="text-weight-medium">{{ $t("Provider") }}</span>
+          <span class="text-weight-medium">{{ $t("label.provider") }}</span>
 
           <q-select
             class="q-ml-4"
@@ -40,18 +40,18 @@
           />
         </div>
 
-        <q-input :placeholder="$t('Username')" dense v-model="username" />
-        <q-input :placeholder="$t('Password')" dense v-model="password" />
-        <q-input :placeholder="$t('Email')" dense v-model="email" />
+        <q-input :placeholder="$t('placeholder.username')" dense v-model="username" />
+        <q-input :placeholder="$t('placeholder.password')" dense v-model="password" />
+        <q-input :placeholder="$t('placeholder.mail')" dense v-model="email" />
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat dense color="primary" :label="$t('Cancel')" v-close-popup />
+        <q-btn flat dense color="primary" :label="$t('label.cancel')" v-close-popup />
         <q-btn
           flat
           dense
           color="primary"
-          :label="$t('OK')"
+          :label="$t('label.ok')"
           v-close-popup
           @click="save"
         />

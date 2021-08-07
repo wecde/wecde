@@ -10,7 +10,7 @@
     <q-card v-if="!templateSelected" class="flex column no-wrap">
       <q-card-section class="row items-center q-pb-1 q-pt-2">
         <div class="text-weight-medium text-subtitle1">
-          {{ $t("Project Template") }}
+          {{ $t("label.project-template") }}
         </div>
         <q-space />
         <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
@@ -46,12 +46,12 @@
     <q-card v-else-if="templateSelected" class="flex column no-wrap">
       <q-card-section class="row items-center q-pb-1 q-pt-2">
         <div class="text-weight-medium text-subtitle1">
-          {{ $t("Create Project") }}
+          {{ $t("label.create-project") }}
         </div>
         <q-space />
         <div>
           <q-btn
-            :label="$t('Create')"
+            :label="$t('label.create')"
             flat
             color="primary"
             padding="none"
@@ -67,7 +67,7 @@
 
       <q-card-section class="fit scroll q-pt-2 q-pb-3">
         <div class="text-subtitle2 text-weight-medium">
-          {{ $t("Project Name") }}
+          {{ $t("label.project-name") }}
         </div>
         <q-input
           dense
@@ -83,7 +83,7 @@
         </q-input>
 
         <div class="text-subtitle2 text-weight-medium q-mt-5">
-          {{ $t("Template") }}
+          {{ $t("label.template") }}
         </div>
         <div class="icons-group q-mt-1" v-if="templateSelected.icons">
           <img
@@ -188,8 +188,7 @@ export default defineComponent({
 
         if (created) {
           void Toast.show({
-            text: this.$rt("Created {type} {name}", {
-              type: this.$t("project"),
+            text: this.$rt("alert.created-project", {
               name: this.templateSelected.name,
             }),
           });

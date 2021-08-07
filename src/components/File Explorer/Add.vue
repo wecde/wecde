@@ -73,8 +73,7 @@ export default defineComponent({
         }
 
         void Toast.show({
-          text: i18n.rt("Created {type} {name}", {
-            type: i18n.rt(isFolder.value ? "folder" : "file"),
+          text: i18n.rt(`alert.${isFolder.value ? "folder" : "file"}`, {
             name: pathTo,
           }),
         });

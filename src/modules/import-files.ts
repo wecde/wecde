@@ -10,7 +10,7 @@ export default async function importFiles(
   folderSave: string,
   multiple = true
 ): Promise<readonly string[]> {
-  store.commit("terminal/print", i18n.global.rt("Import file(s)"));
+  store.commit("terminal/print", i18n.global.rt("alert.import-files"));
   const files = await selectFile("", multiple);
 
   if (files.length > 0) {
@@ -18,7 +18,7 @@ export default async function importFiles(
       files.map(async (file, index) => {
         store.commit(
           "terminal/print",
-          i18n.global.rt("Saving file {name} {index}/{length}", {
+          i18n.global.rt("alert.saving-file-index", {
             name: file.name,
             index: index + 1,
             length: files.length,
