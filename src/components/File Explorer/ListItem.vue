@@ -107,11 +107,13 @@
                 @imported="refreshFolder"
               >
                 <template v-slot:default="{ on }">
-                  <q-item clickable v-close-popup v-ripple v-on="on">
+                  <q-item clickable v-close-popup v-ripple @click="on">
                     <q-item-section avatar class="min-width-0">
                       <q-icon :name="mdiDownload" />
                     </q-item-section>
-                    <q-item-section>{{ $t("label.import-files") }}</q-item-section>
+                    <q-item-section>{{
+                      $t("label.import-files")
+                    }}</q-item-section>
                   </q-item>
                 </template>
               </Action-Import-Files>
@@ -231,7 +233,6 @@ import {
 
 import FileExplorerAdd from "./Add.vue";
 import FileExplorerRename from "./Rename.vue";
-
 import gitStatusCache from "./git-status-cache";
 
 export default defineComponent({
@@ -361,15 +362,23 @@ export default defineComponent({
 
     async remove() {
       this.$store.commit("system/setProgress", true);
-      await unlink(this.file.fullpath);
+      try {
+        await unlink(this.file.fullpath);
 
-      void Toast.show({
-        text: this.$rt(`alert.removed-${this.isFolder ? "folder" : "file"}`, {
-          name: `${removedPathProject(this.file.fullpath)}`,
-        }),
-      });
+        void Toast.show({
+          text: this.$rt(`alert.removed-${this.isFolder ? "folder" : "file"}`, {
+            name: `${removedPathProject(this.file.fullpath)}`,
+          }),
+        });
 
-      this.$emit("removed");
+        this.$emit("removed");
+      } catch {
+        void Toast.show({
+          text: this.$rt(`alert.remove-failed-${this.isFolder ? "folder" : "file"}`, {
+            name: `${removedPathProject(this.file.fullpath)}`,
+          }),
+        });
+      }
       this.$store.commit("system/setProgress", false);
     },
     cut() {
@@ -413,7 +422,7 @@ export default defineComponent({
           this.$store.commit("terminal/clear");
           void Toast.show({
             text: this.$rt(
-              `alert.exported-${this.isFolder ? "folder" : "file"}`,
+              `alert.exported.${this.isFolder ? "folder" : "file"}`,
               {
                 name: removedPathProject(this.file.fullpath),
               }
@@ -430,7 +439,7 @@ export default defineComponent({
         this.$store.commit("system/setProgress", false);
         void Toast.show({
           text: this.$rt(
-            `alert.exported-${this.isFolder ? "folder" : "file"}`,
+            `alert.exported.${this.isFolder ? "folder" : "file"}`,
             {
               name: removedPathProject(this.file.fullpath),
             }

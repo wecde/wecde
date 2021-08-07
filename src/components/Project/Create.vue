@@ -188,7 +188,7 @@ export default defineComponent({
 
         if (created) {
           void Toast.show({
-            text: this.$rt("alert.created-project", {
+            text: this.$rt("alert.created.project", {
               name: this.templateSelected.name,
             }),
           });

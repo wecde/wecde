@@ -1,34 +1,30 @@
 <template>
-  <router-view v-if="ready" />
-  <div
-    v-else
-    class="
-      full-width full-height
-      flex flex-column
-      justify-center
-      items-center
-      text-center
-    "
-  >
-    <div>
-      <img
-        width="160px"
-        height="160px"
-        :src="require('src/assets/favicon.svg')"
-      />
-    </div>
-    <div>
-      <h1 class="app--name">Shin Code Editor</h1>
+  <q-linear-progress
+    indeterminate
+    round
+    v-if="$store.state.system.progress"
+    class="progress"
+  />
 
-      <div
-        class="progress mt-3"
-        v-if="status"
-        style="height: calc(1.5em + 4px)"
-      >
-        <q-progress-linear rounded color="cyan" :value="status.value" />
-        <span class="progress-status-text text-caption">{{
-          status.status
-        }}</span>
+  <router-view v-if="ready" />
+  <div class="preload" v-else>
+    <div class="flex no-wrap column justify-center items-center text-center">
+      <div>
+        <img :src="require('src/assets/favicon.svg')" />
+      </div>
+      <div>
+        <h1 class="app--name">Shin Code Editor</h1>
+
+        <div
+          class="preload-progress mt-3"
+          v-if="status"
+          style="height: calc(1.5em + 4px)"
+        >
+          <q-linear-progress round :value="status.value" />
+          <span class="progress-status-text text-caption">{{
+            status.status
+          }}</span>
+        </div>
       </div>
     </div>
   </div>
@@ -36,19 +32,26 @@
 
 <script lang="ts">
 import { Filesystem } from "@capacitor/filesystem";
-import { setI18nLanguage } from "boot/i18n";
+import { loadLocaleMessages } from "boot/i18n";
 import { useQuasar } from "quasar";
 import { stat } from "src/modules/filesystem";
 import { useStore } from "src/store";
 import { isDark as themeIsDark } from "src/store/settings/options support/ace-themes";
 import { defineComponent, ref, watch } from "vue";
-import { useI18n } from "vue-i18n";
 
 export default defineComponent({
   setup() {
-    const i18n = useI18n();
+    const store = useStore();
 
-    setI18nLanguage("en");
+    watch(
+      () => store.state.settings["appearance**language"],
+      (newValue) => {
+        void loadLocaleMessages(newValue as string);
+      },
+      {
+        immediate: true,
+      }
+    );
 
     const ready = ref<boolean>(false);
     const status = ref<{
@@ -56,7 +59,6 @@ export default defineComponent({
       status: string;
     } | null>(null);
 
-    const store = useStore();
     const progress: {
       message: string;
       handler: {
@@ -64,7 +66,7 @@ export default defineComponent({
       };
     }[] = [
       {
-        message: i18n.rt("preload.loading-resources"),
+        message: "Loading resources",
         async handler() {
           if (document.readyState === "complete") {
             return true;
@@ -84,7 +86,7 @@ export default defineComponent({
         },
       },
       {
-        message: i18n.rt("preload.checking-last-session"),
+        message: "Checking last session",
         async handler() {
           if (store.state.editor.project) {
             try {
@@ -103,7 +105,7 @@ export default defineComponent({
         },
       },
       {
-        message: i18n.rt("preload.checking-permission"),
+        message: "Checking permissing storage",
         async handler() {
           if (
             (await Filesystem.checkPermissions()).publicStorage !== "granted"
@@ -123,7 +125,6 @@ export default defineComponent({
           value: (+task / progress.length) * 100,
           status: progress[task].message,
         };
-
         await progress[task].handler();
       }
 
@@ -195,5 +196,29 @@ export default defineComponent({
   font-family: Orbitron;
   font-size: 1.35rem;
   letter-spacing: 3px;
+}
+
+.progress {
+  position: fixed;
+  top: 0;
+  z-index: 999999999999999999;
+}
+
+.preload {
+  position: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  img {
+    width: 160px;
+    height: 160px;
+  }
+  h1 {
+    line-height: 1.5;
+  }
 }
 </style>

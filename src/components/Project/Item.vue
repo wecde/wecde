@@ -127,7 +127,7 @@ export default defineComponent({
         this.$store.commit("terminal/clear");
 
         void Toast.show({
-          text: this.$rt("alert.exported-project", {
+          text: this.$rt("alert.exported.project", {
             name: basename(this.project.fullpath),
           }),
         });

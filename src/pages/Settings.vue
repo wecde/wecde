@@ -4,7 +4,12 @@
     <q-toolbar-title>Settings</q-toolbar-title>
   </App-Hammer>
 
-  <q-list bordered padding>
+  <q-list
+    :class="{
+      'bg-dark': $q.dark.isActive,
+    }"
+    padding
+  >
     <template v-for="group in groups" :key="group.name">
       <q-item-label header>{{ group.name }}</q-item-label>
 

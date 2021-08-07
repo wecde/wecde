@@ -53,7 +53,7 @@ export async function zip({
 
       store.commit(
         "terminal/print",
-        i18n.global.rt(`alert.adding-${stat.type}`, {
+        i18n.global.rt(`alert.adding.${stat.type}`, {
           type: stat.type,
           name: path,
         })
@@ -83,7 +83,7 @@ export async function zip({
     await writeFile(to, fileResult);
   }
 
-  store.commit("terminal/print", i18n.global.rt("alert.created-zip"));
+  store.commit("terminal/print", i18n.global.rt("alert.created.zip"));
 
   return fileResult;
 }

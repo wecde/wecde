@@ -1,5 +1,5 @@
 <template>
-  <slot name="default" :on="{ click: importFile }" />
+  <slot name="default" :on="() => importFile()" />
 </template>
 
 <script lang="ts">
@@ -21,7 +21,7 @@ export default defineComponent({
       this.$store.commit("terminal/clear");
       void Toast.show({
         text: this.$rt("alert.imported-type", {
-          type: this.$t("file(s)"),
+          type: this.$rt("file(s)"),
           list: names.map((item) => `"${item}"`).join(", "),
         }),
       });

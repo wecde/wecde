@@ -5,19 +5,48 @@
     "checking-permission": "Checking permissing storage"
   },
   "alert": {
-    "created-file": "Created file {name}",
-    "created-folder": "Created folder {name}",
+    "created": {
+      "file": "Created file {name}",
+      "folder": "Created folder {name}",
+      "zip": "Successfully created zip",
+      "project": "Created project {name}"
+    },
+    "removed": {
+      "file": "Removed file {name}",
+      "folder": "Removed folder {name}",
+      "project": "Removed project {name}",
+      "project-failed": "Remove {type} {name} failed"
+    },
+
+    "remove-failed": {
+      "file": "Remove file {name} failed",
+      "folder": "Remove folder {name} failed"
+    },
+    "renamed": {
+      "file-from-to": "Renamed file {old} to {new}",
+      "folder-from-to": "Renamed folder {old} to {new}"
+    },
+    "rename": {
+      "file-failed": "Rename file {path} failed",
+      "folder-failed": "Rename folder {path} failed"
+    },
+    "exported": {
+      "file": "Exported file {name}",
+      "folder": "Exported folder {name}",
+      "project": "Exported project {name}"
+    },
+    "adding": {
+      "file": "Adding file {name}",
+      "folder": "Adding folder {name}",
+      "directory": "Adding folder {name}"
+    },
     "saving-file": "Saving file {name}",
     "login-success": "Login success!",
     "cloneing": "Cloning repo {url}",
     "import-files": "Import file(s)",
     "saving-file-index": "Saving file {name} {index}/{length}",
     "ziping": "Ziping folder {name}",
-    "adding-file": "Adding file {name}",
-    "adding-folder": "Adding folder {name}",
-    "adding-directory": "Adding folder {name}",
     "zip-saved": "Successfully zip saved in {name}",
-    "created-zip": "Successfully created zip",
     "extracting-zip": "Extracting file zip from {name}",
     "extract-file": "Extract file {name}",
     "extract-folder": "Extract folder {name}",
@@ -27,23 +56,11 @@
     "file-name-not-empty": "A file or folder name must be provided",
     "file-name-invalidate": "A file or folder <strong>{name}</strong> already exists at this location Please choose a different names",
     "imported-type": "Imported {type} {list}",
-    "removed-file": "Removed file {name}",
-    "removed-folder": "Removed folder {name}",
-    "exported-file": "Exported file {name}",
-    "exported-folder": "Exported folder {name}",
-    "exported-project": "Exported project {name}",
-    "renamed-file-from-to": "Renamed file {old} to {new}",
-    "renamed-folder-from-to": "Renamed folder {old} to {new}",
-    "rename-file-failed": "Rename file {path} failed",
-    "rename-folder-failed": "Rename folder {path} failed",
     "clone-success": "Clone repo {url} successfully",
     "clone-failed": "Clone repo {url} failed: {message}",
     "reload-projects": "Reload projects",
     "imported-project": "Imported project {list}",
-    "removed-project": "Removed project {name}",
-    "removed-project-failed": "Remove {type} {name} failed",
-    "reload-files": "Reload files(s)",
-    "created-project": "Created project {name}"
+    "reload-files": "Reload files(s)"
   },
   "done": "Done",
   "error": {
@@ -98,7 +115,8 @@
     "create": "Create",
     "project-name": "Project Name",
     "template": "Template",
-    "modified": "Modified"
+    "modified": "Modified",
+    "export-zip": "Export Zip"
   },
   "placeholder": {
     "git": "URL (Start with https://)",

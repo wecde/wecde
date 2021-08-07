@@ -306,7 +306,7 @@ export default defineComponent({
         try {
           await rmdir(this.projectRemoving.fullpath);
           void Toast.show({
-            text: this.$rt("alert.removed-project", {
+            text: this.$rt("alert.removed.project", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });

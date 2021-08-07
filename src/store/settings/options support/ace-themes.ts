@@ -50,6 +50,9 @@ export const themes = themeData.map(function (data) {
 
 export function isDark(value: string): boolean {
   return (
-    themeData.find((item) => "ace/theme/" + item[0] === value)?.[3] === "dark"
+    themeData.find(
+      (item) =>
+        "ace/theme/" + item[0].replace(/ /g, "_").toLowerCase() === value
+    )?.[2] === "dark"
   );
 }

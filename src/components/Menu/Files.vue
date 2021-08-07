@@ -78,7 +78,7 @@
               v-if="$store.state.editor.project"
             >
               <template v-slot:default="{ on }">
-                <q-item clickable v-close-popup v-ripple v-on="on">
+                <q-item clickable v-close-popup v-ripple @click="on">
                   <q-item-section avatar class="min-width-0">
                     <q-icon :name="mdiDownload" />
                   </q-item-section>
