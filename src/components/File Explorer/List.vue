@@ -1,42 +1,36 @@
 <template>
-  <div>
-    <FileExplorer-ListItem
-      v-for="(item, index) in filesList"
-      :file="item"
-      :key="index"
-      @removed="$emit(`removed-file`, index)"
-      @refresh-parent="$emit(`refresh`)"
-      :names-exists="filesList.map((item) => basename(item.fullpath))"
-    />
-  </div>
+  <FileExplorer-ListItem
+    v-for="(item, index) in filesList"
+    :file="item"
+    :key="item.fullpath"
+    @removed="$emit('remove-children', index)"
+    @request:refresh="$emit('request:refresh')"
+    :names-exists="filesList.map((item) => basename(item.fullpath))"
+  />
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType } from "@vue/composition-api";
+import { basename } from "path-cross";
+import type { StatItem } from "src/modules/filesystem";
+import { defineComponent, PropType } from "vue";
+
 import FileExplorerListItem from "./ListItem.vue";
-import type { ReaddirStatItem } from "@/modules/filesystem";
-import { basename } from "path";
 
 export default defineComponent({
+  emits: ["remove-children", "request:refresh"],
   components: {
     FileExplorerListItem,
   },
   props: {
     filesList: {
-      type: Array as PropType<ReaddirStatItem[]>,
+      type: Array as PropType<StatItem[]>,
       required: true,
     },
   },
-  methods: {
-    basename,
+  setup() {
+    return {
+      basename,
+    };
   },
 });
 </script>
-
-<style lang="scss" scoped>
-ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-</style>

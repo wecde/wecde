@@ -1,4 +1,4 @@
-export default function (type?: string, multiple = false): Promise<File[]> {
+export default function (type?: string, multiple = false): Promise<readonly File[]> {
   const input = document.createElement("input");
   document
     .querySelectorAll('input[data-type="select-file"]')
@@ -16,7 +16,7 @@ export default function (type?: string, multiple = false): Promise<File[]> {
   input.setAttribute("hidden", "hidden");
   input.setAttribute("data-type", "select-file");
 
-  const promise = new Promise<File[]>((resolve, reject) => {
+  const promise = new Promise<readonly File[]>((resolve, reject) => {
     input.addEventListener(
       "change",
       () => {

@@ -1,30 +1,35 @@
 <template>
-  <div class="d-inline">
+  <div class="flex no-wrap items-center min-width-0 full-width">
     <slot name="prepend" />
-    <span
-      class="file--system__icon"
+    <img
       v-if="noIcon === false"
+      class="icon-file"
       :class="{
-        renaming,
+        'rename-float': renaming,
       }"
-    >
-      <img
-        :src="
-          getIcon({
-            light: false,
-            isOpen: false,
-            isFolder,
-            name: renaming ? newFilename : basename(fullpath),
-          })
-        "
-      />
-    </span>
+      :src="
+        getIcon({
+          light: false,
+          isOpen: false,
+          isFolder,
+          name: renaming ? newFilename : basename(fullpath),
+        })
+      "
+    />
 
-    <span class="file--system__name">
-      <div class="app--rename" v-if="renaming">
-        <div class="app--rename__backboardd" @click.prevent.stop="blurInput" />
-        <div class="app--rename__input-group">
-          <div class="app--rename__error" v-if="error" v-html="error" />
+    <span class="full-width">
+      <div class="name-changer" v-if="renaming">
+        <teleport to="body">
+          <div
+            class="name-changer__backboardd"
+            style="background-color: transparent; z-index: 999999998"
+            @click.prevent.stop="blurInput"
+          />
+        </teleport>
+        <div class="name-changer__backboardd" />
+
+        <div class="name-changer__input-group">
+          <div class="name-changer__error" v-if="error" v-html="error" />
           <input
             type="text"
             v-model.trim="newFilename"
@@ -49,25 +54,17 @@
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  PropType,
-  watch,
-  toRefs,
-} from "@vue/composition-api";
-import { rename } from "@/modules/filesystem";
-import { join, relative, basename, extname, dirname } from "path";
 import { Toast } from "@capacitor/toast";
-import getIcon from "@/assets/extensions/material-icon-theme/dist/getIcon";
-import nameFileValidates from "@/validator/nameFileValidates";
-import { createTimeoutBy } from "@/utils";
+import { basename, dirname, extname, join, relative } from "path-cross";
+import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
+import { rename } from "src/modules/filesystem";
+import { createTimeoutBy } from "src/utils";
+import nameFileValidates from "src/validator/nameFileValidates";
+import { defineComponent, ref, toRefs, watch } from "vue";
+import type { PropType } from "vue";
 
 export default defineComponent({
-  model: {
-    prop: "fullpath",
-    event: "rename",
-  },
+  emits: ["update:fullpath", "cancel", "update:renaming"],
   props: {
     isFolder: {
       type: Boolean,
@@ -78,7 +75,7 @@ export default defineComponent({
       required: true,
     },
     namesExists: {
-      type: Array as PropType<string[]>,
+      type: Array as PropType<readonly string[]>,
       required: true,
     },
     fullpath: {
@@ -156,27 +153,29 @@ export default defineComponent({
           ];
           try {
             await rename(from, to);
-            Toast.show({
-              text: this.$t(`Renamed {type} {old} to {new}`, {
-                type: this.isFolder ? "folder" : "file",
-                old: relative("projects", from),
-                new: relative("projects", to),
-              }) as string,
+            void Toast.show({
+              text: this.$rt(
+                `alert.renamed.${this.isFolder ? "folder" : "file"}-from-to`,
+                {
+                  old: relative("projects", from),
+                  new: relative("projects", to),
+                }
+              ),
             });
           } catch (err) {
             console.log(err);
-            Toast.show({
-              text: this.$t(
-                `Rename ${this.isFolder ? "folder" : "file"} "${relative(
-                  "projects",
-                  from
-                )}" failed`
-              ) as string,
+            void Toast.show({
+              text: this.$rt(
+                `alert.rename.${this.isFolder ? "folder" : "file"}-failed`,
+                {
+                  path: relative("projects", from),
+                }
+              ),
             });
           }
           this.$store.commit("system/setProgress", false);
 
-          this.$emit("rename", to);
+          this.$emit("update:fullpath", to);
         } else {
           this.$emit("cancel", this.newFilename);
         }
@@ -185,13 +184,19 @@ export default defineComponent({
       this.$emit("update:renaming", false);
     },
     blurInput() {
-      (this.$refs?.input as any)?.blur();
+      try {
+        if (document.activeElement === this.$refs.input) {
+          (this.$refs?.input as HTMLInputElement)?.blur();
+        }
+      } catch {
+        void this.blur();
+      }
     },
     focusInput() {
       createTimeoutBy(
         "file explorer.rename.fix-async-dom",
         () => {
-          const { input } = this.$refs as { input: any };
+          const { input } = this.$refs as { input: HTMLInputElement };
           input.focus();
           input.click();
 
@@ -223,7 +228,7 @@ export default defineComponent({
       },
     },
   },
-  mounted() {
+  onMounted() {
     if (this.renaming) {
       this.focusInput();
     }
@@ -233,4 +238,11 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 @import "./Rename.scss";
+
+.icon-file {
+  @include icon-file();
+}
+.name-changer {
+  @include name-changer();
+}
 </style>

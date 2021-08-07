@@ -1,102 +1,56 @@
 <template>
-  <v-navigation-drawer
-    app
-    fixed
-    v-model="navigation"
-    width="300px"
-    color="grey-1"
-    class="navigation"
-  >
-    <div
-      class="d-flex flex-column align-center justify-space-between fill-height"
-    >
-      <v-tabs
-        color="primary"
-        slider-color="primary"
-        fixed-tabs
-        centered
-        class="d-flex tabs--navigation"
-        background-color="transparent"
-        v-model="navigationTabs"
-      >
-        <v-tab>
-          <v-icon>{{ mdiArchiveOutline }}</v-icon>
-        </v-tab>
-        <v-tab>
-          <v-icon>{{ mdiFileMultipleOutline }}</v-icon>
-        </v-tab>
-        <v-tab>
-          <v-badge
-            bordered
-            overlap
-            bottom
-            avatar
-            color="transparent"
-            v-if="$store.state['git-project'].isLoading"
-          >
-            <template v-slot:badge>
-              <v-icon
-                size="1em"
-                color="white"
-                class="blue"
-                style="border-radius: 50%; font-weight: bold"
-                >{{ mdiClockOutline }}</v-icon
-              >
-            </template>
-            <v-icon>{{ mdiGit }}</v-icon>
-          </v-badge>
-          <v-icon v-else>{{ mdiGit }}</v-icon>
-        </v-tab>
-        <v-tab>
-          <v-icon>{{ mdiMagnify }}</v-icon>
-        </v-tab>
-        <v-tab>
-          <v-icon>{{ mdiCogOutline }}</v-icon>
-        </v-tab>
-      </v-tabs>
+  <q-drawer v-model="navigation" :width="300">
+    <q-tabs v-model="navigationTabs" class="tabs">
+      <q-tab name="archive" :icon="mdiArchiveOutline" />
+      <q-tab name="files" :icon="mdiFileMultipleOutline" />
+      <q-tab
+        name="git"
+        :icon="mdiGit"
+        alert
+        :alert-icon="
+          $store.state['git-project'].isLoading ? mdiClockOutline : null
+        "
+      />
+      <q-tab name="search" :icon="mdiMagnify" />
+      <q-tab name="settings" :icon="mdiCogOutline" />
+    </q-tabs>
 
-      <v-tabs-items
-        v-model="navigationTabs"
-        touchless
-        class="fill-width fill-height"
-        continuous
-      >
-        <v-tab-item>
-          <Menu-Archive @toFiles="navigationTabs = 1" />
-        </v-tab-item>
-        <v-tab-item>
-          <Menu-Files />
-        </v-tab-item>
-        <v-tab-item>
-          <Menu-Git />
-        </v-tab-item>
-        <v-tab-item>
-          <Menu-Search />
-        </v-tab-item>
-        <v-tab-item>
-          <Menu-Settings />
-        </v-tab-item>
-      </v-tabs-items>
-    </div>
-  </v-navigation-drawer>
+    <q-tab-panels v-model="navigationTabs" animated keep-alive>
+      <q-tab-panel name="archive" class="q-py-xs q-py-sm">
+        <Menu-Archive @open:project="navigationTabs = 1" />
+      </q-tab-panel>
+      <q-tab-panel name="files" class="q-py-xs q-py-sm">
+        <Menu-Files />
+      </q-tab-panel>
+      <q-tab-panel name="git" class="q-py-xs q-py-sm">
+        <Menu-Git />
+      </q-tab-panel>
+      <q-tab-panel name="search" class="q-py-xs q-py-sm">
+        <Menu-Search />
+      </q-tab-panel>
+      <q-tab-panel name="settings" class="q-py-xs q-py-sm">
+        <Menu-Settings />
+      </q-tab-panel>
+    </q-tab-panels>
+  </q-drawer>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "@vue/composition-api";
-import MenuArchive from "@/components/Menu/Archive.vue";
-import MenuFiles from "@/components/Menu/Files.vue";
-import MenuGit from "@/components/Menu/Git.vue";
-import MenuSearch from "@/components/Menu/Search.vue";
-import MenuSettings from "@/components/Menu/Settings.vue";
-import store from "@/store";
 import {
   mdiArchiveOutline,
+  mdiClockOutline,
+  mdiCogOutline,
   mdiFileMultipleOutline,
   mdiGit,
-  mdiClockOutline,
   mdiMagnify,
-  mdiCogOutline,
-} from "@mdi/js";
+} from "@quasar/extras/mdi-v5";
+import MenuArchive from "src/components/Menu/Archive.vue";
+import MenuFiles from "src/components/Menu/Files.vue";
+import MenuGit from "src/components/Menu/Git.vue";
+import MenuSearch from "src/components/Menu/Search.vue";
+import MenuSettings from "src/components/Menu/Settings.vue";
+import { useStore } from "src/store";
+import { computed, defineComponent, ref } from "vue";
 
 export default defineComponent({
   components: {
@@ -107,6 +61,8 @@ export default defineComponent({
     MenuSettings,
   },
   setup() {
+    const store = useStore();
+
     return {
       mdiArchiveOutline,
       mdiFileMultipleOutline,
@@ -115,7 +71,7 @@ export default defineComponent({
       mdiMagnify,
       mdiCogOutline,
 
-      navigationTabs: ref<number | null>(null),
+      navigationTabs: ref<string>("archive"),
       navigation: computed<boolean>({
         get() {
           return store.state.system.navigation;
@@ -126,62 +82,22 @@ export default defineComponent({
       }),
     };
   },
-
-  created() {
-    if (this.$store.state.editor.project) {
-      this.navigationTabs = 1;
-    }
-  },
 });
 </script>
 
 <style lang="scss" scoped>
 .tabs {
-  &::v-deep .v-tab--active {
-    background-color: #424242;
-    border-radius: 0.5em 0.5em 0 0;
+  :deep(.q-tabs__arrow) {
+    display: none;
   }
-}
-
-.navigation {
-  &,
-  &::v-deep * {
-    ::-webkit-scrollbar {
-      display: none;
+  :deep(.q-tab) {
+    padding: {
+      left: 0;
+      right: 0;
     }
-    // scrollbar-width: none;
-
-    .v-window-item {
-      height: 100%;
-    }
-  }
-}
-</style>
-
-<style lang="scss" scoped>
-.tabs--navigation {
-  width: 100%;
-
-  &::v-deep {
-    .v-item-group {
-      width: 100%;
-    }
-
-    .v-slide-group__prev,
-    .v-slide-group__next {
-      display: none !important;
-    }
-
-    .v-slide-group__wrapper {
-      position: relative;
-      .v-slide-group__content {
-        width: 100%;
-        position: relative;
-        .v-tab {
-          min-width: 0px;
-        }
-      }
-    }
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 }
 </style>

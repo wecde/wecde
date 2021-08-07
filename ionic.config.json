@@ -1,7 +1,0 @@
-{
-  "name": "Shin Code Editor",
-  "integrations": {
-    "cordova": {}
-  },
-  "type": "custom"
-}

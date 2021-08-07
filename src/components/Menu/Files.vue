@@ -3,147 +3,168 @@
     <template v-slot:title>{{ projectName }}</template>
 
     <template v-slot:addons>
-      <v-btn icon @click="reloadListFile(true)">
-        <v-icon>{{ mdiReload }}</v-icon>
-      </v-btn>
-
-      <v-menu internal-activator bottom left>
-        <template v-slot:activator="{ on, attrs }">
-          <v-btn icon v-bind="attrs" v-on="on">
-            <v-icon>{{ mdiPlus }}</v-icon>
-          </v-btn>
-        </template>
-
-        <v-list color="grey-4">
-          <template v-if="clipboardExists">
-            <v-list-item @click="paste" :disabled="notAllowPaste">
-              <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                <v-icon>{{ mdiContentPaste }}</v-icon>
-              </v-list-item-icon>
-              <v-list-item-content>
-                <v-list-item-title> {{ $t("Paste") }} </v-list-item-title>
-              </v-list-item-content>
-            </v-list-item>
-            <v-divider />
-          </template>
-          <v-list-item
-            @click="
-              adding = true;
-              addingFolder = false;
-            "
-          >
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiFileOutline }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("New File") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item
-            @click="
-              adding = true;
-              addingFolder = true;
-            "
-          >
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiFolderOutline }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("New Folder") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <Import-Files
-            :dirname="$store.state.editor.project"
-            @imported="reloadListFile"
-          >
-            <template v-slot:default="{ on }">
-              <v-list-item v-on="on">
-                <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-                  <v-icon>{{ mdiDownload }}</v-icon>
-                </v-list-item-icon>
-                <v-list-item-content>
-                  <v-list-item-title>
-                    {{ $t("Import Files") }}
-                  </v-list-item-title>
-                </v-list-item-content>
-              </v-list-item>
+      <q-btn
+        :icon="mdiReload"
+        @click="reloadListFile(true)"
+        flat
+        round
+        padding="none"
+        size="1em"
+      />
+      <q-btn
+        :icon="mdiPlus"
+        flat
+        round
+        padding="none"
+        size="1em"
+        class="q-ml-xs"
+      >
+        <q-menu
+          transition-show="jump-down"
+          transition-hide="jump-up"
+          anchor="bottom right"
+          self="top right"
+        >
+          <q-list bordered>
+            <template v-if="clipboardExists">
+              <q-item
+                clickable
+                v-close-popup
+                v-ripple
+                @click="paste"
+                :disable="notAllowPaste"
+              >
+                <q-item-section avatar class="min-width-0">
+                  <q-icon :name="mdiContentPaste" />
+                </q-item-section>
+                <q-item-section>{{ $t("label.paste") }}</q-item-section>
+              </q-item>
+              <q-separator />
             </template>
-          </Import-Files>
-          <v-divider />
-          <v-list-item>
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiUndo }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("Undo") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-          <v-list-item>
-            <v-list-item-icon size="18px" class="pr-3 mr-0 my-2">
-              <v-icon>{{ mdiRedo }}</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title> {{ $t("Redo") }} </v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
-        </v-list>
-      </v-menu>
+
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="
+                adding = true;
+                addingFolder = false;
+              "
+            >
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiFileOutline" />
+              </q-item-section>
+              <q-item-section>{{ $t("label.new-file") }}</q-item-section>
+            </q-item>
+
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="
+                adding = true;
+                addingFolder = true;
+              "
+            >
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiFolderOutline" />
+              </q-item-section>
+              <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
+            </q-item>
+
+            <Action-Import-Files
+              :dirname="$store.state.editor.project"
+              @imported="reloadListFile"
+              v-if="$store.state.editor.project"
+            >
+              <template v-slot:default="{ on }">
+                <q-item clickable v-close-popup v-ripple @click="on">
+                  <q-item-section avatar class="min-width-0">
+                    <q-icon :name="mdiDownload" />
+                  </q-item-section>
+                  <q-item-section>{{ $t("label.import-files") }}</q-item-section>
+                </q-item>
+              </template>
+            </Action-Import-Files>
+
+            <q-separator />
+
+            <q-item clickable v-close-popup v-ripple>
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiUndo" />
+              </q-item-section>
+              <q-item-section>{{ $t("label.undo") }}</q-item-section>
+            </q-item>
+
+            <q-item clickable v-close-popup v-ripple>
+              <q-item-section avatar class="min-width-0">
+                <q-icon :name="mdiRedo" />
+              </q-item-section>
+              <q-item-section>{{ $t("label.redo") }}</q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+      </q-btn>
     </template>
 
-    <template v-slot:contents>
-      <FileExplorer-Add
-        :adding.sync="adding"
-        :is-folder="addingFolder"
-        :dirname="$store.state.editor.project"
-        @created="reloadListFile"
-        allow-open-editor
-        :names-exists="tree.map((item) => basename(item.fullpath))"
-      />
+    <template v-slot:contents v-if="$store.state.editor.project">
+      <div class="q-mx-n4">
+        <FileExplorer-Add
+          v-model:adding="adding"
+          :is-folder="addingFolder"
+          :names-exists="tree.map((item) => basename(item.fullpath))"
+          :dirname="$store.state.editor.project"
+          allow-open-editor
+          @created="reloadListFile"
+        />
 
-      <FileExplorer-List
-        :files-list="tree"
-        @removed-file="tree.splice($event, 1)"
-        @refresh="reloadListFile"
-      />
+        <FileExplorer-List
+          :files-list="tree"
+          @remove-children="tree.splice($event, 1)"
+          @request:refresh="reloadListFile"
+        />
+      </div>
     </template>
   </Template-Tab>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from "@vue/composition-api";
-import TemplateTab from "./template/Tab.vue";
-import FileExplorerList from "@/components/File Explorer/List.vue";
-import FileExplorerAdd from "@/components/File Explorer/Add.vue";
-import { stat, readdirStat } from "@/modules/filesystem";
-import type { ReaddirStatItem } from "@/modules/filesystem";
 import { Toast } from "@capacitor/toast";
-import { basename } from "path";
-import store from "@/store";
-import ImportFiles from "@/components/Import/Files.vue";
 import {
-  mdiReload,
-  mdiPlus,
-  mdiContentPaste,
-  mdiFileOutline,
-  mdiFolderOutline,
-  mdiDownload,
-  mdiUndo,
-  mdiRedo,
   mdiChevronDown,
   mdiClose,
-} from "@mdi/js";
+  mdiContentPaste,
+  mdiDownload,
+  mdiFileOutline,
+  mdiFolderOutline,
+  mdiPlus,
+  mdiRedo,
+  mdiReload,
+  mdiUndo,
+} from "@quasar/extras/mdi-v5";
+import ActionImportFiles from "components/Action-ImportFiles.vue";
+import FileExplorerAdd from "components/File Explorer/Add.vue";
+import FileExplorerList from "components/File Explorer/List.vue";
+import { basename } from "path-cross";
+import { readdirStat } from "src/modules/filesystem";
+import type { StatItem } from "src/modules/filesystem";
+import { useStore } from "src/store";
+import { computed, defineComponent, ref } from "vue";
+
+import TemplateTab from "./template/Tab.vue";
 
 export default defineComponent({
   components: {
     TemplateTab,
     FileExplorerList,
     FileExplorerAdd,
-    ImportFiles,
+    ActionImportFiles,
   },
   setup() {
+    const store = useStore();
     const adding = ref<boolean>(false);
     const addingFolder = ref<boolean>(false);
-    const tree = ref<ReaddirStatItem[]>([]);
+    const tree = ref<StatItem[]>([]);
     const project = computed<string | null>(() => store.state.editor.project);
     const projectName = computed<string | null>(() =>
       project.value ? basename(project.value) : null
@@ -181,23 +202,18 @@ export default defineComponent({
 
     async reloadListFile(notification = false): Promise<void> {
       try {
-        if (
-          (await stat(this.$store.state.editor.project)).type !== "directory"
-        ) {
-          throw new Error(`IS_NOT_DIR`);
+        if (!this.$store.state.editor.project) {
+          // eslint-disable-next-line functional/no-throw-statement
+          throw new Error("IS_NOT_DIR");
         }
 
-        this.tree = await readdirStat(
-          this.$store.state.editor.project,
-          void 0,
-          ["^.git"]
-        );
+        this.tree = [
+          ...(await readdirStat(this.$store.state.editor.project, ["^.git"])),
+        ];
 
         if (notification) {
-          Toast.show({
-            text: this.$t("Reload list {type}", {
-              type: this.$t("file(s)"),
-            }) as string,
+          void Toast.show({
+            text: this.$rt("alert.reload-files"),
           });
         }
       } catch (err) {

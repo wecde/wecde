@@ -1,135 +1,128 @@
 <template>
-  <v-dialog
-    transition="dialog-top-transition"
-    max-width="600"
-    content-class="dialog--templates"
+  <q-dialog
+    style="max-width: 600px"
+    full-height
+    full-width
+    transition-show="jump-down"
+    transition-hide="jump-up"
     v-model="stateLocal"
   >
-    <v-fade-transition mode="in-out">
-      <v-card dark v-if="!templateSelected" class="fill-height">
-        <div class="d-flex justify-space-between align-center fill-width">
-          <v-card-title class="text-body-1">
-            {{ $t("Project Template") }}
-          </v-card-title>
-          <div>
-            <v-btn icon color="rgb(183, 185, 195)" @click="stateLocal = false">
-              <v-icon>{{ mdiClose }}</v-icon>
-            </v-btn>
-          </div>
+    <q-card v-if="!templateSelected" class="flex column no-wrap">
+      <q-card-section class="row items-center q-pb-1 q-pt-2">
+        <div class="text-weight-medium text-subtitle1">
+          {{ $t("label.project-template") }}
         </div>
-        <v-card-text>
-          <ul class="list-templates">
-            <li
-              v-for="template in templates"
-              :key="template.name"
-              v-ripple
-              @click="
-                templateSelected = {
-                  ...template,
-                }
-              "
-            >
-              <div>
-                <div class="list-templates__group-icons" v-if="template.icons">
-                  <img
-                    width="56px"
-                    height="56px"
-                    v-for="(item, index) in template.icons"
-                    :src="
-                      require(`@/assets/templates/${template['directory-name']}/${item}`)
-                    "
-                    :key="index"
-                  />
-                </div>
+        <q-space />
+        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+      </q-card-section>
 
-                <div class="label">{{ template.name }}</div>
-              </div>
-            </li>
-          </ul>
-        </v-card-text>
-      </v-card>
-      <v-card dark v-else-if="templateSelected" class="fill-height">
-        <div class="d-flex justify-space-between align-center fill-width">
-          <v-card-title class="text-body-1">
-            {{ $t("Create Project") }}
-          </v-card-title>
-          <div>
-            <v-btn text color="blue" @click="create" :disabled="!!error">
-              {{ $t("Create") }}
-            </v-btn>
-            <v-btn icon color="rgb(183, 185, 195)" @click="stateLocal = false">
-              <v-icon>{{ mdiClose }}</v-icon>
-            </v-btn>
-          </div>
-        </div>
-        <v-card-text>
-          <div class="mt-2">{{ $t("Project Name") }}</div>
-          <v-text-field
-            v-model.trim="templateSelected.name"
-            class="pt-0"
-            :rules="[error === false ? true : error]"
-            :error="!!error"
-            required
-            @keypress.enter="create"
-            autofocus
-          >
-            <template v-slot:message="{ message }">
-              <span v-html="message" class="font-weight-medium" />
-            </template>
-          </v-text-field>
+      <q-separator />
 
-          <div class="mt-8">Template</div>
+      <q-card-section class="fit scroll q-pt-2 q-pb-3">
+        <div class="row text-center justify-center">
           <div
-            class="list-templates__group-icons mt-1"
-            v-if="templateSelected.icons"
+            v-for="template in templates"
+            :key="template.name"
+            v-ripple
+            @click="selectTemplate(template)"
+            class="col-6 template"
           >
-            <img
-              width="56px"
-              height="56px"
-              v-for="(item, index) in templateSelected.icons"
-              :src="
-                require(`@/assets/templates/${
-                  templateSelected && templateSelected['directory-name']
-                }/${item}`)
-              "
-              :key="index"
-            />
+            <div class="icons-group" v-if="template.icons">
+              <img
+                v-for="(item, index) in template.icons"
+                :src="
+                  require(`src/assets/templates/${template['directory-name']}/${item}`)
+                "
+                :key="index"
+              />
+            </div>
+
+            <div class="label">{{ template.name }}</div>
           </div>
-        </v-card-text>
-      </v-card>
-    </v-fade-transition>
-  </v-dialog>
+        </div>
+      </q-card-section>
+    </q-card>
+
+    <q-card v-else-if="templateSelected" class="flex column no-wrap">
+      <q-card-section class="row items-center q-pb-1 q-pt-2">
+        <div class="text-weight-medium text-subtitle1">
+          {{ $t("label.create-project") }}
+        </div>
+        <q-space />
+        <div>
+          <q-btn
+            :label="$t('label.create')"
+            flat
+            color="primary"
+            padding="none"
+            @click="create"
+            :disable="!!error"
+            class="q-mr-xs"
+          />
+          <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+        </div>
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-section class="fit scroll q-pt-2 q-pb-3">
+        <div class="text-subtitle2 text-weight-medium">
+          {{ $t("label.project-name") }}
+        </div>
+        <q-input
+          dense
+          v-model.trim="templateSelected.name"
+          :rules="[error === false ? true : error]"
+          required
+          @keypress.enter="create"
+          autofocus
+        >
+          <template v-slot:error="{ message }">
+            <span v-html="message" class="font-weight-medium" />
+          </template>
+        </q-input>
+
+        <div class="text-subtitle2 text-weight-medium q-mt-5">
+          {{ $t("label.template") }}
+        </div>
+        <div class="icons-group q-mt-1" v-if="templateSelected.icons">
+          <img
+            v-for="(item, index) in templateSelected.icons"
+            :src="
+              require(`src/assets/templates/${
+                templateSelected && templateSelected['directory-name']
+              }/${item}`)
+            "
+            :key="index"
+          />
+        </div>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script lang="ts">
-import {
-  defineComponent,
-  ref,
-  PropType,
-  toRefs,
-  computed,
-} from "@vue/composition-api";
-import templates, { Template } from "@/assets/templates/Release.json";
-import { unzip } from "@/modules/zip";
-import { mkdir } from "@/modules/filesystem";
 import { Toast } from "@capacitor/toast";
-import nameFileValidates from "@/validator/nameFileValidates";
-import { mdiClose } from "@mdi/js";
+import { mdiClose } from "@quasar/extras/mdi-v5";
+import type { Template } from "assets/labs/Release.json";
+import templates from "src/assets/templates/Release.json";
+import { mkdir } from "src/modules/filesystem";
+import { unzip } from "src/modules/zip";
+import nameFileValidates from "src/validator/nameFileValidates";
+import { computed, defineComponent, ref, toRefs } from "vue";
+import type { PropType } from "vue";
 
 export default defineComponent({
+  emits: ["update:state", "created"],
   props: {
     state: {
       type: Boolean,
       default: false,
     },
     namesExists: {
-      type: Array as PropType<string[]>,
+      type: Array as PropType<readonly string[]>,
       required: true,
     },
-  },
-  model: {
-    prop: "state",
-    event: "input",
   },
   setup(props) {
     const { namesExists } = toRefs(props);
@@ -154,7 +147,7 @@ export default defineComponent({
         return this.state;
       },
       set(value: boolean): void {
-        this.$emit("input", value);
+        this.$emit("update:state", value);
 
         if (value === false) {
           this.templateSelected = null;
@@ -163,7 +156,13 @@ export default defineComponent({
     },
   },
   methods: {
+    selectTemplate(template: Template): void {
+      this.templateSelected = {
+        ...template,
+      };
+    },
     async create() {
+      // eslint-disable-next-line functional/no-let
       let created = false;
 
       if (this.templateSelected) {
@@ -171,7 +170,7 @@ export default defineComponent({
           try {
             await unzip({
               // eslint-disable-next-line @typescript-eslint/no-var-requires
-              file: require(`@/assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
+              file: require(`src/assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
                 .default,
               to: `projects/${this.templateSelected.name}`,
             });
@@ -179,6 +178,7 @@ export default defineComponent({
             this.$store.commit("terminal/clear");
             created = true;
           } catch (err) {
+            console.log(err);
             this.$store.commit("terminal/error", err);
           }
         } else {
@@ -187,16 +187,15 @@ export default defineComponent({
         }
 
         if (created) {
-          Toast.show({
-            text: this.$t(`Created {type} {name}`, {
-              type: this.$t("project"),
+          void Toast.show({
+            text: this.$rt("alert.created.project", {
               name: this.templateSelected.name,
-            }) as string,
+            }),
           });
           console.log("created project");
           this.$emit("created");
+          this.stateLocal = false;
         }
-        this.stateLocal = false;
       }
     },
   },
@@ -204,50 +203,28 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.list-templates {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  text-align: center;
-  display: flex;
-  flex-wrap: wrap;
+.template {
+  // width: 120px;
+  padding: 8px;
+  display: inline-block;
 
-  li {
-    display: inline-block;
-    position: relative;
-    width: 120px;
-    flex: 1;
-    > div {
-      width: 120px;
-      padding: 8px;
-      display: inline-block;
-    }
-
-    .label {
-      // padding-top: 5px;
-      font-size: 13.3333px;
-    }
-  }
-
-  max-height: 520px;
-  overflow-y: auto;
-  padding-bottom: 50px;
-
-  &__group-icons {
-    display: inline-flex;
-    > * {
-      margin-left: -14px;
-    }
-    > *:first-child {
-      margin-left: 0;
-    }
+  .label {
+    // padding-top: 5px;
+    font-size: 13.3333px;
   }
 }
-</style>
 
-<style lang="scss">
-.dialog--templates {
-  height: 100%;
-  overflow: hidden;
+.icons-group {
+  display: inline-flex;
+  img {
+    width: 56px;
+    height: 56px;
+  }
+  > * {
+    margin-left: -14px;
+  }
+  > *:first-child {
+    margin-left: 0;
+  }
 }
 </style>

@@ -1,0 +1,11 @@
+{
+  "name": "React 16 + Less Pro",
+  "directory-name": "React 16 + Less Pro",
+  "icons": [
+    "icon_less.svg",
+    "icon_react.svg"
+  ],
+  "isTemplate": true,
+  "MD5": "a981ed667856e67eba4c2add5c051dd2",
+  "mtimeMs": 1627279260965.755
+}

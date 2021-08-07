@@ -1,265 +1,179 @@
 <template>
-  <div class="fill-height">
-    <v-bottom-navigation
-      app
-      fixed
-      height="41"
-      class="d-block order-2 bottom-tools d-md-none"
-      :input-value="inputValue"
+  <q-footer
+    style="height: 41px"
+    class="bottom-tools hidden-md"
+    :class="{
+      dark: $q.dark.isActive,
+    }"
+    elevated
+    :model-value="inputValue"
+  >
+    <div
+      class="bottom-tools__group justify-between"
+      v-if="tabToolsBottom === 0"
     >
-      <div
-        class="bottom-tools__group justify-space-between"
-        v-if="tabToolsBottom === 0"
-      >
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="tab"
-        >
-          <v-icon>{{ mdiKeyboardTab }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="cursorUp"
-        >
-          <v-icon>{{ mdiChevronUp }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="cursorDown"
-        >
-          <v-icon>{{ mdiChevronDown }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="cursorLeft"
-        >
-          <v-icon>{{ mdiChevronLeft }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="cursorRight"
-        >
-          <v-icon>{{ mdiChevronRight }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="openCommand"
-        >
-          <v-icon>{{ mdiAppleKeyboardCommand }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="openBot"
-        >
-          <v-icon>{{ mdiRobot }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="toggleLock"
-          :class="{
-            'blue--text': isLock,
-          }"
-        >
-          <v-icon>{{ mdiLockOutline }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="toolsNext"
-        >
-          <v-icon>{{ mdiChevronDoubleRight }}</v-icon>
-        </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="tab">
+        <q-icon :name="mdiKeyboardTab" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cursorUp">
+        <q-icon :name="mdiChevronUp" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cursorDown">
+        <q-icon :name="mdiChevronDown" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cursorLeft">
+        <q-icon :name="mdiChevronLeft" />
       </div>
       <div
-        class="bottom-tools__group justify-space-between"
-        v-else-if="tabToolsBottom === 1"
+        class="item"
+        v-ripple
+        @mousedown="fixBlurEditor"
+        @click="cursorRight"
       >
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="toolsPrev"
-        >
-          <v-icon>{{ mdiChevronDoubleLeft }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="undo"
-        >
-          <v-icon>{{ mdiUndoVariant }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="redo"
-        >
-          <v-icon>{{ mdiRedoVariant }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="selectAll"
-        >
-          <v-icon>{{ mdiSelectAll }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="copy"
-        >
-          <v-icon>{{ mdiContentCopy }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="cut"
-        >
-          <v-icon>{{ mdiContentCut }}</v-icon>
-        </div>
-        <div
-          class="item"
-          v-ripple
-          @mousedown="fixBlurEditor"
-          @touchstart="fixBlurEditor"
-          @click="paste"
-        >
-          <v-icon>{{ mdiContentPaste }}</v-icon>
-        </div>
-        <v-menu
-          content-class="menu-tools-addons"
-          left
-          fixed
-          internal-activator
-          max-width="100%"
-          width="100%"
-          transition="slide-y-reverse-transition"
-        >
-          <template v-slot:activator="{ on, attrs }">
-            <div
-              class="item"
-              v-ripple
-              v-on="on"
-              @mousedown="fixBlurEditor"
-              @touchstart="fixBlurEditor"
-            >
-              <v-icon v-bind="attrs">{{ mdiPlus }}</v-icon>
-            </div>
-          </template>
+        <q-icon :name="mdiChevronRight" />
+      </div>
+      <div
+        class="item"
+        v-ripple
+        @mousedown="fixBlurEditor"
+        @click="openCommand"
+      >
+        <q-icon :name="mdiAppleKeyboardCommand" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="openBot">
+        <q-icon :name="mdiRobot" />
+      </div>
+      <div
+        class="item"
+        v-ripple
+        @mousedown="fixBlurEditor"
+        @click="toggleLock"
+        :class="{
+          'blue--text': isLock,
+        }"
+      >
+        <q-icon :name="mdiLockOutline" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="toolsNext">
+        <q-icon :name="mdiChevronDoubleRight" />
+      </div>
+    </div>
+    <div
+      class="bottom-tools__group justify-between"
+      v-else-if="tabToolsBottom === 1"
+    >
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="toolsPrev">
+        <q-icon :name="mdiChevronDoubleLeft" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="undo">
+        <q-icon :name="mdiUndoVariant" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="redo">
+        <q-icon :name="mdiRedoVariant" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="selectAll">
+        <q-icon :name="mdiSelectAll" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="copy">
+        <q-icon :name="mdiContentCopy" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cut">
+        <q-icon :name="mdiContentCut" />
+      </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="paste">
+        <q-icon :name="mdiContentPaste" />
+      </div>
 
-          <v-card flat width="100%" class="addons">
-            <v-layout>
-              <v-flex>
+      <div class="item" v-ripple @mousedown="fixBlurEditor">
+        <q-icon :name="mdiPlus" />
+        <q-menu
+          class="menu-addons"
+          transition-show="jump-up"
+          transition-hide="jump-down"
+        >
+          <q-card
+            flat
+            class="addons"
+            :class="{
+              dark: $q.dark.isActive,
+            }"
+          >
+            <div class="row no-wrap">
+              <div class="col-6">
                 <div
                   class="item"
                   v-ripple
                   @mousedown="fixBlurEditor"
-                  @touchstart="fixBlurEditor"
                   @click="formatCode"
                   :style="{
                     opacity: supportFormat ? 1 : 0.5,
                   }"
-                  :disabled="supportFormat === false"
+                  :disable="supportFormat === false"
                 >
-                  <v-icon size="1em">{{ mdiFormatAlignRight }}</v-icon>
-                  <span>{{ $t("Format") }}</span>
+                  <q-icon size="1em" :name="mdiFormatAlignRight" />
+                  <span>{{ $t("label.format") }}</span>
                 </div>
                 <div
                   class="item"
                   v-ripple
                   @mousedown="fixBlurEditor"
-                  @touchstart="fixBlurEditor"
                   @click="findAll"
                 >
-                  <v-icon size="1em">{{ mdiMagnify }}</v-icon>
-                  <span>{{ $t("Find All") }}</span>
+                  <q-icon size="1em" :name="mdiMagnify" />
+                  <span>{{ $t("label.find-all") }}</span>
                 </div>
                 <div
                   class="item"
                   v-ripple
                   @mousedown="fixBlurEditor"
-                  @touchstart="fixBlurEditor"
                   @click="nextError"
                   :style="{
                     opacity: !!nextErrorer ? 1 : 0.5,
                   }"
-                  :disabled="!!nextErrorer === false"
+                  :disable="!!nextErrorer === false"
                 >
-                  <v-icon size="1em">{{ mdiChevronDownCircleOutline }}</v-icon>
-                  <span>{{ $t("Next Error") }}</span>
+                  <q-icon size="1em" :name="mdiChevronDownCircleOutline" />
+                  <span>{{ $t("label.next-error") }}</span>
                 </div>
-              </v-flex>
-              <v-flex>
+              </div>
+              <div class="col-6">
                 <div class="item" v-ripple>
-                  <v-icon size="1em">{{ mdiLightningBoltOutline }}</v-icon>
-                  <span>{{ $t("Definition") }}</span>
-                </div>
-                <div class="item" v-ripple>
-                  <v-icon size="1em">{{ mdiCommentProcessingOutline }}</v-icon>
-                  <span>{{ $t("Signature") }}</span>
+                  <q-icon size="1em" :name="mdiLightningBoltOutline" />
+                  <span>{{ $t("label.definition") }}</span>
                 </div>
                 <div class="item" v-ripple>
-                  <v-icon size="1em">{{ mdiInformationVariant }}</v-icon>
-                  <span>{{ $t("Show Info") }}</span>
+                  <q-icon size="1em" :name="mdiCommentProcessingOutline" />
+                  <span>{{ $t("label.signature") }}</span>
                 </div>
-              </v-flex>
-            </v-layout>
-          </v-card>
-        </v-menu>
+                <div class="item" v-ripple>
+                  <q-icon size="1em" :name="mdiInformationVariant" />
+                  <span>{{ $t("label.show-info") }}</span>
+                </div>
+              </div>
+            </div>
+          </q-card>
+        </q-menu>
       </div>
-    </v-bottom-navigation>
-    <div class="Editor-Code fill-height order-1" ref="EditorCode" />
-  </div>
+    </div>
+  </q-footer>
+  <div class="full-height" ref="EditorCode" v-show="show" />
 </template>
 
 <script lang="ts">
+// eslint-disable-next-line import/order
+import Ace from "ace-builds";
+// eslint-disable-next-line import/order
 import {
-  defineComponent,
-  toRefs,
   computed,
+  defineComponent,
+  onBeforeUnmount,
   onMounted,
   ref,
+  toRefs,
   watch,
-  onBeforeUnmount,
-} from "@vue/composition-api";
-import ace from "ace-builds";
+  watchEffect,
+} from "vue";
+
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
 // import "ace-builds/src-noconflict/ext-emmet";
@@ -271,41 +185,49 @@ import "ace-builds/src-noconflict/keybinding-vim";
 import "ace-builds/src-noconflict/keybinding-vscode";
 import "ace-builds/src-noconflict/ext-spellcheck";
 import "ace-builds/src-noconflict/ext-prompt";
-import { createTimeoutBy, getEditor, rawText } from "@/utils";
-import { readFile, writeFile } from "@/modules/filesystem";
-import store from "@/store";
+// eslint-disable-next-line import/order
+import { readFile, writeFile } from "src/modules/filesystem";
+// eslint-disable-next-line import/order
+import { useStore } from "src/store";
+// eslint-disable-next-line import/order
+import { createTimeoutBy, getEditor, rawText } from "src/utils";
+
+// eslint-disable-next-line import/order
 import { Clipboard } from "@capacitor/clipboard";
-import { extname } from "path";
+
+// eslint-disable-next-line import/order
 import { format, getSupportInfo } from "prettier";
 import {
-  mdiKeyboardTab,
-  mdiChevronUp,
+  mdiAppleKeyboardCommand,
+  mdiChevronDoubleLeft,
+  mdiChevronDoubleRight,
   mdiChevronDown,
+  mdiChevronDownCircleOutline,
   mdiChevronLeft,
   mdiChevronRight,
-  mdiAppleKeyboardCommand,
-  mdiRobot,
-  mdiLockOutline,
-  mdiChevronDoubleRight,
-  mdiChevronDoubleLeft,
-  mdiUndoVariant,
-  mdiRedoVariant,
-  mdiSelectAll,
+  mdiChevronUp,
+  mdiCommentProcessingOutline,
   mdiContentCopy,
   mdiContentCut,
   mdiContentPaste,
-  mdiPlus,
   mdiFormatAlignRight,
-  mdiMagnify,
-  mdiChevronDownCircleOutline,
-  mdiLightningBoltOutline,
-  mdiCommentProcessingOutline,
   mdiInformationVariant,
-} from "@mdi/js";
-// import standalone from "prettier/standalone";
+  mdiKeyboardTab,
+  mdiLightningBoltOutline,
+  mdiLockOutline,
+  mdiMagnify,
+  mdiPlus,
+  mdiRedoVariant,
+  mdiRobot,
+  mdiSelectAll,
+  mdiUndoVariant,
+} from "@quasar/extras/mdi-v5";
+import { extname } from "path-cross";
+import type { Plugin, SupportLanguage } from "prettier";
 
-let prettierPlugins: any[];
-async function loadPrettierPlugins(): Promise<any[]> {
+// eslint-disable-next-line functional/no-let
+let prettierPlugins: Plugin<unknown>[];
+async function loadPrettierPlugins(): Promise<Plugin<unknown>[]> {
   if (!prettierPlugins) {
     console.time("load plugin prettier");
     prettierPlugins = await Promise.all([
@@ -328,6 +250,7 @@ async function loadPrettierPlugins(): Promise<any[]> {
 }
 
 export default defineComponent({
+  emits: ["change"],
   name: "Editor-Code",
   props: {
     fullpath: {
@@ -338,17 +261,22 @@ export default defineComponent({
       type: Boolean,
       default: true,
     },
+    show: {
+      type: Boolean,
+      default: true,
+      required: false,
+    },
   },
   setup(props, { emit }) {
+    const store = useStore();
     const { fullpath } = toRefs(props);
-    const base64 = ref<string | null>(null);
     const typeEditor = computed<string>(
       () => getEditor(fullpath.value) || "text"
     );
     const EditorCode = ref<HTMLElement | null>(null);
     const isLock = ref<boolean>(false);
-    const $ace: {
-      value: ace.Ace.Editor | null;
+    const ace: {
+      value: Ace.Ace.Editor | null;
     } = {
       value: null,
     };
@@ -356,33 +284,33 @@ export default defineComponent({
       row: number;
       column: number;
     } | null>(null);
-    const nextErrorer = ref<ace.Ace.Annotation | null>(null);
+    const nextErrorer = ref<Ace.Ace.Annotation | null>(null);
 
     function savePostionEditor(): void {
       store.commit("editor/setScrollEnhance", {
         file: fullpath.value,
         value: {
-          x: $ace.value?.session.getScrollLeft() || 0,
-          y: $ace.value?.session.getScrollTop() || 0,
-          cursorRow: $ace.value?.getCursorPosition()?.row || 0,
-          cursorColumn: $ace.value?.getCursorPosition()?.column || 0,
+          x: ace.value?.session.getScrollLeft() || 0,
+          y: ace.value?.session.getScrollTop() || 0,
+          cursorRow: ace.value?.getCursorPosition()?.row || 0,
+          cursorColumn: ace.value?.getCursorPosition()?.column || 0,
         },
       });
     }
 
     function createEditor() {
       if (EditorCode.value) {
-        $ace.value = ace.edit(EditorCode.value);
+        ace.value = Ace.edit(EditorCode.value);
 
-        $ace.value.on("change", () => {
+        ace.value.on("change", () => {
           createTimeoutBy(
             "editor.code.timeout-saving-file",
-            async () => {
-              if ($ace.value) {
-                writeFile(fullpath.value, $ace.value.getValue());
+            () => {
+              if (ace.value) {
+                void writeFile(fullpath.value, ace.value.getValue());
 
-                const { row, column } = $ace.value.getCursorPosition();
-                const annotations = $ace.value.session
+                const { row, column } = ace.value.getCursorPosition();
+                const annotations = ace.value.session
                   .getAnnotations()
                   .filter((item) => item.type === "error");
 
@@ -409,68 +337,76 @@ export default defineComponent({
 
           emit("change");
         });
-        $ace.value.session.on(
-          "changeScrollTop",
-          () => void savePostionEditor()
-        );
-        $ace.value.session.on(
+        ace.value.session.on("changeScrollTop", () => void savePostionEditor());
+        ace.value.session.on(
           "changeScrollLeft",
           () => void savePostionEditor()
         );
-        $ace.value.session.selection.on(
+        ace.value.session.selection.on(
           "changeCursor",
           () => void savePostionEditor()
         );
-        $ace.value.session.selection.on("changeCursor", () => {
+        ace.value.session.selection.on("changeCursor", () => {
           aceInfo.value = {
-            row: $ace.value?.getCursorPosition()?.row || 0,
-            column: $ace.value?.getCursorPosition()?.column || 0,
+            row: ace.value?.getCursorPosition()?.row || 0,
+            column: ace.value?.getCursorPosition()?.column || 0,
           };
         });
 
-        $ace.value.setOptions({
+        ace.value.setOptions({
           enableLinking: true,
           autoScrollEditorIntoView: true,
           enableSnippets: true,
-          enableBasicAutocompletion: store.state.settings.editor__autocomplete,
-          enableLiveAutocompletion: store.state.settings.editor__autocomplete,
+          enableBasicAutocompletion:
+            store.state.settings["editor**autocomplete / check syntax"],
+          enableLiveAutocompletion:
+            store.state.settings["editor**autocomplete / check syntax"],
           // enableEmmet: true,
           // enableCodeLens: true,
         });
 
-        $ace.value.setTheme(`${store.state.settings.appearance__theme}`);
-        $ace.value.setKeyboardHandler(
-          // eslint-disable-next-line no-extra-boolean-cast
-          !!store.state.settings.editor__keybinding
-            ? `ace/keyboard/${store.state.settings.editor__keybinding}`
-            : ""
-        );
-        $ace.value.setOption(
-          "showGutter",
-          store.state.settings.editor__lineNumber
-        );
-        $ace.value.setShowPrintMargin(
-          +store.state.settings.editor__printMargin > 0
-        );
-        $ace.value.setPrintMarginColumn(
-          +store.state.settings.editor__printMargin
-        );
-        $ace.value.setShowInvisibles(
-          store.state.settings.editor__showInvisible
-        );
-        $ace.value.session.setUseSoftTabs(
-          store.state.settings.editor__useSoftTabs
-        );
-        $ace.value.session.setTabSize(+store.state.settings.editor__tabSize);
-        $ace.value.session.setUseWrapMode(
-          store.state.settings.editor__wordWrap
-        );
+        watchEffect(() => {
+          if (ace.value) {
+            ace.value.setTheme(
+              `${store.state.settings["appearance**theme"] as string}`
+            );
+            ace.value.setKeyboardHandler(
+              !!store.state.settings["editor**keybinding"]
+                ? `ace/keyboard/${
+                    store.state.settings["editor**keybinding"] as string
+                  }`
+                : ""
+            );
+            ace.value.setOption(
+              "showGutter",
+              store.state.settings["editor**line number"] as boolean
+            );
+            ace.value.setShowPrintMargin(
+              +(store.state.settings["editor**print margin"] as number) > 0
+            );
+            ace.value.setPrintMarginColumn(
+              +(store.state.settings["editor**print margin"] as number)
+            );
+            ace.value.setShowInvisibles(
+              store.state.settings["editor**show invisible"] as boolean
+            );
+            ace.value.session.setUseSoftTabs(
+              store.state.settings["editor**use soft tabs"] as boolean
+            );
+            ace.value.session.setTabSize(
+              +(store.state.settings["editor**tab size"] as number)
+            );
+            ace.value.session.setUseWrapMode(
+              store.state.settings["editor**word wrap"] as boolean
+            );
+          }
+        });
 
         watch(
           typeEditor,
           () => {
-            if ($ace.value) {
-              $ace.value.session.setMode(`ace/mode/${typeEditor.value}`);
+            if (ace.value) {
+              ace.value.session.setMode(`ace/mode/${typeEditor.value}`);
             }
           },
           {
@@ -486,7 +422,7 @@ export default defineComponent({
       watch(
         isLock,
         (newValue) => {
-          $ace.value?.setReadOnly(newValue);
+          ace.value?.setReadOnly(newValue);
         },
         {
           immediate: true,
@@ -495,41 +431,40 @@ export default defineComponent({
 
       watch(fullpath, () => void savePostionEditor());
 
-      watch(base64, (newValue) => {
-        if ($ace.value) {
-          const { x, y, cursorRow, cursorColumn } = store.state.editor
-            .scrollEnhance[fullpath.value] || {
-            x: 0,
-            y: 0,
-            cursorRow: 0,
-            cursorColumn: 0,
-          };
-
-          $ace.value.setValue(rawText(newValue || ""));
-          $ace.value.clearSelection();
-
-          createTimeoutBy(
-            "editor.code.fix-async-scroll-behavior",
-            () => {
-              $ace.value?.session.setScrollLeft(x);
-              $ace.value?.session.setScrollTop(y);
-              $ace.value?.moveCursorTo(cursorRow, cursorColumn);
-            },
-            1
-          );
-
-          ace.require(`ace/snippets/${typeEditor.value}`);
-        }
-      });
-
       watch(
         fullpath,
         async (newValue) => {
+          // eslint-disable-next-line functional/no-let
+          let raw;
           try {
-            base64.value = await readFile(newValue);
+            raw = rawText(await readFile(newValue));
           } catch {
-            base64.value = "";
-            console.warn(`file ${newValue} not exists.`);
+            raw = "";
+          }
+
+          if (ace.value && ace.value.getValue() !== raw) {
+            const { x, y, cursorRow, cursorColumn } = store.state.editor
+              .scrollEnhance[fullpath.value] || {
+              x: 0,
+              y: 0,
+              cursorRow: 0,
+              cursorColumn: 0,
+            };
+
+            ace.value.setValue(raw);
+            ace.value.clearSelection();
+
+            createTimeoutBy(
+              "editor.code.fix-async-scroll-behavior",
+              () => {
+                ace.value?.session.setScrollLeft(x);
+                ace.value?.session.setScrollTop(y);
+                ace.value?.moveCursorTo(cursorRow, cursorColumn);
+              },
+              1
+            );
+
+            Ace.require(`ace/snippets/${typeEditor.value}`);
           }
         },
         {
@@ -539,9 +474,9 @@ export default defineComponent({
     });
 
     function removeEditor() {
-      if ($ace.value) {
-        $ace.value.destroy();
-        $ace.value = null;
+      if (ace.value) {
+        ace.value.destroy();
+        ace.value = null;
       }
     }
 
@@ -572,7 +507,7 @@ export default defineComponent({
       mdiCommentProcessingOutline,
       mdiInformationVariant,
 
-      $ace,
+      ace,
       EditorCode,
       isLock,
       tabToolsBottom: ref<number>(0),
@@ -582,87 +517,12 @@ export default defineComponent({
     };
   },
 
-  watch: {
-    "$store.state.settings.appearance__theme": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.setTheme(`${newValue}`);
-        }
-      },
-    },
-    "$store.state.settings.editor__autocomplete": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          (this.$ace.value as any).setOption(
-            "enableBasicAutocompletion",
-            newValue
-          );
-          (this.$ace.value as any).setOption(
-            "enableLiveAutocompletion",
-            newValue
-          );
-        }
-      },
-    },
-    "$store.state.settings.editor__keybinding": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.setKeyboardHandler(`ace/keyboard/${newValue}`);
-        }
-      },
-    },
-    "$store.state.settings.editor__lineNumber": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.setOption("showGutter", newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor__printMargin": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          newValue = +newValue;
-          this.$ace.value.setShowPrintMargin(newValue > 0);
-          this.$ace.value.setPrintMarginColumn(newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor__showInvisible": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.setShowInvisibles(newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor__useSoftTabs": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.session.setUseSoftTabs(newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor__tabSize": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.session.setTabSize(+newValue);
-        }
-      },
-    },
-    "$store.state.settings.editor__wordWrap": {
-      handler(newValue) {
-        if (this.$ace.value) {
-          this.$ace.value.session.setUseWrapMode(newValue);
-        }
-      },
-    },
-  },
-
   computed: {
-    parser(): any {
+    parser(): SupportLanguage | void {
       const ext = extname(this.fullpath || "");
       // 私©れ宛d
-      return getSupportInfo().languages.find((item: any) => {
-        return item.extensions.some((extTest: string) => ext === extTest);
+      return getSupportInfo().languages.find((item: SupportLanguage) => {
+        return item.extensions?.some((extTest: string) => ext === extTest);
       });
     },
     supportFormat(): boolean {
@@ -671,57 +531,55 @@ export default defineComponent({
   },
 
   methods: {
-    fixBlurEditor(event: any): void {
-      if (event.type === "mousedown") {
-        event.preventDefault();
-      }
+    fixBlurEditor(event: MouseEvent): void {
+      event.preventDefault();
     },
     tab(): void {
-      this.$ace.value?.insert("\t");
+      this.ace.value?.insert("\t");
     },
     cursorUp(): void {
-      const isEmpty = this.$ace.value?.selection.isEmpty();
+      const isEmpty = this.ace.value?.selection.isEmpty();
 
       if (isEmpty) {
-        this.$ace.value?.session.selection.moveCursorUp();
+        this.ace.value?.session.selection.moveCursorUp();
 
-        this.$ace.value?.clearSelection();
+        this.ace.value?.clearSelection();
       } else {
-        this.$ace.value?.session.selection.moveCursorUp();
+        this.ace.value?.session.selection.moveCursorUp();
       }
     },
     cursorDown(): void {
-      const isEmpty = this.$ace.value?.selection.isEmpty();
+      const isEmpty = this.ace.value?.selection.isEmpty();
 
       if (isEmpty) {
-        this.$ace.value?.session.selection.moveCursorDown();
-        this.$ace.value?.clearSelection();
+        this.ace.value?.session.selection.moveCursorDown();
+        this.ace.value?.clearSelection();
       } else {
-        this.$ace.value?.session.selection.moveCursorDown();
+        this.ace.value?.session.selection.moveCursorDown();
       }
     },
     cursorLeft(): void {
-      const isEmpty = this.$ace.value?.selection.isEmpty();
+      const isEmpty = this.ace.value?.selection.isEmpty();
 
       if (isEmpty) {
-        this.$ace.value?.session.selection.moveCursorLeft();
-        this.$ace.value?.clearSelection();
+        this.ace.value?.session.selection.moveCursorLeft();
+        this.ace.value?.clearSelection();
       } else {
-        this.$ace.value?.session.selection.moveCursorLeft();
+        this.ace.value?.session.selection.moveCursorLeft();
       }
     },
     cursorRight(): void {
-      const isEmpty = this.$ace.value?.selection.isEmpty();
+      const isEmpty = this.ace.value?.selection.isEmpty();
 
       if (isEmpty) {
-        this.$ace.value?.session.selection.moveCursorRight();
-        this.$ace.value?.clearSelection();
+        this.ace.value?.session.selection.moveCursorRight();
+        this.ace.value?.clearSelection();
       } else {
-        this.$ace.value?.session.selection.moveCursorRight();
+        this.ace.value?.session.selection.moveCursorRight();
       }
     },
     openCommand(): void {
-      this.$ace.value?.execCommand("openCommandPallete");
+      this.ace.value?.execCommand("openCommandPallete");
     },
     openBot(): void {
       console.log("open bot");
@@ -736,17 +594,17 @@ export default defineComponent({
       this.tabToolsBottom = 0;
     },
     undo(): void {
-      this.$ace.value?.undo();
+      this.ace.value?.undo();
     },
     redo(): void {
-      this.$ace.value?.redo();
+      this.ace.value?.redo();
     },
     selectAll(): void {
-      this.$ace.value?.selectAll();
+      this.ace.value?.selectAll();
     },
     async copy(): Promise<void> {
-      const string = this.$ace.value?.getCopyText();
-      this.$ace.value?.execCommand("copy");
+      const string = this.ace.value?.getCopyText();
+      this.ace.value?.execCommand("copy");
 
       if (string) {
         await Clipboard.write({
@@ -755,8 +613,8 @@ export default defineComponent({
       }
     },
     async cut(): Promise<void> {
-      const string = this.$ace.value?.getCopyText();
-      this.$ace.value?.execCommand("cut");
+      const string = this.ace.value?.getCopyText();
+      this.ace.value?.execCommand("cut");
 
       if (string) {
         await Clipboard.write({
@@ -768,15 +626,15 @@ export default defineComponent({
       const { type, value } = await Clipboard.read();
 
       if (type === "text/plain") {
-        this.$ace.value?.execCommand("paste", value);
+        this.ace.value?.execCommand("paste", value);
       }
     },
 
     async formatCode(): Promise<void> {
-      if (this.$ace.value) {
-        const code = this.$ace.value.getValue();
+      if (this.ace.value && this.parser) {
+        const code = this.ace.value.getValue();
 
-        this.$ace.value.setValue(
+        this.ace.value.setValue(
           format(code, {
             parser:
               this.parser.parsers[0] === "babel"
@@ -785,13 +643,13 @@ export default defineComponent({
             plugins: await loadPrettierPlugins(),
           })
         );
-        this.$ace.value.clearSelection();
+        this.ace.value.clearSelection();
       }
     },
     nextError(): void {
-      if (this.$ace.value) {
+      if (this.ace.value) {
         if (this.nextErrorer) {
-          this.$ace.value.moveCursorTo(
+          this.ace.value.moveCursorTo(
             this.nextErrorer.row || 0,
             this.nextErrorer.column || 0
           );
@@ -799,8 +657,8 @@ export default defineComponent({
       }
     },
     findAll(): void {
-      if (this.$ace.value) {
-        const keyword = this.$ace.value.getCopyText();
+      if (this.ace.value) {
+        const keyword = this.ace.value.getCopyText();
         console.log(`find all "${keyword}`);
       }
     },
@@ -809,12 +667,11 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-.Editor-Code {
-  flex: 1;
-}
-
 .bottom-tools {
-  background-color: #0e0e0e !important;
+  background-color: #f5f7f9;
+  &.dark {
+    background-color: #0e0e0e !important;
+  }
   width: 100%;
   padding: {
     left: 5px;
@@ -831,8 +688,18 @@ export default defineComponent({
   }
 
   .item {
+    color: rgb(86, 88, 92);
+  }
+
+  &.dark {
+    .item {
+      color: #b7b9c3;
+    }
+  }
+
+  .item {
+    position: relative;
     padding: 0 5px;
-    color: #b7b9c3;
     font-size: 25px;
     height: 100%;
     line-height: 41px;
@@ -858,28 +725,41 @@ export default defineComponent({
 </style>
 
 <style lang="scss">
-.menu-tools-addons {
-  width: 100%;
-  top: auto !important;
+.menu-addons {
+  width: 100% !important;
+  max-width: 100% !important;
+  // top: auto !important;
   left: 0 !important;
-  bottom: 41px !important;
+  // bottom: 41px !important;
 }
 </style>
 
 <style lang="scss" scoped>
 .addons {
-  background-color: #222;
+  background: #fff;
+  color: #56585c;
+  &.dark {
+    background-color: #222;
+    color: #d3d4da;
+  }
   box-shadow: 0 -1px 2px rgb(0 0 0 / 10%);
   border: none;
   width: 100%;
-  color: #d3d4da;
   padding: 8px 16px;
+
+  .item {
+    color: #b9bbc1;
+  }
+  &.dark {
+    .item {
+      color: #5e6d82;
+    }
+  }
 
   .item {
     display: block;
     text-decoration: none;
     padding: 0.25em 1.5em;
-    color: #b9bbc1;
 
     span {
       margin-left: 12px;

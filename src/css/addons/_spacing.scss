@@ -1,0 +1,43 @@
+@mixin renderProp($prefix, $index) {
+  &t-#{$index},
+  &y-#{$index} {
+    #{$prefix}-top: ($index * 4px);
+  }
+  &r-#{$index},
+  &x-#{$index} {
+    #{$prefix}-right: ($index * 4px);
+  }
+  &b-#{$index},
+  &y-#{$index} {
+    #{$prefix}-bottom: ($index * 4px);
+  }
+  &l-#{$index},
+  &x-#{$index} {
+    #{$prefix}-left: ($index * 4px);
+  }
+}
+
+@for $index from 1 to 10 {
+  //padding
+  .q-p {
+    @include renderProp($prefix: "padding", $index: $index);
+  }
+
+  //margin
+  .q-m {
+    @include renderProp($prefix: "margin", $index: $index);
+
+    &x-n#{$index} {
+      margin: {
+        left: ($index * -4px);
+        right: ($index * -4px);
+      }
+    }
+    &y-n#{$index} {
+      margin: {
+        top: ($index * -4px);
+        bottom: ($index * -4px);
+      }
+    }
+  }
+}

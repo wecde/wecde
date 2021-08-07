@@ -1,42 +1,69 @@
 {
+  "extends": "@quasar/app/tsconfig-preset",
   "compilerOptions": {
-    "target": "esnext",
-    "module": "esnext",
-    "strict": true,
-    "jsx": "preserve",
-    "importHelpers": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "skipLibCheck": true,
+    "allowJs": true,
+    // `baseUrl` must be placed on the extending configuration in devland, or paths won't be recognized
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
+    "target": "es2020",
+    "module": "es2020",
+    "moduleResolution": "node",
+    // Needed to address https://github.com/quasarframework/app-extension-typescript/issues/36
+    "noEmit": true,
+    "resolveJsonModule": true,
     "sourceMap": true,
-    "baseUrl": ".",
-    "types": [
-      "webpack-env",
-      "node"
-    ],
+    "strict": true,
+    "experimentalDecorators": true,
+    "noImplicitAny": true,
+    // Quasar-defined webpack aliases
     "paths": {
-      "@/*": [
-        "src/*"
+      "src/*": [
+        "./src/*"
+      ],
+      "app/*": [
+        "./*"
+      ],
+      "components/*": [
+        "./src/components/*"
+      ],
+      "layouts/*": [
+        "./src/layouts/*"
+      ],
+      "pages/*": [
+        "./src/pages/*"
+      ],
+      "assets/*": [
+        "./src/assets/*"
+      ],
+      "boot/*": [
+        "./src/boot/*"
+      ],
+      "path": [
+        "./node_modules/path-cross/build/module/index.js"
       ]
     },
+    // Forces quasar typings to be included, even if they aren't referenced directly
+    // Removing this would break `quasar/wrappers` imports if `quasar`
+    //  isn't referenced anywhere, because those typings are declared
+    //  into `@quasar/app` which is imported by `quasar` typings
+    "types": [
+      "quasar",
+      "webpack-env"
+    ],
     "lib": [
-      "esnext",
+      "es2020",
       "dom",
       "dom.iterable",
       "scripthost"
     ]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
-  ],
+  // Needed to avoid files copied into 'dist' folder (eg. a `.d.ts` file inside `src-ssr` folder)
+  // to be evaluated by TS when their original files has been updated
   "exclude": [
+    "/dist",
+    ".quasar",
     "node_modules",
+    "assets/labs",
+    "assets/templates",
     "resources"
   ]
 }

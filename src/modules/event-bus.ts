@@ -1,15 +1,17 @@
+/* eslint-disable functional/functional-parameters */
 class Event<Events> {
-  private store: Map<
+  // eslint-disable-next-line functional/prefer-readonly-type
+  private readonly store: Map<
     Events,
-    {
-      (...params: any[]): void;
+    readonly {
+      (...params: readonly string[]): void;
     }[]
   > = new Map();
 
   on(
-    name: Events | Events[],
+    name: Events | readonly Events[],
     callback: {
-      (...params: any[]): void;
+      (...params: readonly string[]): void;
     }
   ): {
     (): void;
@@ -18,7 +20,7 @@ class Event<Events> {
       name = [name as Events];
     }
 
-    (name as Events[]).forEach((item) => {
+    (name as readonly Events[]).forEach((item: Events) => {
       if (this.store.has(item) === false) {
         this.store.set(item, [callback]);
       } else {
@@ -31,51 +33,58 @@ class Event<Events> {
     };
   }
   off(
-    name: Events | Events[],
+    name: Events | readonly Events[],
     callback: {
-      (...params: any[]): void;
+      (...params: readonly string[]): void;
     }
   ): void {
     if (Array.isArray(name) === false) {
       name = [name as Events];
     }
 
-    (name as Events[]).forEach((item) => {
+    (name as readonly Events[]).forEach((item) => {
       if (this.store.has(item)) {
-        this.store.set(
-          item,
-          this.store.get(item)?.filter((item) => item !== callback) as any
-        );
+        const functions = this.store
+          .get(item)
+          ?.filter((item) => item !== callback);
+
+        if (functions) {
+          this.store.set(item, functions);
+        }
       }
     });
   }
   once(
     name: Events,
     callback: {
-      (...params: any[]): void;
+      (...params: readonly string[]): void;
     }
   ): void {
-    const handler = (...params: any[]): void => {
+    const handler = (...params: readonly string[]): void => {
       callback(...params);
       this.once(name, handler);
     };
 
     this.on(name, handler);
   }
-  emit(name: Events, ...params: any[]): void {
+  emit(name: Events, ...params: readonly string[]): void {
     if (process.env.NODE_ENV === "development") {
-      console.info(`event-bus: "${name}" from "${params[0]}`);
+      console.info(
+        `event-bus: "${name as unknown as string}" from "${params[0]}`
+      );
     }
     this.store.get(name)?.forEach((callback) => void callback(...params));
   }
 }
 
 export default new Event<
-  | "write:file"
   | "create:file"
-  | "remove:file"
   | "create:dir"
+  | "remove:file"
   | "remove:dir"
-  | "move"
-  | "copy"
+  | "write:file"
+  | "move:file"
+  | "move:dir"
+  | "copy:file"
+  | "copy:dir"
 >();

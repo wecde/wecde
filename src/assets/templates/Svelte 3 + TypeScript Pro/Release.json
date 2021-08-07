@@ -1,0 +1,11 @@
+{
+  "name": "Svelte 3 + TypeScript Pro",
+  "directory-name": "Svelte 3 + TypeScript Pro",
+  "icons": [
+    "icon_svelte.svg",
+    "icon_ts.svg"
+  ],
+  "isTemplate": true,
+  "MD5": "e7676fc572da22320aeb002ae7407701",
+  "mtimeMs": 1627279260842.825
+}

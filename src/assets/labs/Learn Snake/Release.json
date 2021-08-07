@@ -1,0 +1,11 @@
+{
+  "name": "Learn Snake",
+  "directory-name": "Learn Snake",
+  "images": [
+    "image_learn-snake.png"
+  ],
+  "isTemplate": true,
+  "MD5": "f090cfb0aaa0d507d1434384c04f8151",
+  "mtimeMs": 1627279244041.422,
+  "description": "Machine Learning"
+}

@@ -1,74 +1,127 @@
 <template>
-  <div>
-    <v-dialog
-      max-width="600"
-      :value="lines.length > 0"
-      content-class="dialog--terminal"
-      persistent
-    >
-      <div class="terminal" ref="terminal">
-        <div
-          v-for="(line, index) in lines"
-          :class="[line.color ? `${line.color}--text` : undefined]"
-          :key="index"
-        >
-          {{ line.message }}
+  <q-dialog
+    style="max-width: 600px"
+    :model-value="lines.length > 0"
+    full-width
+    full-height
+    :maximized="maximized"
+    persistent
+  >
+    <q-card class="bg-grey-10 text-white">
+      <q-bar>
+        <div class="text-weight-medium text-subtitle1">
+          {{ $t("Console") }}
         </div>
-      </div>
-    </v-dialog>
-    <div
-      class="disable-events"
-      v-if="lines.length > 0"
-      @click.prevent.stop="() => false"
-      @mousedown.prevent.stop="() => false"
-    />
-  </div>
+        <q-space />
+
+        <q-btn
+          dense
+          flat
+          :icon="mdiMinus"
+          @click="maximized = false"
+          :disable="!maximized"
+        >
+          <q-tooltip v-if="maximized" class="bg-white text-primary"
+            >Minimize</q-tooltip
+          >
+        </q-btn>
+        <q-btn
+          dense
+          flat
+          :icon="mdiCropSquare"
+          @click="maximized = true"
+          :disable="maximized"
+        >
+          <q-tooltip v-if="!maximized" class="bg-white text-primary"
+            >Maximize</q-tooltip
+          >
+        </q-btn>
+        <q-btn dense flat :icon="mdiClose" v-close-popup>
+          <q-tooltip class="bg-white text-primary">Close</q-tooltip>
+        </q-btn>
+      </q-bar>
+
+      <q-separator />
+
+      <q-card-section class="fit scroll q-pt-2 q-pb-3">
+        <div class="terminal" ref="terminal">
+          <div
+            v-for="(line, index) in lines"
+            :class="[line.color ? `${line.color}--text` : undefined]"
+            :key="index"
+          >
+            {{ line.message }}
+          </div>
+        </div>
+      </q-card-section>
+    </q-card>
+  </q-dialog>
 </template>
 
 <script lang="ts">
-import { createTimeoutBy } from "@/utils";
-import { defineComponent } from "@vue/composition-api";
+import { mdiClose, mdiCropSquare, mdiMinus } from "@quasar/extras/mdi-v5";
+import { useQuasar } from "quasar";
+import { useStore } from "src/store";
+import { createTimeoutBy } from "src/utils";
+import { computed, defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
-  computed: {
-    lines() {
-      return this.$store.state.terminal.lines;
-    },
-  },
-  watch: {
-    lines() {
-      if (this.$refs.terminal) {
+  setup() {
+    const store = useStore();
+    const lines = computed<
+      {
+        color?: string;
+        message: string;
+      }[]
+    >(() => store.state.terminal.lines);
+    const $q = useQuasar();
+    const terminal = ref<Element | null>(null);
+
+    function onBeforeClose() {
+      $q.dialog({
+        title: "Are you sure?",
+        message:
+          "After closing the window you won't see the front log anymore?",
+        cancel: true,
+      }).onOk(() => {
+        // console.log('OK')
+        store.commit("terminal/clear");
+      });
+    }
+
+    watch(lines, () => {
+      if (terminal.value) {
         createTimeoutBy(
           "terminal.index.fix-async-dom-scroll",
           () => {
-            (this.$refs.terminal as Element).scrollTo(
-              0,
-              (this.$refs.terminal as Element).scrollHeight
-            );
+            terminal.value?.scrollTo(0, terminal.value.scrollHeight);
           },
           70
         );
       }
-    },
+    }, {
+      deep: true
+    });
+
+    return {
+      mdiCropSquare,
+      mdiMinus,
+      mdiClose,
+
+      terminal,
+      lines,
+      maximized: ref<boolean>(false),
+      onBeforeClose,
+    };
   },
 });
 </script>
 
 <style lang="scss" scoped>
 .terminal {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 100000;
-  padding: 10px 10px;
-
   font-family: monospace, courier, fixed, swiss, sans-serif;
   font-weight: normal;
   font-variant-ligatures: none;
-  color: #f0f0f0;
-  background: #000000;
   line-height: normal;
   overflow: hidden scroll;
   white-space: pre-line;
@@ -97,21 +150,5 @@ export default defineComponent({
       transform: translateY(10%);
     }
   }
-}
-
-.disable-events {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 9999999999;
-}
-</style>
-
-<style lang="scss">
-.dialog--terminal {
-  height: 100%;
-  position: relative;
 }
 </style>

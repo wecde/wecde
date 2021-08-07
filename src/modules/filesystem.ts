@@ -1,15 +1,21 @@
-import { Filesystem, Directory, StatResult } from "@capacitor/filesystem";
-import { alwayBase64 } from "@/utils";
-import { arrayBufferToBase64 } from "../utils";
-import { join, basename } from "path";
-import { sort } from "fast-sort";
-import escapeStringRegexp from "escape-string-regexp";
-import eventBus from "./event-bus";
+/* eslint-disable functional/immutable-data */
+
+import { Directory, Filesystem } from "@capacitor/filesystem";
+import type { StatResult } from "@capacitor/filesystem";
 import { encode } from "base-64";
+import escapeStringRegexp from "escape-string-regexp";
+import { sort } from "fast-sort";
+import { basename, join } from "path-cross";
+
+import { alwayBase64 } from "../utils";
+import { arrayBufferToBase64 } from "../utils";
+
+import eventBus from "./event-bus";
 
 const PUBLIC_STORAGE_APPLICATION = "Shin Code Editor";
 
 async function fixStartsWidth<T>(callback: { (): Promise<T> }): Promise<T> {
+  // eslint-disable-next-line @typescript-eslint/unbound-method
   const { startsWith } = String.prototype;
   String.prototype.startsWith = () => false;
   const result = await callback();
@@ -17,47 +23,38 @@ async function fixStartsWidth<T>(callback: { (): Promise<T> }): Promise<T> {
   return result;
 }
 
-export function readdir(
-  path: string,
-  directory: Directory = Directory.Documents
-): Promise<string[]> {
+export function readdir(path: string): Promise<readonly string[]> {
   return new Promise((resolve, reject) => {
     Filesystem.readdir({
       path: join(PUBLIC_STORAGE_APPLICATION, path),
-      directory,
+      directory: Directory.Documents,
     })
       .then(({ files }) => resolve(files))
       .catch(() => void reject());
   });
 }
 
-export async function mkdir(
-  path: string,
-  directory: Directory = Directory.Documents
-): Promise<void> {
+export async function mkdir(path: string): Promise<void> {
   try {
     await Filesystem.mkdir({
       path: join(PUBLIC_STORAGE_APPLICATION, path),
-      directory,
+
+      directory: Directory.Documents,
       recursive: true,
     });
     eventBus.emit("create:dir", path);
-    // eslint-disable-next-line no-empty
   } catch {}
 }
 
-export async function rmdir(
-  path: string,
-  directory: Directory = Directory.Documents
-): Promise<void> {
+export async function rmdir(path: string): Promise<void> {
   try {
     await Filesystem.rmdir({
       path: join(PUBLIC_STORAGE_APPLICATION, path),
-      directory,
+
+      directory: Directory.Documents,
       recursive: true,
     });
     eventBus.emit("remove:dir", path);
-    // eslint-disable-next-line no-empty
   } catch {}
 }
 /**
@@ -66,8 +63,7 @@ export async function rmdir(
  */
 export async function writeFile(
   path: string,
-  data: ArrayBuffer | Uint8Array | Blob | string,
-  directory: Directory = Directory.Documents
+  data: ArrayBuffer | Uint8Array | Blob | string
 ): Promise<void> {
   if (data instanceof ArrayBuffer) {
     data = arrayBufferToBase64(data);
@@ -82,28 +78,27 @@ export async function writeFile(
   try {
     await Filesystem.writeFile({
       path: join(PUBLIC_STORAGE_APPLICATION, path),
-      directory,
+
+      directory: Directory.Documents,
       data,
       recursive: true,
     });
 
-    // eslint-disable-next-line no-extra-boolean-cast
     if (!!data) {
       eventBus.emit("write:file", path);
     } else {
       eventBus.emit("create:file", path);
     }
-    // eslint-disable-next-line no-empty
   } catch {
     try {
       await Filesystem.writeFile({
         path: join(PUBLIC_STORAGE_APPLICATION, path),
-        directory,
+
+        directory: Directory.Documents,
         data,
         recursive: false,
       });
 
-      // eslint-disable-next-line no-extra-boolean-cast
       if (!!data) {
         eventBus.emit("write:file", path);
       } else {
@@ -115,25 +110,21 @@ export async function writeFile(
   }
 }
 
-export async function readFile(
-  path: string,
-  directory: Directory = Directory.Documents
-): Promise<string> {
+export async function readFile(path: string): Promise<string> {
   const { data } = await Filesystem.readFile({
     path: join(PUBLIC_STORAGE_APPLICATION, path),
-    directory,
+
+    directory: Directory.Documents,
   });
 
   return alwayBase64(data);
 }
 
-export async function unlink(
-  path: string,
-  directory: Directory = Directory.Documents
-): Promise<void> {
+export async function unlink(path: string): Promise<void> {
   const { type } = await Filesystem.stat({
     path: join(PUBLIC_STORAGE_APPLICATION, path),
-    directory,
+
+    directory: Directory.Documents,
   });
 
   if (type === "directory") {
@@ -141,61 +132,70 @@ export async function unlink(
   } else {
     await Filesystem.deleteFile({
       path: join(PUBLIC_STORAGE_APPLICATION, path),
-      directory,
+
+      directory: Directory.Documents,
     });
 
     eventBus.emit("remove:file", path);
   }
 }
 
-export async function rename(
-  from: string,
-  to: string,
-  directory: Directory = Directory.Documents,
-  toDirectory: Directory = Directory.Documents
-): Promise<void> {
+export async function rename(from: string, to: string): Promise<void> {
   /// fix error
   await fixStartsWidth<void>(async () => {
     await Filesystem.rename({
       from: join(PUBLIC_STORAGE_APPLICATION, from),
       to: join(PUBLIC_STORAGE_APPLICATION, to),
-      directory,
-      toDirectory,
+
+      directory: Directory.Documents,
+
+      toDirectory: Directory.Documents,
     });
 
-    eventBus.emit("move", from, to);
+    async function nosync() {
+      if ((await stat(to)).type === "directory") {
+        eventBus.emit("move:dir", to, from);
+      } else {
+        eventBus.emit("move:file", to, from);
+      }
+    }
+    void nosync();
   });
 }
 
-export async function copy(
-  from: string,
-  to: string,
-  directory: Directory = Directory.Documents,
-  toDirectory: Directory = Directory.Documents
-): Promise<void> {
+export async function copy(from: string, to: string): Promise<void> {
   await fixStartsWidth<void>(async () => {
     await Filesystem.copy({
       from: join(PUBLIC_STORAGE_APPLICATION, from),
       to: join(PUBLIC_STORAGE_APPLICATION, to),
-      directory,
-      toDirectory,
+
+      directory: Directory.Documents,
+
+      toDirectory: Directory.Documents,
     });
 
-    eventBus.emit("copy", from, to);
+    async function nosync() {
+      if ((await stat(to)).type === "directory") {
+        eventBus.emit("move:dir", to, from);
+      } else {
+        eventBus.emit("move:file", to, from);
+      }
+    }
+    void nosync();
   });
 }
 
-export async function stat(
-  path: string,
-  directory: Directory = Directory.Documents
-): Promise<StatResult> {
+export async function stat(path: string): Promise<StatResult> {
   return await Filesystem.stat({
     path: join(PUBLIC_STORAGE_APPLICATION, path),
-    directory,
+    directory: Directory.Documents,
   });
 }
 
-function exists(regexps: Array<string | RegExp> = [], uri: string): boolean {
+function exists(
+  regexps: ReadonlyArray<string | RegExp> = [],
+  uri: string
+): boolean {
   return regexps.some((item) => {
     if (item instanceof RegExp) {
       return !!item.test(uri);
@@ -216,11 +216,11 @@ function exists(regexps: Array<string | RegExp> = [], uri: string): boolean {
 }
 
 function filterExclude(
-  files: string[],
-  exclude: Array<string | RegExp> = [],
-  include: Array<string | RegExp> = [],
+  files: readonly string[],
+  exclude: ReadonlyArray<string | RegExp> = [],
+  include: ReadonlyArray<string | RegExp> = [],
   dirname = ""
-): string[] {
+): readonly string[] {
   return files.filter((name) => {
     return (
       !exists(exclude, join(dirname.replace(/^projects\//, ""), name)) &&
@@ -229,36 +229,34 @@ function filterExclude(
     );
   });
 }
-export interface ReaddirStatItem {
-  directory: string;
-  stat: StatResult;
-  fullpath: string;
-}
+export type StatItem = {
+  readonly stat: StatResult;
+  readonly fullpath: string;
+};
 export async function readdirStat(
   path: string,
-  directory: Directory = Directory.Documents,
-  exclude: Array<string | RegExp> = []
-): Promise<ReaddirStatItem[]> {
+  exclude: ReadonlyArray<string | RegExp> = []
+): Promise<readonly StatItem[]> {
   return sortFolder(
     await Promise.all(
-      filterExclude(await readdir(path, directory), exclude).map(
-        async (name) => {
-          return {
-            name,
-            directory,
-            dirname: path,
-            fullpath: join(path, name),
-            stat: await stat(join(path, name), directory),
-          };
-        }
-      )
+      filterExclude(await readdir(path), exclude).map(async (name) => {
+        return {
+          name,
+          dirname: path,
+          fullpath: join(path, name),
+
+          stat: await stat(join(path, name)),
+        };
+      })
     )
   );
 }
 
-export function sortFolder(items: ReaddirStatItem[]): ReaddirStatItem[] {
-  const files: ReaddirStatItem[] = [];
-  const folders: ReaddirStatItem[] = [];
+export function sortFolder(items: readonly StatItem[]): readonly StatItem[] {
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const files: StatItem[] = [];
+  // eslint-disable-next-line functional/prefer-readonly-type
+  const folders: StatItem[] = [];
 
   items.forEach((file) => {
     if (file.stat.type === "file" || file.stat.type === "symlink") {
@@ -269,46 +267,47 @@ export function sortFolder(items: ReaddirStatItem[]): ReaddirStatItem[] {
   });
 
   return [
-    ...sort<ReaddirStatItem>(folders).asc((item) => basename(item.fullpath)),
-    ...sort<ReaddirStatItem>(files).asc((item) => basename(item.fullpath)),
+    ...sort<StatItem>(folders).asc((item) => basename(item.fullpath)),
+    ...sort<StatItem>(files).asc((item) => basename(item.fullpath)),
   ];
 }
 
-export interface ReadFilesFolderItem {
-  key: string;
-  value: ReaddirStatItem & {
-    data?: string;
+export type ReadFilesFolderItem = {
+  readonly key: string;
+  readonly value: StatItem & {
+    readonly data?: string;
   };
-}
+};
 export async function readFilesFolder(
   path: string,
-  directory: Directory = Directory.Documents,
-  exclude: Array<string | RegExp> = []
-): Promise<ReadFilesFolderItem[]> {
+  exclude: ReadonlyArray<string | RegExp> = []
+): Promise<readonly ReadFilesFolderItem[]> {
+  // eslint-disable-next-line functional/prefer-readonly-type
   const thisChildren: ReadFilesFolderItem[] = [];
 
   await Promise.all(
     filterExclude(await readdir(path), exclude).map(async (name) => {
       const pathToFile = join(path, name);
-      const thisStat = await stat(pathToFile, directory);
+      const thisStat: StatResult = await stat(pathToFile);
+      // eslint-disable-next-line functional/no-let
       let data;
 
       if (thisStat.type === "file" || thisStat.type === "symlink") {
-        data = await readFile(pathToFile, directory);
+        // eslint-disable-next-line prefer-const
+        data = await readFile(pathToFile);
       }
 
       thisChildren.push(
         {
           key: pathToFile,
           value: {
-            directory,
             stat: thisStat,
             data,
             fullpath: pathToFile,
           },
         },
         ...(thisStat.type === "directory"
-          ? await readFilesFolder(pathToFile, directory)
+          ? await readFilesFolder(pathToFile)
           : [])
       );
     })
@@ -317,15 +316,12 @@ export async function readFilesFolder(
   return thisChildren;
 }
 
-export async function getUri(
-  path: string,
-  directory: Directory = Directory.Documents
-): Promise<string> {
+export async function getUri(path: string): Promise<string> {
   return decodeURIComponent(
     (
       await Filesystem.getUri({
         path: join(PUBLIC_STORAGE_APPLICATION, path),
-        directory,
+        directory: Directory.Documents,
       })
     ).uri
   ).replace(/^[a-z]+:\/\//, "");
@@ -333,8 +329,8 @@ export async function getUri(
 
 export async function foreach(
   path: string,
-  exclude: Array<string | RegExp> = [],
-  include: Array<string | RegExp> = [],
+  exclude: ReadonlyArray<string | RegExp> = [],
+  include: ReadonlyArray<string | RegExp> = [],
   callback: {
     (dirname: string, name: string): Promise<void>;
   },

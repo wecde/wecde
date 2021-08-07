@@ -1,26 +1,28 @@
 <template>
-  <div>
-    <slot
-      name="activator"
-      :state="state"
-      :on="{
-        click: () => void (state = !state),
-      }"
-    />
-    <div v-show="state" v-if="setuped">
-      <slot name="default" />
-    </div>
+  <slot
+    name="activator"
+    :state="state"
+    :on="{
+      click: () => void (state = !state),
+    }"
+  />
+  <div v-show="state" v-if="setuped" :class="contentClass">
+    <slot name="default" />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, toRefs } from "@vue/composition-api";
+import { defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
   props: {
     eager: {
       type: Boolean,
       default: false,
+    },
+    contentClass: {
+      type: [Array, Object, String],
+      required: false,
     },
   },
   setup(props) {

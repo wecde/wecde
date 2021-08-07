@@ -1,11 +1,35 @@
 <template>
-  <v-app-bar app elevation="0" height="50.66px">
-    <v-app-bar-nav-icon @click="$store.commit(`system/setNavigation`, true)" />
-    <slot />
-  </v-app-bar>
+  <q-header elevated :class="[$q.dark.isActive ? 'bg-dark text-white' : 'bg-white text-dark']">
+    <q-toolbar>
+      <q-btn
+        flat
+        round
+        dense
+        :icon="mdiMenu"
+        @click="$store.commit(`system/setNavigation`, true)"
+        v-if="showHammer"
+      />
+      <slot />
+    </q-toolbar>
+  </q-header>
 </template>
 
 <script lang="ts">
-import { defineComponent } from "@vue/composition-api";
-export default defineComponent({});
+import { mdiMenu } from "@quasar/extras/mdi-v5";
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  props: {
+    showHammer: {
+      type: Boolean,
+      default: true,
+      required: false,
+    },
+  },
+  setup() {
+    return {
+      mdiMenu,
+    };
+  },
+});
 </script>

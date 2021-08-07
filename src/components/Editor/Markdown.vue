@@ -1,33 +1,32 @@
 <template>
-  <div class="Editor-Markdown">
-    <Editor-Code
-      :fullpath="fullpath"
-      @change="
-        $emit(`change`);
-        previewing && refreshMarkdown();
-      "
-      class="fill-width fill-height"
-      v-show="!previewing"
-      :input-value="!previewing"
-      ref="codeEditor"
-    />
-    <div
-      class="fill-width fill-height px-6 pb-6"
-      v-if="previewing"
-      v-html="html"
-    />
-  </div>
+  <Editor-Code
+    :fullpath="fullpath"
+    @change="
+      $emit('change');
+      previewing && refreshMarkdown();
+    "
+    :show="!previewing"
+    :input-value="!previewing"
+    ref="codeEditor"
+  />
+  <div
+    class="full-width full-height"
+    v-if="previewing"
+    v-html="html"
+  />
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, toRefs, watch } from "@vue/composition-api";
-import EditorCode from "./Code.vue";
-import { readFile } from "@/modules/filesystem";
-import { rawText } from "@/utils";
 import marked from "marked";
-import Vue from "vue";
+import { readFile } from "src/modules/filesystem";
+import { rawText } from "src/utils";
+import { defineComponent, ref, toRefs, watch } from "vue";
+import type { DefineComponent } from "vue";
+
+import EditorCode from "./Code.vue";
 
 export default defineComponent({
+  emits: ["change"],
   name: "Editor-Preview-Markdown",
   components: {
     EditorCode,
@@ -42,26 +41,26 @@ export default defineComponent({
     const { fullpath } = toRefs(props);
     const previewing = ref<boolean>(false);
     const html = ref<string>("");
-    const codeEditor = ref<Vue | null>(null);
+    const codeEditor = ref<DefineComponent | null>(null);
 
-    async function refreshMarkdown() {
+    async function refreshMarkdown(): Promise<void> {
       html.value = marked(rawText(await readFile(fullpath.value)));
     }
 
     watch(
       previewing,
-      (newValue) => {
+      async (newValue) => {
         if (newValue) {
-          refreshMarkdown();
+          await refreshMarkdown();
         }
       },
       {
         immediate: true,
       }
     );
-    watch(fullpath, () => {
+    watch(fullpath, async () => {
       if (previewing.value) {
-        refreshMarkdown();
+        await refreshMarkdown();
       }
     });
 

@@ -1,59 +1,39 @@
-.file--system {
-  &__icon {
-    margin-right: 8px;
-    transform: translateY(-25%);
+@mixin icon-file {
+  width: 24px;
+  height: 24px;
+  margin: auto;
+  display: block;
+  object-fit: cover;
+  margin-right: 4px;
 
-    img {
-      width: 24px;
-      height: 24px;
-      margin: auto;
-      display: block;
-      object-fit: cover;
-      margin-top: 3px;
-    }
+  &.rename-float {
+    position: relative;
+    z-index: 101;
   }
-  &__icon {
-    font-size: 20px;
-    width: 1em;
-    height: 1em;
-    display: inline-block;
-
-    &:first-child {
-      margin-left: 24px;
-    }
-
-    &.renaming {
-      position: relative;
-      z-index: 101;
-    }
-    > * {
-      font-size: inherit;
-    }
-  }
-  &__name {
-    min-width: 0;
+  &:first-child {
+    margin-left: (20px - 5px);
   }
 }
 
-.app--rename {
+@mixin name-changer($disabled: false) {
   color: currentColor;
   font: inherit;
-  font-size: inherit;
-  font-weight: inherit;
 
-  &__backboardd {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba($color: #000000, $alpha: 0.5);
-    z-index: 100;
+  @if ($disabled == false) {
+    &__backboardd {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba($color: #000000, $alpha: 0.5);
+      z-index: 100;
+    }
   }
 
   &__input-group {
     position: relative;
-    z-index: 101;
+    z-index: (999999998 + 1);
     font: inherit;
     font-size: inherit;
     color: currentColor;
@@ -67,27 +47,34 @@
       font-size: inherit;
       color: currentColor;
       font-weight: inherit;
-      background-color: #30393f;
+      background-color: #eee;
+      color: #000;
+      &.dark {
+        background-color: #30393f;
+        color: inherit;
+      }
       display: block;
       width: 100%;
       border-left: 2px solid #1976d2;
     }
   }
 
-  &__error {
-    position: absolute;
-    font-size: 12px;
-    color: #fff;
-    top: 100%;
-    display: block;
-    width: calc(100% + 4px);
-    background-color: rgba($color: #b32a26, $alpha: 0.7);
-    padding: 5px 3px;
-    border: 2px solid #b32a26;
-    white-space: pre-wrap;
-    + input {
+  @if ($disabled == false) {
+    &__error {
+      position: absolute;
+      font-size: 12px;
+      color: #fff;
+      top: 100%;
+      display: block;
+      width: calc(100% + 4px);
+      background-color: rgba($color: #b32a26, $alpha: 0.7);
+      padding: 5px 3px;
       border: 2px solid #b32a26;
-      border-bottom: 0;
+      white-space: pre-wrap;
+      + input {
+        border: 2px solid #b32a26;
+        border-bottom: 0;
+      }
     }
   }
 }

@@ -1,0 +1,11 @@
+{
+  "name": "HTML + Semantic UI",
+  "directory-name": "HTML + Semantic UI",
+  "icons": [
+    "icon_html.svg",
+    "icon_semantic-ui.svg"
+  ],
+  "isTemplate": true,
+  "MD5": "9a0e2d2174489e60e61443303818525f",
+  "mtimeMs": 1627434496664.9353
+}

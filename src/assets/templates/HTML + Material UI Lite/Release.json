@@ -1,0 +1,11 @@
+{
+  "name": "HTML + Material UI Lite",
+  "directory-name": "HTML + Material UI Lite",
+  "icons": [
+    "icon_html.svg",
+    "icon_material-ui-lite.svg"
+  ],
+  "isTemplate": true,
+  "MD5": "afb427a6422c10f0ce82f4180b9d5363",
+  "mtimeMs": 1627279260790.854
+}

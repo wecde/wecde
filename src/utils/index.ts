@@ -1,7 +1,7 @@
-import { extname as _extname, basename, relative, resolve } from "path";
-import { fileExtensions } from "@/assets/extensions/material-icon-theme/dist/material-icons.json";
-import isBinaryPath from "is-binary-path";
-import { encode, decode } from "base-64";
+import { decode, encode } from "base-64";
+import isBinaryPath from "is-binary-path-cross";
+import { extname as _extname, basename, relative, resolve } from "path-cross";
+import MaterialIcons from "src/assets/extensions/material-icon-theme/dist/material-icons.json";
 
 export function extname(path: string): string {
   return _extname(path).replace(/^\./g, "");
@@ -15,15 +15,19 @@ export function b64toBlob(
   const byteCharacters = decode(b64Data);
   const byteArrays = [];
 
+  // eslint-disable-next-line functional/no-loop-statement, functional/no-let
   for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
     const slice = byteCharacters.slice(offset, offset + sliceSize);
 
     const byteNumbers = new Array(slice.length);
+    // eslint-disable-next-line functional/no-loop-statement, functional/no-let
     for (let i = 0; i < slice.length; i++) {
+      // eslint-disable-next-line functional/immutable-data
       byteNumbers[i] = slice.charCodeAt(i);
     }
 
     const byteArray = new Uint8Array(byteNumbers);
+    // eslint-disable-next-line functional/immutable-data
     byteArrays.push(byteArray);
   }
 
@@ -36,7 +40,11 @@ export function isPlainText(path: string): boolean {
 }
 
 export function getType(path: string): string {
-  return fileExtensions[extname(path)] || "text";
+  return (
+    MaterialIcons.fileExtensions[
+      extname(path) as keyof typeof MaterialIcons.fileExtensions
+    ] || "text"
+  );
 }
 
 export function getEditor(path: string): string {
@@ -72,7 +80,6 @@ export function rawText(str: string): string {
 }
 
 export function alwayBase64(str: string): string {
-  // eslint-disable-next-line no-extra-boolean-cast
   if (!!str) {
     if (isBase64(str)) {
       return str;
@@ -85,9 +92,11 @@ export function alwayBase64(str: string): string {
 }
 
 export function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  // eslint-disable-next-line functional/no-let
   let binary = "";
   const bytes = new Uint8Array(buffer);
   const len = bytes.byteLength;
+  // eslint-disable-next-line functional/no-loop-statement, functional/no-let
   for (let i = 0; i < len; i++) {
     binary += String.fromCharCode(bytes[i]);
   }
@@ -98,7 +107,9 @@ export function base64ToArrayBuffer(base64: string): ArrayBuffer {
   const binary_string = decode(base64);
   const len = binary_string.length;
   const bytes = new Uint8Array(len);
+  // eslint-disable-next-line functional/no-loop-statement, functional/no-let
   for (let i = 0; i < len; i++) {
+    // eslint-disable-next-line functional/immutable-data
     bytes[i] = binary_string.charCodeAt(i);
   }
   return bytes.buffer;
@@ -124,21 +135,27 @@ export function pathEquals(a: string, b: string): boolean {
   return resolve(a) === resolve(b);
 }
 
-export function isParentFolder(a: string, b: string): boolean {
-  const pathsA = resolve(a).split("/");
-  const pathsB = resolve(b).split("/");
+export function isParentFolder(parent: string, children: string): boolean {
+  parent = resolve(parent);
+  children = resolve(children);
+  const pathsA = parent.split("/");
+  const pathsB = children.split("/");
 
   return (
-    resolve(a) !== resolve(b) &&
+    parent !== children &&
     pathsA.every((value, index) => value === pathsB[index])
   );
+}
+
+export function pathEqualsOrParent(path1: string, path2: string): boolean {
+  return pathEquals(path1, path2) || isParentFolder(path1, path2);
 }
 
 const storeTimeoutBy = new Map<string, NodeJS.Timeout | number>();
 export function createTimeoutBy(
   id: string,
   callback: {
-    (): void;
+    (): void | Promise<void>;
   },
   ms?: number
 ): NodeJS.Timeout | number {
@@ -147,10 +164,18 @@ export function createTimeoutBy(
   }
 
   const timeout = setTimeout(() => {
-    callback();
+    void callback();
     storeTimeoutBy.delete(id);
   }, ms);
   storeTimeoutBy.set(id, timeout);
 
   return timeout;
+}
+
+export function unCamelCase(str: string): string {
+  return str
+    .replace(/[A-Z]/, (template) => {
+      return " " + template.toLowerCase();
+    })
+    .trimStart();
 }
