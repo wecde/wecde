@@ -33,7 +33,7 @@
       </q-item-label>
       <q-item-label caption>
         {{ $t("label.modified") }}
-        <vue-timeagojs :time="new Date(project.stat.mtime)" />
+        <vue-timeagojs :time="new Date(project.stat.mtime)" :delay="30000" />
       </q-item-label>
     </q-item-section>
 
@@ -127,7 +127,7 @@ export default defineComponent({
         this.$store.commit("terminal/clear");
 
         void Toast.show({
-          text: this.$rt("alert.exported.project", {
+          text: this.$t("alert.exported.project", {
             name: basename(this.project.fullpath),
           }),
         });

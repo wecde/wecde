@@ -1,7 +1,6 @@
 <template>
   <q-dialog
-    style="max-width: 600px"
-    class="inner-bottom-auto"
+    class="max-width-dialog inner-bottom-auto"
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
@@ -36,8 +35,14 @@
         />
       </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn flat dense color="primary" v-close-popup :label="$t('label.cancel')" />
+      <q-card-actions align="between">
+        <q-btn
+          flat
+          dense
+          color="primary"
+          v-close-popup
+          :label="$t('label.cancel')"
+        />
         <q-btn
           flat
           dense
@@ -89,10 +94,19 @@ export default defineComponent({
       try {
         const name = /([^/]+)(?:\.git)?$/.exec(this.url)?.[1] || "";
 
-        if ((await stat(`projects/${name}`)).type === "directory") {
+        // eslint-disable-next-line functional/no-let
+        let existsProject = false;
+        try {
+          if ((await stat(`projects/${name}`)).type === "directory") {
+            existsProject = true;
+          }
+        } catch {}
+
+        if (existsProject) {
           // eslint-disable-next-line functional/no-throw-statement
           throw new Error("Project existst");
         }
+
         await clone({
           dir: `projects/${name}`,
           url: this.url,
@@ -100,7 +114,7 @@ export default defineComponent({
         });
 
         void Toast.show({
-          text: this.$rt("alert.clone-success", {
+          text: this.$t("alert.clone-success", {
             url: this.url,
           }),
         });
@@ -108,13 +122,14 @@ export default defineComponent({
         this.$emit("cloned");
 
         this.$store.commit("terminal/clear");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
+        console.log(err);
         this.$store.commit("terminal/error", err);
         void Toast.show({
-          text: this.$rt("alert.clone-failed", {
+          text: this.$t("alert.clone-failed", {
             url: this.url,
-            message: err.messaage,
+            message: err.message,
           }),
         });
       }

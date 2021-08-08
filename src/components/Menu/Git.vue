@@ -1,6 +1,6 @@
 <template>
   <Template-Tab>
-    <template v-slot:title>{{ $t("label.ettings") }}</template>
+    <template v-slot:title>{{ $t("label.settings") }}</template>
 
     <template v-slot:contents>
       <template v-if="$store.state['git-project'].state === 'unready'">
@@ -86,9 +86,26 @@ export default defineComponent({
       this.$store.commit("system/setProgress", true);
       if (this.$store.state.editor.project) {
         await GitInit(this.$store.state.editor.project);
+        await this.$store.dispatch("git-project/refresh");
       }
       this.$store.commit("system/setProgress", false);
     },
   },
 });
 </script>
+
+<style lang="scss" scoped>
+@import "src/components/File Explorer/ListItem.scss";
+@import "src/components/File Explorer/Rename.scss";
+
+.file-object {
+  @include file-object($enable-git: false);
+  padding: {
+    left: 0;
+    right: 0;
+  }
+}
+.icon-file {
+  @include icon-file();
+}
+</style>

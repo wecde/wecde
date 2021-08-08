@@ -9,20 +9,16 @@
         class="tabs"
         v-model="tab"
       >
-        <q-tab class="primary--text" :icon="mdiCubeOutline" name="labs" />
+        <q-tab :icon="mdiCubeOutline" name="labs" />
 
-        <q-tab
-          class="primary--text"
-          :icon="mdiAndroidMessages"
-          name="changelog"
-        />
+        <q-tab :icon="mdiAndroidMessages" name="changelog" />
       </q-tabs>
     </div>
 
     <q-space />
   </App-Hammer>
 
-  <q-tab-panels v-model="tab" animated keep-alive>
+  <q-tab-panels v-model="tab" animated keep-alive class="bg-transparent">
     <q-tab-panel name="labs">
       <Home-Labs />
     </q-tab-panel>

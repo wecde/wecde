@@ -1,11 +1,12 @@
 <template>
   <q-dialog
-    style="max-width: 600px"
     :model-value="lines.length > 0"
+    @update:model-value="$event ? null : $store.commit('terminal/clear')"
     full-width
     full-height
     :maximized="maximized"
     persistent
+    class="max-width-dialog"
   >
     <q-card class="bg-grey-10 text-white">
       <q-bar>
@@ -47,7 +48,7 @@
         <div class="terminal" ref="terminal">
           <div
             v-for="(line, index) in lines"
-            :class="[line.color ? `${line.color}--text` : undefined]"
+            :class="[line.color ? `text-${line.color}` : undefined]"
             :key="index"
           >
             {{ line.message }}
@@ -89,19 +90,23 @@ export default defineComponent({
       });
     }
 
-    watch(lines, () => {
-      if (terminal.value) {
-        createTimeoutBy(
-          "terminal.index.fix-async-dom-scroll",
-          () => {
-            terminal.value?.scrollTo(0, terminal.value.scrollHeight);
-          },
-          70
-        );
+    watch(
+      lines,
+      () => {
+        if (terminal.value) {
+          createTimeoutBy(
+            "terminal.index.fix-async-dom-scroll",
+            () => {
+              terminal.value?.scrollTo(0, terminal.value.scrollHeight);
+            },
+            70
+          );
+        }
+      },
+      {
+        deep: true,
       }
-    }, {
-      deep: true
-    });
+    );
 
     return {
       mdiCropSquare,

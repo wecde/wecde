@@ -154,7 +154,7 @@ export default defineComponent({
           try {
             await rename(from, to);
             void Toast.show({
-              text: this.$rt(
+              text: this.$t(
                 `alert.renamed.${this.isFolder ? "folder" : "file"}-from-to`,
                 {
                   old: relative("projects", from),
@@ -165,7 +165,7 @@ export default defineComponent({
           } catch (err) {
             console.log(err);
             void Toast.show({
-              text: this.$rt(
+              text: this.$t(
                 `alert.rename.${this.isFolder ? "folder" : "file"}-failed`,
                 {
                   path: relative("projects", from),

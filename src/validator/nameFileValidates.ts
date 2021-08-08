@@ -11,7 +11,7 @@ export default function nameFileValidates(
 ): ComputedRef<string | false> {
   return computed<string | false>(() => {
     if (!nameCheck.value && (checkNameEmpty === true || checkNameEmpty.value)) {
-      return i18n.global.rt("alert.file-name-not-empty");
+      return i18n.global.t("alert.file-name-not-empty");
     }
 
     if (
@@ -31,7 +31,7 @@ export default function nameFileValidates(
           (oldName === false ? true : name !== basename(oldName.value))
       )
     ) {
-      return i18n.global.rt("alert.file-name-invalidate", {
+      return i18n.global.t("alert.file-name-invalidate", {
         name: nameCheck.value,
       });
     }

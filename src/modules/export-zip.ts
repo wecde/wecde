@@ -15,12 +15,12 @@ export default async function exportZip(path: string): Promise<void> {
 
   store.commit(
     "terminal/print",
-    i18n.global.rt("saving-file", {
+    i18n.global.t("alert.saving-file", {
       name: filename,
     })
   );
 
   saveAs(new Blob([fileZip]), filename);
 
-  store.commit("terminal/print", i18n.global.rt("done"));
+  store.commit("terminal/print", i18n.global.t("done"));
 }

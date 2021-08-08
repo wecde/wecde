@@ -49,7 +49,7 @@
         @mousedown="fixBlurEditor"
         @click="toggleLock"
         :class="{
-          'blue--text': isLock,
+          'text-blue': isLock,
         }"
       >
         <q-icon :name="mdiLockOutline" />

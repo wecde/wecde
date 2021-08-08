@@ -180,15 +180,15 @@ function onProgress(event: any): void {
 function onAuth(url: any): any {
   const auth = getAuthFromProvide(url);
 
-  store.commit("terminal/warning", i18n.global.rt("error.git.403"));
+  store.commit("terminal/warning", i18n.global.t("error.git.403"));
 
   return auth;
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function onAuthFailure(): any {
-  store.commit("terminal/error", i18n.global.rt("error.login-failed"));
+  store.commit("terminal/error", i18n.global.t("error.login-failed"));
   void Toast.show({
-    text: i18n.global.rt("error.login-failed"),
+    text: i18n.global.t("error.login-failed"),
   });
 
   return {
@@ -196,7 +196,7 @@ function onAuthFailure(): any {
   };
 }
 function onAuthSuccess() {
-  store.commit("terminal/success", i18n.global.rt("alert.login-success"));
+  store.commit("terminal/success", i18n.global.t("alert.login-success"));
 }
 
 // export
@@ -216,7 +216,7 @@ export async function clone({
 }): Promise<void> {
   store.commit(
     "terminal/print",
-    i18n.global.rt("alert.cloneing", {
+    i18n.global.t("alert.cloneing", {
       url,
     })
   );

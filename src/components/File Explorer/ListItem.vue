@@ -171,7 +171,7 @@
     <FileExplorer-Add
       v-model:adding="adding"
       :is-folder="addingFolder"
-      :names-exists="namesChildrenExists"
+      :names-exists="files.map((file) => basename(file.fullpath))"
       :dirname="file.fullpath"
       class="flex items-center order-0"
       allow-open-editor
@@ -223,7 +223,6 @@ import {
   computed,
   defineAsyncComponent,
   defineComponent,
-  onBeforeUnmount,
   PropType,
   ref,
   toRefs,
@@ -266,12 +265,9 @@ export default defineComponent({
       () => file.value.stat.type === "directory"
     );
     const files = ref<StatItem[]>([]);
-    const namesChildrenExists = computed<string[]>(() =>
-      files.value.map((file) => basename(file.fullpath))
-    );
     const editing = computed<boolean>(
       () =>
-        !!store.getters["editor/session"] &&
+        store.getters["editor/session"] &&
         (isFolder.value
           ? isParentFolder(file.value.fullpath, store.getters["editor/session"])
           : pathEquals(store.getters["editor/session"], file.value.fullpath))
@@ -282,11 +278,11 @@ export default defineComponent({
       createTimeoutBy(
         `watch fs for git status ${props.file.fullpath}`,
         async () => {
-          console.log(store.state["git-project"].state);
           if (
             store.state.editor.project &&
             store.state["git-project"].state === "ready"
           ) {
+            gitStatus.value = "loading";
             gitStatus.value = await status({
               dir: store.state.editor.project,
               filepath: relative(
@@ -301,12 +297,11 @@ export default defineComponent({
       );
     }
     watchEffect(() => void refreshGitStatus());
-    const watcherFS = eventBus.on(
-      ["write:file"],
+    eventBus.watch(
+      "write:file",
+      file.value.fullpath,
       () => void refreshGitStatus()
     );
-
-    onBeforeUnmount(() => void watcherFS());
 
     async function refreshFolder() {
       if (isFolder.value) {
@@ -351,7 +346,7 @@ export default defineComponent({
       addingFolder,
       isFolder,
       files,
-      namesChildrenExists,
+      basename,
       refreshFolder,
       editing,
       gitStatus,
@@ -366,7 +361,7 @@ export default defineComponent({
         await unlink(this.file.fullpath);
 
         void Toast.show({
-          text: this.$rt(`alert.removed-${this.isFolder ? "folder" : "file"}`, {
+          text: this.$t(`alert.removed.${this.isFolder ? "folder" : "file"}`, {
             name: `${removedPathProject(this.file.fullpath)}`,
           }),
         });
@@ -374,9 +369,12 @@ export default defineComponent({
         this.$emit("removed");
       } catch {
         void Toast.show({
-          text: this.$rt(`alert.remove-failed-${this.isFolder ? "folder" : "file"}`, {
-            name: `${removedPathProject(this.file.fullpath)}`,
-          }),
+          text: this.$t(
+            `alert.remove-failed-${this.isFolder ? "folder" : "file"}`,
+            {
+              name: `${removedPathProject(this.file.fullpath)}`,
+            }
+          ),
         });
       }
       this.$store.commit("system/setProgress", false);
@@ -421,7 +419,7 @@ export default defineComponent({
           await exportZip(this.file.fullpath);
           this.$store.commit("terminal/clear");
           void Toast.show({
-            text: this.$rt(
+            text: this.$t(
               `alert.exported.${this.isFolder ? "folder" : "file"}`,
               {
                 name: removedPathProject(this.file.fullpath),
@@ -438,7 +436,7 @@ export default defineComponent({
         saveAs(b64toBlob(data), basename(this.file.fullpath));
         this.$store.commit("system/setProgress", false);
         void Toast.show({
-          text: this.$rt(
+          text: this.$t(
             `alert.exported.${this.isFolder ? "folder" : "file"}`,
             {
               name: removedPathProject(this.file.fullpath),

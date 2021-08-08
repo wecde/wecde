@@ -159,7 +159,7 @@
           >
             <div class="text-truncate" style="font-size: 15px">
               {{ match.firstValue
-              }}<strong class="blue--text">{{ match.value }}</strong
+              }}<strong class="text-blue">{{ match.value }}</strong
               >{{ match.lastValue }}
             </div>
 

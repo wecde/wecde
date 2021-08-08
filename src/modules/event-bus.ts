@@ -1,3 +1,6 @@
+import { pathEqualsOrParent } from "src/utils";
+import { onBeforeUnmount } from "vue";
+
 /* eslint-disable functional/functional-parameters */
 class Event<Events> {
   // eslint-disable-next-line functional/prefer-readonly-type
@@ -62,7 +65,7 @@ class Event<Events> {
   ): void {
     const handler = (...params: readonly string[]): void => {
       callback(...params);
-      this.once(name, handler);
+      this.off(name, handler);
     };
 
     this.on(name, handler);
@@ -74,6 +77,22 @@ class Event<Events> {
       );
     }
     this.store.get(name)?.forEach((callback) => void callback(...params));
+  }
+  watch(
+    name: Events | readonly Events[],
+    fullpath: string,
+    callback: {
+      (...params: readonly string[]): void;
+    }
+  ): void {
+    const handler = (...params: readonly string[]): void => {
+      if (pathEqualsOrParent(fullpath, params[0])) {
+        callback(...params);
+      }
+    };
+
+    const watcher = this.on(name, handler);
+    onBeforeUnmount(() => void watcher());
   }
 }
 

@@ -1,13 +1,7 @@
-import { relative } from "path-cross";
 import type { Store } from "vuex";
 
 import eventBus from "../modules/event-bus";
-import {
-  createTimeoutBy,
-  isParentFolder,
-  pathEquals,
-  pathEqualsOrParent,
-} from "../utils";
+import { createTimeoutBy, isParentFolder, pathEquals } from "../utils";
 
 import type { StateInterface } from "./index";
 
@@ -85,41 +79,4 @@ export default (store: Store<StateInterface>): void => {
       5000
     );
   });
-
-  eventBus.on(
-    [
-      "create:file",
-      "create:dir",
-
-      "remove:file",
-      "remove:dir",
-
-      "write:file",
-
-      "move:file",
-      "move:dir",
-
-      "copy:file",
-      "copy:dir",
-    ],
-    (fullpath) => {
-      createTimeoutBy(
-        "store watch .git",
-        () => {
-          if (
-            store.state.editor.project &&
-            isParentFolder(store.state.editor.project, fullpath)
-          ) {
-            const pathRelative = relative(store.state.editor.project, fullpath);
-
-            if (pathEqualsOrParent(pathRelative, ".git")) {
-              /// refresh git
-              void store.dispatch("git-project/checkDotGit");
-            }
-          }
-        },
-        5000
-      );
-    }
-  );
 };

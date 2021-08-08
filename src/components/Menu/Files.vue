@@ -213,7 +213,7 @@ export default defineComponent({
 
         if (notification) {
           void Toast.show({
-            text: this.$rt("alert.reload-files"),
+            text: this.$t("alert.reload-files"),
           });
         }
       } catch (err) {

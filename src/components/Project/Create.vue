@@ -1,6 +1,6 @@
 <template>
   <q-dialog
-    style="max-width: 600px"
+    class="max-width-dialog"
     full-height
     full-width
     transition-show="jump-down"
@@ -25,7 +25,7 @@
             :key="template.name"
             v-ripple
             @click="selectTemplate(template)"
-            class="col-6 template"
+            class="col-6 col-sm-4 col-md-3 template"
           >
             <div class="icons-group" v-if="template.icons">
               <img
@@ -72,7 +72,7 @@
         <q-input
           dense
           v-model.trim="templateSelected.name"
-          :rules="[error === false ? true : error]"
+          :rules="[() => (error === false ? true : error)]"
           required
           @keypress.enter="create"
           autofocus
@@ -188,7 +188,7 @@ export default defineComponent({
 
         if (created) {
           void Toast.show({
-            text: this.$rt("alert.created.project", {
+            text: this.$t("alert.created.project", {
               name: this.templateSelected.name,
             }),
           });

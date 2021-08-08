@@ -1,7 +1,7 @@
 <template>
   <div class="row q-mx-n1 justify-center">
-    <div class="col-6 q-px-1 text-center" v-for="lab in Labs" :key="lab.name">
-      <q-card flat max-width="300px" class="mx-auto">
+    <div class="col-6 col-sm-3 col-md-2 q-px-1 text-center" v-for="lab in Labs" :key="lab.name">
+      <q-card flat max-width="300px" class="mx-auto bg-transparent">
         <q-img
           v-if="lab.images && lab.images.length > 0"
           :src="

@@ -185,8 +185,8 @@ export async function copy(from: string, to: string): Promise<void> {
   });
 }
 
-export async function stat(path: string): Promise<StatResult> {
-  return await Filesystem.stat({
+export function stat(path: string): Promise<StatResult> {
+  return Filesystem.stat({
     path: join(PUBLIC_STORAGE_APPLICATION, path),
     directory: Directory.Documents,
   });

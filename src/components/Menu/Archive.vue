@@ -46,7 +46,7 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiLockOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("label.redentials") }}</q-item-section>
+              <q-item-section>{{ $t("label.credentials") }}</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -127,9 +127,12 @@
 
     <template v-slot:others>
       <q-dialog
-        style="max-width: 600px"
+    class="max-width-dialog inner-bottom-auto"
+        full-width
+        transition-show="jump-down"
+        transition-hide="jump-up"
         :model-value="!!projectRemoving"
-        @update:model-value="$event ? (projectRemoveiing = null) : null"
+        @update:model-value="$event ? null : (projectRemoving = null)"
       >
         <q-card class="flex column no-wrap">
           <q-card-section class="row items-center q-pb-1 q-pt-2">
@@ -143,9 +146,9 @@
           <q-separator />
 
           <q-card-section class="fit scroll q-pt-2 q-pb-3">
-            {{ $t("label.type") }} <span class="blue--text">{{ code }}</span>
+            {{ $t("label.type") }} <span class="text-blue">{{ code }}</span>
             {{ $t("label.to-confirm") }}
-            <span class="blue--text">{{
+            <span class="text-blue">{{
               projectRemoving && basename(projectRemoving.fullpath)
             }}</span>
             {{ $t("label.not-recovery") }}
@@ -153,9 +156,7 @@
               dense
               :rules="[
                 () =>
-                  code === codeInput
-                    ? true
-                    : $t('error.match-code', { code }),
+                  code === codeInput ? true : $t('error.match-code', { code }),
               ]"
               required
               v-model.trim="codeInput"
@@ -164,12 +165,22 @@
             />
           </q-card-section>
 
-          <div class="flex items-center justify-between mt-3">
-            <q-btn text color="blue" @click="projectRemoving = null">
-              {{ $t("label.cancel") }}
-            </q-btn>
-            <q-btn text color="blue" @click="remove"> {{ $t("label.ok") }} </q-btn>
-          </div>
+          <q-card-actions align="between">
+            <q-btn
+              :label="$t('label.cancel')"
+              flat
+              dense
+              color="primary"
+              v-close-popup
+            />
+            <q-btn
+              :label="$t('label.ok')"
+              flat
+              dense
+              color="primary"
+              @click="remove"
+            />
+          </q-card-actions>
         </q-card>
       </q-dialog>
 
@@ -282,7 +293,7 @@ export default defineComponent({
       this.$store.commit("system/setProgress", false);
       if (notification) {
         void Toast.show({
-          text: this.$rt("alert.reload-projects"),
+          text: this.$t("alert.reload-projects"),
         });
       }
     },
@@ -291,7 +302,7 @@ export default defineComponent({
         const names = await importZip("projects/");
         this.$store.commit("terminal/clear");
         void Toast.show({
-          text: this.$rt("alert.imported-project", {
+          text: this.$t("alert.imported-project", {
             list: names.map((item) => `"${item}"`).join(", "),
           }),
         });
@@ -306,13 +317,13 @@ export default defineComponent({
         try {
           await rmdir(this.projectRemoving.fullpath);
           void Toast.show({
-            text: this.$rt("alert.removed.project", {
+            text: this.$t("alert.removed.project", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });
         } catch {
           void Toast.show({
-            text: this.$rt("alert.remove-project-failed", {
+            text: this.$t("alert.remove-project-failed", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });

@@ -9,7 +9,7 @@ import { unzip } from "./zip";
 export default async function importZip(
   folderExtract: string
 ): Promise<readonly string[]> {
-  store.commit("terminal/print", i18n.global.rt("alert.import-files"));
+  store.commit("terminal/print", i18n.global.t("alert.import-files"));
   const files = await selectFile(".zip");
 
   if (files.length > 0) {

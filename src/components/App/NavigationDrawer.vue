@@ -15,7 +15,7 @@
       <q-tab name="settings" :icon="mdiCogOutline" />
     </q-tabs>
 
-    <q-tab-panels v-model="navigationTabs" animated keep-alive>
+    <q-tab-panels v-model="navigationTabs" animated keep-alive class="bg-transparent">
       <q-tab-panel name="archive" class="q-py-xs q-py-sm">
         <Menu-Archive @open:project="navigationTabs = 1" />
       </q-tab-panel>

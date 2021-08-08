@@ -1,7 +1,6 @@
 <template>
   <q-dialog
-    style="max-width: 600px"
-    class="inner-bottom-auto"
+    class="max-width-dialog inner-bottom-auto"
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"

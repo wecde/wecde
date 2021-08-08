@@ -48,6 +48,7 @@
     "ziping": "Ziping folder {name}",
     "zip-saved": "Successfully zip saved in {name}",
     "extracting-zip": "Extracting file zip from {name}",
+    
     "extract-file": "Extract file {name}",
     "extract-folder": "Extract folder {name}",
     "unzipped": "Extracted zip to {to}",
@@ -62,6 +63,7 @@
     "imported-project": "Imported project {list}",
     "reload-files": "Reload files(s)"
   },
+  "Console": "Console",
   "done": "Done",
   "error": {
     "git": {

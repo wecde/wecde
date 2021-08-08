@@ -166,7 +166,7 @@ export default defineComponent({
       await WebServer.start(port).catch((err: unknown) => console.log(err));
 
       void Toast.show({
-        text: i18n.rt("alert.webserver-start-at", {
+        text: i18n.t("alert.webserver-start-at", {
           port,
         }),
       });
@@ -175,7 +175,7 @@ export default defineComponent({
       await WebServer.stop();
 
       void Toast.show({
-        text: i18n.rt("alert.webserver-stoped"),
+        text: i18n.t("alert.webserver-stoped"),
       });
     }
     async function changePort(port: string): Promise<void> {
