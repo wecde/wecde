@@ -5,7 +5,8 @@
   // color: #b9bbc1;
   color: #4a4a49;
   &.dark {
-    color: #b9bbc1;
+    // color: #b9bbc1;
+    color: #fff;
   }
   display: flex;
   align-items: center;
@@ -50,6 +51,8 @@
     /* {/*modified} */
 
     &.star-deleted {
+      color: $red;
+      text-decoration: underline;
     }
     &.deleted {
     }

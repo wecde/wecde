@@ -50,7 +50,7 @@
       "webpack-env"
     ],
     "lib": [
-      "es2020",
+      "esnext",
       "dom",
       "dom.iterable",
       "scripthost"
@@ -64,6 +64,7 @@
     "node_modules",
     "assets/labs",
     "assets/templates",
-    "resources"
+    "resources",
+    "src-capacitor"
   ]
 }
