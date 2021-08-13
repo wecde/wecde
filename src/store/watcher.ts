@@ -1,4 +1,4 @@
-import { watcher } from "src/modules/filesystem";
+import { watcher } from "modules/filesystem";
 import { createTimeoutBy, isParentFolder, pathEquals } from "src/utils";
 import type { Store } from "vuex";
 

@@ -81,7 +81,7 @@
 
 <script lang="ts">
 import { mdiArrowLeft } from "@quasar/extras/mdi-v5";
-import AppHammer from "src/components/App/Hammer.vue";
+import AppHammer from "components/App/Hammer.vue";
 import { useStore } from "src/store";
 import { groups } from "src/store/settings/options";
 import type { ValueType } from "src/store/settings/options";

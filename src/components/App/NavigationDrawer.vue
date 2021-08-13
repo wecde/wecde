@@ -44,11 +44,11 @@ import {
   mdiGit,
   mdiMagnify,
 } from "@quasar/extras/mdi-v5";
-import MenuArchive from "src/components/Menu/Archive.vue";
-import MenuFiles from "src/components/Menu/Files.vue";
-import MenuGit from "src/components/Menu/Git.vue";
-import MenuSearch from "src/components/Menu/Search.vue";
-import MenuSettings from "src/components/Menu/Settings.vue";
+import MenuArchive from "components/Menu/Archive.vue";
+import MenuFiles from "components/Menu/Files.vue";
+import MenuGit from "components/Menu/Git.vue";
+import MenuSearch from "components/Menu/Search.vue";
+import MenuSettings from "components/Menu/Settings.vue";
 import { useStore } from "src/store";
 import { computed, defineComponent, ref } from "vue";
 

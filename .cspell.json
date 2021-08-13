@@ -31,7 +31,10 @@
         "repos",
         "skipme",
         "sqlserver",
+        "statuss",
         "stoped",
+        "uncommented",
+        "undeletemodified",
         "Unmount",
         "vetur",
         "Whitespaces"

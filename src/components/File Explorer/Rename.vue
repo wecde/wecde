@@ -55,9 +55,9 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
+import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
+import { rename } from "modules/filesystem";
 import { basename, dirname, extname, join, relative } from "path-cross";
-import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
-import { rename } from "src/modules/filesystem";
 import { createTimeoutBy } from "src/utils";
 import nameFileValidates from "src/validator/nameFileValidates";
 import { defineComponent, ref, toRefs, watch } from "vue";

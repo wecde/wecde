@@ -31,7 +31,7 @@
               <img
                 v-for="(item, index) in template.icons"
                 :src="
-                  require(`src/assets/templates/${template['directory-name']}/${item}`)
+                  require(`assets/templates/${template['directory-name']}/${item}`)
                 "
                 :key="index"
               />
@@ -89,7 +89,7 @@
           <img
             v-for="(item, index) in templateSelected.icons"
             :src="
-              require(`src/assets/templates/${
+              require(`assets/templates/${
                 templateSelected && templateSelected['directory-name']
               }/${item}`)
             "
@@ -105,9 +105,9 @@
 import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
 import type { Template } from "assets/labs/Release.json";
-import templates from "src/assets/templates/Release.json";
-import { mkdir } from "src/modules/filesystem";
-import { unzip } from "src/modules/zip";
+import templates from "assets/templates/Release.json";
+import { mkdir } from "modules/filesystem";
+import { unzip } from "modules/zip";
 import nameFileValidates from "src/validator/nameFileValidates";
 import { computed, defineComponent, ref, toRefs } from "vue";
 import type { PropType } from "vue";
@@ -170,7 +170,7 @@ export default defineComponent({
           try {
             await unzip({
               // eslint-disable-next-line @typescript-eslint/no-var-requires
-              file: require(`src/assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
+              file: require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
                 .default,
               to: `projects/${this.templateSelected.name}`,
             });

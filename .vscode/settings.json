@@ -5,6 +5,11 @@
   "typescript.tsdk": "node_modules/typescript/lib",
   "vetur.experimental.templateInterpolationService": true,
   "i18n-ally.localesPaths": [
-    "src/i18n"
-  ]
+    "src/locales"
+  ],
+  "vetur.validation.interpolation": false,
+  "vetur.validation.script": false,
+  "vetur.validation.style": false,
+  "vetur.validation.templateProps": false,
+  "vetur.underline.refValue": true
 }

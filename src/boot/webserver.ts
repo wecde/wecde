@@ -1,8 +1,8 @@
 import { encode } from "base-64";
+import { getUri, readFile, stat } from "modules/filesystem";
+import { WebServer } from "modules/webserver";
 import { join } from "path-cross";
 import { boot } from "quasar/wrappers";
-import { getUri, readFile, stat } from "src/modules/filesystem";
-import { WebServer } from "src/modules/webserver";
 import { store } from "src/store";
 import { extname, rawText } from "src/utils";
 

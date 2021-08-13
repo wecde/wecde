@@ -1,7 +1,7 @@
+import MaterialIcons from "assets/extensions/material-icon-theme/dist/material-icons.json";
 import { decode, encode } from "base-64";
 import isBinaryPath from "is-binary-path-cross";
 import { extname as _extname, basename, relative, resolve } from "path-cross";
-import MaterialIcons from "src/assets/extensions/material-icon-theme/dist/material-icons.json";
 import { StateInterface } from "src/store";
 import { Store } from "vuex";
 

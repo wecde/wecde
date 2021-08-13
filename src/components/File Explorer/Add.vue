@@ -17,8 +17,8 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
+import { mkdir, writeFile } from "modules/filesystem";
 import { join } from "path-cross";
-import { mkdir, writeFile } from "src/modules/filesystem";
 import { useStore } from "src/store";
 import { defineComponent, PropType, ref, toRefs, watch } from "vue";
 import { useI18n } from "vue-i18n";

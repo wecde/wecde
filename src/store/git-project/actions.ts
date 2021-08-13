@@ -1,5 +1,5 @@
+import { readFile, stat } from "modules/filesystem";
 import { join } from "path-cross";
-import { readFile, stat } from "src/modules/filesystem";
 import { rawText } from "src/utils";
 import type { ActionTree } from "vuex";
 

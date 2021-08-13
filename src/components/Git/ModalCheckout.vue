@@ -40,7 +40,8 @@
 </template>
 
 <script lang="ts">
-import DialogTop from "src/components/DialogTop.vue";
+import { mdiLightningBolt } from "@quasar/extras/mdi-v5";
+import DialogTop from "components/DialogTop.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({
@@ -53,6 +54,11 @@ export default defineComponent({
       type: Boolean,
       required: false,
     },
+  },
+  setup() {
+    return {
+      mdiLightningBolt,
+    };
   },
 });
 </script>

@@ -72,7 +72,7 @@
 
 <script lang="ts">
 import { mdiClose } from "@quasar/extras/mdi-v5";
-import DialogTop from "src/components/DialogTop.vue";
+import DialogTop from "components/DialogTop.vue";
 import { useStore } from "src/store";
 import type { HostType } from "src/store/git-configs/state";
 import { hosts } from "src/store/git-configs/state";

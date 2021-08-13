@@ -186,15 +186,15 @@ import {
   mdiFormatLetterCase,
   mdiRegex,
 } from "@quasar/extras/mdi-v5";
+import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
+import AppCollapse from "components/App/Collapse.vue";
 import escapeRegExp from "escape-string-regexp";
-import { basename, join } from "path-cross";
-import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
-import AppCollapse from "src/components/App/Collapse.vue";
 import {
   foreach as foreachFiles,
   readFile,
   writeFile,
-} from "src/modules/filesystem";
+} from "modules/filesystem";
+import { basename, join } from "path-cross";
 import { useStore } from "src/store";
 import { createTimeoutBy, foreachAsync, isPlainText, rawText } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
@@ -421,8 +421,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "src/components/File Explorer/ListItem.scss";
-@import "src/components/File Explorer/Rename.scss";
+@import "components/File Explorer/ListItem.scss";
+@import "components/File Explorer/Rename.scss";
 
 .file-object {
   @include file-object($enable-git: false);

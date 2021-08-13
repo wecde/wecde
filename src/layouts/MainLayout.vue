@@ -10,8 +10,8 @@
 </template>
 
 <script lang="ts">
-import AppNavigationDrawer from "src/components/App/NavigationDrawer.vue";
-import Terminal from "src/components/Terminal.vue";
+import AppNavigationDrawer from "components/App/NavigationDrawer.vue";
+import Terminal from "components/Terminal.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({

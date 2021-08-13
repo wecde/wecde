@@ -5,7 +5,7 @@
         <q-img
           v-if="lab.images && lab.images.length > 0"
           :src="
-            require(`src/assets/labs/${lab['directory-name']}/${lab.images[0]}`)
+            require(`assets/labs/${lab['directory-name']}/${lab.images[0]}`)
           "
           :aspect-ratio="177.5 / 142.13"
         />

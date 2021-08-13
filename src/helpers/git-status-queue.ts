@@ -1,3 +1,3 @@
-import Queue from "src/modules/queue";
+import Queue from "modules/queue";
 
 export default new Queue();

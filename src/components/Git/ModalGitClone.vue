@@ -54,9 +54,10 @@
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
+import DialogTop from "components/DialogTop.vue";
 import git from "isomorphic-git";
 import http from "isomorphic-git/http/web/index.js";
-import DialogTop from "src/components/DialogTop.vue";
+import { fs, stat } from "modules/filesystem";
 import {
   configs as gitConfigs,
   onAuth,
@@ -68,7 +69,6 @@ import {
   onProgress,
   onStart,
 } from "src/helpers/git";
-import { fs, stat } from "src/modules/filesystem";
 import { defineComponent, ref, watch } from "vue";
 
 // import $store from "src/store";

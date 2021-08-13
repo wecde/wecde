@@ -208,15 +208,15 @@ import {
   mdiReload,
   mdiZipBoxOutline,
 } from "@quasar/extras/mdi-v5";
+import DialogTop from "components/DialogTop.vue";
+import GitClone from "components/Git/ModalGitClone.vue";
+import GitProvide from "components/Git/ModalGitProvide.vue";
+import ProjectCreate from "components/Project/Create.vue";
+import ProjectItem from "components/Project/Item.vue";
+import { readdirStat, rmdir } from "modules/filesystem";
+import type { StatItem } from "modules/filesystem";
+import importZip from "modules/import-zip";
 import { basename } from "path-cross";
-import DialogTop from "src/components/DialogTop.vue";
-import GitClone from "src/components/Git/ModalGitClone.vue";
-import GitProvide from "src/components/Git/ModalGitProvide.vue";
-import ProjectCreate from "src/components/Project/Create.vue";
-import ProjectItem from "src/components/Project/Item.vue";
-import { readdirStat, rmdir } from "src/modules/filesystem";
-import type { StatItem } from "src/modules/filesystem";
-import importZip from "src/modules/import-zip";
 import { random } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
 

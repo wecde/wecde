@@ -204,14 +204,11 @@ import {
   mdiFolderOutline,
   mdiPen,
 } from "@quasar/extras/mdi-v5";
+import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
 import git from "isomorphic-git";
-import { basename, join, relative } from "path-cross";
-import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
-import gitStatusCache from "src/helpers/git-status-cache";
-import gitStatusQueue from "src/helpers/git-status-queue";
-import exportZip from "src/modules/export-zip";
+import exportZip from "modules/export-zip";
 import {
   fs,
   watcher as fsWatcher,
@@ -220,8 +217,11 @@ import {
   readFile,
   stat,
   unlink,
-} from "src/modules/filesystem";
-import type { StatItem } from "src/modules/filesystem";
+} from "modules/filesystem";
+import type { StatItem } from "modules/filesystem";
+import { basename, join, relative } from "path-cross";
+import gitStatusCache from "src/helpers/git-status-cache";
+import gitStatusQueue from "src/helpers/git-status-queue";
 import { useStore } from "src/store";
 import {
   b64toBlob,

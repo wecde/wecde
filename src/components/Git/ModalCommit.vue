@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import DialogTop from "src/components/DialogTop.vue";
+import DialogTop from "components/DialogTop.vue";
 import { defineComponent } from "vue";
 
 export default defineComponent({

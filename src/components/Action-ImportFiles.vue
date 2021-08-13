@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import importFiles from "src/modules/import-files";
+import importFiles from "modules/import-files";
 import { defineComponent } from "vue";
 
 export default defineComponent({

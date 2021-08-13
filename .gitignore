@@ -31,6 +31,7 @@ yarn-error.log*
 *.ntvs*
 *.njsproj
 *.sln
+*.vtpw.ts
 
 /resources/**/sort.txt
 /resources/**/Release.json

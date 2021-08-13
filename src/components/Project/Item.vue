@@ -7,7 +7,7 @@
     <q-item-section avatar>
       <q-img
         :src="
-          require(`src/assets/extensions/material-icon-theme/icons/${
+          require(`assets/extensions/material-icon-theme/icons/${
             $store.state.editor.project &&
             pathEquals(project.fullpath, $store.state.editor.project)
               ? 'folder-project-open.svg'
@@ -88,9 +88,9 @@ import {
   mdiExportVariant,
   mdiPen,
 } from "@quasar/extras/mdi-v5";
+import exportZip from "modules/export-zip";
+import type { StatItem } from "modules/filesystem";
 import { basename } from "path-cross";
-import exportZip from "src/modules/export-zip";
-import type { StatItem } from "src/modules/filesystem";
 import { pathEquals } from "src/utils";
 import { defineComponent, PropType, ref } from "vue";
 

@@ -89,7 +89,7 @@
     </template>
     <template v-else>
       <div class="q-pt-4 text-caption q-px-6 q-pb-6">
-        <img class="image-shallow" :src="require('src/assets/favicon.svg')" />
+        <img class="image-shallow" :src="require('assets/favicon.svg')" />
       </div>
     </template>
   </div>
@@ -105,14 +105,14 @@ import {
   mdiPen,
   mdiPlay,
 } from "@quasar/extras/mdi-v5";
+import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
+import AppHammer from "components/App/Hammer.vue";
+import EditorCode from "components/Editor/Code.vue";
+import EditorMarkdown from "components/Editor/Markdown.vue";
+import EditorSVG from "components/Editor/SVG.vue";
+import Preview from "components/Preview.vue";
+import { WebServer } from "modules/webserver";
 import { basename } from "path-cross";
-import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
-import AppHammer from "src/components/App/Hammer.vue";
-import EditorCode from "src/components/Editor/Code.vue";
-import EditorMarkdown from "src/components/Editor/Markdown.vue";
-import EditorSVG from "src/components/Editor/SVG.vue";
-import Preview from "src/components/Preview.vue";
-import { WebServer } from "src/modules/webserver";
 import { useStore } from "src/store";
 import { createTimeoutBy, extname, getEditor, isPlainText } from "src/utils";
 import type { DefineComponent } from "vue";

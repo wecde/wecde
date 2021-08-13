@@ -18,7 +18,7 @@
 
 <script lang="ts">
 import marked from "marked";
-import { readFile } from "src/modules/filesystem";
+import { readFile } from "modules/filesystem";
 import { rawText } from "src/utils";
 import { defineComponent, ref, toRefs, watch } from "vue";
 import type { DefineComponent } from "vue";

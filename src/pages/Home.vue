@@ -30,9 +30,9 @@
 
 <script lang="ts">
 import { mdiAndroidMessages, mdiCubeOutline } from "@quasar/extras/mdi-v5";
-import AppHammer from "src/components/App/Hammer.vue";
-import HomeChangelog from "src/components/Home/Changelog.vue";
-import HomeLabs from "src/components/Home/Labs.vue";
+import AppHammer from "components/App/Hammer.vue";
+import HomeChangelog from "components/Home/Changelog.vue";
+import HomeLabs from "components/Home/Labs.vue";
 import { defineComponent, ref } from "vue";
 
 export default defineComponent({
