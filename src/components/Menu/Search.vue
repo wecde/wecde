@@ -6,8 +6,8 @@
       <q-btn
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
         :icon="mdiRegex"
         :color="modeRegexp ? `blue` : undefined"
@@ -16,8 +16,8 @@
       <q-btn
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
         :icon="mdiFormatLetterCase"
         :color="modeLetterCase ? `blue` : undefined"
@@ -26,8 +26,8 @@
       <q-btn
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
         :icon="mdiFileWordBoxOutline"
         :color="modeWordBox ? `blue` : undefined"
@@ -164,7 +164,7 @@
             </div>
 
             <q-icon
-              size="1em"
+              size="13px"
               @click.prevent.stop="replaceSearch(item, index)"
               :name="mdiCheck"
             />
@@ -196,19 +196,19 @@ import {
   writeFile,
 } from "src/modules/filesystem";
 import { useStore } from "src/store";
-import { createTimeoutBy, isPlainText, rawText } from "src/utils";
+import { createTimeoutBy, foreachAsync, isPlainText, rawText } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
 
 interface Result {
-  file: string;
-  basename: string;
-  match: {
-    index: number;
-    firstValue: string;
-    value: string;
-    lastValue: string;
+  readonly file: string;
+  readonly basename: string;
+  readonly match: readonly {
+    readonly index: number;
+    readonly firstValue: string;
+    readonly value: string;
+    readonly lastValue: string;
   }[];
 }
 
@@ -329,7 +329,10 @@ export default defineComponent({
           }
           searching.value = false;
         },
-        500
+        500,
+        {
+          skipme: true,
+        }
       );
     }
 
@@ -398,13 +401,11 @@ export default defineComponent({
     },
 
     async replaceAll(): Promise<void> {
-      // eslint-disable-next-line functional/no-loop-statement
-      for (const item of this.results) {
-        // eslint-disable-next-line functional/no-loop-statement, @typescript-eslint/no-for-in-array
-        for (const index in item.match) {
-          await this.replaceSearch(item, +index);
-        }
-      }
+      await foreachAsync(this.results, async (result) => {
+        await foreachAsync(result.match, async (item, index) => {
+          await this.replaceSearch(result, index);
+        });
+      });
     },
 
     gotoEditor(file: string, start: number, stop: number): void {

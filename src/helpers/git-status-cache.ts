@@ -1,5 +1,4 @@
 import { store } from "src/store";
-import { createTimeoutBy } from "src/utils";
 
 const cache = Object.create(null);
 
@@ -11,6 +10,8 @@ export function clear(): void {
     // eslint-disable-next-line functional/immutable-data
     delete cache[key];
   }
+  // eslint-disable-next-line functional/immutable-data
+  Object.getOwnPropertySymbols(cache).forEach((key) => delete cache[key]);
 }
 
 store.watch(
@@ -20,10 +21,4 @@ store.watch(
   }
 );
 
-createTimeoutBy(
-  "clear cache git status",
-  () => {
-    void clear();
-  },
-  5 * 60 * 1000
-);
+setInterval(() => void clear(), 5 * 60 * 1000);

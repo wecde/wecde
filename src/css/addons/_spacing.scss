@@ -1,23 +1,27 @@
 @mixin renderProp($prefix, $index) {
   &t-#{$index},
-  &y-#{$index} {
-    #{$prefix}-top: ($index * 4px);
+  &y-#{$index},
+  &a-#{$index} {
+    #{$prefix}-top: ($index * 4px) !important;
   }
   &r-#{$index},
-  &x-#{$index} {
-    #{$prefix}-right: ($index * 4px);
+  &x-#{$index},
+  &a-#{$index} {
+    #{$prefix}-right: ($index * 4px) !important;
   }
   &b-#{$index},
-  &y-#{$index} {
-    #{$prefix}-bottom: ($index * 4px);
+  &y-#{$index},
+  &a-#{$index} {
+    #{$prefix}-bottom: ($index * 4px) !important;
   }
   &l-#{$index},
-  &x-#{$index} {
-    #{$prefix}-left: ($index * 4px);
+  &x-#{$index},
+  &a-#{$index} {
+    #{$prefix}-left: ($index * 4px) !important;
   }
 }
 
-@for $index from 1 to 10 {
+@for $index from 0 to 10 {
   //padding
   .q-p {
     @include renderProp($prefix: "padding", $index: $index);
@@ -29,14 +33,34 @@
 
     &x-n#{$index} {
       margin: {
-        left: ($index * -4px);
-        right: ($index * -4px);
+        left: ($index * -4px) !important;
+        right: ($index * -4px) !important;
+      }
+    }
+    &l-n#{$index} {
+      margin: {
+        left: ($index * -4px) !important;
+      }
+    }
+    &r-n#{$index} {
+      margin: {
+        right: ($index * -4px) !important;
       }
     }
     &y-n#{$index} {
       margin: {
-        top: ($index * -4px);
-        bottom: ($index * -4px);
+        top: ($index * -4px) !important;
+        bottom: ($index * -4px) !important;
+      }
+    }
+    &t-n#{$index} {
+      margin: {
+        top: ($index * -4px) !important;
+      }
+    }
+    &b-n#{$index} {
+      margin: {
+        bottom: ($index * -4px) !important;
       }
     }
   }

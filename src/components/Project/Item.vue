@@ -38,14 +38,17 @@
     </q-item-section>
 
     <q-item-section side top>
-      <q-btn :icon="mdiDotsVertical" flat round padding="none">
+      <q-btn :icon="mdiDotsVertical" flat round padding="xs">
         <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
           transition-show="jump-down"
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
         >
-          <q-list bordered>
+          <q-list>
             <q-item clickable v-close-popup v-ripple @click="exportZip">
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiArchiveOutline" />

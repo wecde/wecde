@@ -1,12 +1,12 @@
+import { watcher } from "src/modules/filesystem";
+import { createTimeoutBy, isParentFolder, pathEquals } from "src/utils";
 import type { Store } from "vuex";
 
-import eventBus from "../modules/event-bus";
-import { createTimeoutBy, isParentFolder, pathEquals } from "../utils";
 
 import type { StateInterface } from "./index";
 
 export default (store: Store<StateInterface>): void => {
-  eventBus.on(["move:file", "move:dir"], (to, from) => {
+  watcher.on(["move:file", "move:dir"], (type, to, from) => {
     /// update project
 
     if (
@@ -51,32 +51,26 @@ export default (store: Store<StateInterface>): void => {
     }
   );
 
-  eventBus.on(["write:file", "remove:file"], (fullpath) => {
-    createTimeoutBy(
-      "store watch .gitignore",
-      () => {
-        if (
-          store.state.editor.project &&
-          isParentFolder(store.state.editor.project, fullpath)
-        ) {
-          void store.dispatch("git-project/loadIgnore");
-        }
-      },
-      5000
-    );
-  });
-  eventBus.on(["move:file"], (to, fullpath) => {
-    createTimeoutBy(
-      "store watch .gitignore",
-      () => {
-        if (
-          store.state.editor.project &&
-          isParentFolder(store.state.editor.project, fullpath)
-        ) {
-          void store.dispatch("git-project/loadIgnore");
-        }
-      },
-      5000
-    );
-  });
+  watcher.on(
+    ["write:file", "remove:file", "move:file", "copy:file"],
+    (type, to, from) => {
+      createTimeoutBy(
+        "store watch .gitignore",
+        () => {
+          if (store.state.editor.project) {
+            if (isParentFolder(store.state.editor.project, to)) {
+              void store.dispatch("git-project/loadIgnore");
+            }
+
+            if (type === "move:file") {
+              if (isParentFolder(store.state.editor.project, from)) {
+                void store.dispatch("git-project/loadIgnore");
+              }
+            }
+          }
+        },
+        5000
+      );
+    }
+  );
 };

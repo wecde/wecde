@@ -14,7 +14,6 @@
       deleted: gitStatus === `deleted`,
 
       'star-undeleted': gitStatus === `*undeleted`,
-      undeleted: gitStatus === `undeleted`,
 
       'star-added': gitStatus === `*added`,
       added: gitStatus === `added`,
@@ -42,19 +41,22 @@
       </template>
 
       <template v-slot:append-text v-if="editing">
-        <q-icon size="1em" color="blue" :name="mdiCircleMedium" />
+        <q-icon size="13px" color="blue" :name="mdiCircleMedium" />
       </template>
     </FileExplorer-Rename>
 
     <div class="actions">
       <q-btn color="inherit" flat dense :icon="mdiDotsVertical" @click.stop>
         <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
           transition-show="jump-down"
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
         >
-          <q-list bordered>
+          <q-list>
             <template v-if="clipboardExists">
               <q-item
                 clickable
@@ -204,13 +206,22 @@ import {
 } from "@quasar/extras/mdi-v5";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
-import { basename, relative } from "path-cross";
+import git from "isomorphic-git";
+import { basename, join, relative } from "path-cross";
 import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
-import eventBus from "src/modules/event-bus";
+import gitStatusCache from "src/helpers/git-status-cache";
+import gitStatusQueue from "src/helpers/git-status-queue";
 import exportZip from "src/modules/export-zip";
-import { readdirStat, readFile, unlink } from "src/modules/filesystem";
+import {
+  fs,
+  watcher as fsWatcher,
+  readdir,
+  readdirStat,
+  readFile,
+  stat,
+  unlink,
+} from "src/modules/filesystem";
 import type { StatItem } from "src/modules/filesystem";
-import { status } from "src/modules/git";
 import { useStore } from "src/store";
 import {
   b64toBlob,
@@ -232,7 +243,74 @@ import {
 
 import FileExplorerAdd from "./Add.vue";
 import FileExplorerRename from "./Rename.vue";
-import gitStatusCache from "./git-status-cache";
+
+async function status({
+  dir,
+  filepath,
+  cache,
+}: {
+  readonly dir: string;
+  readonly filepath: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly cache?: any;
+}): Promise<string> {
+  return await git.status({
+    fs,
+    dir,
+    filepath,
+    cache,
+  });
+}
+
+async function statusFolder({
+  dir,
+  fullpath,
+  cache,
+  project,
+}: {
+  readonly dir: string;
+  readonly fullpath: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  readonly cache?: any;
+  readonly project: string;
+}): Promise<string> {
+  const folders = [];
+
+  // eslint-disable-next-line functional/no-loop-statement
+  for (const filename of await readdir(fullpath)) {
+    if ((await stat(join(fullpath, filename))).type === "file") {
+      /// checking
+      const statusFile = await status({
+        dir,
+        filepath: relative(project, join(fullpath, filename)),
+        cache,
+      });
+
+      if (statusFile !== "unmodified") {
+        return statusFile;
+      }
+    } else {
+      // eslint-disable-next-line functional/immutable-data
+      folders.push(filename);
+    }
+
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const dirname of folders) {
+      const statusThisFolder = await statusFolder({
+        dir,
+        fullpath: join(fullpath, dirname),
+        cache,
+        project,
+      });
+
+      if (statusThisFolder !== "unmodified") {
+        return statusThisFolder;
+      }
+    }
+  }
+
+  return "unmodified";
+}
 
 export default defineComponent({
   emits: ["removed", "request:refresh"],
@@ -275,32 +353,76 @@ export default defineComponent({
     const gitStatus = ref<string | null>(null);
 
     function refreshGitStatus(): void {
+      gitStatus.value = "loading";
       createTimeoutBy(
         `watch fs for git status ${props.file.fullpath}`,
         async () => {
-          if (
-            store.state.editor.project &&
-            store.state["git-project"].state === "ready"
-          ) {
-            gitStatus.value = "loading";
-            gitStatus.value = await status({
-              dir: store.state.editor.project,
-              filepath: relative(
-                store.state.editor.project,
-                props.file.fullpath
-              ),
-              cache: gitStatusCache,
-            });
-          }
+          await gitStatusQueue.run(async () => {
+            if (
+              store.state.editor.project &&
+              store.state["git-project"].state === "ready"
+            ) {
+              gitStatus.value = isFolder.value
+                ? await statusFolder({
+                    dir: store.state.editor.project,
+                    fullpath: props.file.fullpath,
+                    cache: gitStatusCache,
+                    project: store.state.editor.project,
+                  })
+                : await status({
+                    dir: store.state.editor.project,
+                    filepath: relative(
+                      store.state.editor.project,
+                      props.file.fullpath
+                    ),
+                    cache: gitStatusCache,
+                  });
+            } else {
+              gitStatus.value = null;
+            }
+          });
         },
-        3000
+        3000,
+        {
+          skipme: true,
+          immediate: true,
+        }
       );
     }
-    watchEffect(() => void refreshGitStatus());
-    eventBus.watch(
-      "write:file",
-      file.value.fullpath,
-      () => void refreshGitStatus()
+
+    const watchers: {
+      (): void;
+    }[] = [];
+    watch(
+      () => store.state["git-project"].state,
+      (state) => {
+        if (state === "ready") {
+          if (watchers.length === 0) {
+            // eslint-disable-next-line functional/immutable-data
+            watchers.push(
+              watchEffect(() => void refreshGitStatus()),
+              fsWatcher.watch(
+                "write:file",
+                file.value.fullpath,
+                () => void refreshGitStatus(),
+                isFolder.value ? false : true
+              ),
+              fsWatcher.watch(
+                "write:file",
+                () =>
+                  join(store.state.editor.project as string, ".git/refs/heads"),
+                () => void refreshGitStatus()
+              )
+            );
+          }
+        } else {
+          // eslint-disable-next-line functional/immutable-data
+          watchers.splice(0).forEach((watcher) => void watcher());
+        }
+      },
+      {
+        immediate: true,
+      }
     );
 
     async function refreshFolder() {
@@ -436,12 +558,9 @@ export default defineComponent({
         saveAs(b64toBlob(data), basename(this.file.fullpath));
         this.$store.commit("system/setProgress", false);
         void Toast.show({
-          text: this.$t(
-            `alert.exported.${this.isFolder ? "folder" : "file"}`,
-            {
-              name: removedPathProject(this.file.fullpath),
-            }
-          ),
+          text: this.$t(`alert.exported.${this.isFolder ? "folder" : "file"}`, {
+            name: removedPathProject(this.file.fullpath),
+          }),
         });
       }
     },

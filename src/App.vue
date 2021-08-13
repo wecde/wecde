@@ -37,6 +37,7 @@ import { useQuasar } from "quasar";
 import { stat } from "src/modules/filesystem";
 import { useStore } from "src/store";
 import { isDark as themeIsDark } from "src/store/settings/options support/ace-themes";
+import { foreachAsync } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
@@ -119,14 +120,13 @@ export default defineComponent({
     ];
 
     async function init(): Promise<void> {
-      // eslint-disable-next-line @typescript-eslint/no-for-in-array, functional/no-loop-statement
-      for (const task in progress) {
+      await foreachAsync(progress, async (task, index, { length }) => {
         status.value = {
-          value: (+task / progress.length) * 100,
-          status: progress[task].message,
+          value: (+index / length) * 100,
+          status: task.message,
         };
-        await progress[task].handler();
-      }
+        await task.handler();
+      });
 
       status.value = {
         value: 100,

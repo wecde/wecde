@@ -13,6 +13,8 @@ import clipboardFs from "./clipboard-fs";
 import type { ClipboardFStateInterface } from "./clipboard-fs/state";
 import editor from "./editor";
 import type { EditorStateInterface } from "./editor/state";
+import gitConfigs from "./git-configs";
+import type { GitConfigsStateInterface } from "./git-configs/state";
 import gitProject from "./git-project";
 import type { GitProjectStateInterface } from "./git-project/state";
 import settings from "./settings";
@@ -40,6 +42,7 @@ export type StateInterface = {
   readonly settings: SettingsStateInterface;
   readonly system: SystemStateInterface;
   readonly terminal: TerminalStateInterface;
+  readonly "git-configs": GitConfigsStateInterface;
 };
 
 // provide typings for `this.$store`
@@ -63,6 +66,7 @@ export const store = createStore<StateInterface>({
     settings,
     system,
     terminal,
+    "git-configs": gitConfigs,
   },
 
   // enable strict mode (adds overhead!)
@@ -79,6 +83,7 @@ export const store = createStore<StateInterface>({
         "editor.historySession",
         "scrollEnhance",
         "bookmark-labs",
+        "git-configs",
       ],
     }),
   ],

@@ -54,7 +54,7 @@
             :label="$t('label.create')"
             flat
             color="primary"
-            padding="none"
+            padding="xs"
             @click="create"
             :disable="!!error"
             class="q-mr-xs"

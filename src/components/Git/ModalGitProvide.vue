@@ -1,9 +1,5 @@
 <template>
-  <q-dialog
-    class="max-width-dialog inner-bottom-auto"
-    full-width
-    transition-show="jump-down"
-    transition-hide="jump-up"
+  <Dialog-Top
     :model-value="state"
     @update:model-value="$emit('update:state', $event)"
   >
@@ -24,9 +20,9 @@
 
           <q-select
             class="q-ml-4"
-            v-model="provideSelected"
+            v-model="hostEditing"
             :options="
-              Object.entries(providersGIT).map((item) => ({
+              Object.entries(hosts).map((item) => ({
                 label: item[1],
                 value: item[0],
               }))
@@ -39,13 +35,28 @@
           />
         </div>
 
-        <q-input :placeholder="$t('placeholder.username')" dense v-model="username" />
-        <q-input :placeholder="$t('placeholder.password')" dense v-model="password" />
-        <q-input :placeholder="$t('placeholder.mail')" dense v-model="email" />
+        <q-input
+          :placeholder="$t('placeholder.username')"
+          dense
+          v-model.trim="username"
+        />
+        <q-input
+          :placeholder="$t('placeholder.password')"
+          dense
+          v-model="password"
+        />
+        <q-input :placeholder="$t('placeholder.mail')" dense v-model.trim="email" />
+        <q-input :placeholder="$t('placeholder.name')" dense v-model.trim="name" />
       </q-card-section>
 
       <q-card-actions align="right">
-        <q-btn flat dense color="primary" :label="$t('label.cancel')" v-close-popup />
+        <q-btn
+          flat
+          dense
+          color="primary"
+          :label="$t('label.cancel')"
+          v-close-popup
+        />
         <q-btn
           flat
           dense
@@ -56,17 +67,22 @@
         />
       </q-card-actions>
     </q-card>
-  </q-dialog>
+  </Dialog-Top>
 </template>
 
 <script lang="ts">
 import { mdiClose } from "@quasar/extras/mdi-v5";
+import DialogTop from "src/components/DialogTop.vue";
 import { useStore } from "src/store";
-import { providersGIT } from "src/store/settings/state";
+import type { HostType } from "src/store/git-configs/state";
+import { hosts } from "src/store/git-configs/state";
 import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
   emits: ["update:state"],
+  components: {
+    DialogTop,
+  },
   props: {
     state: {
       type: Boolean,
@@ -74,51 +90,67 @@ export default defineComponent({
     },
   },
   setup() {
+    const hostEditing = ref<HostType>("github.com");
     const store = useStore();
-    const provideSelected = ref("github.com");
 
     const username = ref<string>("");
     const password = ref<string>("");
     const email = ref<string>("");
+    const name = ref<string>("");
 
     watch(
-      provideSelected,
-      (provide) => {
-        // [username.value, password.value] = [
-        //   (store.state.settings["git__" + provide] as GitInfo).username,
-        //   (store.state.settings["git__" + provide] as GitInfo).password,
-        // ];
-        console.log(provide);
+      hostEditing,
+      (host) => {
+        username.value = store.getters["git-configs/getConfig"](
+          host,
+          "username"
+        );
+        password.value = store.getters["git-configs/getConfig"](
+          host,
+          "password"
+        );
+        email.value = store.getters["git-configs/getConfig"](host, "email");
+        name.value = store.getters["git-configs/getConfig"](host, "name");
       },
       {
         immediate: true,
       }
     );
 
+    function save(): void {
+      store.commit("git-configs/setConfig", {
+        host: hostEditing.value,
+        prop: "username",
+        value: username.value,
+      });
+      store.commit("git-configs/setConfig", {
+        host: hostEditing.value,
+        prop: "password",
+        value: password.value,
+      });
+      store.commit("git-configs/setConfig", {
+        host: hostEditing.value,
+        prop: "email",
+        value: email.value,
+      });
+      store.commit("git-configs/setConfig", {
+        host: hostEditing.value,
+        prop: "name",
+        value: name.value,
+      });
+    }
+
     return {
       mdiClose,
 
-      providersGIT,
-      provideSelected,
+      hosts,
+      hostEditing,
 
       username,
-      email,
       password,
-
-      save() {
-        store.commit("settings/setState", {
-          prop: `git/${provideSelected.value}->username`,
-          value: username.value,
-        });
-        store.commit("settings/setState", {
-          prop: `git/${provideSelected.value}->password`,
-          value: password.value,
-        });
-        store.commit("settings/setState", {
-          prop: `git/${provideSelected.value}->email`,
-          value: email.value,
-        });
-      },
+      email,
+      name,
+      save,
     };
   },
 });

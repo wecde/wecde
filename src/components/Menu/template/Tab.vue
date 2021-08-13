@@ -8,8 +8,6 @@
   </div>
 
   <slot name="contents" />
-
-  <slot name="others" />
 </template>
 
 <style lang="scss" scoped>

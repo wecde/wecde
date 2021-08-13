@@ -86,7 +86,10 @@
 
       <div class="item" v-ripple @mousedown="fixBlurEditor">
         <q-icon :name="mdiPlus" />
-        <q-menu
+        <q-menu 
+          :class="{
+            'bg-grey-9': $q.dark.isActive
+          }"
           class="menu-addons"
           transition-show="jump-up"
           transition-hide="jump-down"
@@ -110,7 +113,7 @@
                   }"
                   :disable="supportFormat === false"
                 >
-                  <q-icon size="1em" :name="mdiFormatAlignRight" />
+                  <q-icon size="13px" :name="mdiFormatAlignRight" />
                   <span>{{ $t("label.format") }}</span>
                 </div>
                 <div
@@ -119,7 +122,7 @@
                   @mousedown="fixBlurEditor"
                   @click="findAll"
                 >
-                  <q-icon size="1em" :name="mdiMagnify" />
+                  <q-icon size="13px" :name="mdiMagnify" />
                   <span>{{ $t("label.find-all") }}</span>
                 </div>
                 <div
@@ -132,21 +135,21 @@
                   }"
                   :disable="!!nextErrorer === false"
                 >
-                  <q-icon size="1em" :name="mdiChevronDownCircleOutline" />
+                  <q-icon size="13px" :name="mdiChevronDownCircleOutline" />
                   <span>{{ $t("label.next-error") }}</span>
                 </div>
               </div>
               <div class="col-6">
                 <div class="item" v-ripple>
-                  <q-icon size="1em" :name="mdiLightningBoltOutline" />
+                  <q-icon size="13px" :name="mdiLightningBoltOutline" />
                   <span>{{ $t("label.definition") }}</span>
                 </div>
                 <div class="item" v-ripple>
-                  <q-icon size="1em" :name="mdiCommentProcessingOutline" />
+                  <q-icon size="13px" :name="mdiCommentProcessingOutline" />
                   <span>{{ $t("label.signature") }}</span>
                 </div>
                 <div class="item" v-ripple>
-                  <q-icon size="1em" :name="mdiInformationVariant" />
+                  <q-icon size="13px" :name="mdiInformationVariant" />
                   <span>{{ $t("label.show-info") }}</span>
                 </div>
               </div>

@@ -1,9 +1,5 @@
 <template>
-  <q-dialog
-    class="max-width-dialog inner-bottom-auto"
-    full-width
-    transition-show="jump-down"
-    transition-hide="jump-up"
+  <Dialog-Top
     :model-value="state"
     @update:model-value="$emit('update:state', $event)"
   >
@@ -52,20 +48,36 @@
         />
       </q-card-actions>
     </q-card>
-  </q-dialog>
+  </Dialog-Top>
 </template>
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
-import { stat } from "src/modules/filesystem";
-import { clone } from "src/modules/git";
+import git from "isomorphic-git";
+import http from "isomorphic-git/http/web/index.js";
+import DialogTop from "src/components/DialogTop.vue";
+import {
+  configs as gitConfigs,
+  onAuth,
+  onAuthFailure,
+  onAuthSuccess,
+  onDone,
+  onError,
+  onMessage,
+  onProgress,
+  onStart,
+} from "src/helpers/git";
+import { fs, stat } from "src/modules/filesystem";
 import { defineComponent, ref, watch } from "vue";
 
 // import $store from "src/store";
 
 export default defineComponent({
   emits: ["update:state", "cloned"],
+  components: {
+    DialogTop,
+  },
   props: {
     state: {
       type: Boolean,
@@ -106,12 +118,25 @@ export default defineComponent({
           // eslint-disable-next-line functional/no-throw-statement
           throw new Error("Project existst");
         }
-
-        await clone({
+        onStart(
+          this.$t("alert.cloneing", {
+            url: this.url,
+          })
+        );
+        await git.clone({
+          fs,
+          http,
+          onProgress,
+          onMessage,
+          onAuth,
+          onAuthFailure,
+          onAuthSuccess,
           dir: `projects/${name}`,
           url: this.url,
           ref: "master",
+          ...gitConfigs,
         });
+        onDone();
 
         void Toast.show({
           text: this.$t("alert.clone-success", {
@@ -121,11 +146,9 @@ export default defineComponent({
 
         this.$emit("cloned");
 
-        this.$store.commit("terminal/clear");
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        console.log(err);
-        this.$store.commit("terminal/error", err);
+        onError(err);
         void Toast.show({
           text: this.$t("alert.clone-failed", {
             url: this.url,

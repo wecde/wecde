@@ -14,10 +14,13 @@
   position: relative;
 
   @if ($enable-git == true) {
+    .actions {
+      margin-left: 1em;
+    }
     &:after {
       font-size: 14px;
       position: absolute;
-      right: calc(32px + 13px - 0.5em);
+      right: (32px + 13px);
     }
 
     &.ignored {
@@ -50,16 +53,19 @@
     }
     /* {/*modified} */
 
-    &.star-deleted {
+    &.star-deleted,
+    &.deleted,
+    &.star-undeleted {
       color: $red;
-      text-decoration: underline;
-    }
-    &.deleted {
+      text-decoration: line-through;
+
+      &:after {
+        content: "D";
+      }
     }
 
     &.star-undeleted {
-    }
-    &.undeleted {
+      text-decoration: none;
     }
 
     &.star-added {
@@ -93,7 +99,7 @@
       &.star-modified,
       &.star-added {
         &.actions::before {
-          content: "fwgwggew";
+          content: "added";
           width: 8px;
           height: 8px;
           border-radius: 50%;

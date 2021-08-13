@@ -17,6 +17,7 @@
         "Dreamweaver",
         "espree",
         "gruvbox",
+        "hostgit",
         "Katzen",
         "Kuroir",
         "merbivore",
@@ -28,9 +29,11 @@
         "permissing",
         "preload",
         "repos",
+        "skipme",
         "sqlserver",
         "stoped",
         "Unmount",
+        "vetur",
         "Whitespaces"
     ]
 }

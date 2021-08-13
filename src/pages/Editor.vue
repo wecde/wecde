@@ -36,7 +36,7 @@
       <q-btn
         flat
         round
-        padding="none"
+        padding="xs"
         v-if="EditorCodeComponent && previewing === false"
         @click="toggleSearchAce"
         :icon="mdiMagnify"
@@ -45,13 +45,13 @@
       <q-btn
         flat
         round
-        padding="none"
+        padding="xs"
         v-if="EditorPreviewComponent"
         @click="preview"
         :icon="previewing ? mdiPen : mdiFolderImage"
       />
 
-      <q-btn flat round :icon="mdiPlay" padding="none">
+      <q-btn flat round :icon="mdiPlay" padding="xs">
         <q-badge color="blue" floating v-if="serverStatus" />
       </q-btn>
     </div>

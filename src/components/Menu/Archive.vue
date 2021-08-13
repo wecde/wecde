@@ -8,24 +8,27 @@
         @click="reloadListProjects(true)"
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
       />
       <q-btn
         :icon="mdiGit"
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
       >
         <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
           transition-show="jump-down"
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
         >
-          <q-list bordered>
+          <q-list>
             <q-item
               clickable
               v-close-popup
@@ -55,17 +58,20 @@
         :icon="mdiPlus"
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
       >
         <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
           transition-show="jump-down"
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
         >
-          <q-list bordered>
+          <q-list>
             <q-item
               clickable
               v-close-popup
@@ -124,75 +130,69 @@
         />
       </q-list>
     </template>
-
-    <template v-slot:others>
-      <q-dialog
-    class="max-width-dialog inner-bottom-auto"
-        full-width
-        transition-show="jump-down"
-        transition-hide="jump-up"
-        :model-value="!!projectRemoving"
-        @update:model-value="$event ? null : (projectRemoving = null)"
-      >
-        <q-card class="flex column no-wrap">
-          <q-card-section class="row items-center q-pb-1 q-pt-2">
-            <div class="text-weight-medium text-subtitle1">
-              {{ $t("label.delete-project") }}
-            </div>
-            <q-space />
-            <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
-          </q-card-section>
-
-          <q-separator />
-
-          <q-card-section class="fit scroll q-pt-2 q-pb-3">
-            {{ $t("label.type") }} <span class="text-blue">{{ code }}</span>
-            {{ $t("label.to-confirm") }}
-            <span class="text-blue">{{
-              projectRemoving && basename(projectRemoving.fullpath)
-            }}</span>
-            {{ $t("label.not-recovery") }}
-            <q-input
-              dense
-              :rules="[
-                () =>
-                  code === codeInput ? true : $t('error.match-code', { code }),
-              ]"
-              required
-              v-model.trim="codeInput"
-              @keypress.enter="remove"
-              autofocus
-            />
-          </q-card-section>
-
-          <q-card-actions align="between">
-            <q-btn
-              :label="$t('label.cancel')"
-              flat
-              dense
-              color="primary"
-              v-close-popup
-            />
-            <q-btn
-              :label="$t('label.ok')"
-              flat
-              dense
-              color="primary"
-              @click="remove"
-            />
-          </q-card-actions>
-        </q-card>
-      </q-dialog>
-
-      <Git-Clone v-model:state="statePopupGitClone" @cloned="clonedRepo" />
-      <Git-Provide v-model:state="statePopupGitProvide" />
-      <Project-Create
-        v-model:state="creatingProject"
-        @created="reloadListProjects"
-        :names-exists="projects.map((item) => basename(item.fullpath))"
-      />
-    </template>
   </Template-Tab>
+
+  <Dialog-Top
+    :model-value="!!projectRemoving"
+    @update:model-value="$event ? null : (projectRemoving = null)"
+  >
+    <q-card class="flex column no-wrap">
+      <q-card-section class="row items-center q-pb-1 q-pt-2">
+        <div class="text-weight-medium text-subtitle1">
+          {{ $t("label.delete-project") }}
+        </div>
+        <q-space />
+        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-section class="fit scroll q-pt-2 q-pb-3">
+        {{ $t("label.type") }} <span class="text-blue">{{ code }}</span>
+        {{ $t("label.to-confirm") }}
+        <span class="text-blue">{{
+          projectRemoving && basename(projectRemoving.fullpath)
+        }}</span>
+        {{ $t("label.not-recovery") }}
+        <q-input
+          dense
+          :rules="[
+            () =>
+              code === codeInput ? true : $t('error.match-code', { code }),
+          ]"
+          required
+          v-model.trim="codeInput"
+          @keypress.enter="remove"
+          autofocus
+        />
+      </q-card-section>
+
+      <q-card-actions align="between">
+        <q-btn
+          :label="$t('label.cancel')"
+          flat
+          dense
+          color="primary"
+          v-close-popup
+        />
+        <q-btn
+          :label="$t('label.ok')"
+          flat
+          dense
+          color="primary"
+          @click="remove"
+        />
+      </q-card-actions>
+    </q-card>
+  </Dialog-Top>
+
+  <Git-Clone v-model:state="statePopupGitClone" @cloned="clonedRepo" />
+  <Git-Provide v-model:state="statePopupGitProvide" />
+  <Project-Create
+    v-model:state="creatingProject"
+    @created="reloadListProjects"
+    :names-exists="projects.map((item) => basename(item.fullpath))"
+  />
 </template>
 
 <script lang="ts">
@@ -209,6 +209,7 @@ import {
   mdiZipBoxOutline,
 } from "@quasar/extras/mdi-v5";
 import { basename } from "path-cross";
+import DialogTop from "src/components/DialogTop.vue";
 import GitClone from "src/components/Git/ModalGitClone.vue";
 import GitProvide from "src/components/Git/ModalGitProvide.vue";
 import ProjectCreate from "src/components/Project/Create.vue";
@@ -229,6 +230,7 @@ export default defineComponent({
     ProjectCreate,
     GitProvide,
     GitClone,
+    DialogTop,
   },
   setup() {
     const projects = ref<StatItem[]>([]);

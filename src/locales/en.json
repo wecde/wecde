@@ -118,7 +118,8 @@
     "project-name": "Project Name",
     "template": "Template",
     "modified": "Modified",
-    "export-zip": "Export Zip"
+    "export-zip": "Export Zip",
+    "source-control": "Source Control"
   },
   "placeholder": {
     "git": "URL (Start with https://)",
