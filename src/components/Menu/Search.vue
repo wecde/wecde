@@ -6,8 +6,8 @@
       <q-btn
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
         :icon="mdiRegex"
         :color="modeRegexp ? `blue` : undefined"
@@ -16,8 +16,8 @@
       <q-btn
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
         :icon="mdiFormatLetterCase"
         :color="modeLetterCase ? `blue` : undefined"
@@ -26,8 +26,8 @@
       <q-btn
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
         :icon="mdiFileWordBoxOutline"
         :color="modeWordBox ? `blue` : undefined"
@@ -159,12 +159,12 @@
           >
             <div class="text-truncate" style="font-size: 15px">
               {{ match.firstValue
-              }}<strong class="blue--text">{{ match.value }}</strong
+              }}<strong class="text-blue">{{ match.value }}</strong
               >{{ match.lastValue }}
             </div>
 
             <q-icon
-              size="1em"
+              size="13px"
               @click.prevent.stop="replaceSearch(item, index)"
               :name="mdiCheck"
             />
@@ -186,29 +186,29 @@ import {
   mdiFormatLetterCase,
   mdiRegex,
 } from "@quasar/extras/mdi-v5";
+import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
+import AppCollapse from "components/App/Collapse.vue";
 import escapeRegExp from "escape-string-regexp";
-import { basename, join } from "path-cross";
-import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
-import AppCollapse from "src/components/App/Collapse.vue";
 import {
   foreach as foreachFiles,
   readFile,
   writeFile,
-} from "src/modules/filesystem";
+} from "modules/filesystem";
+import { basename, join } from "path-cross";
 import { useStore } from "src/store";
-import { createTimeoutBy, isPlainText, rawText } from "src/utils";
+import { createTimeoutBy, foreachAsync, isPlainText, rawText } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
 
 interface Result {
-  file: string;
-  basename: string;
-  match: {
-    index: number;
-    firstValue: string;
-    value: string;
-    lastValue: string;
+  readonly file: string;
+  readonly basename: string;
+  readonly match: readonly {
+    readonly index: number;
+    readonly firstValue: string;
+    readonly value: string;
+    readonly lastValue: string;
   }[];
 }
 
@@ -329,7 +329,10 @@ export default defineComponent({
           }
           searching.value = false;
         },
-        500
+        500,
+        {
+          skipme: true,
+        }
       );
     }
 
@@ -398,13 +401,11 @@ export default defineComponent({
     },
 
     async replaceAll(): Promise<void> {
-      // eslint-disable-next-line functional/no-loop-statement
-      for (const item of this.results) {
-        // eslint-disable-next-line functional/no-loop-statement, @typescript-eslint/no-for-in-array
-        for (const index in item.match) {
-          await this.replaceSearch(item, +index);
-        }
-      }
+      await foreachAsync(this.results, async (result) => {
+        await foreachAsync(result.match, async (item, index) => {
+          await this.replaceSearch(result, index);
+        });
+      });
     },
 
     gotoEditor(file: string, start: number, stop: number): void {
@@ -420,8 +421,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "src/components/File Explorer/ListItem.scss";
-@import "src/components/File Explorer/Rename.scss";
+@import "components/File Explorer/ListItem.scss";
+@import "components/File Explorer/Rename.scss";
 
 .file-object {
   @include file-object($enable-git: false);

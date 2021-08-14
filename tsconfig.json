@@ -37,6 +37,9 @@
       "boot/*": [
         "./src/boot/*"
       ],
+      "modules/*": [
+        "./src/modules/*"
+      ],
       "path": [
         "./node_modules/path-cross/build/module/index.js"
       ]
@@ -50,7 +53,7 @@
       "webpack-env"
     ],
     "lib": [
-      "es2020",
+      "esnext",
       "dom",
       "dom.iterable",
       "scripthost"
@@ -64,6 +67,7 @@
     "node_modules",
     "assets/labs",
     "assets/templates",
-    "resources"
+    "resources",
+    "src-capacitor"
   ]
 }

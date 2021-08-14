@@ -6,7 +6,7 @@
 import marked from "marked";
 import { defineComponent } from "vue";
 
-import changelog from "!raw-loader!src/assets/changelog.md";
+import changelog from "!raw-loader!assets/changelog.md";
 
 export default defineComponent({
   setup() {

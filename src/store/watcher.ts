@@ -1,18 +1,12 @@
-import { relative } from "path-cross";
+import { watcher } from "modules/filesystem";
+import { createTimeoutBy, isParentFolder, pathEquals } from "src/utils";
 import type { Store } from "vuex";
 
-import eventBus from "../modules/event-bus";
-import {
-  createTimeoutBy,
-  isParentFolder,
-  pathEquals,
-  pathEqualsOrParent,
-} from "../utils";
 
 import type { StateInterface } from "./index";
 
 export default (store: Store<StateInterface>): void => {
-  eventBus.on(["move:file", "move:dir"], (to, from) => {
+  watcher.on(["move:file", "move:dir"], (type, to, from) => {
     /// update project
 
     if (
@@ -57,64 +51,21 @@ export default (store: Store<StateInterface>): void => {
     }
   );
 
-  eventBus.on(["write:file", "remove:file"], (fullpath) => {
-    createTimeoutBy(
-      "store watch .gitignore",
-      () => {
-        if (
-          store.state.editor.project &&
-          isParentFolder(store.state.editor.project, fullpath)
-        ) {
-          void store.dispatch("git-project/loadIgnore");
-        }
-      },
-      5000
-    );
-  });
-  eventBus.on(["move:file"], (to, fullpath) => {
-    createTimeoutBy(
-      "store watch .gitignore",
-      () => {
-        if (
-          store.state.editor.project &&
-          isParentFolder(store.state.editor.project, fullpath)
-        ) {
-          void store.dispatch("git-project/loadIgnore");
-        }
-      },
-      5000
-    );
-  });
-
-  eventBus.on(
-    [
-      "create:file",
-      "create:dir",
-
-      "remove:file",
-      "remove:dir",
-
-      "write:file",
-
-      "move:file",
-      "move:dir",
-
-      "copy:file",
-      "copy:dir",
-    ],
-    (fullpath) => {
+  watcher.on(
+    ["write:file", "remove:file", "move:file", "copy:file"],
+    (type, to, from) => {
       createTimeoutBy(
-        "store watch .git",
+        "store watch .gitignore",
         () => {
-          if (
-            store.state.editor.project &&
-            isParentFolder(store.state.editor.project, fullpath)
-          ) {
-            const pathRelative = relative(store.state.editor.project, fullpath);
+          if (store.state.editor.project) {
+            if (isParentFolder(store.state.editor.project, to)) {
+              void store.dispatch("git-project/loadIgnore");
+            }
 
-            if (pathEqualsOrParent(pathRelative, ".git")) {
-              /// refresh git
-              void store.dispatch("git-project/checkDotGit");
+            if (type === "move:file") {
+              if (isParentFolder(store.state.editor.project, from)) {
+                void store.dispatch("git-project/loadIgnore");
+              }
             }
           }
         },

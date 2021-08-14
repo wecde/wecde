@@ -8,24 +8,27 @@
         @click="reloadListProjects(true)"
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
       />
       <q-btn
         :icon="mdiGit"
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
       >
         <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
           transition-show="jump-down"
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
         >
-          <q-list bordered>
+          <q-list>
             <q-item
               clickable
               v-close-popup
@@ -46,7 +49,7 @@
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiLockOutline" />
               </q-item-section>
-              <q-item-section>{{ $t("label.redentials") }}</q-item-section>
+              <q-item-section>{{ $t("label.credentials") }}</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -55,17 +58,20 @@
         :icon="mdiPlus"
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
       >
         <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
           transition-show="jump-down"
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
         >
-          <q-list bordered>
+          <q-list>
             <q-item
               clickable
               v-close-popup
@@ -124,64 +130,69 @@
         />
       </q-list>
     </template>
-
-    <template v-slot:others>
-      <q-dialog
-        style="max-width: 600px"
-        :model-value="!!projectRemoving"
-        @update:model-value="$event ? (projectRemoveiing = null) : null"
-      >
-        <q-card class="flex column no-wrap">
-          <q-card-section class="row items-center q-pb-1 q-pt-2">
-            <div class="text-weight-medium text-subtitle1">
-              {{ $t("label.delete-project") }}
-            </div>
-            <q-space />
-            <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
-          </q-card-section>
-
-          <q-separator />
-
-          <q-card-section class="fit scroll q-pt-2 q-pb-3">
-            {{ $t("label.type") }} <span class="blue--text">{{ code }}</span>
-            {{ $t("label.to-confirm") }}
-            <span class="blue--text">{{
-              projectRemoving && basename(projectRemoving.fullpath)
-            }}</span>
-            {{ $t("label.not-recovery") }}
-            <q-input
-              dense
-              :rules="[
-                () =>
-                  code === codeInput
-                    ? true
-                    : $t('error.match-code', { code }),
-              ]"
-              required
-              v-model.trim="codeInput"
-              @keypress.enter="remove"
-              autofocus
-            />
-          </q-card-section>
-
-          <div class="flex items-center justify-between mt-3">
-            <q-btn text color="blue" @click="projectRemoving = null">
-              {{ $t("label.cancel") }}
-            </q-btn>
-            <q-btn text color="blue" @click="remove"> {{ $t("label.ok") }} </q-btn>
-          </div>
-        </q-card>
-      </q-dialog>
-
-      <Git-Clone v-model:state="statePopupGitClone" @cloned="clonedRepo" />
-      <Git-Provide v-model:state="statePopupGitProvide" />
-      <Project-Create
-        v-model:state="creatingProject"
-        @created="reloadListProjects"
-        :names-exists="projects.map((item) => basename(item.fullpath))"
-      />
-    </template>
   </Template-Tab>
+
+  <Dialog-Top
+    :model-value="!!projectRemoving"
+    @update:model-value="$event ? null : (projectRemoving = null)"
+  >
+    <q-card class="flex column no-wrap">
+      <q-card-section class="row items-center q-pb-1 q-pt-2">
+        <div class="text-weight-medium text-subtitle1">
+          {{ $t("label.delete-project") }}
+        </div>
+        <q-space />
+        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+      </q-card-section>
+
+      <q-separator />
+
+      <q-card-section class="fit scroll q-pt-2 q-pb-3">
+        {{ $t("label.type") }} <span class="text-blue">{{ code }}</span>
+        {{ $t("label.to-confirm") }}
+        <span class="text-blue">{{
+          projectRemoving && basename(projectRemoving.fullpath)
+        }}</span>
+        {{ $t("label.not-recovery") }}
+        <q-input
+          dense
+          :rules="[
+            () =>
+              code === codeInput ? true : $t('error.match-code', { code }),
+          ]"
+          required
+          v-model.trim="codeInput"
+          @keypress.enter="remove"
+          autofocus
+        />
+      </q-card-section>
+
+      <q-card-actions align="between">
+        <q-btn
+          :label="$t('label.cancel')"
+          flat
+          dense
+          color="primary"
+          v-close-popup
+        />
+        <q-btn
+          :label="$t('label.ok')"
+          flat
+          dense
+          color="primary"
+          @click="remove"
+        />
+      </q-card-actions>
+    </q-card>
+  </Dialog-Top>
+
+  <Git-Clone v-model:state="statePopupGitClone" @cloned="clonedRepo" />
+  <Git-Provide v-model:state="statePopupGitProvide" />
+  <Project-Create
+    v-model:state="creatingProject"
+    @created="reloadListProjects"
+    :names-exists="projects.map((item) => basename(item.fullpath))"
+  />
 </template>
 
 <script lang="ts">
@@ -197,14 +208,15 @@ import {
   mdiReload,
   mdiZipBoxOutline,
 } from "@quasar/extras/mdi-v5";
+import DialogTop from "components/DialogTop.vue";
+import GitClone from "components/Git/ModalGitClone.vue";
+import GitProvide from "components/Git/ModalGitProvide.vue";
+import ProjectCreate from "components/Project/Create.vue";
+import ProjectItem from "components/Project/Item.vue";
+import { readdirStat, rmdir } from "modules/filesystem";
+import type { StatItem } from "modules/filesystem";
+import importZip from "modules/import-zip";
 import { basename } from "path-cross";
-import GitClone from "src/components/Git/ModalGitClone.vue";
-import GitProvide from "src/components/Git/ModalGitProvide.vue";
-import ProjectCreate from "src/components/Project/Create.vue";
-import ProjectItem from "src/components/Project/Item.vue";
-import { readdirStat, rmdir } from "src/modules/filesystem";
-import type { StatItem } from "src/modules/filesystem";
-import importZip from "src/modules/import-zip";
 import { random } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
 
@@ -218,6 +230,7 @@ export default defineComponent({
     ProjectCreate,
     GitProvide,
     GitClone,
+    DialogTop,
   },
   setup() {
     const projects = ref<StatItem[]>([]);
@@ -282,7 +295,7 @@ export default defineComponent({
       this.$store.commit("system/setProgress", false);
       if (notification) {
         void Toast.show({
-          text: this.$rt("alert.reload-projects"),
+          text: this.$t("alert.reload-projects"),
         });
       }
     },
@@ -291,7 +304,7 @@ export default defineComponent({
         const names = await importZip("projects/");
         this.$store.commit("terminal/clear");
         void Toast.show({
-          text: this.$rt("alert.imported-project", {
+          text: this.$t("alert.imported-project", {
             list: names.map((item) => `"${item}"`).join(", "),
           }),
         });
@@ -306,13 +319,13 @@ export default defineComponent({
         try {
           await rmdir(this.projectRemoving.fullpath);
           void Toast.show({
-            text: this.$rt("alert.removed.project", {
+            text: this.$t("alert.removed.project", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });
         } catch {
           void Toast.show({
-            text: this.$rt("alert.remove-project-failed", {
+            text: this.$t("alert.remove-project-failed", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });

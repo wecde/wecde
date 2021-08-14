@@ -36,8 +36,8 @@ export const SUPPORT_LOCALES = require
   });
 
 const i18n = createI18n({
-  silentTranslationWarn: true,
-  silentFallbackWarn: true,
+  // silentTranslationWarn: true,
+  // silentFallbackWarn: true,
 });
 
 export default boot(({ app }) => {

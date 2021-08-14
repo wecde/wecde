@@ -17,7 +17,7 @@
 </template>
 
 <script lang="ts">
-import { readFile } from "src/modules/filesystem";
+import { readFile } from "modules/filesystem";
 import { rawText } from "src/utils";
 import { defineComponent, ref, toRefs, watch } from "vue";
 import type { DefineComponent } from "vue";

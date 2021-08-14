@@ -1,6 +1,6 @@
 <template>
   <q-dialog
-    style="max-width: 600px"
+    class="max-width-dialog"
     full-height
     full-width
     transition-show="jump-down"
@@ -25,13 +25,13 @@
             :key="template.name"
             v-ripple
             @click="selectTemplate(template)"
-            class="col-6 template"
+            class="col-6 col-sm-4 col-md-3 template"
           >
             <div class="icons-group" v-if="template.icons">
               <img
                 v-for="(item, index) in template.icons"
                 :src="
-                  require(`src/assets/templates/${template['directory-name']}/${item}`)
+                  require(`assets/templates/${template['directory-name']}/${item}`)
                 "
                 :key="index"
               />
@@ -54,7 +54,7 @@
             :label="$t('label.create')"
             flat
             color="primary"
-            padding="none"
+            padding="xs"
             @click="create"
             :disable="!!error"
             class="q-mr-xs"
@@ -72,7 +72,7 @@
         <q-input
           dense
           v-model.trim="templateSelected.name"
-          :rules="[error === false ? true : error]"
+          :rules="[() => (error === false ? true : error)]"
           required
           @keypress.enter="create"
           autofocus
@@ -89,7 +89,7 @@
           <img
             v-for="(item, index) in templateSelected.icons"
             :src="
-              require(`src/assets/templates/${
+              require(`assets/templates/${
                 templateSelected && templateSelected['directory-name']
               }/${item}`)
             "
@@ -105,9 +105,9 @@
 import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
 import type { Template } from "assets/labs/Release.json";
-import templates from "src/assets/templates/Release.json";
-import { mkdir } from "src/modules/filesystem";
-import { unzip } from "src/modules/zip";
+import templates from "assets/templates/Release.json";
+import { mkdir } from "modules/filesystem";
+import { unzip } from "modules/zip";
 import nameFileValidates from "src/validator/nameFileValidates";
 import { computed, defineComponent, ref, toRefs } from "vue";
 import type { PropType } from "vue";
@@ -170,7 +170,7 @@ export default defineComponent({
           try {
             await unzip({
               // eslint-disable-next-line @typescript-eslint/no-var-requires
-              file: require(`src/assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
+              file: require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
                 .default,
               to: `projects/${this.templateSelected.name}`,
             });
@@ -188,7 +188,7 @@ export default defineComponent({
 
         if (created) {
           void Toast.show({
-            text: this.$rt("alert.created.project", {
+            text: this.$t("alert.created.project", {
               name: this.templateSelected.name,
             }),
           });

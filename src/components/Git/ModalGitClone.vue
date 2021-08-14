@@ -1,10 +1,5 @@
 <template>
-  <q-dialog
-    style="max-width: 600px"
-    class="inner-bottom-auto"
-    full-width
-    transition-show="jump-down"
-    transition-hide="jump-up"
+  <Dialog-Top
     :model-value="state"
     @update:model-value="$emit('update:state', $event)"
   >
@@ -36,8 +31,14 @@
         />
       </q-card-section>
 
-      <q-card-actions align="right">
-        <q-btn flat dense color="primary" v-close-popup :label="$t('label.cancel')" />
+      <q-card-actions align="between">
+        <q-btn
+          flat
+          dense
+          color="primary"
+          v-close-popup
+          :label="$t('label.cancel')"
+        />
         <q-btn
           flat
           dense
@@ -47,20 +48,36 @@
         />
       </q-card-actions>
     </q-card>
-  </q-dialog>
+  </Dialog-Top>
 </template>
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
-import { stat } from "src/modules/filesystem";
-import { clone } from "src/modules/git";
+import DialogTop from "components/DialogTop.vue";
+import git from "isomorphic-git";
+import http from "isomorphic-git/http/web/index.js";
+import { fs, stat } from "modules/filesystem";
+import {
+  configs as gitConfigs,
+  onAuth,
+  onAuthFailure,
+  onAuthSuccess,
+  onDone,
+  onError,
+  onMessage,
+  onProgress,
+  onStart,
+} from "src/helpers/git";
 import { defineComponent, ref, watch } from "vue";
 
 // import $store from "src/store";
 
 export default defineComponent({
   emits: ["update:state", "cloned"],
+  components: {
+    DialogTop,
+  },
   props: {
     state: {
       type: Boolean,
@@ -89,32 +106,53 @@ export default defineComponent({
       try {
         const name = /([^/]+)(?:\.git)?$/.exec(this.url)?.[1] || "";
 
-        if ((await stat(`projects/${name}`)).type === "directory") {
+        // eslint-disable-next-line functional/no-let
+        let existsProject = false;
+        try {
+          if ((await stat(`projects/${name}`)).type === "directory") {
+            existsProject = true;
+          }
+        } catch {}
+
+        if (existsProject) {
           // eslint-disable-next-line functional/no-throw-statement
           throw new Error("Project existst");
         }
-        await clone({
+        onStart(
+          this.$t("alert.cloneing", {
+            url: this.url,
+          })
+        );
+        await git.clone({
+          fs,
+          http,
+          onProgress,
+          onMessage,
+          onAuth,
+          onAuthFailure,
+          onAuthSuccess,
           dir: `projects/${name}`,
           url: this.url,
           ref: "master",
+          ...gitConfigs,
         });
+        onDone();
 
         void Toast.show({
-          text: this.$rt("alert.clone-success", {
+          text: this.$t("alert.clone-success", {
             url: this.url,
           }),
         });
 
         this.$emit("cloned");
 
-        this.$store.commit("terminal/clear");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
-        this.$store.commit("terminal/error", err);
+        onError(err);
         void Toast.show({
-          text: this.$rt("alert.clone-failed", {
+          text: this.$t("alert.clone-failed", {
             url: this.url,
-            message: err.messaage,
+            message: err.message,
           }),
         });
       }

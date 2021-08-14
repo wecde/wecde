@@ -10,7 +10,7 @@
   <div class="preload" v-else>
     <div class="flex no-wrap column justify-center items-center text-center">
       <div>
-        <img :src="require('src/assets/favicon.svg')" />
+        <img :src="require('assets/favicon.svg')" />
       </div>
       <div>
         <h1 class="app--name">Shin Code Editor</h1>
@@ -33,10 +33,11 @@
 <script lang="ts">
 import { Filesystem } from "@capacitor/filesystem";
 import { loadLocaleMessages } from "boot/i18n";
+import { stat } from "modules/filesystem";
 import { useQuasar } from "quasar";
-import { stat } from "src/modules/filesystem";
 import { useStore } from "src/store";
 import { isDark as themeIsDark } from "src/store/settings/options support/ace-themes";
+import { foreachAsync } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
 
 export default defineComponent({
@@ -119,14 +120,13 @@ export default defineComponent({
     ];
 
     async function init(): Promise<void> {
-      // eslint-disable-next-line @typescript-eslint/no-for-in-array, functional/no-loop-statement
-      for (const task in progress) {
+      await foreachAsync(progress, async (task, index, { length }) => {
         status.value = {
-          value: (+task / progress.length) * 100,
-          status: progress[task].message,
+          value: (+index / length) * 100,
+          status: task.message,
         };
-        await progress[task].handler();
-      }
+        await task.handler();
+      });
 
       status.value = {
         value: 100,
@@ -186,7 +186,7 @@ export default defineComponent({
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url(~src/assets/fonts/Orbitron.woff2) format("woff2");
+  src: url(~assets/fonts/Orbitron.woff2) format("woff2");
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
     U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215,
     U+FEFF, U+FFFD;

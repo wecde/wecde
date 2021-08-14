@@ -2,7 +2,6 @@
 @import "./addons/spacing";
 @import "./addons/typography";
 @import "./addons/size";
-@import "./addons/other";
 @import "./addons/display";
 
 pwa-toast {
@@ -11,4 +10,16 @@ pwa-toast {
 
 .full-width {
   min-width: 0;
+}
+
+.inner-bottom-auto .q-dialog__inner {
+  bottom: auto;
+}
+
+.max-width-dialog .q-dialog__inner {
+  max-width: 600px;
+  margin: {
+    left: auto;
+    right: auto;
+  }
 }

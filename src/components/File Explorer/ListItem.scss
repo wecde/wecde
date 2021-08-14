@@ -5,7 +5,8 @@
   // color: #b9bbc1;
   color: #4a4a49;
   &.dark {
-    color: #b9bbc1;
+    // color: #b9bbc1;
+    color: #fff;
   }
   display: flex;
   align-items: center;
@@ -13,10 +14,13 @@
   position: relative;
 
   @if ($enable-git == true) {
+    .actions {
+      margin-left: 1em;
+    }
     &:after {
       font-size: 14px;
       position: absolute;
-      right: calc(32px + 13px - 0.5em);
+      right: (32px + 13px);
     }
 
     &.ignored {
@@ -27,7 +31,8 @@
     }
 
     /* {*modified} */
-    &.star-modified {
+    &.star-modified,
+    &.modified {
       color: rgb(75, 156, 248);
       &.dark {
         color: rgb(121, 184, 255);
@@ -37,38 +42,34 @@
         content: "M";
       }
     }
-    &.modified {
-      color: #dda769;
-      &.dark {
-        color: #e0bd96;
-      }
+    // &.modified {
+    //   color: #dda769;
+    //   &.dark {
+    //     color: #e0bd96;
+    //   }
 
-      &:after {
-        content: "M";
-      }
-    }
+    //   &:after {
+    //     content: "M";
+    //   }
+    // }
     /* {/*modified} */
 
-    &.star-deleted {
-    }
-    &.deleted {
+    &.star-deleted,
+    &.deleted,
+    &.star-undeleted {
+      color: $red;
+      text-decoration: line-through;
+
+      &:after {
+        content: "D";
+      }
     }
 
     &.star-undeleted {
-    }
-    &.undeleted {
+      text-decoration: none;
     }
 
-    &.star-added {
-      color: rgb(29, 211, 71);
-      &.dark {
-        color: rgb(52, 208, 88);
-      }
-
-      &:after {
-        content: "U";
-      }
-    }
+    &.star-added,
     &.added {
       color: rgb(29, 211, 71);
       &.dark {
@@ -90,7 +91,7 @@
       &.star-modified,
       &.star-added {
         &.actions::before {
-          content: "fwgwggew";
+          content: "added";
           width: 8px;
           height: 8px;
           border-radius: 50%;

@@ -17,8 +17,8 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
+import { mkdir, writeFile } from "modules/filesystem";
 import { join } from "path-cross";
-import { mkdir, writeFile } from "src/modules/filesystem";
 import { useStore } from "src/store";
 import { defineComponent, PropType, ref, toRefs, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -73,7 +73,7 @@ export default defineComponent({
         }
 
         void Toast.show({
-          text: i18n.rt(`alert.created.${isFolder.value ? "folder" : "file"}`, {
+          text: i18n.t(`alert.created.${isFolder.value ? "folder" : "file"}`, {
             name: pathTo,
           }),
         });

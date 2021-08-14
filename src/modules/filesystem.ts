@@ -1,24 +1,40 @@
-/* eslint-disable functional/immutable-data */
-
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import type { StatResult } from "@capacitor/filesystem";
 import { encode } from "base-64";
 import escapeStringRegexp from "escape-string-regexp";
 import { sort } from "fast-sort";
-import { basename, join } from "path-cross";
-
-import { alwayBase64 } from "../utils";
-import { arrayBufferToBase64 } from "../utils";
-
-import eventBus from "./event-bus";
+import { Ignore } from "ignore";
+import { basename, join, relative } from "path-cross";
+import {
+  alwayBase64,
+  arrayBufferToBase64,
+  base64ToArrayBuffer,
+  pathEquals,
+  pathEqualsOrParent,
+  rawText,
+} from "src/utils";
+import { onBeforeUnmount } from "vue";
 
 const PUBLIC_STORAGE_APPLICATION = "Shin Code Editor";
+
+export type StatItem = {
+  readonly stat: StatResult;
+  readonly fullpath: string;
+};
+export type ReadFilesFolderItem = {
+  readonly key: string;
+  readonly value: StatItem & {
+    readonly data?: string;
+  };
+};
 
 async function fixStartsWidth<T>(callback: { (): Promise<T> }): Promise<T> {
   // eslint-disable-next-line @typescript-eslint/unbound-method
   const { startsWith } = String.prototype;
+  // eslint-disable-next-line functional/immutable-data
   String.prototype.startsWith = () => false;
   const result = await callback();
+  // eslint-disable-next-line functional/immutable-data
   String.prototype.startsWith = startsWith;
   return result;
 }
@@ -42,7 +58,7 @@ export async function mkdir(path: string): Promise<void> {
       directory: Directory.Documents,
       recursive: true,
     });
-    eventBus.emit("create:dir", path);
+    watcher.emit("create:dir", path);
   } catch {}
 }
 
@@ -54,7 +70,7 @@ export async function rmdir(path: string): Promise<void> {
       directory: Directory.Documents,
       recursive: true,
     });
-    eventBus.emit("remove:dir", path);
+    watcher.emit("remove:dir", path);
   } catch {}
 }
 /**
@@ -65,6 +81,7 @@ export async function writeFile(
   path: string,
   data: ArrayBuffer | Uint8Array | Blob | string
 ): Promise<void> {
+  const realData = data;
   if (data instanceof ArrayBuffer) {
     data = arrayBufferToBase64(data);
   } else if (data instanceof Uint8Array) {
@@ -84,11 +101,7 @@ export async function writeFile(
       recursive: true,
     });
 
-    if (!!data) {
-      eventBus.emit("write:file", path);
-    } else {
-      eventBus.emit("create:file", path);
-    }
+    watcher.emit("write:file", path, realData as string);
   } catch {
     try {
       await Filesystem.writeFile({
@@ -99,11 +112,7 @@ export async function writeFile(
         recursive: false,
       });
 
-      if (!!data) {
-        eventBus.emit("write:file", path);
-      } else {
-        eventBus.emit("create:file", path);
-      }
+      watcher.emit("write:file", path, realData as string);
     } catch (err) {
       console.error(err);
     }
@@ -136,7 +145,7 @@ export async function unlink(path: string): Promise<void> {
       directory: Directory.Documents,
     });
 
-    eventBus.emit("remove:file", path);
+    watcher.emit("remove:file", path);
   }
 }
 
@@ -154,9 +163,9 @@ export async function rename(from: string, to: string): Promise<void> {
 
     async function nosync() {
       if ((await stat(to)).type === "directory") {
-        eventBus.emit("move:dir", to, from);
+        watcher.emit("move:dir", to, from);
       } else {
-        eventBus.emit("move:file", to, from);
+        watcher.emit("move:file", to, from);
       }
     }
     void nosync();
@@ -176,17 +185,17 @@ export async function copy(from: string, to: string): Promise<void> {
 
     async function nosync() {
       if ((await stat(to)).type === "directory") {
-        eventBus.emit("move:dir", to, from);
+        watcher.emit("move:dir", to, from);
       } else {
-        eventBus.emit("move:file", to, from);
+        watcher.emit("move:file", to, from);
       }
     }
     void nosync();
   });
 }
 
-export async function stat(path: string): Promise<StatResult> {
-  return await Filesystem.stat({
+export function stat(path: string): Promise<StatResult> {
+  return Filesystem.stat({
     path: join(PUBLIC_STORAGE_APPLICATION, path),
     directory: Directory.Documents,
   });
@@ -229,10 +238,7 @@ function filterExclude(
     );
   });
 }
-export type StatItem = {
-  readonly stat: StatResult;
-  readonly fullpath: string;
-};
+
 export async function readdirStat(
   path: string,
   exclude: ReadonlyArray<string | RegExp> = []
@@ -260,8 +266,10 @@ export function sortFolder(items: readonly StatItem[]): readonly StatItem[] {
 
   items.forEach((file) => {
     if (file.stat.type === "file" || file.stat.type === "symlink") {
+      // eslint-disable-next-line functional/immutable-data
       files.push(file);
     } else {
+      // eslint-disable-next-line functional/immutable-data
       folders.push(file);
     }
   });
@@ -272,12 +280,6 @@ export function sortFolder(items: readonly StatItem[]): readonly StatItem[] {
   ];
 }
 
-export type ReadFilesFolderItem = {
-  readonly key: string;
-  readonly value: StatItem & {
-    readonly data?: string;
-  };
-};
 export async function readFilesFolder(
   path: string,
   exclude: ReadonlyArray<string | RegExp> = []
@@ -297,6 +299,7 @@ export async function readFilesFolder(
         data = await readFile(pathToFile);
       }
 
+      // eslint-disable-next-line functional/immutable-data
       thisChildren.push(
         {
           key: pathToFile,
@@ -367,3 +370,264 @@ export async function foreach(
     })
   );
 }
+
+export async function listFiles(
+  dir: string,
+  ig: Ignore,
+  dirname: string
+): Promise<readonly string[]> {
+  const files = ig
+    .filter(
+      (await readdir(dir)).map((item) => join(relative(dirname, dir), item))
+    )
+    .map((item) => {
+      return relative(relative(dirname, dir), item);
+    });
+
+  return (
+    await Promise.all(
+      files.map(async (item) => {
+        item = join(dir, item);
+
+        if ((await stat(item)).type === "directory") {
+          return await listFiles(item, ig, dirname);
+        } else {
+          return item;
+        }
+      })
+    )
+  ).flat(2);
+}
+
+type Events =
+  | "create:dir"
+  | "remove:file"
+  | "remove:dir"
+  | "write:file"
+  | "move:file"
+  | "move:dir"
+  | "copy:file"
+  | "copy:dir";
+type Callback<Events> = {
+  (type: Events, ...params: readonly string[]): void;
+};
+
+export const watcher = new (class Watcher {
+  // eslint-disable-next-line functional/prefer-readonly-type
+  private readonly store: Map<Events, readonly Callback<Events>[]> = new Map();
+  on(
+    name: Events | readonly Events[],
+    callback: Callback<Events>
+  ): {
+    (): void;
+  } {
+    if (Array.isArray(name) === false) {
+      name = [name as Events];
+    }
+
+    (name as readonly Events[]).forEach((item: Events) => {
+      if (this.store.has(item) === false) {
+        this.store.set(item, [callback]);
+      } else {
+        this.store.set(item, [...(this.store.get(item) || []), callback]);
+      }
+    });
+
+    return () => {
+      this.off(name, callback);
+    };
+  }
+  off(name: Events | readonly Events[], callback: Callback<Events>): void {
+    if (Array.isArray(name) === false) {
+      name = [name as Events];
+    }
+
+    (name as readonly Events[]).forEach((item) => {
+      if (this.store.has(item)) {
+        const functions = this.store
+          .get(item)
+          ?.filter((item) => item !== callback);
+
+        if (functions) {
+          this.store.set(item, functions);
+        }
+      }
+    });
+  }
+  // eslint-disable-next-line functional/functional-parameters
+  public emit(name: Events, ...params: readonly string[]): void {
+    if (process.env.NODE_ENV === "development") {
+      console.info(
+        `fs-watcher: "${name as unknown as string}" from "${params[0]}"`
+      );
+    }
+    this.store.get(name)?.forEach((callback) => void callback(name, ...params));
+  }
+  public watch(
+    name: Events | readonly Events[],
+    fullpath:
+      | string
+      | {
+          (): string;
+        }
+      | false,
+    callback: Callback<Events>,
+    realpath = false
+  ): {
+    (): void
+  } {
+    const handler: Callback<Events> = (
+      type: Events,
+      // eslint-disable-next-line functional/functional-parameters
+      ...params: readonly string[]
+    ): void => {
+      if (
+        fullpath === false ||
+        (realpath
+          ? pathEquals(
+              fullpath instanceof Function ? fullpath() : fullpath,
+              params[0]
+            )
+          : pathEqualsOrParent(
+              fullpath instanceof Function ? fullpath() : fullpath,
+              params[0]
+            ))
+      ) {
+        callback(type, ...params);
+      }
+    };
+
+    const watcher = this.on(name, handler);
+    onBeforeUnmount(() => void watcher());
+
+    return watcher;
+  }
+})();
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+namespace Fs {
+  function Err(name: string) {
+    return class extends Error {
+      public readonly code: string = name;
+
+      constructor(err: string) {
+        super(err);
+        if (this.message) {
+          this.message = name + ": " + this.message;
+        } else {
+          this.message = name;
+        }
+      }
+    };
+  }
+
+  // const EEXIST = Err("EEXIST");
+  const ENOENT = Err("ENOENT");
+  // const ENOTDIR = Err("ENOTDIR");
+  // const ENOTEMPTY = Err("ENOTEMPTY");
+  // const ETIMEDOUT = Err("ETIMEDOUT");
+
+  class Stat {
+    public readonly type: string;
+    public readonly mode = 16822;
+    public readonly size: number;
+    public readonly ino = 2814749767351612;
+    public readonly mtimeMs: number;
+    public readonly ctimeMs: number;
+    public readonly uid = 1;
+    public readonly gid = 1;
+    public readonly dev = 1761345728;
+
+    constructor(stats: StatResult) {
+      this.type = stats.type;
+      this.size = stats.size;
+      this.mtimeMs = stats.mtime;
+      this.ctimeMs = stats.ctime || stats.mtime;
+    }
+    isFile(): boolean {
+      return this.type === "file";
+    }
+    isDirectory(): boolean {
+      return this.type === "directory";
+    }
+    isSymbolicLink(): boolean {
+      return this.type === "symlink";
+    }
+  }
+
+  export const fs = {
+    promises: {
+      readFile(
+        path: string,
+        { encoding }: { readonly encoding?: "utf8" } = {}
+      ): Promise<ArrayBuffer | string> {
+        return new Promise((resolve, reject) => {
+          readFile(path)
+            .then((base64) => {
+              if (encoding === "utf8") {
+                resolve(rawText(base64));
+              }
+
+              resolve(base64ToArrayBuffer(base64));
+            })
+            .catch(() => {
+              reject(new ENOENT(path));
+            });
+        });
+      },
+
+      writeFile(
+        path: string,
+        data: ArrayBuffer | Uint8Array | Blob | string
+      ): Promise<void> {
+        return new Promise((resolve, reject) => {
+          writeFile(path, data)
+            .then((st) => {
+              resolve(st);
+            })
+            .catch((err) => {
+              console.log(err);
+              reject();
+            });
+        });
+      },
+      mkdir(path: string): Promise<void> {
+        return mkdir(path);
+      },
+      rmdir(path: string): Promise<void> {
+        return rmdir(path);
+      },
+      unlink(path: string): Promise<void> {
+        return unlink(path);
+      },
+      stat(path: string): Promise<Stat> {
+        return new Promise((resolve, reject) => {
+          stat(path)
+            .then((st) => {
+              resolve(new Stat(st));
+            })
+            .catch(() => {
+              reject(new ENOENT(path));
+            });
+        });
+      },
+      lstat(path: string): Promise<Stat> {
+        return this.stat(path);
+      },
+      readdir(path: string): Promise<readonly string[]> {
+        return readdir(path);
+      },
+      readlink(path: string): Promise<ArrayBuffer | string> {
+        return this.readFile(path);
+      },
+      symlink(
+        path: string,
+        data: ArrayBuffer | Uint8Array | Blob | string
+      ): Promise<void> {
+        return writeFile(path, data);
+      },
+    },
+  };
+}
+
+export const fs = Fs.fs;

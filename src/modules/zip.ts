@@ -35,12 +35,11 @@ export async function zip({
   readonly to: string | false;
   readonly directory?: Directory;
   readonly toDirectory?: Directory;
-  readonly exclude: ReadonlyArray<string | RegExp>;
+  readonly exclude: ReadonlyArray<string | RegExp>; 
 }): Promise<ArrayBuffer | void> {
-  console.log(store);
   store.commit(
-    "terminal/print",
-    i18n.global.rt("alert.ziping", {
+    "terminal/info",
+    i18n.global.t("alert.ziping", {
       name: folder,
     })
   );
@@ -53,7 +52,7 @@ export async function zip({
 
       store.commit(
         "terminal/print",
-        i18n.global.rt(`alert.adding.${stat.type}`, {
+        i18n.global.t(`alert.adding.${stat.type}`, {
           type: stat.type,
           name: path,
         })
@@ -75,7 +74,7 @@ export async function zip({
   if (to) {
     store.commit(
       "terminal/print",
-      i18n.global.rt("alert.zip-saved", {
+      i18n.global.t("alert.zip-saved", {
         name: to,
       })
     );
@@ -83,7 +82,7 @@ export async function zip({
     await writeFile(to, fileResult);
   }
 
-  store.commit("terminal/print", i18n.global.rt("alert.created.zip"));
+  store.commit("terminal/print", i18n.global.t("alert.created.zip"));
 
   return fileResult;
 }
@@ -95,10 +94,9 @@ export async function unzip({
   readonly file: string | ArrayBuffer;
   readonly to: string;
 }): Promise<void> {
-  console.log(store);
   store.commit(
-    "terminal/print",
-    i18n.global.rt("alert.extracting-zip", {
+    "terminal/info",
+    i18n.global.t("alert.extracting-zip", {
       name: typeof file === "string" ? file : "tmp/buffer",
     })
   );
@@ -115,7 +113,7 @@ export async function unzip({
 
   store.commit(
     "terminal/print",
-    i18n.global.rt("alert.extract-file", {
+    i18n.global.t("alert.extract-file", {
       name: typeof file === "string" ? file : "tmp/buffer",
     })
   );
@@ -125,7 +123,7 @@ export async function unzip({
   for (const path in zip.files) {
     store.commit(
       "terminal/print",
-      i18n.global.rt(`alert.extract-${zip.files[path].dir ? "folder" : "file"}`, {
+      i18n.global.t(`alert.extract-${zip.files[path].dir ? "folder" : "file"}`, {
         name: path,
       })
     );
@@ -150,7 +148,7 @@ export async function unzip({
   await Promise.all(allProcess);
   store.commit(
     "terminal/print",
-    i18n.global.rt("alert.unzipped", {
+    i18n.global.t("alert.unzipped", {
       to,
     })
   );

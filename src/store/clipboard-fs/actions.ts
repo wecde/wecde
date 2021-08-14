@@ -1,5 +1,5 @@
+import { copy, readdir, rename, stat } from "modules/filesystem";
 import { basename, dirname, join } from "path-cross";
-import { copy, readdir, rename, stat } from "src/modules/filesystem";
 import { pathEquals } from "src/utils";
 import { ActionTree } from "vuex";
 

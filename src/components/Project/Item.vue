@@ -7,7 +7,7 @@
     <q-item-section avatar>
       <q-img
         :src="
-          require(`src/assets/extensions/material-icon-theme/icons/${
+          require(`assets/extensions/material-icon-theme/icons/${
             $store.state.editor.project &&
             pathEquals(project.fullpath, $store.state.editor.project)
               ? 'folder-project-open.svg'
@@ -33,19 +33,22 @@
       </q-item-label>
       <q-item-label caption>
         {{ $t("label.modified") }}
-        <vue-timeagojs :time="new Date(project.stat.mtime)" />
+        <vue-timeagojs :time="new Date(project.stat.mtime)" :delay="30000" />
       </q-item-label>
     </q-item-section>
 
     <q-item-section side top>
-      <q-btn :icon="mdiDotsVertical" flat round padding="none">
+      <q-btn :icon="mdiDotsVertical" flat round padding="xs">
         <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
           transition-show="jump-down"
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
         >
-          <q-list bordered>
+          <q-list>
             <q-item clickable v-close-popup v-ripple @click="exportZip">
               <q-item-section avatar class="min-width-0">
                 <q-icon :name="mdiArchiveOutline" />
@@ -85,9 +88,9 @@ import {
   mdiExportVariant,
   mdiPen,
 } from "@quasar/extras/mdi-v5";
+import exportZip from "modules/export-zip";
+import type { StatItem } from "modules/filesystem";
 import { basename } from "path-cross";
-import exportZip from "src/modules/export-zip";
-import type { StatItem } from "src/modules/filesystem";
 import { pathEquals } from "src/utils";
 import { defineComponent, PropType, ref } from "vue";
 
@@ -127,7 +130,7 @@ export default defineComponent({
         this.$store.commit("terminal/clear");
 
         void Toast.show({
-          text: this.$rt("alert.exported.project", {
+          text: this.$t("alert.exported.project", {
             name: basename(this.project.fullpath),
           }),
         });

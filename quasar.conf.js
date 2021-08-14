@@ -8,6 +8,9 @@
 
 /* eslint-env node */
 /* eslint-disable @typescript-eslint/no-var-requires */
+const path = require("path");
+
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require("quasar/wrappers");
 
 // eslint-disable-next-line functional/immutable-data
@@ -93,6 +96,12 @@ module.exports = configure(function (ctx) {
             },
           },
         });
+        // eslint-disable-next-line functional/immutable-data
+        cfg.resolve.alias = {
+          ...cfg.resolve.alias,
+          modules: path.resolve("./src/modules"),
+          path$: "path-cross/build/module/index.js",
+        };
       },
     },
 

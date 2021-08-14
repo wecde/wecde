@@ -1,7 +1,7 @@
 import { i18n } from "boot/i18n";
 import { saveAs } from "file-saver";
+import { zip } from "modules/zip";
 import { basename, extname } from "path-cross";
-import { zip } from "src/modules/zip";
 import { store } from "src/store";
 
 export default async function exportZip(path: string): Promise<void> {
@@ -15,12 +15,12 @@ export default async function exportZip(path: string): Promise<void> {
 
   store.commit(
     "terminal/print",
-    i18n.global.rt("saving-file", {
+    i18n.global.t("alert.saving-file", {
       name: filename,
     })
   );
 
   saveAs(new Blob([fileZip]), filename);
 
-  store.commit("terminal/print", i18n.global.rt("done"));
+  store.commit("terminal/print", i18n.global.t("done"));
 }

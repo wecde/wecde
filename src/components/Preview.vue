@@ -35,8 +35,8 @@
 </template>
 
 <script lang="ts">
+import { readFile } from "modules/filesystem";
 import { basename } from "path-cross";
-import { readFile } from "src/modules/filesystem";
 import { extname } from "src/utils";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 

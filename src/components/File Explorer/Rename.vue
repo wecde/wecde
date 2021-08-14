@@ -55,9 +55,9 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
+import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
+import { rename } from "modules/filesystem";
 import { basename, dirname, extname, join, relative } from "path-cross";
-import getIcon from "src/assets/extensions/material-icon-theme/dist/getIcon";
-import { rename } from "src/modules/filesystem";
 import { createTimeoutBy } from "src/utils";
 import nameFileValidates from "src/validator/nameFileValidates";
 import { defineComponent, ref, toRefs, watch } from "vue";
@@ -154,7 +154,7 @@ export default defineComponent({
           try {
             await rename(from, to);
             void Toast.show({
-              text: this.$rt(
+              text: this.$t(
                 `alert.renamed.${this.isFolder ? "folder" : "file"}-from-to`,
                 {
                   old: relative("projects", from),
@@ -165,7 +165,7 @@ export default defineComponent({
           } catch (err) {
             console.log(err);
             void Toast.show({
-              text: this.$rt(
+              text: this.$t(
                 `alert.rename.${this.isFolder ? "folder" : "file"}-failed`,
                 {
                   path: relative("projects", from),

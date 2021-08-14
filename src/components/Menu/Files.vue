@@ -8,24 +8,27 @@
         @click="reloadListFile(true)"
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
       />
       <q-btn
         :icon="mdiPlus"
         flat
         round
-        padding="none"
-        size="1em"
+        padding="xs"
+        size="13px"
         class="q-ml-xs"
       >
         <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
           transition-show="jump-down"
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
         >
-          <q-list bordered>
+          <q-list>
             <template v-if="clipboardExists">
               <q-item
                 clickable
@@ -82,7 +85,9 @@
                   <q-item-section avatar class="min-width-0">
                     <q-icon :name="mdiDownload" />
                   </q-item-section>
-                  <q-item-section>{{ $t("label.import-files") }}</q-item-section>
+                  <q-item-section>{{
+                    $t("label.import-files")
+                  }}</q-item-section>
                 </q-item>
               </template>
             </Action-Import-Files>
@@ -145,9 +150,9 @@ import {
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import FileExplorerAdd from "components/File Explorer/Add.vue";
 import FileExplorerList from "components/File Explorer/List.vue";
+import { readdirStat } from "modules/filesystem";
+import type { StatItem } from "modules/filesystem";
 import { basename } from "path-cross";
-import { readdirStat } from "src/modules/filesystem";
-import type { StatItem } from "src/modules/filesystem";
 import { useStore } from "src/store";
 import { computed, defineComponent, ref } from "vue";
 
@@ -213,7 +218,7 @@ export default defineComponent({
 
         if (notification) {
           void Toast.show({
-            text: this.$rt("alert.reload-files"),
+            text: this.$t("alert.reload-files"),
           });
         }
       } catch (err) {
