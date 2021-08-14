@@ -119,7 +119,10 @@
     "template": "Template",
     "modified": "Modified",
     "export-zip": "Export Zip",
-    "source-control": "Source Control"
+    "source-control": "Source Control",
+    "checkout": "Checkout",
+    "email": "Email",
+    "name": "Name"
   },
   "placeholder": {
     "git": "URL (Start with https://)",

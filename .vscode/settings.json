@@ -8,7 +8,7 @@
     "src/locales"
   ],
   "vetur.validation.interpolation": false,
-  "vetur.validation.script": false,
+  // "vetur.validation.script": false,
   "vetur.validation.style": false,
   "vetur.validation.templateProps": false,
   "vetur.underline.refValue": true
