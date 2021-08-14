@@ -353,76 +353,56 @@ export default defineComponent({
     const gitStatus = ref<string | null>(null);
 
     function refreshGitStatus(): void {
-      gitStatus.value = "loading";
-      createTimeoutBy(
-        `watch fs for git status ${props.file.fullpath}`,
-        async () => {
-          await gitStatusQueue.run(async () => {
-            if (
-              store.state.editor.project &&
-              store.state["git-project"].state === "ready"
-            ) {
-              gitStatus.value = isFolder.value
-                ? await statusFolder({
-                    dir: store.state.editor.project,
-                    fullpath: props.file.fullpath,
-                    cache: gitStatusCache,
-                    project: store.state.editor.project,
-                  })
-                : await status({
-                    dir: store.state.editor.project,
-                    filepath: relative(
-                      store.state.editor.project,
-                      props.file.fullpath
-                    ),
-                    cache: gitStatusCache,
-                  });
-            } else {
-              gitStatus.value = null;
-            }
-          });
-        },
-        3000,
-        {
-          skipme: true,
-          immediate: true,
-        }
-      );
+      if (store.state["git-project"].state === "ready") {
+        gitStatus.value = "loading";
+        createTimeoutBy(
+          `watch fs for git status ${props.file.fullpath}`,
+          async () => {
+            await gitStatusQueue.run(async () => {
+              if (
+                store.state.editor.project &&
+                store.state["git-project"].state === "ready"
+              ) {
+                gitStatus.value = isFolder.value
+                  ? await statusFolder({
+                      dir: store.state.editor.project,
+                      fullpath: props.file.fullpath,
+                      cache: gitStatusCache,
+                      project: store.state.editor.project,
+                    })
+                  : await status({
+                      dir: store.state.editor.project,
+                      filepath: relative(
+                        store.state.editor.project,
+                        props.file.fullpath
+                      ),
+                      cache: gitStatusCache,
+                    });
+              } else {
+                gitStatus.value = null;
+              }
+            });
+          },
+          3000,
+          {
+            skipme: true,
+            immediate: true,
+          }
+        );
+      }
     }
 
-    const watchers: {
-      (): void;
-    }[] = [];
-    watch(
-      () => store.state["git-project"].state,
-      (state) => {
-        if (state === "ready") {
-          if (watchers.length === 0) {
-            // eslint-disable-next-line functional/immutable-data
-            watchers.push(
-              watchEffect(() => void refreshGitStatus()),
-              fsWatcher.watch(
-                "write:file",
-                file.value.fullpath,
-                () => void refreshGitStatus(),
-                isFolder.value ? false : true
-              ),
-              fsWatcher.watch(
-                "write:file",
-                () =>
-                  join(store.state.editor.project as string, ".git/refs/heads"),
-                () => void refreshGitStatus()
-              )
-            );
-          }
-        } else {
-          // eslint-disable-next-line functional/immutable-data
-          watchers.splice(0).forEach((watcher) => void watcher());
-        }
-      },
-      {
-        immediate: true,
-      }
+    watchEffect(() => void refreshGitStatus());
+    fsWatcher.watch(
+      "write:file",
+      file.value.fullpath,
+      () => void refreshGitStatus(),
+      isFolder.value ? false : true
+    );
+    fsWatcher.watch(
+      "write:file",
+      () => join(store.state.editor.project as string, ".git/refs/heads"),
+      () => void refreshGitStatus()
     );
 
     async function refreshFolder() {

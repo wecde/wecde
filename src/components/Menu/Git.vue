@@ -2,7 +2,7 @@
   <Template-Tab>
     <template v-slot:title
       >{{ $t("label.source-control") }}
-      <q-badge rounded color="primary" :label="changes.length"
+      <q-badge rounded color="primary" :label="allChanges.length"
     /></template>
 
     <template v-slot:addons>
@@ -29,7 +29,7 @@
         round
         padding="xs"
         size="13px"
-        @click="commit(commitMessage)"
+        @click="commit(commitMessage, allChanges)"
       />
       <q-btn
         :icon="mdiReload"
@@ -448,7 +448,61 @@
           <div class="q-ml-n4 q-mt-3">
             <div
               class="file-object"
-              v-for="item in changes"
+              v-for="item in stageds"
+              :key="item.fullpath"
+              :class="{
+                dark: $q.dark.isActive,
+
+                'star-modified': item.status === `*modified`,
+                modified: item.status === `modified`,
+
+                'star-deleted': item.status === `*deleted`,
+                deleted: item.status === `deleted`,
+
+                'star-undeleted': item.status === `*undeleted`,
+
+                'star-added': item.status === `*added`,
+                added: item.status === `added`,
+              }"
+              v-ripple
+            >
+              <img
+                class="icon-file"
+                :src="
+                  getIcon({
+                    light: false,
+                    isOpen: false,
+                    isFolder: false,
+                    name: item.basename,
+                  })
+                "
+              />
+
+              <div class="full-width text-truncate">
+                {{ item.basename }}
+                <small class="text-caption" style="opacity: 0.8">{{
+                  item.fullpath
+                }}</small>
+              </div>
+
+              <div class="actions flex no-wrap">
+                <q-btn
+                  color="inherit"
+                  flat
+                  dense
+                  :icon="mdiMinus"
+                  padding="none"
+                  size="12.5px"
+                  @click="reset(item)"
+                />
+              </div>
+            </div>
+          </div>
+          Changes
+          <div class="q-ml-n4 q-mt-3">
+            <div
+              class="file-object"
+              v-for="item in changeds"
               :key="item.fullpath"
               :class="{
                 dark: $q.dark.isActive,
@@ -493,6 +547,7 @@
                   :icon="mdiUndo"
                   padding="none"
                   size="12.5px"
+                  @click="resetHard(item)"
                 />
                 <q-btn
                   color="inherit"
@@ -501,6 +556,7 @@
                   :icon="mdiPlus"
                   padding="none"
                   size="12.5px"
+                  @click="add(item)"
                 />
               </div>
             </div>
@@ -512,9 +568,9 @@
 
   <Git-Modal-Commit
     v-model="stateModalCommit"
-    @enter="commit($event.target.value)"
+    @enter="commit($event.target.value, allChanges)"
   />
-  <Git-Modal-Checkout v-model="stateModalCheckout" />
+  <Git-Modal-Checkout v-model="stateModalCheckout" @done="refreshStatus" />
 </template>
 
 <script lang="ts">
@@ -523,6 +579,7 @@ import {
   mdiChevronRight,
   mdiDotsHorizontal,
   mdiFileTree,
+  mdiMinus,
   mdiPlus,
   mdiReload,
   mdiUndo,
@@ -555,15 +612,11 @@ import {
 } from "src/helpers/git";
 import gitStatusCache from "src/helpers/git-status-cache";
 import { useStore } from "src/store";
-import {
-  createTimeoutBy,
-  foreachAsync,
-  fsAllowReactive,
-  mapAsync,
-} from "src/utils";
+import { createTimeoutBy, fsAllowReactive, mapAsync } from "src/utils";
 import { computed, defineComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
+import * as GitMethods from "./Git.methods";
 import type { Change, StatusGit, StatusMatrix } from "./Git.types";
 import TemplateTab from "./template/Tab.vue";
 // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
@@ -585,7 +638,7 @@ export default defineComponent({
 
     const loading = ref<boolean>(false);
     const matrix = ref<StatusMatrix>({});
-    const changes = computed<Change[]>(() => {
+    const allChanges = computed<Change[]>(() => {
       const statuss = Object.entries(matrix.value).map(
         ([fullpath, { status, filepath }]) => ({
           fullpath,
@@ -608,11 +661,19 @@ export default defineComponent({
           return statuss;
       }
     });
+    const changeds = computed<Change[]>(() => {
+      return allChanges.value.filter((item) => item.status.startsWith("*"));
+    });
+    const stageds = computed<Change[]>(() => {
+      return allChanges.value.filter(
+        (item) => item.status.startsWith("*") === false
+      );
+    });
 
     const commitMessage = ref<string>("");
 
     const stateModalCommit = ref<boolean>(false),
-      stateModalCheckout = ref<boolean>(false)
+      stateModalCheckout = ref<boolean>(false);
 
     async function refreshStatus() {
       loading.value = true;
@@ -738,69 +799,17 @@ export default defineComponent({
       }
       store.commit("system/setProgress", false);
     }
-    async function getRemoteNow(): Promise<string | void> {
-      if (store.state.editor.project) {
-        return await git.getConfig({
-          fs,
-          dir: store.state.editor.project,
-          path: "remote.origin.url",
-        });
-      }
-    }
-    async function commit(message: string): Promise<void> {
+    async function commit(message: string, changes: Change[]): Promise<void> {
       /// check commit message ready
 
       message = message.trim();
 
       if (!!message) {
-        /// continue commit
-
-        store.commit("system/setProgress", true);
-        if (store.state.editor.project) {
-          try {
-            await foreachAsync(changes.value, async ({ status, filepath }) => {
-              if (store.state.editor.project) {
-                if (status === "*deleted") {
-                  await git.remove({
-                    fs,
-                    dir: store.state.editor.project,
-                    filepath,
-                  });
-                } else if (status === "*added" || status === "*modified") {
-                  await git.add({
-                    fs,
-                    dir: store.state.editor.project,
-                    filepath,
-                  });
-                }
-              }
-            });
-            /// commit
-            const remoteNow = await getRemoteNow();
-            await git.commit({
-              fs,
-              dir: store.state.editor.project,
-              author: {
-                email: store.getters["git-configs/getConfig"](
-                  remoteNow ?? "github.com",
-                  "email"
-                ),
-                name: store.getters["git-configs/getConfig"](
-                  remoteNow ?? "github.com",
-                  "name"
-                ),
-              },
-              message,
-            });
-
-            void refreshStatus();
-          } catch (err) {
-            store.commit("terminal/error", err);
-          } finally {
-            stateModalCommit.value = false;
-          }
+        if (await GitMethods.commit(message, changes)) {
+          await refreshStatus();
         }
-        store.commit("system/setProgress", false);
+
+        stateModalCommit.value = false;
       } else {
         stateModalCommit.value = true;
       }
@@ -854,6 +863,40 @@ export default defineComponent({
       store.commit("system/setProgress", false);
     }
 
+    async function add(change: Change): Promise<void> {
+      await GitMethods.add(change);
+
+      // eslint-disable-next-line functional/immutable-data
+      matrix.value[change.fullpath] = {
+        filepath: change.filepath,
+        status: change.status.replace(/^\*/, "") as StatusGit,
+      };
+    }
+    async function reset(change: Change): Promise<void> {
+      await GitMethods.reset(change);
+
+      // eslint-disable-next-line functional/immutable-data
+      matrix.value[change.fullpath] = {
+        filepath: change.filepath,
+        status: (change.status.startsWith("*")
+          ? change.status.replace(/^\*/, "")
+          : `*${change.status}`) as StatusGit,
+      };
+    }
+    async function resetHard({ fullpath, filepath }: Change): Promise<void> {
+      await GitMethods.resetHard(filepath);
+      // eslint-disable-next-line functional/immutable-data
+      matrix.value[fullpath] = {
+        filepath,
+        status: await git.status({
+          fs,
+          dir: store.state.editor.project as string,
+          filepath,
+          cache: gitStatusCache,
+        }),
+      };
+    }
+
     return {
       mdiCheck,
       mdiChevronRight,
@@ -863,13 +906,18 @@ export default defineComponent({
       mdiReload,
       mdiUndo,
       mdiViewHeadline,
+      mdiMinus,
 
       getIcon,
       refreshStatus,
 
       loading,
+
       matrix,
-      changes,
+      allChanges,
+      changeds,
+      stageds,
+
       commitMessage,
 
       stateModalCommit,
@@ -879,6 +927,9 @@ export default defineComponent({
       commit,
       pull,
       push,
+      add,
+      reset,
+      resetHard,
     };
   },
 });

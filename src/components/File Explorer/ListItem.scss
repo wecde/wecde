@@ -31,7 +31,8 @@
     }
 
     /* {*modified} */
-    &.star-modified {
+    &.star-modified,
+    &.modified {
       color: rgb(75, 156, 248);
       &.dark {
         color: rgb(121, 184, 255);
@@ -41,16 +42,16 @@
         content: "M";
       }
     }
-    &.modified {
-      color: #dda769;
-      &.dark {
-        color: #e0bd96;
-      }
+    // &.modified {
+    //   color: #dda769;
+    //   &.dark {
+    //     color: #e0bd96;
+    //   }
 
-      &:after {
-        content: "M";
-      }
-    }
+    //   &:after {
+    //     content: "M";
+    //   }
+    // }
     /* {/*modified} */
 
     &.star-deleted,
@@ -68,16 +69,7 @@
       text-decoration: none;
     }
 
-    &.star-added {
-      color: rgb(29, 211, 71);
-      &.dark {
-        color: rgb(52, 208, 88);
-      }
-
-      &:after {
-        content: "U";
-      }
-    }
+    &.star-added,
     &.added {
       color: rgb(29, 211, 71);
       &.dark {
