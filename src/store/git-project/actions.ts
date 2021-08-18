@@ -46,6 +46,7 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
     { commit, rootState, state },
     filepaths: readonly string[] = ["."]
   ) {
+    commit("set:matrix.loading", true);
     if (rootState.editor.project && state.state === "ready") {
       const statusMatrixResult = await gitWorker.statusMatrix({
         dir: rootState.editor.project,
@@ -54,6 +55,7 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
 
       commit("updateMatrix", statusMatrixResult);
     }
+    commit("set:matrix.loading", false);
   },
   async refresh({ dispatch }): Promise<void> {
     await Promise.all([dispatch("checkDotGit"), dispatch("loadIgnore")]);

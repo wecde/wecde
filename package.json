@@ -40,7 +40,6 @@
     "iso-639-1": "^2.1.9",
     "isomorphic-git-cross": "^1.9.3-fix1",
     "jszip": "^3.7.0",
-    "magic-portal": "^1.0.0",
     "marked": "^2.1.3",
     "parse-gitignore": "^1.0.1",
     "path-cross": "^0.0.3",

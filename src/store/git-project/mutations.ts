@@ -19,8 +19,12 @@ const mutation: MutationTree<GitProjectStateInterface> = {
     ])[]
   ) {
     statusMatrixResult.forEach(([filepath, ...statusMatrix]) => {
-      state.matrix[filepath] = statusMatrix;
+      state.matrix.value[filepath] = statusMatrix;
     });
+  },
+  "set:matrix.loading"({ matrix }, value: boolean) {
+    // eslint-disable-next-line functional/immutable-data
+    matrix.loading = value;
   },
 };
 

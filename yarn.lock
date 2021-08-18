@@ -4959,11 +4959,6 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-magic-portal@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/magic-portal/-/magic-portal-1.0.0.tgz#b7c07e6675e11428b42649807430b2628b214bd1"
-  integrity sha512-RRFQ9N1LQFETObTOmDoQeyAfsUUnSW59LqVpJjFxyCYE7vHb7EkYsw9PImvcI6ZdGzYs46Yc1r47n6RptYliUw==
-
 magic-string@^0.25.7:
   version "0.25.7"
   resolved "https://registry.npmjs.org/magic-string/-/magic-string-0.25.7.tgz"
