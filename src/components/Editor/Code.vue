@@ -86,9 +86,9 @@
 
       <div class="item" v-ripple @mousedown="fixBlurEditor">
         <q-icon :name="mdiPlus" />
-        <q-menu 
+        <q-menu
           :class="{
-            'bg-grey-9': $q.dark.isActive
+            'bg-grey-9': $q.dark.isActive,
           }"
           class="menu-addons"
           transition-show="jump-up"
@@ -189,11 +189,11 @@ import "ace-builds/src-noconflict/keybinding-vscode";
 import "ace-builds/src-noconflict/ext-spellcheck";
 import "ace-builds/src-noconflict/ext-prompt";
 // eslint-disable-next-line import/order
-import { readFile, writeFile } from "modules/filesystem";
+import fs from "modules/filesystem";
 // eslint-disable-next-line import/order
 import { useStore } from "src/store";
 // eslint-disable-next-line import/order
-import { createTimeoutBy, getEditor, rawText } from "src/utils";
+import { createTimeoutBy, getEditor } from "src/utils";
 
 // eslint-disable-next-line import/order
 import { Clipboard } from "@capacitor/clipboard";
@@ -310,7 +310,7 @@ export default defineComponent({
             "editor.code.timeout-saving-file",
             () => {
               if (ace.value) {
-                void writeFile(fullpath.value, ace.value.getValue());
+                void fs.writeFile(fullpath.value, ace.value.getValue());
 
                 const { row, column } = ace.value.getCursorPosition();
                 const annotations = ace.value.session
@@ -440,7 +440,7 @@ export default defineComponent({
           // eslint-disable-next-line functional/no-let
           let raw;
           try {
-            raw = rawText(await readFile(newValue));
+            raw = await fs.readFile(newValue, "utf8");
           } catch {
             raw = "";
           }
@@ -751,13 +751,14 @@ export default defineComponent({
   padding: 8px 16px;
 
   .item {
-    color: #b9bbc1;
+    // color: #b9bbc1;
+    position: relative;
   }
-  &.dark {
-    .item {
-      color: #5e6d82;
-    }
-  }
+  // &.dark {
+  //   .item {
+  //     color: #ddd;
+  //   }
+  // }
 
   .item {
     display: block;

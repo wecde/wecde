@@ -1,5 +1,9 @@
 <template>
-  <q-drawer v-model="navigation" :width="300">
+  <q-drawer
+    v-model="navigation"
+    :width="300"
+    class="flex column never-scroll no-wrap"
+  >
     <q-tabs v-model="navigationTabs" class="tabs">
       <q-tab name="archive" :icon="mdiArchiveOutline" />
       <q-tab name="files" :icon="mdiFileMultipleOutline" />
@@ -15,20 +19,25 @@
       <q-tab name="settings" :icon="mdiCogOutline" />
     </q-tabs>
 
-    <q-tab-panels v-model="navigationTabs" animated keep-alive class="bg-transparent">
-      <q-tab-panel name="archive" class="q-py-xs q-py-sm">
+    <q-tab-panels
+      v-model="navigationTabs"
+      animated
+      keep-alive
+      class="bg-transparent panels"
+    >
+      <q-tab-panel name="archive" class="q-pa-0 q-pt-1 flex no-wrap column">
         <Menu-Archive @open:project="navigationTabs = 1" />
       </q-tab-panel>
-      <q-tab-panel name="files" class="q-py-xs q-py-sm">
+      <q-tab-panel name="files" class="q-pa-0 q-pt-1 flex no-wrap column">
         <Menu-Files />
       </q-tab-panel>
-      <q-tab-panel name="git" class="q-py-xs q-py-sm">
+      <q-tab-panel name="git" class="q-pa-0 q-pt-1 flex no-wrap column">
         <Menu-Git />
       </q-tab-panel>
-      <q-tab-panel name="search" class="q-py-xs q-py-sm">
+      <q-tab-panel name="search" class="q-pa-0 q-pt-1 flex no-wrap column">
         <Menu-Search />
       </q-tab-panel>
-      <q-tab-panel name="settings" class="q-py-xs q-py-sm">
+      <q-tab-panel name="settings" class="q-pa-0 q-pt-1 flex no-wrap column">
         <Menu-Settings />
       </q-tab-panel>
     </q-tab-panels>
@@ -98,6 +107,11 @@ export default defineComponent({
     width: 100%;
     min-width: 0;
     max-width: 100%;
+  }
+}
+.panels {
+  :deep(.q-panel) {
+    overflow: visible;
   }
 }
 </style>

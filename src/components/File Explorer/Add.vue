@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import { mkdir, writeFile } from "modules/filesystem";
+import fs from "modules/filesystem";
 import { join } from "path-cross";
 import { useStore } from "src/store";
 import { defineComponent, PropType, ref, toRefs, watch } from "vue";
@@ -67,9 +67,11 @@ export default defineComponent({
       if (newValue !== "") {
         const pathTo = join(dirname.value, filename.value);
         if (isFolder.value) {
-          await mkdir(pathTo);
+          await fs.mkdir(pathTo, {
+            recursive: true
+          });
         } else {
-          await writeFile(pathTo, "");
+          await fs.writeFile(pathTo, "");
         }
 
         void Toast.show({

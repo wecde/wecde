@@ -5,11 +5,7 @@ import { basename, extname } from "path-cross";
 import { store } from "src/store";
 
 export default async function exportZip(path: string): Promise<void> {
-  const fileZip = await zip({
-    folder: path,
-    to: false,
-    exclude: ["^.git"],
-  });
+  const fileZip = await zip(path)
 
   const filename = `${basename(path, extname(path))}.zip`;
 

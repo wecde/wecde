@@ -18,7 +18,6 @@
               isOpen: false,
               isFolder: false,
               name: basename(item),
-              language: extname(item),
             })
           "
         />
@@ -114,7 +113,7 @@ import Preview from "components/Preview.vue";
 import { WebServer } from "modules/webserver";
 import { basename } from "path-cross";
 import { useStore } from "src/store";
-import { createTimeoutBy, extname, getEditor, isPlainText } from "src/utils";
+import { createTimeoutBy, getEditor, isPlainText } from "src/utils";
 import type { DefineComponent } from "vue";
 import { computed, defineComponent, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -156,7 +155,9 @@ export default defineComponent({
 
     async function openWebView() {
       await Browser.open({
-        url: `http://localhost:${store.state.settings["preview**port"] as string}`,
+        url: `http://localhost:${
+          store.state.settings["preview**port"] as string
+        }`,
         toolbarColor: "#212121",
         presentationStyle: "popover",
       });
@@ -311,7 +312,6 @@ export default defineComponent({
     },
   },
   methods: {
-    extname,
     isPlainText,
     getIcon,
     basename,

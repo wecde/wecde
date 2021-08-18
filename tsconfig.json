@@ -42,6 +42,9 @@
       ],
       "path": [
         "./node_modules/path-cross/build/module/index.js"
+      ],
+      "node_modules": [
+        "./node_modules/*"
       ]
     },
     // Forces quasar typings to be included, even if they aren't referenced directly
@@ -54,6 +57,7 @@
     ],
     "lib": [
       "esnext",
+      "webworker",
       "dom",
       "dom.iterable",
       "scripthost"

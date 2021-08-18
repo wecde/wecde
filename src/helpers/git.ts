@@ -1,6 +1,6 @@
 import { Toast } from "@capacitor/toast";
 import { i18n } from "boot/i18n";
-import type { GitAuth, GitProgressEvent } from "isomorphic-git";
+import type { GitAuth, GitProgressEvent } from "isomorphic-git-cross";
 import { store } from "src/store";
 
 export function onStart(message: string): void {
@@ -29,7 +29,12 @@ export function onProgress(event: GitProgressEvent): void {
 export function onAuth(url: string): GitAuth | void {
   const auth = store.getters["git-configs/getConfig"](url);
 
-  store.commit("terminal/warning", i18n.global.t("error.git.403"));
+  if (!auth.username || !auth.password) {
+    store.commit("terminal/warning", i18n.global.t("error.git.auth-not-ready"));
+    return {
+      cancel: true,
+    };
+  }
 
   return auth;
 }
@@ -84,11 +89,13 @@ export const configs = {
     return (store.state.settings["clone git**depth"] as number) - 0;
   },
   get since(): Date | undefined {
-    if (store.state.settings["clone git**single branch"] == null) {
-      return void 0;
-    }
+    return void 0;
 
-    return new Date(store.state.settings["clone git**single branch"] as string);
+    // if (store.state.settings["clone git**single branch"] == null) {
+    //   return void 0;
+    // }
+
+    // return new Date(store.state.settings["clone git**single branch"] as string);
   },
   // eslint-disable-next-line functional/prefer-readonly-type
   get exclude(): string[] {

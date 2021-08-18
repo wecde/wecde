@@ -1,99 +1,117 @@
-import { Directory } from "@capacitor/filesystem";
 import { i18n } from "boot/i18n";
+import { Stat } from "capacitor-fs/build/main/Stat";
+import Ignore from "ignore";
 import JSZip from "jszip";
-import { join } from "path-cross";
+import { join, relative } from "path-cross";
 import { store } from "src/store";
 
-import { base64ToArrayBuffer } from "../utils";
+import fs from "./filesystem";
 
-import { mkdir, readFile, readFilesFolder, writeFile } from "./filesystem";
+async function globby(
+  dir: string,
+  ignore: readonly string[],
+  root = dir
+): Promise<
+  readonly {
+    readonly path: string;
+    readonly stat: Stat;
+  }[]
+> {
+  const list = await fs
+    .readdir(dir)
+    .then((files) => files.map((item) => relative(root, join(dir, item))));
 
-export async function zip({
-  folder,
-  to,
-  exclude,
-}: {
-  readonly folder: string;
-  readonly to: string;
-  readonly exclude: ReadonlyArray<string | RegExp>;
-}): Promise<void>;
-export async function zip({
-  folder,
-  to,
-  exclude,
-}: {
-  readonly folder: string;
-  readonly to: false;
-  readonly exclude: ReadonlyArray<string | RegExp>;
-}): Promise<ArrayBuffer>;
-export async function zip({
-  folder,
-  to,
-  exclude = [],
-}: {
-  readonly folder: string;
-  readonly to: string | false;
-  readonly directory?: Directory;
-  readonly toDirectory?: Directory;
-  readonly exclude: ReadonlyArray<string | RegExp>; 
-}): Promise<ArrayBuffer | void> {
+  const ig = Ignore().add([...ignore]);
+
+  return (
+    await Promise.all(
+      ig
+        .filter(list)
+        .map((item) => join(root, item))
+        .map(async (item) => {
+          const statItem = await fs.stat(item);
+
+          if (statItem.isDirectory()) {
+            return [
+              {
+                path: item,
+                stat: statItem,
+              },
+              ...(await globby(item, ignore, dir)),
+            ];
+          }
+
+          return [
+            {
+              path: item,
+              stat: statItem,
+            },
+          ];
+        })
+    )
+  ).flat(2);
+}
+
+export async function zip(dir: string, saveZipTo: string): Promise<void>;
+export async function zip(dir: string): Promise<ArrayBuffer>;
+export async function zip(
+  dir: string,
+  saveZipTo?: string
+): Promise<void | ArrayBuffer> {
   store.commit(
     "terminal/info",
     i18n.global.t("alert.ziping", {
-      name: folder,
+      name: dir,
     })
   );
   const zip = new JSZip();
-  (await readFilesFolder(folder, exclude)).forEach(
-    ({ key: path, value: { stat, data } }) => {
-      if (path.startsWith(folder)) {
-        path = path.replace(folder, "").replace(/^\//g, "");
-      }
 
-      store.commit(
-        "terminal/print",
-        i18n.global.t(`alert.adding.${stat.type}`, {
-          type: stat.type,
-          name: path,
-        })
-      );
-      if (stat.type === "directory") {
-        zip.folder(path);
-      } else {
-        zip.file(path, data ?? "", {
-          base64: true,
-        });
-      }
+  const globs = await globby(dir, ["!.git", "!node_modules"]);
+
+  const tasks = globs.map(async ({ path, stat }) => {
+    store.commit(
+      "terminal/print",
+      i18n.global.t(`alert.adding.${stat.type}`, {
+        type: stat.type,
+        name: path,
+      })
+    );
+
+    if (stat.isDirectory()) {
+      zip.folder(relative(dir, path));
+    } else {
+      zip.file(relative(dir, path), await fs.readFile(path, "base64"), {
+        base64: true,
+      });
     }
-  );
+  });
+
+  await Promise.all(tasks);
 
   const fileResult = await zip.generateAsync({
     type: "arraybuffer",
   });
 
-  if (to) {
+  if (saveZipTo) {
     store.commit(
       "terminal/print",
       i18n.global.t("alert.zip-saved", {
-        name: to,
+        name: saveZipTo,
       })
     );
 
-    await writeFile(to, fileResult);
+    await fs.writeFile(saveZipTo, fileResult);
+  } else {
+    store.commit("terminal/print", i18n.global.t("alert.created.zip"));
+
+    return fileResult;
   }
-
-  store.commit("terminal/print", i18n.global.t("alert.created.zip"));
-
-  return fileResult;
 }
 
-export async function unzip({
-  file,
-  to,
-}: {
-  readonly file: string | ArrayBuffer;
-  readonly to: string;
-}): Promise<void> {
+export async function unzip(
+  file: string | ArrayBuffer,
+  extractTo: string
+): Promise<void> {
   store.commit(
     "terminal/info",
     i18n.global.t("alert.extracting-zip", {
@@ -101,55 +119,61 @@ export async function unzip({
     })
   );
 
-  const zip = await JSZip.loadAsync(
-    typeof file === "string"
-      ? /^(?:(?:https?:\/\/)|\/)/.exec(file)
-        ? await fetch(file)
-            .then((res) => res.blob())
-            .then((blob) => blob.arrayBuffer())
-        : base64ToArrayBuffer(await readFile(file))
-      : file
-  );
+  if (typeof file === "string") {
+    if (/^(?:(?:https?:\/\/)|\/)/.exec(file)) {
+      file = await fetch(file)
+        .then((res) => res.blob())
+        .then((blob) => blob.arrayBuffer());
+    } else {
+      file = await fs.readFile(file, "buffer");
+    }
+  }
 
-  store.commit(
-    "terminal/print",
-    i18n.global.t("alert.extract-file", {
-      name: typeof file === "string" ? file : "tmp/buffer",
-    })
-  );
-  const allProcess = [];
+  const zip = await JSZip.loadAsync(file);
+
+  const tasks = [];
 
   // eslint-disable-next-line functional/no-loop-statement
   for (const path in zip.files) {
     store.commit(
       "terminal/print",
-      i18n.global.t(`alert.extract-${zip.files[path].dir ? "folder" : "file"}`, {
-        name: path,
-      })
+      i18n.global.t(
+        `alert.extract-${zip.files[path].dir ? "folder" : "file"}`,
+        {
+          name: path,
+        }
+      )
     );
 
     if (zip.files[path].dir === false) {
       if (zip.file(path)) {
         // eslint-disable-next-line functional/immutable-data
-        allProcess.push(
-          writeFile(
-            join(to, path),
-
+        tasks.push(
+          fs.writeFile(
+            join(extractTo, path),
             await (zip.file(path) as JSZip.JSZipObject).async("arraybuffer")
           )
         );
       }
     } else {
       // eslint-disable-next-line functional/immutable-data
-      allProcess.push(mkdir(join(to, path)));
+      tasks.push(
+        fs
+          .mkdir(join(extractTo, path), {
+            recursive: true,
+          })
+          .catch(({ code }) => {
+            console.log(code);
+          })
+      );
     }
   }
 
-  await Promise.all(allProcess);
+  await Promise.all(tasks);
   store.commit(
     "terminal/print",
     i18n.global.t("alert.unzipped", {
-      to,
+      extractTo,
     })
   );
 }

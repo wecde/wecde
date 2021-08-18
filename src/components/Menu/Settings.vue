@@ -1,5 +1,5 @@
 <template>
-  <Template-Tab>
+  <Template-Tab no-flat contents-class="q-mt-3">
     <template v-slot:title>{{ $t("label.settings") }}</template>
 
     <template v-slot:contents>

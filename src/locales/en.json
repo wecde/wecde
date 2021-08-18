@@ -1,15 +1,39 @@
 {
-  "preload": {
-    "loading-resources": "Loading resources",
-    "checking-last-session": "Checking last session",
-    "checking-permission": "Checking permissing storage"
-  },
+  "Console": "Console",
   "alert": {
+    "adding": {
+      "directory": "Adding folder {name}",
+      "file": "Adding file {name}",
+      "folder": "Adding folder {name}"
+    },
+    "clone-failed": "Clone repo {url} failed: {message}",
+    "clone-success": "Clone repo {url} successfully",
+    "cloneing": "Cloning repo {url}",
     "created": {
       "file": "Created file {name}",
       "folder": "Created folder {name}",
-      "zip": "Successfully created zip",
-      "project": "Created project {name}"
+      "project": "Created project {name}",
+      "zip": "Successfully created zip"
+    },
+    "exported": {
+      "file": "Exported file {name}",
+      "folder": "Exported folder {name}",
+      "project": "Exported project {name}"
+    },
+    "extract-file": "Extract file {name}",
+    "extract-folder": "Extract folder {name}",
+    "extracting-zip": "Extracting file zip from {name}",
+    "file-name-invalidate": "A file or folder <strong>{name}</strong> already exists at this location Please choose a different names",
+    "file-name-not-empty": "A file or folder name must be provided",
+    "import-files": "Import file(s)",
+    "imported-project": "Imported project {list}",
+    "imported-type": "Imported {type} {list}",
+    "login-success": "Login success!",
+    "reload-files": "Reload files(s)",
+    "reload-projects": "Reload projects",
+    "remove-failed": {
+      "file": "Remove file {name} failed",
+      "folder": "Remove folder {name} failed"
     },
     "removed": {
       "file": "Removed file {name}",
@@ -17,119 +41,96 @@
       "project": "Removed project {name}",
       "project-failed": "Remove {type} {name} failed"
     },
-
-    "remove-failed": {
-      "file": "Remove file {name} failed",
-      "folder": "Remove folder {name} failed"
+    "rename": {
+      "file-failed": "Rename file {path} failed",
+      "folder-failed": "Rename folder {path} failed"
     },
     "renamed": {
       "file-from-to": "Renamed file {old} to {new}",
       "folder-from-to": "Renamed folder {old} to {new}"
     },
-    "rename": {
-      "file-failed": "Rename file {path} failed",
-      "folder-failed": "Rename folder {path} failed"
-    },
-    "exported": {
-      "file": "Exported file {name}",
-      "folder": "Exported folder {name}",
-      "project": "Exported project {name}"
-    },
-    "adding": {
-      "file": "Adding file {name}",
-      "folder": "Adding folder {name}",
-      "directory": "Adding folder {name}"
-    },
     "saving-file": "Saving file {name}",
-    "login-success": "Login success!",
-    "cloneing": "Cloning repo {url}",
-    "import-files": "Import file(s)",
     "saving-file-index": "Saving file {name} {index}/{length}",
-    "ziping": "Ziping folder {name}",
-    "zip-saved": "Successfully zip saved in {name}",
-    "extracting-zip": "Extracting file zip from {name}",
-    
-    "extract-file": "Extract file {name}",
-    "extract-folder": "Extract folder {name}",
     "unzipped": "Extracted zip to {to}",
     "webserver-start-at": "WebServer started on port {port}",
     "webserver-stoped": "WebServer closed",
-    "file-name-not-empty": "A file or folder name must be provided",
-    "file-name-invalidate": "A file or folder <strong>{name}</strong> already exists at this location Please choose a different names",
-    "imported-type": "Imported {type} {list}",
-    "clone-success": "Clone repo {url} successfully",
-    "clone-failed": "Clone repo {url} failed: {message}",
-    "reload-projects": "Reload projects",
-    "imported-project": "Imported project {list}",
-    "reload-files": "Reload files(s)"
+    "zip-saved": "Successfully zip saved in {name}",
+    "ziping": "Ziping folder {name}"
   },
-  "Console": "Console",
   "done": "Done",
   "error": {
     "git": {
-      "403": "Git 403 Try login..."
+      "403": "Git 403 Try login...",
+      "auth-not-ready": "Auth config not ready"
     },
     "login-failed": "Access was denied Login failure!",
     "match-code": "What you typed did not match {code}"
   },
   "files(s)": "files(s)",
   "label": {
-    "format": "Format",
-    "find-all": "Find All",
-    "next-error": "Next Error",
+    "cancel": "Cancel",
+    "change-logs": "Change Logs",
+    "checkout": "Checkout",
+    "clone-repo": "Clone Repo",
+    "copy": "Copy",
+    "create": "Create",
+    "create-project": "Create Project",
+    "credentials": "Credentials",
+    "cut": "Cut",
     "definition": "Definition",
-    "signature": "Signature",
-    "show-info": "Show Info",
-    "paste": "Paste",
+    "delete": "Delete",
+    "delete-project": "Delete Project",
+    "email": "Email",
+    "export-file": "Export File",
+    "export-folder": "Export ZIP",
+    "export-zip": "Export Zip",
+    "files-exclude": "files to exclude",
+    "files-include": "files to include",
+    "find": "Find",
+    "find-all": "Find All",
+    "format": "Format",
+    "import-files": "Import Files",
+    "import-zip": "Import ZIP",
+    "modified": "Modified",
+    "name": "Name",
     "new-file": "New File",
     "new-folder": "New Folder",
-    "import-files": "Import Files",
-    "cut": "Cut",
-    "copy": "Copy",
-    "rename": "Rename",
-    "delete": "Delete",
-    "export-folder": "Export ZIP",
-    "export-file": "Export File",
-    "clone-repo": "Clone Repo",
-    "set-credentials": "Set Credentials",
-    "to-access-private": "to access Private Repository",
-    "cancel": "Cancel",
-    "ok": "OK",
-    "credentials": "Credentials",
-    "provider": "Provider",
-    "project": "Project",
     "new-project": "New Project",
-    "import-zip": "Import ZIP",
-    "change-logs": "Change Logs",
-    "view-labs": "View Labs",
-    "delete-project": "Delete Project",
-    "type": "Type",
-    "to-confirm": "to confirm.",
+    "next-error": "Next Error",
     "not-recovery": "will permanently deleted. It can NOT be recovered!",
-    "undo": "Undo",
-    "redo": "Redo",
-    "settings": "Settings",
-    "find": "Find",
-    "files-include": "files to include",
-    "files-exclude": "files to exclude",
-    "project-template": "Project Template",
-    "create-project": "Create Project",
-    "create": "Create",
+    "ok": "OK",
+    "paste": "Paste",
+    "project": "Project",
     "project-name": "Project Name",
-    "template": "Template",
-    "modified": "Modified",
-    "export-zip": "Export Zip",
+    "project-template": "Project Template",
+    "provider": "Provider",
+    "redo": "Redo",
+    "rename": "Rename",
+    "set-credentials": "Set Credentials",
+    "settings": "Settings",
+    "show-info": "Show Info",
+    "signature": "Signature",
     "source-control": "Source Control",
-    "checkout": "Checkout",
-    "email": "Email",
-    "name": "Name"
+    "template": "Template",
+    "to-access-private": "to access Private Repository",
+    "to-confirm": "to confirm.",
+    "type": "Type",
+    "undo": "Undo",
+    "view-labs": "View Labs"
   },
   "placeholder": {
-    "git": "URL (Start with https://)",
-    "username": "Username",
-    "password": "Password",
     "email": "Email",
+    "git": "URL (Start with https://)",
+    "mail": "Mail",
+    "name": "Name",
+    "password": "Password",
+    "replace": "Replace",
     "search": "Search",
-    "replace": "Replace"
+    "username": "Username"
+  },
+  "preload": {
+    "checking-last-session": "Checking last session",
+    "checking-permission": "Checking permissing storage",
+    "loading-resources": "Loading resources"
   }
 }

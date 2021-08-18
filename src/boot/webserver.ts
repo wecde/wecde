@@ -1,10 +1,9 @@
 import { encode } from "base-64";
-import { getUri, readFile, stat } from "modules/filesystem";
+import fs from "modules/filesystem";
 import { WebServer } from "modules/webserver";
-import { join } from "path-cross";
+import { extname, join } from "path-cross";
 import { boot } from "quasar/wrappers";
 import { store } from "src/store";
-import { extname, rawText } from "src/utils";
 
 import codeEruda from "!raw-loader!eruda2/eruda.js";
 
@@ -73,22 +72,22 @@ boot(() => {
         if (project) {
           const path = join(`projects/${project}`, data.path.slice(1));
 
-          const thisStat = await stat(path);
+          const thisStat = await fs.stat(path);
 
           try {
             if (thisStat) {
               // eslint-disable-next-line functional/no-let
               let pathToFile = path;
 
-              if (thisStat.type === "directory") {
+              if (thisStat.isDirectory()) {
                 pathToFile = join(path, "index.html");
               }
 
-              if (await stat(pathToFile)) {
-                if (/^\.?html?$/.test(extname(pathToFile))) {
+              if (await fs.stat(pathToFile)) {
+                if (/^\.html?$/.test(extname(pathToFile))) {
                   WebServer.sendResponse(data.requestId, {
                     status: 200,
-                    body: addEruda(rawText(await readFile(pathToFile))),
+                    body: addEruda(await fs.readFile(pathToFile, "utf8")),
                     headers: {
                       "Content-Type": "text/html",
                     },
@@ -96,7 +95,7 @@ boot(() => {
                 } else {
                   WebServer.sendResponse(data.requestId, {
                     status: 201,
-                    path: await getUri(pathToFile),
+                    path: await fs.getUri(pathToFile),
                     headers: {},
                   });
                 }

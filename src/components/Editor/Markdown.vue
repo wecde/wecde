@@ -9,17 +9,12 @@
     :input-value="!previewing"
     ref="codeEditor"
   />
-  <div
-    class="full-width full-height"
-    v-if="previewing"
-    v-html="html"
-  />
+  <div class="full-width full-height" v-if="previewing" v-html="html" />
 </template>
 
 <script lang="ts">
 import marked from "marked";
-import { readFile } from "modules/filesystem";
-import { rawText } from "src/utils";
+import fs from "modules/filesystem";
 import { defineComponent, ref, toRefs, watch } from "vue";
 import type { DefineComponent } from "vue";
 
@@ -44,7 +39,7 @@ export default defineComponent({
     const codeEditor = ref<DefineComponent | null>(null);
 
     async function refreshMarkdown(): Promise<void> {
-      html.value = marked(rawText(await readFile(fullpath.value)));
+      html.value = marked(await fs.readFile(fullpath.value, "base64"));
     }
 
     watch(

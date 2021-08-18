@@ -35,18 +35,46 @@
           />
         </div>
 
-        <q-input
-          :placeholder="$t('placeholder.username')"
-          dense
-          v-model.trim="username"
-        />
-        <q-input
-          :placeholder="$t('placeholder.password')"
-          dense
-          v-model="password"
-        />
-        <q-input :placeholder="$t('placeholder.mail')" dense v-model.trim="email" />
-        <q-input :placeholder="$t('placeholder.name')" dense v-model.trim="name" />
+        <div>
+          <q-input
+            :placeholder="$t('placeholder.username')"
+            dense
+            v-model.trim="username"
+          />
+          <q-input
+            :placeholder="$t('placeholder.password')"
+            dense
+            v-model="password"
+          />
+          <q-input
+            :placeholder="$t('placeholder.mail')"
+            dense
+            v-model.trim="email"
+          />
+          <q-input
+            :placeholder="$t('placeholder.name')"
+            dense
+            v-model.trim="name"
+          />
+        </div>
+
+        <div class="text-caption q-mt-4 text-yellow">
+          Support for password authentication was removed on August 13, 2021.
+          Please use a personal access token instead. Please see
+          <a
+            href="https://github.blog/2020-12-15-token-authentication-requirements-for-git-operations"
+            target="blank"
+            class="text-blue"
+            >https://github.blog/2020-12-15-token-authentication-requirements-for-git-operations</a
+          >
+          for more information. See
+          <a
+            href="https://isomorphic-git.org/docs/en/onAuth#oauth2-tokens"
+            target="blank"
+            class="text-blue"
+            >token login method</a
+          >
+        </div>
       </q-card-section>
 
       <q-card-actions align="right">

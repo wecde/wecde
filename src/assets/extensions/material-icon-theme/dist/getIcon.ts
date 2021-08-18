@@ -1,5 +1,4 @@
-import { basename } from "path-cross";
-import { extname } from "src/utils";
+import { basename, extname } from "path-cross";
 
 import MaterialIcons from "./material-icons.json";
 
@@ -24,7 +23,7 @@ export default function getIcon({
 }): string {
   // eslint-disable-next-line functional/no-let
   let id;
-  const ext = extname(name),
+  const ext = extname(name).replace(/^\./, ""),
     ext2 = name.includes(".")
       ? basename(name).split(".").slice(-2).join(".")
       : "";

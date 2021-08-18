@@ -106,7 +106,7 @@ import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
 import type { Template } from "assets/labs/Release.json";
 import templates from "assets/templates/Release.json";
-import { mkdir } from "modules/filesystem";
+import fs from "modules/filesystem";
 import { unzip } from "modules/zip";
 import nameFileValidates from "src/validator/nameFileValidates";
 import { computed, defineComponent, ref, toRefs } from "vue";
@@ -168,12 +168,12 @@ export default defineComponent({
       if (this.templateSelected) {
         if (this.templateSelected.isTemplate) {
           try {
-            await unzip({
+            await unzip(
               // eslint-disable-next-line @typescript-eslint/no-var-requires
-              file: require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
+              require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
                 .default,
-              to: `projects/${this.templateSelected.name}`,
-            });
+              `projects/${this.templateSelected.name}`
+            );
 
             this.$store.commit("terminal/clear");
             created = true;
@@ -182,7 +182,9 @@ export default defineComponent({
             this.$store.commit("terminal/error", err);
           }
         } else {
-          await mkdir(`projects/${this.templateSelected.name}`);
+          await fs.mkdir(`projects/${this.templateSelected.name}`, {
+            recursive: true,
+          });
           created = true;
         }
 

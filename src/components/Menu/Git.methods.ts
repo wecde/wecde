@@ -1,5 +1,5 @@
-import git from "isomorphic-git";
-import { fs } from "modules/filesystem";
+import git from "isomorphic-git-cross";
+import fs from "modules/filesystem";
 import { configs as gitConfigs, onError } from "src/helpers/git";
 import { store } from "src/store";
 

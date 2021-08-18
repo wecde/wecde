@@ -1,5 +1,5 @@
 <template>
-  <Template-Tab>
+  <Template-Tab no-flat contents-class="q-mt-3">
     <template v-slot:title>{{ $t("label.find") }}</template>
 
     <template v-slot:addons>
@@ -36,7 +36,7 @@
     </template>
 
     <template v-slot:contents>
-      <div class="flex no-wrap items-center justify-between">
+      <div class="flex no-wrap items-center justify-between q-ml-n4">
         <q-icon
           size="20px"
           @click="openReplace = !openReplace"
@@ -189,14 +189,10 @@ import {
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import escapeRegExp from "escape-string-regexp";
-import {
-  foreach as foreachFiles,
-  readFile,
-  writeFile,
-} from "modules/filesystem";
-import { basename, join } from "path-cross";
+import fs from "modules/filesystem";
+import { basename } from "path-cross";
 import { useStore } from "src/store";
-import { createTimeoutBy, foreachAsync, isPlainText, rawText } from "src/utils";
+import { createTimeoutBy, foreachAsync, isPlainText } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
@@ -242,7 +238,7 @@ export default defineComponent({
           })${modeWordBox.value ? "\\s|$" : ""}){1}?`,
           "g" + (modeLetterCase.value ? "" : "i")
         );
-        const textContentFile = rawText(await readFile(file));
+        const textContentFile = await fs.readFile(file, "utf8");
         const rawMatch = textContentFile.matchAll(regexp);
 
         if (rawMatch) {
@@ -296,36 +292,35 @@ export default defineComponent({
     function search(): void {
       createTimeoutBy(
         "menu.search.timeout-search",
+        // eslint-disable-next-line @typescript-eslint/require-await
         async (): Promise<void> => {
           results.value.splice(0);
 
           searching.value = true;
           if (store.state.editor.project && !!keywordSearch.value) {
-            await foreachFiles(
-              store.state.editor.project,
-              [
-                "^.git",
-                ...exclude.value
-                  .replace(/(?:\s)+,(?:\s)+/g, ",")
-                  .split(",")
-                  .filter(Boolean),
-              ],
-              [
-                ...include.value
-                  .replace(/(?:\s)+,(?:\s)+/g, ",")
-                  .split(",")
-                  .filter(Boolean),
-              ],
-              async (dirname: string, filename: string): Promise<void> => {
-                const file = join(dirname, filename);
-
-                const result = await searchInFile(file);
-
-                if (result) {
-                  results.value.push(result);
-                }
-              }
-            );
+            // await foreachFiles(
+            //   store.state.editor.project,
+            //   [
+            //     "^.git",
+            //     ...exclude.value
+            //       .replace(/(?:\s)+,(?:\s)+/g, ",")
+            //       .split(",")
+            //       .filter(Boolean),
+            //   ],
+            //   [
+            //     ...include.value
+            //       .replace(/(?:\s)+,(?:\s)+/g, ",")
+            //       .split(",")
+            //       .filter(Boolean),
+            //   ],
+            //   async (dirname: string, filename: string): Promise<void> => {
+            //     const file = join(dirname, filename);
+            //     const result = await searchInFile(file);
+            //     if (result) {
+            //       results.value.push(result);
+            //     }
+            //   }
+            // );
           }
           searching.value = false;
         },
@@ -376,7 +371,7 @@ export default defineComponent({
     async replaceSearch(item: Result, matchIndex: number): Promise<void> {
       this.$store.commit("system/setProgress", true);
       const { file } = item;
-      const context = rawText(await readFile(file));
+      const context = await fs.readFile(file, "utf8");
       const { index, value } = item.match[matchIndex];
 
       // eslint-disable-next-line functional/no-let
@@ -387,7 +382,7 @@ export default defineComponent({
           : this.keywordReplace) +
         context.slice(index + value.length);
 
-      await writeFile(file, newContext);
+      await fs.writeFile(file, newContext);
 
       const newResult = await this.searchInFile(file);
 

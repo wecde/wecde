@@ -3,7 +3,7 @@ import fileToArraybuffer from "file-to-array-buffer";
 import { join } from "path-cross";
 import { store } from "src/store";
 
-import { writeFile } from "./filesystem";
+import fs from "./filesystem";
 import selectFile from "./select-file";
 
 export default async function importFiles(
@@ -24,7 +24,7 @@ export default async function importFiles(
             length: files.length,
           })
         );
-        await writeFile(
+        await fs.writeFile(
           join(folderSave, file.name),
           await fileToArraybuffer(file)
         );

@@ -11,5 +11,6 @@
   // "vetur.validation.script": false,
   "vetur.validation.style": false,
   "vetur.validation.templateProps": false,
-  "vetur.underline.refValue": true
+  "vetur.underline.refValue": true,
+  "i18n-ally.keystyle": "nested"
 }

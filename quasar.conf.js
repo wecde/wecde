@@ -33,7 +33,6 @@ module.exports = configure(function (ctx) {
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
     boot: [
-      "fix-buffer-referenceerror",
       "i18n",
       "capacitor",
       "vue-timeago.js",

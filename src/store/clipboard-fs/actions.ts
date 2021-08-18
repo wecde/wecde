@@ -1,4 +1,4 @@
-import { copy, readdir, rename, stat } from "modules/filesystem";
+import fs from "modules/filesystem";
 import { basename, dirname, join } from "path-cross";
 import { pathEquals } from "src/utils";
 import { ActionTree } from "vuex";
@@ -9,7 +9,7 @@ import { storeVm } from "./mutations";
 import { ClipboardFStateInterface } from "./state";
 
 async function resolveName(dirname: string, name: string): Promise<string> {
-  const names: readonly string[] = await readdir(dirname);
+  const names: readonly string[] = await fs.readdir(dirname);
 
   if (names.includes(name) === false) {
     return name;
@@ -43,7 +43,7 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
     // eslint-disable-next-line functional/no-let
     let refreshParent = false;
 
-    if ((await stat(uri)).type === "directory") {
+    if ((await fs.stat(uri)).isDirectory()) {
       await Promise.all(
         state.objects.map(async (item) => {
           if (getters.allowPaste(uri)) {
@@ -63,9 +63,9 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
                 );
 
             if (state.action === "copy") {
-              await copy(from, to);
+              await fs.copy(from, to);
             } else {
-              await rename(from, to);
+              await fs.rename(from, to);
             }
 
             if (refreshParent === false && pathEquals(uri, item.path)) {

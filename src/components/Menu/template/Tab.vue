@@ -1,5 +1,5 @@
 <template>
-  <div class="tab--taskbar grey-2">
+  <div class="tab--taskbar bg-grey-9 q-px-4">
     <span class="tab--taskbar--title text-truncate"><slot name="title" /></span>
 
     <div style="white-space: nowrap" v-if="$slots.addons">
@@ -7,14 +7,42 @@
     </div>
   </div>
 
-  <slot name="contents" />
+  <div
+    class="full-height scroll"
+    :class="[
+      {
+        'q-px-4': noFlat,
+      },
+      contentsClass,
+    ]"
+  >
+    <slot name="contents" />
+  </div>
 </template>
+
+<script lang="ts">
+import { defineComponent } from "vue";
+
+export default defineComponent({
+  props: {
+    noFlat: {
+      type: Boolean,
+      default: false,
+      required: false,
+    },
+    contentsClass: {
+      type: [String, Object, Array],
+      required: false,
+    },
+  },
+});
+</script>
 
 <style lang="scss" scoped>
 .tab {
   &--taskbar {
-    height: 38px;
-    line-height: 38px;
+    height: 35px;
+    line-height: 35px;
     width: 100%;
     display: flex;
     justify-content: space-between;

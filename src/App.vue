@@ -33,7 +33,7 @@
 <script lang="ts">
 import { Filesystem } from "@capacitor/filesystem";
 import { loadLocaleMessages } from "boot/i18n";
-import { stat } from "modules/filesystem";
+import fs from "modules/filesystem";
 import { useQuasar } from "quasar";
 import { useStore } from "src/store";
 import { isDark as themeIsDark } from "src/store/settings/options support/ace-themes";
@@ -91,9 +91,7 @@ export default defineComponent({
         async handler() {
           if (store.state.editor.project) {
             try {
-              if (
-                (await stat(store.state.editor.project)).type !== "directory"
-              ) {
+              if ((await fs.stat(store.state.editor.project)).isDirectory()) {
                 // eslint-disable-next-line functional/no-throw-statement
                 throw new Error("Last session removed");
               }

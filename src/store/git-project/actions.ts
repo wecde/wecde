@@ -1,6 +1,5 @@
-import { readFile, stat } from "modules/filesystem";
+import fs from "modules/filesystem";
 import { join } from "path-cross";
-import { rawText } from "src/utils";
 import type { ActionTree } from "vuex";
 
 import type { StateInterface } from "../index";
@@ -13,7 +12,7 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
     try {
       if (
         rootState.editor.project &&
-        (await stat(join(rootState.editor.project, ".git"))).type ===
+        (await fs.stat(join(rootState.editor.project, ".git"))).type ===
           "directory"
       ) {
         commit("setState", "ready");
@@ -30,7 +29,10 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
       if (rootState.editor.project) {
         commit(
           "setIgnore",
-          rawText(await readFile(join(rootState.editor.project, ".gitignore")))
+          await fs.readFile(
+            join(rootState.editor.project, ".gitignore"),
+            "utf8"
+          )
         );
       } else {
         // eslint-disable-next-line functional/no-throw-statement

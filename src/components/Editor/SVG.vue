@@ -17,8 +17,7 @@
 </template>
 
 <script lang="ts">
-import { readFile } from "modules/filesystem";
-import { rawText } from "src/utils";
+import fs from "modules/filesystem";
 import { defineComponent, ref, toRefs, watch } from "vue";
 import type { DefineComponent } from "vue";
 
@@ -43,7 +42,7 @@ export default defineComponent({
     const codeEditor = ref<DefineComponent | null>(null);
 
     async function refreshSVG(): Promise<void> {
-      svg.value = rawText(await readFile(fullpath.value));
+      svg.value = await fs.readFile(fullpath.value, "base64");
     }
 
     watch(

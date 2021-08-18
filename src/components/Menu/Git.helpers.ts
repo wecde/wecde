@@ -1,8 +1,8 @@
-import git from "isomorphic-git";
-import { fs, readFile } from "modules/filesystem";
+import git from "isomorphic-git-cross";
+import fs from "modules/filesystem";
 import { join } from "path-cross";
 import { store } from "src/store";
-import { rawText, trim } from "src/utils";
+import { trim } from "src/utils";
 
 import type { Branch, Remote } from "./Git.types";
 
@@ -23,8 +23,8 @@ export async function currentBranch({
   readonly dir: string;
 }): Promise<string | void> {
   try {
-    return await readFile(join(dir, ".git/HEAD")).then((base64) =>
-      trim(rawText(base64).replace(/^ref: /, ""))
+    return await fs.readFile(join(dir, ".git/HEAD"), "utf8").then((base64) =>
+      trim(base64.replace(/^ref: /, ""))
         .split("/")
         .slice(2)
         .join("/")

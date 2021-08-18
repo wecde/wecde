@@ -56,7 +56,7 @@
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
-import { rename } from "modules/filesystem";
+import fs from "modules/filesystem";
 import { basename, dirname, extname, join, relative } from "path-cross";
 import { createTimeoutBy } from "src/utils";
 import nameFileValidates from "src/validator/nameFileValidates";
@@ -152,7 +152,7 @@ export default defineComponent({
             this.fullpath,
           ];
           try {
-            await rename(from, to);
+            await fs.rename(from, to);
             void Toast.show({
               text: this.$t(
                 `alert.renamed.${this.isFolder ? "folder" : "file"}-from-to`,

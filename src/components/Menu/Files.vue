@@ -113,7 +113,7 @@
     </template>
 
     <template v-slot:contents v-if="$store.state.editor.project">
-      <div class="q-mx-n4">
+      <div>
         <FileExplorer-Add
           v-model:adding="adding"
           :is-folder="addingFolder"
@@ -150,7 +150,7 @@ import {
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import FileExplorerAdd from "components/File Explorer/Add.vue";
 import FileExplorerList from "components/File Explorer/List.vue";
-import { readdirStat } from "modules/filesystem";
+import { readdirAndStat } from "modules/filesystem";
 import type { StatItem } from "modules/filesystem";
 import { basename } from "path-cross";
 import { useStore } from "src/store";
@@ -213,7 +213,7 @@ export default defineComponent({
         }
 
         this.tree = [
-          ...(await readdirStat(this.$store.state.editor.project, ["^.git"])),
+          ...(await readdirAndStat(this.$store.state.editor.project)),
         ];
 
         if (notification) {

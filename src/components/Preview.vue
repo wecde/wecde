@@ -35,9 +35,8 @@
 </template>
 
 <script lang="ts">
-import { readFile } from "modules/filesystem";
-import { basename } from "path-cross";
-import { extname } from "src/utils";
+import fs from "modules/filesystem";
+import { basename, extname } from "path-cross";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
@@ -55,14 +54,14 @@ export default defineComponent({
     const { fullpath } = toRefs(props);
     const base64 = ref<string | null>(null);
     const ext = computed<string | null>(() =>
-      fullpath.value ? extname(fullpath.value) : null
+      fullpath.value ? extname(fullpath.value).replace(/^\./, "") : null
     );
 
     watch(
       fullpath,
       async (newValue) => {
         try {
-          base64.value = await readFile(newValue);
+          base64.value = await fs.readFile(newValue, "base64");
         } catch {
           base64.value = null;
           console.error(`file ${newValue} not ready`);

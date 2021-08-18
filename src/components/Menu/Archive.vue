@@ -11,14 +11,7 @@
         padding="xs"
         size="13px"
       />
-      <q-btn
-        :icon="mdiGit"
-        flat
-        round
-        padding="xs"
-        size="13px"
-        class="q-ml-xs"
-      >
+      <q-btn :icon="mdiGit" flat round padding="xs" size="13px" class="q-ml-xs">
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,
@@ -120,7 +113,7 @@
     </template>
 
     <template v-slot:contents>
-      <q-list class="q-mx-n4">
+      <q-list>
         <Project-Item
           v-for="item in projects"
           :key="item.fullpath"
@@ -213,14 +206,17 @@ import GitClone from "components/Git/ModalGitClone.vue";
 import GitProvide from "components/Git/ModalGitProvide.vue";
 import ProjectCreate from "components/Project/Create.vue";
 import ProjectItem from "components/Project/Item.vue";
-import { readdirStat, rmdir } from "modules/filesystem";
+import fs, { readdirAndStat } from "modules/filesystem";
 import type { StatItem } from "modules/filesystem";
 import importZip from "modules/import-zip";
 import { basename } from "path-cross";
-import { random } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
+
+function random(value: number): number {
+  return Math.round(Math.random() * value);
+}
 
 export default defineComponent({
   emits: ["open:project"],
@@ -282,12 +278,12 @@ export default defineComponent({
     async reloadListProjects(notification = false): Promise<void> {
       this.$store.commit("system/setProgress", true);
       try {
-        this.projects = (await readdirStat("projects"))
+        this.projects = (await readdirAndStat("projects"))
           .filter((project) => {
             return project.stat.type === "directory";
           })
           .sort((a, b) => {
-            return b.stat.mtime - a.stat.mtime;
+            return b.stat.mtimeMs - a.stat.mtimeMs;
           });
       } catch {
         this.projects = [];
@@ -317,7 +313,9 @@ export default defineComponent({
       this.$store.commit("system/setProgress", true);
       if (this.code === this.codeInput && this.projectRemoving) {
         try {
-          await rmdir(this.projectRemoving.fullpath);
+          await fs.rmdir(this.projectRemoving.fullpath, {
+            recursive: true,
+          });
           void Toast.show({
             text: this.$t("alert.removed.project", {
               name: basename(this.projectRemoving.fullpath),

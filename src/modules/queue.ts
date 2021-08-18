@@ -3,17 +3,20 @@ class Queue {
   private rootResolve: Promise<void> = Promise.resolve();
 
   async run(callback: { (): Promise<void> }): Promise<void> {
-    const nextResolve = this.rootResolve
-      .then(async () => {
-        await callback();
-      })
-      .catch(async (err) => {
-        console.warn(err);
-        await callback();
-      });
+    await callback()
+    
+    
+    // const nextResolve = this.rootResolve
+    //   .then(async () => {
+    //     await callback();
+    //   })
+    //   .catch(async (err) => {
+    //     console.warn(err);
+    //     await callback();
+    //   });
 
-    this.rootResolve = nextResolve;
-    await nextResolve;
+    // this.rootResolve = nextResolve;
+    // await nextResolve;
   }
 }
 

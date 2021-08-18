@@ -207,28 +207,18 @@ import {
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
-import git from "isomorphic-git";
+import git from "isomorphic-git-cross";
 import exportZip from "modules/export-zip";
-import {
-  fs,
-  watcher as fsWatcher,
-  readdir,
-  readdirStat,
-  readFile,
-  stat,
-  unlink,
-} from "modules/filesystem";
+import fs, { readdirAndStat } from "modules/filesystem";
 import type { StatItem } from "modules/filesystem";
 import { basename, join, relative } from "path-cross";
 import gitStatusCache from "src/helpers/git-status-cache";
 import gitStatusQueue from "src/helpers/git-status-queue";
 import { useStore } from "src/store";
 import {
-  b64toBlob,
   createTimeoutBy,
   isParentFolder,
   pathEquals,
-  removedPathProject,
 } from "src/utils";
 import {
   computed,
@@ -277,8 +267,8 @@ async function statusFolder({
   const folders = [];
 
   // eslint-disable-next-line functional/no-loop-statement
-  for (const filename of await readdir(fullpath)) {
-    if ((await stat(join(fullpath, filename))).type === "file") {
+  for (const filename of await fs.readdir(fullpath)) {
+    if ((await fs.stat(join(fullpath, filename))).isFile()) {
       /// checking
       const statusFile = await status({
         dir,
@@ -350,67 +340,80 @@ export default defineComponent({
           ? isParentFolder(file.value.fullpath, store.getters["editor/session"])
           : pathEquals(store.getters["editor/session"], file.value.fullpath))
     );
+    const ignored = computed<boolean>(() => {
+      return (
+        store.state["git-project"].state === "ready" &&
+        store.state.editor.project &&
+        store.getters["git-project/ignored"](
+          relative(store.state.editor.project, file.value.fullpath)
+        )
+      );
+    });
     const gitStatus = ref<string | null>(null);
 
     function refreshGitStatus(): void {
       if (store.state["git-project"].state === "ready") {
         gitStatus.value = "loading";
-        createTimeoutBy(
-          `watch fs for git status ${props.file.fullpath}`,
-          async () => {
-            await gitStatusQueue.run(async () => {
-              if (
-                store.state.editor.project &&
-                store.state["git-project"].state === "ready"
-              ) {
-                gitStatus.value = isFolder.value
-                  ? await statusFolder({
-                      dir: store.state.editor.project,
-                      fullpath: props.file.fullpath,
-                      cache: gitStatusCache,
-                      project: store.state.editor.project,
-                    })
-                  : await status({
-                      dir: store.state.editor.project,
-                      filepath: relative(
-                        store.state.editor.project,
-                        props.file.fullpath
-                      ),
-                      cache: gitStatusCache,
-                    });
-              } else {
-                gitStatus.value = null;
-              }
-            });
-          },
-          3000,
-          {
-            skipme: true,
-            immediate: true,
-          }
-        );
+
+        if (ignored.value) {
+          gitStatus.value = null;
+        } else {
+          createTimeoutBy(
+            `watch fs for git status ${props.file.fullpath}`,
+            async () => {
+              await gitStatusQueue.run(async () => {
+                if (
+                  store.state.editor.project &&
+                  store.state["git-project"].state === "ready"
+                ) {
+                  gitStatus.value = isFolder.value
+                    ? await statusFolder({
+                        dir: store.state.editor.project,
+                        fullpath: props.file.fullpath,
+                        cache: gitStatusCache,
+                        project: store.state.editor.project,
+                      })
+                    : await status({
+                        dir: store.state.editor.project,
+                        filepath: relative(
+                          store.state.editor.project,
+                          props.file.fullpath
+                        ),
+                        cache: gitStatusCache,
+                      });
+                } else {
+                  gitStatus.value = null;
+                }
+              });
+            },
+            3000,
+            {
+              skipme: true,
+              immediate: true,
+            }
+          );
+        }
       }
     }
 
-    watchEffect(() => void refreshGitStatus());
-    fsWatcher.watch(
-      "write:file",
-      file.value.fullpath,
-      () => void refreshGitStatus(),
-      isFolder.value ? false : true
-    );
-    fsWatcher.watch(
-      "write:file",
-      () => join(store.state.editor.project as string, ".git/refs/heads"),
-      () => void refreshGitStatus()
-    );
+    // watchEffect(() => void refreshGitStatus());
+    // const watchers = [
+    //   fs.watch(
+    //     () => isFolder.value ? join(file.value.fullpath, "*") : ,
+    //     () => void refreshGitStatus()
+    //   ),
+    //   fs.watch(
+    //     "write:file",
+    //     () => join(store.state.editor.project as string, ".git/refs/heads"),
+    //     () => void refreshGitStatus()
+    //   ),
+    // ];
+    // onBeforeUnmount(() => watchers.forEach((watcher) => void watcher()));
 
     async function refreshFolder() {
       if (isFolder.value) {
         files.value.splice(0);
-        files.value.push(
-          ...(await readdirStat(file.value.fullpath, ["^.git"]))
-        );
+        files.value.push(...(await readdirAndStat(file.value.fullpath)));
       }
     }
 
@@ -452,6 +455,8 @@ export default defineComponent({
       refreshFolder,
       editing,
       gitStatus,
+
+      ignored,
     };
   },
   methods: {
@@ -460,11 +465,13 @@ export default defineComponent({
     async remove() {
       this.$store.commit("system/setProgress", true);
       try {
-        await unlink(this.file.fullpath);
+        await fs.unlink(this.file.fullpath, {
+          removeAll: true,
+        });
 
         void Toast.show({
           text: this.$t(`alert.removed.${this.isFolder ? "folder" : "file"}`, {
-            name: `${removedPathProject(this.file.fullpath)}`,
+            name: `${this.file.fullpath}`,
           }),
         });
 
@@ -474,7 +481,7 @@ export default defineComponent({
           text: this.$t(
             `alert.remove-failed-${this.isFolder ? "folder" : "file"}`,
             {
-              name: `${removedPathProject(this.file.fullpath)}`,
+              name: `${this.file.fullpath}`,
             }
           ),
         });
@@ -524,7 +531,7 @@ export default defineComponent({
             text: this.$t(
               `alert.exported.${this.isFolder ? "folder" : "file"}`,
               {
-                name: removedPathProject(this.file.fullpath),
+                name: this.file.fullpath,
               }
             ),
           });
@@ -533,13 +540,13 @@ export default defineComponent({
         }
       } else {
         this.$store.commit("system/setProgress", true);
-        const data = await readFile(this.file.fullpath);
+        const data = await fs.readFile(this.file.fullpath, "buffer");
 
-        saveAs(b64toBlob(data), basename(this.file.fullpath));
+        saveAs(new Blob([data]), basename(this.file.fullpath));
         this.$store.commit("system/setProgress", false);
         void Toast.show({
           text: this.$t(`alert.exported.${this.isFolder ? "folder" : "file"}`, {
-            name: removedPathProject(this.file.fullpath),
+            name: this.file.fullpath,
           }),
         });
       }
@@ -567,15 +574,6 @@ export default defineComponent({
       return (
         this.$store.getters["clipboard-fs/allowPaste"](this.file.fullpath) ===
         false
-      );
-    },
-    ignored(): boolean {
-      return (
-        this.$store.state["git-project"].state === "ready" &&
-        this.$store.state.editor.project &&
-        this.$store.getters["git-project/ignored"](
-          relative(this.$store.state.editor.project, this.file.fullpath)
-        )
       );
     },
   },

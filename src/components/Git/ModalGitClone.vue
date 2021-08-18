@@ -55,9 +55,9 @@
 import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
 import DialogTop from "components/DialogTop.vue";
-import git from "isomorphic-git";
-import http from "isomorphic-git/http/web/index.js";
-import { fs, stat } from "modules/filesystem";
+import git from "isomorphic-git-cross";
+import http from "isomorphic-git-cross/http/web/index.js";
+import fs from "modules/filesystem";
 import {
   configs as gitConfigs,
   onAuth,
@@ -109,14 +109,14 @@ export default defineComponent({
         // eslint-disable-next-line functional/no-let
         let existsProject = false;
         try {
-          if ((await stat(`projects/${name}`)).type === "directory") {
+          if ((await fs.stat(`projects/${name}`)).isDirectory()) {
             existsProject = true;
           }
         } catch {}
 
         if (existsProject) {
           // eslint-disable-next-line functional/no-throw-statement
-          throw new Error("Project existst");
+          throw new Error(`Project "${name}" exists`);
         }
         onStart(
           this.$t("alert.cloneing", {
