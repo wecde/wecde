@@ -1,6 +1,9 @@
 declare module "worker-loader!*" {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const value: any;
+  class WebpackWorker extends Worker {
+    constructor();
+  }
 
-  export default value;
+  // Uncomment this if you set the `esModule` option to `false`
+  // export = WebpackWorker;
+  export default WebpackWorker;
 }

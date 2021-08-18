@@ -1,26 +1,15 @@
 import MaterialIcons from "assets/extensions/material-icon-theme/dist/material-icons.json";
-import isBinaryPath from "is-binary-path-cross";
-import { extname, relative, resolve } from "path-cross";
-import { StateInterface } from "src/store";
-import { Store } from "vuex";
+import { extname } from "path-cross";
 
-export function isPlainText(path: string): boolean {
-  return isBinaryPath(path) === false;
-}
-
-export function getType(path: string): string {
-  return (
+export function getLanguageFile(path: string): string {
+  const type =
     MaterialIcons.fileExtensions[
       extname(path).replace(
         /^\./,
         ""
       ) as keyof typeof MaterialIcons.fileExtensions
-    ] || "text"
-  );
-}
+    ] || "text";
 
-export function getEditor(path: string): string {
-  const type = getType(path);
   switch (type) {
     case "vue":
     case "svelte":
@@ -33,26 +22,6 @@ export function getEditor(path: string): string {
   }
 
   return type;
-}
-
-export function pathEquals(a: string, b: string): boolean {
-  return resolve(a) === resolve(b);
-}
-
-export function isParentFolder(parent: string, children: string): boolean {
-  parent = resolve(parent);
-  children = resolve(children);
-  const pathsA = parent.split("/");
-  const pathsB = children.split("/");
-
-  return (
-    parent !== children &&
-    pathsA.every((value, index) => value === pathsB[index])
-  );
-}
-
-export function pathEqualsOrParent(path1: string, path2: string): boolean {
-  return pathEquals(path1, path2) || isParentFolder(path1, path2);
 }
 
 const storeTimeoutBy = new Map<
@@ -111,14 +80,6 @@ export function createTimeoutBy(
   return timeout;
 }
 
-export function unCamelCase(str: string): string {
-  return str
-    .replace(/[A-Z]/, (template) => {
-      return " " + template.toLowerCase();
-    })
-    .trimStart();
-}
-
 export async function mapAsync<T, R = T>(
   array: readonly T[],
   callback: {
@@ -157,23 +118,3 @@ export async function foreachAsync<T>(
     index++;
   }
 }
-
-export function fsAllowReactive(
-  path: string,
-  store: Store<StateInterface>
-): boolean {
-  if (store.state.editor.project) {
-    return (
-      pathEqualsOrParent(".git", relative(store.state.editor.project, path)) ===
-        false && store.getters["git-project/ignored"](path) === false
-    );
-  } else {
-    return false;
-  }
-}
-
-export function trim(str: string): string {
-  return str.replace(/^\s|\s$/g, "");
-}
-
-

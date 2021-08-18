@@ -1,77 +1,161 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-// import fs from "modules/filesystem";
-import { createTimeoutBy, isParentFolder, pathEquals } from "src/utils";
+import fs from "modules/filesystem";
+import { relative } from "path-cross";
 import type { Store } from "vuex";
-
 
 import type { StateInterface } from "./index";
 
 export default (store: Store<StateInterface>): void => {
-  // watcher.on(["move:file", "move:dir"], (type, to, from) => {
-  //   /// update project
+  // ? for project
+  fs.emitter?.on("move:dir", ({ from, to }) => {
+    if (
+      store.state.editor.project &&
+      fs.isEqual(from, store.state.editor.project)
+    ) {
+      store.commit("editor/setProject", to);
+    }
+  });
 
-  //   if (
-  //     store.state.editor.project &&
-  //     (isParentFolder(from, store.state.editor.project) ||
-  //       pathEquals(from, store.state.editor.project))
-  //   ) {
-  //     store.commit(
-  //       "editor/setProject",
-  //       store.state.editor.project.replace(from, to)
-  //     );
-  //   }
-  //   /// update sessions
-  //   store.state.editor.sessions.forEach((item: string, index: number): void => {
-  //     if (isParentFolder(from, item) || pathEquals(from, item)) {
-  //       /// update
-  //       store.commit("editor/updateSession", {
-  //         index,
-  //         value: item.replace(from, to),
-  //       });
-  //     }
-  //   });
-  //   /// update store scroll
-  //   // eslint-disable-next-line functional/no-loop-statement
-  //   for (const file in store.state.editor.scrollEnhance) {
-  //     if (isParentFolder(from, file) || pathEquals(from, file)) {
-  //       store.commit("editor/updateFileScrollEnhance", {
-  //         file,
-  //         newFile: file.replace(from, to),
-  //       });
-  //     }
-  //   }
-  // });
+  // ? for sessions
+  fs.emitter?.on("move:file", ({ from, to }) => {
+    store.state.editor.sessions.forEach((item: string, index: number) => {
+      if (fs.isEqual(from, item)) {
+        store.commit("editor/updateSession", {
+          index,
+          value: to,
+        });
+      }
+    });
+  });
 
+  fs.emitter?.on("move:dir", ({ from, to }) => {
+    store.state.editor.sessions.forEach((item: string, index: number) => {
+      if (fs.isParentDir(from, item)) {
+        store.commit("editor/updateSession", {
+          index,
+          value: fs.replaceParentDir(item, from, to),
+        });
+      }
+    });
+  });
+
+  fs.emitter?.on("remove:file", (path) => {
+    store.state.editor.sessions.forEach((item: string, index: number) => {
+      if (fs.isEqual(path, item)) {
+        store.commit("editor/removeSession", index);
+      }
+    });
+  });
+
+  fs.emitter?.on("remove:dir", (path) => {
+    store.state.editor.sessions.forEach((item: string, index: number) => {
+      if (fs.isParentDir(path, item)) {
+        store.commit("editor/removeSession", index);
+      }
+    });
+  });
+  // ?
+
+  // ? for scrollEnhance
+  fs.emitter?.on("move:file", ({ from, to }) => {
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const file in store.state.editor.scrollEnhance) {
+      if (fs.isEqual(from, file)) {
+        store.commit("editor/updateFileScrollEnhance", {
+          file,
+          newFile: to,
+        });
+      }
+    }
+  });
+  fs.emitter?.on("move:dir", ({ from, to }) => {
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const file in store.state.editor.scrollEnhance) {
+      if (fs.isParentDir(from, file)) {
+        store.commit("editor/updateFileScrollEnhance", {
+          file,
+          newFile: fs.replaceParentDir(file, from, to),
+        });
+      }
+    }
+  });
+  fs.emitter?.on("remove:file", (path) => {
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const file in store.state.editor.scrollEnhance) {
+      if (fs.isEqual(path, file)) {
+        store.commit("editor/removeScrollEnhance", file);
+      }
+    }
+  });
+  fs.emitter?.on("remove:dir", (path) => {
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const file in store.state.editor.scrollEnhance) {
+      if (fs.isParentDir(path, file)) {
+        store.commit("editor/removeScrollEnhance", file);
+      }
+    }
+  });
+  // ?
+
+  // ? update .gitignore
+  fs.watch("projects/*/.gitignore", () => {
+    void store.dispatch("git-project/loadIgnore");
+  });
+  // ?
+
+  // ? watch .git/index
+  fs.watch("projects/*/.git/index", () => {
+    void store.dispatch("git-project/checkDotGit");
+  });
+  // ?
+
+  // ? watch editor.project
   store.watch(
     () => store.state.editor.project,
-    () => {
-      void store.dispatch("git-project/refresh");
+    (value) => {
+      if (value) {
+        void store.dispatch("git-project/refresh");
+      }
     },
     {
       immediate: true,
     }
   );
+  // ?
 
-  // watcher.on(
-  //   ["write:file", "remove:file", "move:file", "copy:file"],
-  //   (type, to, from) => {
-  //     createTimeoutBy(
-  //       "store watch .gitignore",
-  //       () => {
-  //         if (store.state.editor.project) {
-  //           if (isParentFolder(store.state.editor.project, to)) {
-  //             void store.dispatch("git-project/loadIgnore");
-  //           }
-
-  //           if (type === "move:file") {
-  //             if (isParentFolder(store.state.editor.project, from)) {
-  //               void store.dispatch("git-project/loadIgnore");
-  //             }
-  //           }
-  //         }
-  //       },
-  //       5000
-  //     );
-  //   }
-  // );
+  // ? watch ** files from projects
+  fs.watch(
+    "projects/*/**",
+    ({ path }) => {
+      if (
+        store.state.editor.project &&
+        path &&
+        fs.isParentDir(store.state.editor.project, path)
+      ) {
+        void store.dispatch("git-project/updateStatusDir", [
+          relative(store.state.editor.project, path),
+        ]);
+      }
+    },
+    {
+      type: "file",
+    }
+  );
+  fs.watch(
+    "projects/*/**",
+    ({ path }) => {
+      if (
+        store.state.editor.project &&
+        path &&
+        fs.isParentDir(store.state.editor.project, path)
+      ) {
+        void store.dispatch("git-project/updateStatusDir", [
+          relative(store.state.editor.project, path),
+        ]);
+      }
+    },
+    {
+      type: "dir",
+    }
+  );
+  // ?
 };

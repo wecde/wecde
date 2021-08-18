@@ -5,7 +5,7 @@
       dark: $q.dark.isActive,
 
       ignored: ignored || gitStatus === `ignored` || isBeginCut,
-      'is-folder': isFolder,
+      'is-folder': file.stat.isDirectory(),
 
       'star-modified': gitStatus === `*modified`,
       modified: gitStatus === `modified`,
@@ -24,7 +24,7 @@
     @click="clickToFile"
   >
     <FileExplorer-Rename
-      :is-folder="isFolder"
+      :is-folder="file.stat.isDirectory()"
       v-model:renaming="renaming"
       :names-exists="namesExists"
       v-model:fullpath="file.fullpath"
@@ -36,12 +36,18 @@
         <q-icon
           size="20px"
           :name="collapse ? mdiChevronDown : mdiChevronRight"
-          v-if="isFolder"
+          v-if="file.stat.isDirectory()"
         />
       </template>
 
-      <template v-slot:append-text v-if="editing">
-        <q-icon size="13px" color="blue" :name="mdiCircleMedium" />
+      <template v-slot:append-text>
+        <q-spinner-hourglass color="primary" v-if="loading" />
+        <q-icon
+          size="13px"
+          color="blue"
+          :name="mdiCircleMedium"
+          v-if="opening"
+        />
       </template>
     </FileExplorer-Rename>
 
@@ -73,7 +79,7 @@
               <q-separator />
             </template>
 
-            <template v-if="isFolder">
+            <template v-if="file.stat.isDirectory()">
               <q-item
                 clickable
                 v-close-popup
@@ -161,7 +167,11 @@
                 <q-icon :name="mdiExportVariant" />
               </q-item-section>
               <q-item-section>{{
-                $t(isFolder ? "label.export-folder" : "label.export-file")
+                $t(
+                  file.stat.isDirectory()
+                    ? "label.export-folder"
+                    : "label.export-file"
+                )
               }}</q-item-section>
             </q-item>
           </q-list>
@@ -169,7 +179,7 @@
       </q-btn>
     </div>
   </div>
-  <div class="q-ml-3" v-if="isFolder" v-show="collapse">
+  <div class="q-ml-3" v-if="file.stat.isDirectory()" v-show="collapse">
     <FileExplorer-Add
       v-model:adding="adding"
       :is-folder="addingFolder"
@@ -207,19 +217,11 @@ import {
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
-import git from "isomorphic-git-cross";
 import exportZip from "modules/export-zip";
 import fs, { readdirAndStat } from "modules/filesystem";
 import type { StatItem } from "modules/filesystem";
-import { basename, join, relative } from "path-cross";
-import gitStatusCache from "src/helpers/git-status-cache";
-import gitStatusQueue from "src/helpers/git-status-queue";
+import { basename, relative } from "path-cross";
 import { useStore } from "src/store";
-import {
-  createTimeoutBy,
-  isParentFolder,
-  pathEquals,
-} from "src/utils";
 import {
   computed,
   defineAsyncComponent,
@@ -228,79 +230,10 @@ import {
   ref,
   toRefs,
   watch,
-  watchEffect,
 } from "vue";
 
 import FileExplorerAdd from "./Add.vue";
 import FileExplorerRename from "./Rename.vue";
-
-async function status({
-  dir,
-  filepath,
-  cache,
-}: {
-  readonly dir: string;
-  readonly filepath: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly cache?: any;
-}): Promise<string> {
-  return await git.status({
-    fs,
-    dir,
-    filepath,
-    cache,
-  });
-}
-
-async function statusFolder({
-  dir,
-  fullpath,
-  cache,
-  project,
-}: {
-  readonly dir: string;
-  readonly fullpath: string;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  readonly cache?: any;
-  readonly project: string;
-}): Promise<string> {
-  const folders = [];
-
-  // eslint-disable-next-line functional/no-loop-statement
-  for (const filename of await fs.readdir(fullpath)) {
-    if ((await fs.stat(join(fullpath, filename))).isFile()) {
-      /// checking
-      const statusFile = await status({
-        dir,
-        filepath: relative(project, join(fullpath, filename)),
-        cache,
-      });
-
-      if (statusFile !== "unmodified") {
-        return statusFile;
-      }
-    } else {
-      // eslint-disable-next-line functional/immutable-data
-      folders.push(filename);
-    }
-
-    // eslint-disable-next-line functional/no-loop-statement
-    for (const dirname of folders) {
-      const statusThisFolder = await statusFolder({
-        dir,
-        fullpath: join(fullpath, dirname),
-        cache,
-        project,
-      });
-
-      if (statusThisFolder !== "unmodified") {
-        return statusThisFolder;
-      }
-    }
-  }
-
-  return "unmodified";
-}
 
 export default defineComponent({
   emits: ["removed", "request:refresh"],
@@ -326,20 +259,30 @@ export default defineComponent({
     const store = useStore();
     const { file } = toRefs(props);
     const collapse = ref<boolean>(false);
-    const renaming = ref<boolean>(false);
     const adding = ref<boolean>(false);
-    const addingFolder = ref<boolean>(false);
-    const isFolder = computed<boolean>(
-      () => file.value.stat.type === "directory"
-    );
+    const loading = ref<boolean>(false);
+
+    watch(adding, (newValue) => {
+      if (newValue) {
+        collapse.value = true;
+      }
+    });
+
     const files = ref<StatItem[]>([]);
-    const editing = computed<boolean>(
-      () =>
-        store.getters["editor/session"] &&
-        (isFolder.value
-          ? isParentFolder(file.value.fullpath, store.getters["editor/session"])
-          : pathEquals(store.getters["editor/session"], file.value.fullpath))
-    );
+    const opening = computed<boolean>(() => {
+      if (store.getters["editor/session"]) {
+        if (file.value.stat.isDirectory()) {
+          return fs.isParentDir(
+            file.value.fullpath,
+            store.getters["editor/session"]
+          );
+        }
+
+        return fs.isEqual(store.getters["editor/session"], file.value.fullpath);
+      }
+
+      return false;
+    });
     const ignored = computed<boolean>(() => {
       return (
         store.state["git-project"].state === "ready" &&
@@ -351,69 +294,12 @@ export default defineComponent({
     });
     const gitStatus = ref<string | null>(null);
 
-    function refreshGitStatus(): void {
-      if (store.state["git-project"].state === "ready") {
-        gitStatus.value = "loading";
-
-        if (ignored.value) {
-          gitStatus.value = null;
-        } else {
-          createTimeoutBy(
-            `watch fs for git status ${props.file.fullpath}`,
-            async () => {
-              await gitStatusQueue.run(async () => {
-                if (
-                  store.state.editor.project &&
-                  store.state["git-project"].state === "ready"
-                ) {
-                  gitStatus.value = isFolder.value
-                    ? await statusFolder({
-                        dir: store.state.editor.project,
-                        fullpath: props.file.fullpath,
-                        cache: gitStatusCache,
-                        project: store.state.editor.project,
-                      })
-                    : await status({
-                        dir: store.state.editor.project,
-                        filepath: relative(
-                          store.state.editor.project,
-                          props.file.fullpath
-                        ),
-                        cache: gitStatusCache,
-                      });
-                } else {
-                  gitStatus.value = null;
-                }
-              });
-            },
-            3000,
-            {
-              skipme: true,
-              immediate: true,
-            }
-          );
-        }
-      }
-    }
-
-    // watchEffect(() => void refreshGitStatus());
-    // const watchers = [
-    //   fs.watch(
-    //     () => isFolder.value ? join(file.value.fullpath, "*") : ,
-    //     () => void refreshGitStatus()
-    //   ),
-    //   fs.watch(
-    //     "write:file",
-    //     () => join(store.state.editor.project as string, ".git/refs/heads"),
-    //     () => void refreshGitStatus()
-    //   ),
-    // ];
-    // onBeforeUnmount(() => watchers.forEach((watcher) => void watcher()));
-
     async function refreshFolder() {
-      if (isFolder.value) {
+      if (file.value.stat.isDirectory()) {
+        loading.value = true;
         files.value.splice(0);
         files.value.push(...(await readdirAndStat(file.value.fullpath)));
+        loading.value = false;
       }
     }
 
@@ -421,12 +307,6 @@ export default defineComponent({
       if (newValue) {
         void refreshFolder();
         watchFirstOpenCollapse();
-      }
-    });
-
-    watch(adding, (newValue) => {
-      if (newValue) {
-        collapse.value = true;
       }
     });
 
@@ -446,15 +326,15 @@ export default defineComponent({
       mdiExportVariant,
 
       collapse,
-      renaming,
+      renaming: ref<boolean>(false),
       adding,
-      addingFolder,
-      isFolder,
+      addingFolder: ref<boolean>(false),
       files,
       basename,
       refreshFolder,
-      editing,
+      opening,
       gitStatus,
+      loading,
 
       ignored,
     };
@@ -470,16 +350,21 @@ export default defineComponent({
         });
 
         void Toast.show({
-          text: this.$t(`alert.removed.${this.isFolder ? "folder" : "file"}`, {
-            name: `${this.file.fullpath}`,
-          }),
+          text: this.$t(
+            `alert.removed.${this.file.stat.isDirectory() ? "folder" : "file"}`,
+            {
+              name: `${this.file.fullpath}`,
+            }
+          ),
         });
 
         this.$emit("removed");
       } catch {
         void Toast.show({
           text: this.$t(
-            `alert.remove-failed-${this.isFolder ? "folder" : "file"}`,
+            `alert.remove-failed-${
+              this.file.stat.isDirectory() ? "folder" : "file"
+            }`,
             {
               name: `${this.file.fullpath}`,
             }
@@ -523,13 +408,15 @@ export default defineComponent({
     },
 
     async exportZip() {
-      if (this.isFolder) {
+      if (this.file.stat.isDirectory()) {
         try {
           await exportZip(this.file.fullpath);
           this.$store.commit("terminal/clear");
           void Toast.show({
             text: this.$t(
-              `alert.exported.${this.isFolder ? "folder" : "file"}`,
+              `alert.exported.${
+                this.file.stat.isDirectory() ? "folder" : "file"
+              }`,
               {
                 name: this.file.fullpath,
               }
@@ -545,9 +432,14 @@ export default defineComponent({
         saveAs(new Blob([data]), basename(this.file.fullpath));
         this.$store.commit("system/setProgress", false);
         void Toast.show({
-          text: this.$t(`alert.exported.${this.isFolder ? "folder" : "file"}`, {
-            name: this.file.fullpath,
-          }),
+          text: this.$t(
+            `alert.exported.${
+              this.file.stat.isDirectory() ? "folder" : "file"
+            }`,
+            {
+              name: this.file.fullpath,
+            }
+          ),
         });
       }
     },
@@ -555,7 +447,7 @@ export default defineComponent({
     clickToFile() {
       this.collapse = !this.collapse;
 
-      if (this.isFolder === false) {
+      if (this.file.stat.isDirectory() === false) {
         this.openEditor();
       }
     },

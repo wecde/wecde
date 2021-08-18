@@ -193,7 +193,7 @@ import fs from "modules/filesystem";
 // eslint-disable-next-line import/order
 import { useStore } from "src/store";
 // eslint-disable-next-line import/order
-import { createTimeoutBy, getEditor } from "src/utils";
+import { createTimeoutBy, getLanguageFile } from "src/utils";
 
 // eslint-disable-next-line import/order
 import { Clipboard } from "@capacitor/clipboard";
@@ -274,7 +274,7 @@ export default defineComponent({
     const store = useStore();
     const { fullpath } = toRefs(props);
     const typeEditor = computed<string>(
-      () => getEditor(fullpath.value) || "text"
+      () => getLanguageFile(fullpath.value) || "text"
     );
     const EditorCode = ref<HTMLElement | null>(null);
     const isLock = ref<boolean>(false);

@@ -3,7 +3,6 @@ import type { Stat } from "capacitor-fs/build/main/Stat";
 import { sort } from "fast-sort";
 import minimatch from "minimatch";
 import { basename, join } from "path-cross";
-import "src/worker/git";
 
 const PUBLIC_STORAGE_APPLICATION = "Shin Code Editor";
 

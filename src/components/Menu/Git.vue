@@ -586,11 +586,11 @@ import {
   mdiViewHeadline,
 } from "@quasar/extras/mdi-v5";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
+import { proxy } from "comlink";
 import GitModalCheckout from "components/Git/ModalCheckout.vue";
 import GitModalCommit from "components/Git/ModalCommit.vue";
 import { sort } from "fast-sort";
 import git from "isomorphic-git-cross";
-import http from "isomorphic-git-cross/http/web/index.js";
 import fs from "modules/filesystem";
 import { basename } from "path-cross";
 import {
@@ -606,6 +606,7 @@ import {
 } from "src/helpers/git";
 import gitStatusCache from "src/helpers/git-status-cache";
 import { useStore } from "src/store";
+import gitWorker from "src/worker/git";
 import { computed, defineComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -668,125 +669,10 @@ export default defineComponent({
     const stateModalCommit = ref<boolean>(false),
       stateModalCheckout = ref<boolean>(false);
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async function refreshStatus() {
-      loading.value = true;
-      if (store.state.editor.project) {
-        matrix.value = {};
-        // (
-        //   await mapAsync<
-        //     string,
-        //     {
-        //       filepath: string;
-        //       status: StatusGit;
-        //     }
-        //   >(
-        //     [
-        //       ...(await git.listFiles({
-        //         fs,
-        //         dir: store.state.editor.project,
-        //       })),
-        //       ...(
-        //         await fsListFiles(
-        //           store.state.editor.project,
-        //           ignore().add([
-        //             ".git",
-        //             ...parseIgnore(store.state["git-project"].gitignore),
-        //           ]),
-        //           store.state.editor.project
-        //         )
-        //       ).map((item) =>
-        //         relative(store.state.editor.project as string, item)
-        //       ),
-        //     ],
-        //     async (filepath) => ({
-        //       filepath,
-        //       status: await git.status({
-        //         fs,
-        //         dir: store.state.editor.project as string,
-        //         filepath,
-        //         cache: gitStatusCache,
-        //       }),
-        //     })
-        //   )
-        // )
-        //   .filter(({ status }) => status !== "unmodified")
-        //   .forEach(({ status, filepath }) => {
-        //     if (store.state.editor.project) {
-        //       matrix.value = {
-        //         ...matrix.value,
-        //         [join(store.state.editor.project, filepath)]: {
-        //           filepath,
-        //           status,
-        //         },
-        //       };
-        //     }
-        //   });
-      }
-      loading.value = false;
-    }
-
-    // fs.watch(
-    //   ["write:file", "remove:file", "copy:file", "move:file"],
-    //   false,
-    //   (type, to, from) => {
-    //     if (fsAllowReactive(to, store)) {
-    //       createTimeoutBy(
-    //         `tab git watcher ${to}`,
-    //         async () => {
-    //           if (store.state.editor.project) {
-    //             const status = await git.status({
-    //               fs,
-    //               dir: store.state.editor.project,
-    //               filepath: relative(store.state.editor.project, to),
-    //               cache: gitStatusCache,
-    //             });
-
-    //             if (status !== "unmodified") {
-    //               // eslint-disable-next-line functional/immutable-data
-    //               matrix.value[to] = {
-    //                 status,
-    //                 filepath: relative(store.state.editor.project, to),
-    //               };
-    //             } else {
-    //               // eslint-disable-next-line functional/immutable-data
-    //               delete matrix.value[to];
-    //             }
-
-    //             if (type === "move:file") {
-    //               const status = await git.status({
-    //                 fs,
-    //                 dir: store.state.editor.project,
-    //                 filepath: relative(store.state.editor.project, from),
-    //                 cache: gitStatusCache,
-    //               });
-
-    //               if (status !== "unmodified") {
-    //                 // eslint-disable-next-line functional/immutable-data
-    //                 matrix.value[from] = {
-    //                   filepath: relative(store.state.editor.project, from),
-    //                   status,
-    //                 };
-    //               }
-    //             }
-    //           }
-    //         },
-    //         5000,
-    //         {
-    //           skipme: true,
-    //         }
-    //       );
-    //     }
-    //   }
-    // );
-
-    void refreshStatus();
-
     async function init(): Promise<void> {
       store.commit("system/setProgress", true);
       if (store.state.editor.project) {
-        await git.init({
-          fs,
+        await gitWorker.init({
           dir: store.state.editor.project,
         });
         await store.dispatch("git-project/refresh");
@@ -800,7 +686,7 @@ export default defineComponent({
 
       if (!!message) {
         if (await GitMethods.commit(message, changes)) {
-          await refreshStatus();
+          await store.dispatch("git-project/updateStatusDir");
         }
 
         stateModalCommit.value = false;
@@ -813,20 +699,21 @@ export default defineComponent({
       if (store.state.editor.project) {
         try {
           onStart(i18n.t("alert.pulling"));
-          await git.pull({
-            fs,
-            http,
-            onProgress,
-            onMessage,
-            onAuth,
-            onAuthFailure,
-            onAuthSuccess,
-            dir: store.state.editor.project,
-            ...gitConfigs,
-            remote,
-          });
+          await gitWorker.pull(
+            {
+              dir: store.state.editor.project,
+              ...gitConfigs,
+              remote,
+            },
+
+            proxy(onAuth),
+            proxy(onAuthFailure),
+            proxy(onAuthSuccess),
+            proxy(onMessage),
+            proxy(onProgress)
+          );
           onDone();
-          void refreshStatus();
+          void store.dispatch("git-project/updateStatusDir");
         } catch (err) {
           onError(err);
         }
@@ -838,17 +725,18 @@ export default defineComponent({
       if (store.state.editor.project) {
         try {
           onStart(i18n.t("alert.pushing"));
-          await git.push({
-            fs,
-            http,
-            onProgress,
-            onMessage,
-            onAuth,
-            onAuthFailure,
-            onAuthSuccess,
-            dir: store.state.editor.project,
-            remote,
-          });
+          await gitWorker.push(
+            {
+              dir: store.state.editor.project,
+              remote,
+            },
+
+            proxy(onAuth),
+            proxy(onAuthFailure),
+            proxy(onAuthSuccess),
+            proxy(onMessage),
+            proxy(onProgress)
+          );
           onDone();
         } catch (err) {
           onError(err);
@@ -877,18 +765,17 @@ export default defineComponent({
           : `*${change.status}`) as StatusGit,
       };
     }
-    async function resetHard({ fullpath, filepath }: Change): Promise<void> {
+    async function resetHard({ filepath }: Change): Promise<void> {
       await GitMethods.resetHard(filepath);
-      // eslint-disable-next-line functional/immutable-data
-      matrix.value[fullpath] = {
-        filepath,
-        status: await git.status({
-          fs,
-          dir: store.state.editor.project as string,
-          filepath,
-          cache: gitStatusCache,
-        }),
-      };
+      // matrix.value[fullpath] = {
+      //   filepath,
+      //   status: await git.status({
+      //     fs,
+      //     dir: store.state.editor.project as string,
+      //     filepath,
+      //     cache: gitStatusCache,
+      //   }),
+      // };
     }
 
     return {
@@ -903,7 +790,6 @@ export default defineComponent({
       mdiMinus,
 
       getIcon,
-      refreshStatus,
 
       loading,
 

@@ -1,4 +1,4 @@
-import { isParentFolder, pathEquals } from "src/utils";
+import fs from "src/modules/filesystem";
 import { GetterTree } from "vuex";
 
 import { StateInterface } from "../index";
@@ -9,7 +9,7 @@ const getters: GetterTree<ClipboardFStateInterface, StateInterface> = {
   has:
     (state) =>
     (uri: string): boolean => {
-      return state.objects.some((item) => pathEquals(item.path, uri));
+      return state.objects.some((item) => fs.isEqual(item.path, uri));
     },
   isEmpty(state): boolean {
     return state.objects.length === 0;
@@ -21,7 +21,7 @@ const getters: GetterTree<ClipboardFStateInterface, StateInterface> = {
     return (fullpath: string): boolean => {
       // if this.file.fullpath as children -> exit
       const indexParentFile = state.objects.findIndex((item) => {
-        return isParentFolder(item.path, fullpath);
+        return fs.isEqual(item.path, fullpath);
       });
 
       if (indexParentFile === -1) {

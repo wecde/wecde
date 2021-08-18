@@ -1,6 +1,5 @@
 import fs from "modules/filesystem";
 import { basename, dirname, join } from "path-cross";
-import { pathEquals } from "src/utils";
 import { ActionTree } from "vuex";
 
 import { StateInterface } from "../index";
@@ -48,7 +47,7 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
         state.objects.map(async (item) => {
           if (getters.allowPaste(uri)) {
             const from = item.path;
-            const to: string = pathEquals(uri, item.path)
+            const to: string = fs.isEqual(uri, item.path)
               ? join(
                   dirname(uri),
                   state.action === "copy"
@@ -68,7 +67,7 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
               await fs.rename(from, to);
             }
 
-            if (refreshParent === false && pathEquals(uri, item.path)) {
+            if (refreshParent === false && fs.isEqual(uri, item.path)) {
               refreshParent = true;
             }
           } else {

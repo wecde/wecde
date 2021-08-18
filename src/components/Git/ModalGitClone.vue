@@ -54,9 +54,8 @@
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
+import { proxy } from "comlink";
 import DialogTop from "components/DialogTop.vue";
-import git from "isomorphic-git-cross";
-import http from "isomorphic-git-cross/http/web/index.js";
 import fs from "modules/filesystem";
 import {
   configs as gitConfigs,
@@ -69,6 +68,7 @@ import {
   onProgress,
   onStart,
 } from "src/helpers/git";
+import gitWorker from "src/worker/git";
 import { defineComponent, ref, watch } from "vue";
 
 // import $store from "src/store";
@@ -123,19 +123,19 @@ export default defineComponent({
             url: this.url,
           })
         );
-        await git.clone({
-          fs,
-          http,
-          onProgress,
-          onMessage,
-          onAuth,
-          onAuthFailure,
-          onAuthSuccess,
-          dir: `projects/${name}`,
-          url: this.url,
-          ref: "master",
-          ...gitConfigs,
-        });
+        await gitWorker.clone(
+          {
+            dir: `projects/${name}`,
+            url: this.url,
+            ref: "master",
+            ...gitConfigs,
+          },
+          proxy(onAuth),
+          proxy(onAuthFailure),
+          proxy(onAuthSuccess),
+          proxy(onMessage),
+          proxy(onProgress)
+        );
         onDone();
 
         void Toast.show({

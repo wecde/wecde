@@ -1,5 +1,6 @@
 import fs from "modules/filesystem";
 import { join } from "path-cross";
+import gitWorker from "src/worker/git";
 import type { ActionTree } from "vuex";
 
 import type { StateInterface } from "../index";
@@ -12,8 +13,7 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
     try {
       if (
         rootState.editor.project &&
-        (await fs.stat(join(rootState.editor.project, ".git"))).type ===
-          "directory"
+        (await fs.stat(join(rootState.editor.project, ".git/index"))).isFile()
       ) {
         commit("setState", "ready");
       } else {
@@ -42,8 +42,22 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
       commit("setIgnore", "");
     }
   },
+  async updateStatusDir(
+    { commit, rootState, state },
+    filepaths: readonly string[] = ["."]
+  ) {
+    if (rootState.editor.project && state.state === "ready") {
+      const statusMatrixResult = await gitWorker.statusMatrix({
+        dir: rootState.editor.project,
+        filepaths: [...filepaths],
+      });
+
+      commit("updateMatrix", statusMatrixResult);
+    }
+  },
   async refresh({ dispatch }): Promise<void> {
     await Promise.all([dispatch("checkDotGit"), dispatch("loadIgnore")]);
+    await dispatch("updateStatusDir");
   },
 };
 

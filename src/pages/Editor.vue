@@ -110,10 +110,11 @@ import EditorCode from "components/Editor/Code.vue";
 import EditorMarkdown from "components/Editor/Markdown.vue";
 import EditorSVG from "components/Editor/SVG.vue";
 import Preview from "components/Preview.vue";
+import isBinaryPath from "is-binary-path-cross";
 import { WebServer } from "modules/webserver";
 import { basename } from "path-cross";
 import { useStore } from "src/store";
-import { createTimeoutBy, getEditor, isPlainText } from "src/utils";
+import { createTimeoutBy, getLanguageFile } from "src/utils";
 import type { DefineComponent } from "vue";
 import { computed, defineComponent, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -133,7 +134,7 @@ export default defineComponent({
       () => store.getters["editor/session"] as string | null
     );
     const typeEditor = computed<string | null>(() =>
-      fullpath.value ? getEditor(fullpath.value) || "text" : null
+      fullpath.value ? getLanguageFile(fullpath.value) || "text" : null
     );
 
     const editorComponent = ref<DefineComponent | null>(null);
@@ -143,7 +144,7 @@ export default defineComponent({
       () => store.state.settings["preview**port"] as string
     );
     const plaintext = computed<boolean>(() =>
-      fullpath.value ? isPlainText(fullpath.value) : false
+      fullpath.value ? !isBinaryPath(fullpath.value) : false
     );
 
     const sessionWrapper = ref<Element | null>(null);
@@ -312,7 +313,6 @@ export default defineComponent({
     },
   },
   methods: {
-    isPlainText,
     getIcon,
     basename,
 

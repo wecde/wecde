@@ -98,6 +98,9 @@ const mutation: MutationTree<EditorStateInterface> = {
     state.scrollEnhance[newFile] = state.scrollEnhance[file];
     delete state.scrollEnhance[file];
   },
+  removeScrollEnhance(state, path) {
+    delete state.scrollEnhance[path];
+  },
 };
 
 export default mutation;

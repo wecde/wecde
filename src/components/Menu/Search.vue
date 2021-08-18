@@ -189,10 +189,11 @@ import {
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import escapeRegExp from "escape-string-regexp";
+import isBinaryPath from "is-binary-path-cross";
 import fs from "modules/filesystem";
 import { basename } from "path-cross";
 import { useStore } from "src/store";
-import { createTimeoutBy, foreachAsync, isPlainText } from "src/utils";
+import { createTimeoutBy, foreachAsync } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
@@ -229,7 +230,7 @@ export default defineComponent({
 
     const OFFSET_RESULT_SEARCH = 15;
     async function searchInFile(file: string): Promise<Result | void> {
-      if (isPlainText(file)) {
+      if (isBinaryPath(file) === false) {
         const regexp = new RegExp(
           `(?:(${
             modeRegexp.value

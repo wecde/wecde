@@ -2353,10 +2353,10 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001219, caniuse-lite@^1.0.30001243:
   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001248.tgz"
   integrity sha512-NwlQbJkxUFJ8nMErnGtT0QTM2TJ33xgz4KXJSMIrjXIbDVdaYueGyjOrLKRtJC+rTiWfi6j5cnZN1NBiSBJGNw==
 
-capacitor-fs@^0.0.26:
-  version "0.0.26"
-  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.26.tgz#90b9a53b6d9a153086599359983b94ef3b5b899a"
-  integrity sha512-ANHE1c1G3mxr3TOLCLRWu5IgBHuBLaZ4q4IFi+QqjEZKW+GDkXIT/0fUH9qAC+KlUpKQQZgagHHLN97xqVUdrg==
+capacitor-fs@^0.0.31:
+  version "0.0.31"
+  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.31.tgz#fa1987edc69581658937418dffb9b1c0a2e00148"
+  integrity sha512-X0jJA3eXZSOW9+tRjHBWoaHbox1a3MHW54TSZqQkT9IWldNGzyWjA5pceD+77zN9m1H25Yn6eTMkVANPoHWzBA==
   dependencies:
     "@capacitor/core" "^3.1.2"
     "@capacitor/filesystem" "^1.0.2"

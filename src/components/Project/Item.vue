@@ -9,7 +9,7 @@
         :src="
           require(`assets/extensions/material-icon-theme/icons/${
             $store.state.editor.project &&
-            pathEquals(project.fullpath, $store.state.editor.project)
+            isEqual(project.fullpath, $store.state.editor.project)
               ? 'folder-project-open.svg'
               : 'folder-project.svg'
           }`)
@@ -90,8 +90,8 @@ import {
 } from "@quasar/extras/mdi-v5";
 import exportZip from "modules/export-zip";
 import type { StatItem } from "modules/filesystem";
+import fs from "modules/filesystem";
 import { basename } from "path-cross";
-import { pathEquals } from "src/utils";
 import { defineComponent, PropType, ref } from "vue";
 
 import FileExplorerRename from "../File Explorer/Rename.vue";
@@ -123,7 +123,9 @@ export default defineComponent({
     };
   },
   methods: {
-    pathEquals,
+    isEqual(path1: string, path2: string): boolean {
+      return fs.isEqual(path1, path2);
+    },
     async exportZip() {
       try {
         await exportZip(this.project.fullpath);
