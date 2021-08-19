@@ -2353,14 +2353,27 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001219, caniuse-lite@^1.0.30001243:
   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001248.tgz"
   integrity sha512-NwlQbJkxUFJ8nMErnGtT0QTM2TJ33xgz4KXJSMIrjXIbDVdaYueGyjOrLKRtJC+rTiWfi6j5cnZN1NBiSBJGNw==
 
-capacitor-fs@^0.0.31:
-  version "0.0.31"
-  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.31.tgz#fa1987edc69581658937418dffb9b1c0a2e00148"
-  integrity sha512-X0jJA3eXZSOW9+tRjHBWoaHbox1a3MHW54TSZqQkT9IWldNGzyWjA5pceD+77zN9m1H25Yn6eTMkVANPoHWzBA==
+capacitor-fs@^0.0.33:
+  version "0.0.33"
+  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.33.tgz#96c32394fc7c2082171fa90499d6071a848288f7"
+  integrity sha512-evJrgZb5lvv/IK17ZxJb+HAAr24BgImZhclyBbB6BcEJgvC+pwMdZ5jZIzUDZxFodDT3X+R+rlB0PzlAESs6MA==
   dependencies:
     "@capacitor/core" "^3.1.2"
     "@capacitor/filesystem" "^1.0.2"
     base-64 "^1.0.0"
+    minimatch "^3.0.4"
+    mitt "^3.0.0"
+    path-cross "^0.0.3"
+
+capacitor-fs@^0.0.34:
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.34.tgz#ddea1f3365160b3cd00ae5ff0e8897d3e75efd8f"
+  integrity sha512-Z0/VTPtlFeSL0hbPfFO1NhT/9FIPPsWhuwOBXJAPVRctccYlo/zw3k++GsW81BYyYddyNJ097YSdwjGNtSGQ2w==
+  dependencies:
+    "@capacitor/core" "^3.1.2"
+    "@capacitor/filesystem" "^1.0.2"
+    base-64 "^1.0.0"
+    capacitor-fs "^0.0.33"
     minimatch "^3.0.4"
     mitt "^3.0.0"
     path-cross "^0.0.3"

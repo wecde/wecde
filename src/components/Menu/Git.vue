@@ -606,7 +606,7 @@ import {
 } from "src/helpers/git";
 import gitStatusCache from "src/helpers/git-status-cache";
 import { useStore } from "src/store";
-import gitWorker from "src/worker/git";
+import {useGitWorker} from "src/worker/git";
 import { computed, defineComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -672,7 +672,7 @@ export default defineComponent({
     async function init(): Promise<void> {
       store.commit("system/setProgress", true);
       if (store.state.editor.project) {
-        await gitWorker.init({
+        await useGitWorker().init({
           dir: store.state.editor.project,
         });
         await store.dispatch("git-project/refresh");
@@ -686,7 +686,7 @@ export default defineComponent({
 
       if (!!message) {
         if (await GitMethods.commit(message, changes)) {
-          await store.dispatch("git-project/updateStatusDir");
+          await store.dispatch("git-project/updateMatrix");
         }
 
         stateModalCommit.value = false;
@@ -699,7 +699,7 @@ export default defineComponent({
       if (store.state.editor.project) {
         try {
           onStart(i18n.t("alert.pulling"));
-          await gitWorker.pull(
+          await useGitWorker().pull(
             {
               dir: store.state.editor.project,
               ...gitConfigs,
@@ -713,7 +713,7 @@ export default defineComponent({
             proxy(onProgress)
           );
           onDone();
-          void store.dispatch("git-project/updateStatusDir");
+          void store.dispatch("git-project/updateMatrix");
         } catch (err) {
           onError(err);
         }
@@ -725,7 +725,7 @@ export default defineComponent({
       if (store.state.editor.project) {
         try {
           onStart(i18n.t("alert.pushing"));
-          await gitWorker.push(
+          await useGitWorker().push(
             {
               dir: store.state.editor.project,
               remote,

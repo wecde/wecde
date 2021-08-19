@@ -87,6 +87,14 @@ export default defineComponent({
         },
       },
       {
+        message: "init root dir",
+        async handler() {
+          await fs.initRootDir();
+
+          return true;
+        },
+      },
+      {
         message: "Checking last session",
         async handler() {
           if (store.state.editor.project) {

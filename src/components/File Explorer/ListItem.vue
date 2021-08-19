@@ -41,7 +41,7 @@
       </template>
 
       <template v-slot:append-text>
-        <q-spinner-hourglass color="primary" v-if="loading" />
+        <q-spinner-hourglass color="blue" v-if="loading" />
         <q-icon
           size="13px"
           color="blue"
@@ -285,7 +285,7 @@ export default defineComponent({
     });
     const ignored = computed<boolean>(() => {
       return (
-        store.state["git-project"].state === "ready" &&
+        store.state["git-project"].status === "ready" &&
         store.state.editor.project &&
         store.getters["git-project/ignored"](
           relative(store.state.editor.project, file.value.fullpath)

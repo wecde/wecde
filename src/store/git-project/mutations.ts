@@ -3,13 +3,23 @@ import { MutationTree } from "vuex";
 import { GitProjectStateInterface } from "./state";
 
 const mutation: MutationTree<GitProjectStateInterface> = {
-  setState(state, value: "loading" | "unready" | "ready"): void {
-    state.state = value;
+  reset(state) {
+    state.status = "unknown";
+    state.gitignore = "";
+    state.matrix.loading = false;
+
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const file in state.matrix.value) {
+      delete state.matrix.value[file];
+    }
   },
-  setIgnore(state, value: string): void {
+  "set:status"(state, value: "unknown" | "unready" | "ready"): void {
+    state.status = value;
+  },
+  "set:ignore"(state, value: string): void {
     state.gitignore = value;
   },
-  updateMatrix(
+  "update:matrix"(
     state,
     statusMatrixResult: readonly (readonly [
       string,

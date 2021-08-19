@@ -7,8 +7,6 @@ import {
 } from "vuex";
 import createPersistedState from "vuex-persistedstate";
 
-import bookmarkLabs from "./bookmark-labs";
-import type { BookmarkLabsStateInterface } from "./bookmark-labs/state";
 import clipboardFs from "./clipboard-fs";
 import type { ClipboardFStateInterface } from "./clipboard-fs/state";
 import editor from "./editor";
@@ -35,7 +33,6 @@ import watcher from "./watcher";
  */
 
 export type StateInterface = {
-  readonly "bookmark-labs": BookmarkLabsStateInterface;
   readonly "clipboard-fs": ClipboardFStateInterface;
   readonly editor: EditorStateInterface;
   readonly "git-project": GitProjectStateInterface;
@@ -59,7 +56,6 @@ export const storeKey: InjectionKey<VuexStore<StateInterface>> =
 
 export const store = createStore<StateInterface>({
   modules: {
-    "bookmark-labs": bookmarkLabs,
     "clipboard-fs": clipboardFs,
     editor,
     "git-project": gitProject,

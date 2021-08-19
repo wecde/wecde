@@ -5,18 +5,14 @@
     class="flex column never-scroll no-wrap"
   >
     <q-tabs v-model="navigationTabs" class="tabs">
-      <q-tab name="archive" :icon="mdiArchiveOutline" />
-      <q-tab name="files" :icon="mdiFileMultipleOutline" />
       <q-tab
-        name="git"
-        :icon="mdiGit"
-        alert
-        :alert-icon="
-          $store.state['git-project'].isLoading ? mdiClockOutline : null
-        "
+        v-for="tab in tabs"
+        :key="tab.name"
+        :name="tab.name"
+        :icon="tab.icon"
+        :alert="'alert-icon' in tab && tab['alert-icon'].value ? 'blue' : false"
+        :alert-icon="'alert-icon' in tab ? tab['alert-icon'].value : undefined"
       />
-      <q-tab name="search" :icon="mdiMagnify" />
-      <q-tab name="settings" :icon="mdiCogOutline" />
     </q-tabs>
 
     <q-tab-panels
@@ -25,20 +21,13 @@
       keep-alive
       class="bg-transparent panels"
     >
-      <q-tab-panel name="archive" class="q-pa-0 q-pt-1 flex no-wrap column">
-        <Menu-Archive @open:project="navigationTabs = 1" />
-      </q-tab-panel>
-      <q-tab-panel name="files" class="q-pa-0 q-pt-1 flex no-wrap column">
-        <Menu-Files />
-      </q-tab-panel>
-      <q-tab-panel name="git" class="q-pa-0 q-pt-1 flex no-wrap column">
-        <Menu-Git />
-      </q-tab-panel>
-      <q-tab-panel name="search" class="q-pa-0 q-pt-1 flex no-wrap column">
-        <Menu-Search />
-      </q-tab-panel>
-      <q-tab-panel name="settings" class="q-pa-0 q-pt-1 flex no-wrap column">
-        <Menu-Settings />
+      <q-tab-panel
+        v-for="tab in tabs"
+        :key="tab.name"
+        :name="tab.name"
+        class="q-pa-0 q-pt-1 flex no-wrap column"
+      >
+        <component :is="tab.panel" />
       </q-tab-panel>
     </q-tab-panels>
   </q-drawer>
@@ -62,23 +51,41 @@ import { useStore } from "src/store";
 import { computed, defineComponent, ref } from "vue";
 
 export default defineComponent({
-  components: {
-    MenuArchive,
-    MenuFiles,
-    MenuGit,
-    MenuSearch,
-    MenuSettings,
-  },
   setup() {
     const store = useStore();
+    const tabs = [
+      {
+        name: "archive",
+        icon: mdiArchiveOutline,
+        panel: MenuArchive,
+      },
+      {
+        name: "files",
+        icon: mdiFileMultipleOutline,
+        panel: MenuFiles,
+      },
+      {
+        name: "git",
+        icon: mdiGit,
+        "alert-icon": computed<string | null>(() =>
+          store.state["git-project"].matrix.loading ? mdiClockOutline : null
+        ),
+        panel: MenuGit,
+      },
+      {
+        name: "search",
+        icon: mdiMagnify,
+        panel: MenuSearch,
+      },
+      {
+        name: "settings",
+        icon: mdiCogOutline,
+        panel: MenuSettings,
+      },
+    ];
 
     return {
-      mdiArchiveOutline,
-      mdiFileMultipleOutline,
-      mdiGit,
-      mdiClockOutline,
-      mdiMagnify,
-      mdiCogOutline,
+      tabs,
 
       navigationTabs: ref<string>("archive"),
       navigation: computed<boolean>({

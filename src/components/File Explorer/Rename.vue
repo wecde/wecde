@@ -38,7 +38,7 @@
             @keydown="newFilename = $event.target.value.trim()"
             @keyup="newFilename = $event.target.value.trim()"
             @blur="blur"
-            @click.prevent.stop="() => false"
+            @click.prevent.stop
           />
         </div>
       </div>

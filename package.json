@@ -27,7 +27,7 @@
     "@quasar/extras": "^1.10.10",
     "ace-builds": "^1.4.12",
     "base-64": "^1.0.0",
-    "capacitor-fs": "^0.0.31",
+    "capacitor-fs": "^0.0.34",
     "comlink": "^4.3.1",
     "core-js": "^3.6.5",
     "eruda2": "^0.0.2-b8",

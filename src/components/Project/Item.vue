@@ -38,7 +38,7 @@
     </q-item-section>
 
     <q-item-section side top>
-      <q-btn :icon="mdiDotsVertical" flat round padding="xs">
+      <q-btn :icon="mdiDotsVertical" flat round padding="xs" @click.stop>
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,

@@ -1,6 +1,6 @@
 import fs from "modules/filesystem";
 import { join } from "path-cross";
-import gitWorker from "src/worker/git";
+import { useGitWorker } from "src/worker/git";
 import type { ActionTree } from "vuex";
 
 import type { StateInterface } from "../index";
@@ -9,26 +9,27 @@ import type { GitProjectStateInterface } from "./state";
 
 const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
   async checkDotGit({ commit, rootState }): Promise<void> {
-    commit("setState", "loading");
+    commit("set:status", "unknown");
     try {
+      console.log(rootState.editor.project);
       if (
         rootState.editor.project &&
         (await fs.stat(join(rootState.editor.project, ".git/index"))).isFile()
       ) {
-        commit("setState", "ready");
+        commit("set:status", "ready");
       } else {
         // eslint-disable-next-line functional/no-throw-statement
         throw new Error("DOT_GIT_IS_NOT_DIRECTORY");
       }
     } catch {
-      commit("setState", "unready");
+      commit("set:status", "unready");
     }
   },
   async loadIgnore({ commit, rootState }): Promise<void> {
     try {
       if (rootState.editor.project) {
         commit(
-          "setIgnore",
+          "set:ignore",
           await fs.readFile(
             join(rootState.editor.project, ".gitignore"),
             "utf8"
@@ -39,27 +40,28 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
         throw new Error("PROJECT_UNKNOWN");
       }
     } catch {
-      commit("setIgnore", "");
+      commit("set:ignore", "");
     }
   },
-  async updateStatusDir(
+  async updateMatrix(
     { commit, rootState, state },
     filepaths: readonly string[] = ["."]
   ) {
     commit("set:matrix.loading", true);
-    if (rootState.editor.project && state.state === "ready") {
-      const statusMatrixResult = await gitWorker.statusMatrix({
+    if (rootState.editor.project && state.status === "ready") {
+      const statusMatrixResult = await useGitWorker().statusMatrix({
         dir: rootState.editor.project,
         filepaths: [...filepaths],
       });
 
-      commit("updateMatrix", statusMatrixResult);
+      commit("update:matrix", statusMatrixResult);
     }
     commit("set:matrix.loading", false);
   },
-  async refresh({ dispatch }): Promise<void> {
+  async refresh({ dispatch, commit }): Promise<void> {
+    commit("reset");
     await Promise.all([dispatch("checkDotGit"), dispatch("loadIgnore")]);
-    await dispatch("updateStatusDir");
+    await dispatch("updateMatrix");
   },
 };
 

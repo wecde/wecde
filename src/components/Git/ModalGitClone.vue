@@ -68,7 +68,7 @@ import {
   onProgress,
   onStart,
 } from "src/helpers/git";
-import gitWorker from "src/worker/git";
+import { useGitWorker } from "src/worker/git";
 import { defineComponent, ref, watch } from "vue";
 
 // import $store from "src/store";
@@ -106,6 +106,12 @@ export default defineComponent({
       try {
         const name = /([^/]+)(?:\.git)?$/.exec(this.url)?.[1] || "";
 
+        if ((await fs.exists("projects")) === false) {
+          await fs.mkdir("projects", {
+            recursive: true,
+          });
+        }
+
         // eslint-disable-next-line functional/no-let
         let existsProject = false;
         try {
@@ -118,12 +124,13 @@ export default defineComponent({
           // eslint-disable-next-line functional/no-throw-statement
           throw new Error(`Project "${name}" exists`);
         }
+
         onStart(
           this.$t("alert.cloneing", {
             url: this.url,
           })
         );
-        await gitWorker.clone(
+        await useGitWorker().clone(
           {
             dir: `projects/${name}`,
             url: this.url,

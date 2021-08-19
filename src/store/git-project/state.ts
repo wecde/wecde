@@ -1,6 +1,6 @@
 export type GitProjectStateInterface = {
   // eslint-disable-next-line functional/prefer-readonly-type
-  state: "loading" | "unready" | "ready";
+  status: "unknown" | "unready" | "ready";
   // eslint-disable-next-line functional/prefer-readonly-type
   gitignore: string;
   readonly matrix: {
@@ -12,7 +12,7 @@ export type GitProjectStateInterface = {
 
 function state(): GitProjectStateInterface {
   return {
-    state: "loading",
+    status: "unknown",
     gitignore: "",
     matrix: {
       loading: false,

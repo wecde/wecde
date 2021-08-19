@@ -1,7 +1,7 @@
 import fs from "modules/filesystem";
 import { join } from "path-cross";
 import { store } from "src/store";
-import gitWorker from "src/worker/git";
+import { useGitWorker } from "src/worker/git";
 
 import type { Branch, Remote } from "./Git.types";
 
@@ -11,7 +11,7 @@ function trim(str: string): string {
 
 export async function listRemotes(): Promise<readonly Remote[]> {
   if (store.state.editor.project) {
-    return await gitWorker.listRemotes({
+    return await useGitWorker().listRemotes({
       dir: store.state.editor.project,
     });
   }
@@ -26,7 +26,7 @@ export async function currentBranch({
 }): Promise<string | void> {
   try {
     return await fs
-      .readFile(join(dir, ".gitWorker/HEAD"), "utf8")
+      .readFile(join(dir, ".useGitWorker()/HEAD"), "utf8")
       .then((base64) =>
         trim(base64.replace(/^ref: /, ""))
           .split("/")
@@ -48,7 +48,7 @@ export async function listBranches(
     // eslint-disable-next-line functional/immutable-data
     promiseGetBranches.push(
       (async (): Promise<readonly Branch[]> => {
-        const branches = await gitWorker.listBranches({
+        const branches = await useGitWorker().listBranches({
           dir: store.state.editor.project as string,
         });
 
@@ -67,7 +67,7 @@ export async function listBranches(
       // eslint-disable-next-line functional/immutable-data
       promiseGetBranches.push(
         ...(await listRemotes()).map(async ({ remote }) => {
-          const branches = await gitWorker.listBranches({
+          const branches = await useGitWorker().listBranches({
             dir: store.state.editor.project as string,
             remote,
           });
@@ -87,7 +87,7 @@ export async function listBranches(
     // eslint-disable-next-line functional/immutable-data
     promiseGetBranches.push(
       (async () => {
-        const branches = await gitWorker.listTags({
+        const branches = await useGitWorker().listTags({
           dir: store.state.editor.project as string,
         });
 

@@ -199,7 +199,7 @@ import { createTimeoutBy, getLanguageFile } from "src/utils";
 import { Clipboard } from "@capacitor/clipboard";
 
 // eslint-disable-next-line import/order
-import { format, getSupportInfo } from "prettier";
+import { getSupportInfo } from "prettier";
 import {
   mdiAppleKeyboardCommand,
   mdiChevronDoubleLeft,
@@ -226,31 +226,8 @@ import {
   mdiUndoVariant,
 } from "@quasar/extras/mdi-v5";
 import { extname } from "path-cross";
-import type { Plugin, SupportLanguage } from "prettier";
-
-// eslint-disable-next-line functional/no-let
-let prettierPlugins: Plugin<unknown>[];
-async function loadPrettierPlugins(): Promise<Plugin<unknown>[]> {
-  if (!prettierPlugins) {
-    console.time("load plugin prettier");
-    prettierPlugins = await Promise.all([
-      import("prettier/parser-angular"),
-      import("prettier/parser-babel"),
-      import("prettier/parser-espree"),
-      import("prettier/parser-flow"),
-      import("prettier/parser-graphql"),
-      import("prettier/parser-html"),
-      import("prettier/parser-markdown"),
-      import("prettier/parser-meriyah"),
-      import("prettier/parser-postcss"),
-      import("prettier/parser-typescript"),
-      import("prettier/parser-yaml"),
-    ]);
-    console.timeEnd("load plugin prettier");
-  }
-
-  return prettierPlugins;
-}
+import type { SupportLanguage } from "prettier";
+import { usePrettierWorker} from "src/worker/prettier";
 
 export default defineComponent({
   emits: ["change"],
@@ -638,12 +615,11 @@ export default defineComponent({
         const code = this.ace.value.getValue();
 
         this.ace.value.setValue(
-          format(code, {
+          await usePrettierWorker().format(code, {
             parser:
               this.parser.parsers[0] === "babel"
                 ? "babel-flow"
                 : this.parser.parsers[0],
-            plugins: await loadPrettierPlugins(),
           })
         );
         this.ace.value.clearSelection();

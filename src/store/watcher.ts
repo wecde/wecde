@@ -1,5 +1,6 @@
 import fs from "modules/filesystem";
 import { relative } from "path-cross";
+import { refreshGitWorker } from "src/worker/git";
 import type { Store } from "vuex";
 
 import type { StateInterface } from "./index";
@@ -17,94 +18,144 @@ export default (store: Store<StateInterface>): void => {
 
   // ? for sessions
   fs.emitter?.on("move:file", ({ from, to }) => {
-    store.state.editor.sessions.forEach((item: string, index: number) => {
-      if (fs.isEqual(from, item)) {
-        store.commit("editor/updateSession", {
-          index,
-          value: to,
-        });
-      }
-    });
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, from)
+    ) {
+      store.state.editor.sessions.forEach((item: string, index: number) => {
+        if (fs.isEqual(from, item)) {
+          store.commit("editor/updateSession", {
+            index,
+            value: to,
+          });
+        }
+      });
+    }
   });
 
   fs.emitter?.on("move:dir", ({ from, to }) => {
-    store.state.editor.sessions.forEach((item: string, index: number) => {
-      if (fs.isParentDir(from, item)) {
-        store.commit("editor/updateSession", {
-          index,
-          value: fs.replaceParentDir(item, from, to),
-        });
-      }
-    });
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, from)
+    ) {
+      store.state.editor.sessions.forEach((item: string, index: number) => {
+        if (fs.isParentDir(from, item)) {
+          store.commit("editor/updateSession", {
+            index,
+            value: fs.replaceParentDir(item, from, to),
+          });
+        }
+      });
+    }
   });
 
   fs.emitter?.on("remove:file", (path) => {
-    store.state.editor.sessions.forEach((item: string, index: number) => {
-      if (fs.isEqual(path, item)) {
-        store.commit("editor/removeSession", index);
-      }
-    });
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, path)
+    ) {
+      store.state.editor.sessions.forEach((item: string, index: number) => {
+        if (fs.isEqual(path, item)) {
+          store.commit("editor/removeSession", index);
+        }
+      });
+    }
   });
 
   fs.emitter?.on("remove:dir", (path) => {
-    store.state.editor.sessions.forEach((item: string, index: number) => {
-      if (fs.isParentDir(path, item)) {
-        store.commit("editor/removeSession", index);
-      }
-    });
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, path)
+    ) {
+      store.state.editor.sessions.forEach((item: string, index: number) => {
+        if (fs.isParentDir(path, item)) {
+          store.commit("editor/removeSession", index);
+        }
+      });
+    }
   });
   // ?
 
   // ? for scrollEnhance
   fs.emitter?.on("move:file", ({ from, to }) => {
-    // eslint-disable-next-line functional/no-loop-statement
-    for (const file in store.state.editor.scrollEnhance) {
-      if (fs.isEqual(from, file)) {
-        store.commit("editor/updateFileScrollEnhance", {
-          file,
-          newFile: to,
-        });
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, from)
+    ) {
+      // eslint-disable-next-line functional/no-loop-statement
+      for (const file in store.state.editor.scrollEnhance) {
+        if (fs.isEqual(from, file)) {
+          store.commit("editor/updateFileScrollEnhance", {
+            file,
+            newFile: to,
+          });
+        }
       }
     }
   });
   fs.emitter?.on("move:dir", ({ from, to }) => {
-    // eslint-disable-next-line functional/no-loop-statement
-    for (const file in store.state.editor.scrollEnhance) {
-      if (fs.isParentDir(from, file)) {
-        store.commit("editor/updateFileScrollEnhance", {
-          file,
-          newFile: fs.replaceParentDir(file, from, to),
-        });
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, from)
+    ) {
+      // eslint-disable-next-line functional/no-loop-statement
+      for (const file in store.state.editor.scrollEnhance) {
+        if (fs.isParentDir(from, file)) {
+          store.commit("editor/updateFileScrollEnhance", {
+            file,
+            newFile: fs.replaceParentDir(file, from, to),
+          });
+        }
       }
     }
   });
   fs.emitter?.on("remove:file", (path) => {
-    // eslint-disable-next-line functional/no-loop-statement
-    for (const file in store.state.editor.scrollEnhance) {
-      if (fs.isEqual(path, file)) {
-        store.commit("editor/removeScrollEnhance", file);
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, path)
+    ) {
+      // eslint-disable-next-line functional/no-loop-statement
+      for (const file in store.state.editor.scrollEnhance) {
+        if (fs.isEqual(path, file)) {
+          store.commit("editor/removeScrollEnhance", file);
+        }
       }
     }
   });
   fs.emitter?.on("remove:dir", (path) => {
-    // eslint-disable-next-line functional/no-loop-statement
-    for (const file in store.state.editor.scrollEnhance) {
-      if (fs.isParentDir(path, file)) {
-        store.commit("editor/removeScrollEnhance", file);
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, path)
+    ) {
+      // eslint-disable-next-line functional/no-loop-statement
+      for (const file in store.state.editor.scrollEnhance) {
+        if (fs.isParentDir(path, file)) {
+          store.commit("editor/removeScrollEnhance", file);
+        }
       }
     }
   });
   // ?
 
   // ? update .gitignore
-  fs.watch("projects/*/.gitignore", () => {
-    void store.dispatch("git-project/loadIgnore");
+  fs.watch("projects/*/.gitignore", ({ path }) => {
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, path as string)
+    ) {
+      void store.dispatch("git-project/loadIgnore");
+    }
   });
   // ?
 
   // ? watch .git/index
-  fs.watch("projects/*/.git/index", () => {
-    void store.dispatch("git-project/checkDotGit");
+  fs.watch("projects/*/.git/index", ({ path }) => {
+    if (
+      store.state.editor.project &&
+      fs.isParentDir(store.state.editor.project, path as string)
+    ) {
+      void store.dispatch("git-project/checkDotGit");
+    }
   });
   // ?
 
@@ -112,6 +163,7 @@ export default (store: Store<StateInterface>): void => {
   store.watch(
     () => store.state.editor.project,
     (value) => {
+      refreshGitWorker();
       if (value) {
         void store.dispatch("git-project/refresh");
       }
@@ -128,11 +180,11 @@ export default (store: Store<StateInterface>): void => {
     ({ path }) => {
       if (
         store.state.editor.project &&
-        path &&
-        fs.isParentDir(store.state.editor.project, path)
+        (fs.isParentDir(store.state.editor.project, path as string) ||
+          fs.isEqual(store.state.editor.project, path as string))
       ) {
-        void store.dispatch("git-project/updateStatusDir", [
-          relative(store.state.editor.project, path),
+        void store.dispatch("git-project/updateMatrix", [
+          relative(store.state.editor.project, path as string),
         ]);
       }
     },
@@ -145,11 +197,11 @@ export default (store: Store<StateInterface>): void => {
     ({ path }) => {
       if (
         store.state.editor.project &&
-        path &&
-        fs.isParentDir(store.state.editor.project, path)
+        (fs.isParentDir(store.state.editor.project, path as string) ||
+          fs.isEqual(store.state.editor.project, path as string))
       ) {
-        void store.dispatch("git-project/updateStatusDir", [
-          relative(store.state.editor.project, path),
+        void store.dispatch("git-project/updateMatrix", [
+          relative(store.state.editor.project, path as string),
         ]);
       }
     },

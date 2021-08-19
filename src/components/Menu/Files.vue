@@ -1,6 +1,6 @@
 <template>
   <Template-Tab>
-    <template v-slot:title>{{ projectName }}</template>
+    <template v-slot:title>{{ projectName }} </template>
 
     <template v-slot:addons>
       <q-btn

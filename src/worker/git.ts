@@ -1,17 +1,23 @@
-// import MagicPortal from "magic-portal/dist/index.js";
-import { proxy, wrap } from "comlink";
-import * as helpers from "src/helpers/git";
-import GitWorker from "worker-loader!./git.worker";
+import { Remote, wrap } from "comlink";
+import Worker from "worker-loader!./git.worker";
 
 import type { GitRemoteInterface } from "./git.worker";
 
-const worker = wrap<GitRemoteInterface>(new GitWorker());
+// eslint-disable-next-line functional/no-let
+let worker = new Worker();
+// eslint-disable-next-line functional/no-let
+let workerWrap = wrap<GitRemoteInterface>(worker);
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
-(self as any).gitWorker = worker;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
-(self as any).helpers = helpers;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
-(self as any).proxy = proxy;
+export function useGitWorker(): Remote<GitRemoteInterface> {
+  return workerWrap;
+}
+export function useGitWorkerConstructor(): Worker {
+  return worker;
+}
 
-export default worker;
+export function refreshGitWorker(): void {
+  console.info("worker-git: refresh");
+  worker.terminate();
+  worker = new Worker();
+  workerWrap = wrap<GitRemoteInterface>(worker);
+}

@@ -1,7 +1,7 @@
+/* eslint-env worker */
 // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
 (self as any).window = self;
 
-/* eslint-env worker */
 import { expose } from "comlink";
 import git, {
   AuthCallback,
@@ -343,10 +343,17 @@ function callbacks(): GitRemoteInterface {
       });
     },
     async statusMatrix(params) {
-      return await git.statusMatrix({
-        fs,
-        ...params,
-      });
+      console.log("git-worker: statusMatrix called");
+      return await git
+        .statusMatrix({
+          fs,
+          ...params,
+        })
+        .then((e) => {
+          console.log("git-worker: statusMatrix ended");
+
+          return e;
+        });
     },
   };
 }
