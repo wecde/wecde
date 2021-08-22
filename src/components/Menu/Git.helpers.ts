@@ -73,12 +73,12 @@ export async function listBranches(
             remote,
           });
 
-          return branches.map((item): Branch => {
+          return branches.map((item: string): Branch => {
             return {
-              name: `${remote}/${item as string}`,
+              name: `${remote}/${item}`,
               type: "remote",
               at: "0x0",
-              current: current === `${remote}/${item as string}`,
+              current: current === `${remote}/${item}`,
             };
           });
         })
