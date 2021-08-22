@@ -1,5 +1,4 @@
 import { i18n } from "boot/i18n";
-import fileToArraybuffer from "file-to-array-buffer";
 import { join } from "path-cross";
 import { store } from "src/store";
 
@@ -26,7 +25,7 @@ export default async function importFiles(
         );
         await fs.writeFile(
           join(folderSave, file.name),
-          await fileToArraybuffer(file)
+          await file.arrayBuffer()
         );
       })
     );

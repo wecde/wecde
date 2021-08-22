@@ -2,7 +2,6 @@
 // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
 (self as any).window = self;
 
-import { expose } from "comlink";
 import {
   check,
   CursorOptions,
@@ -25,6 +24,7 @@ import parserMeriyah from "prettier/parser-meriyah";
 import parserPostCss from "prettier/parser-postcss";
 import parserTypescript from "prettier/parser-typescript";
 import parserYaml from "prettier/parser-yaml";
+import { expose } from "workercom";
 
 export type PrettierRemoteInterface = {
   readonly format: (source: string, options: Options) => string;

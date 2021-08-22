@@ -13,6 +13,7 @@ export async function listRemotes(): Promise<readonly Remote[]> {
   if (store.state.editor.project) {
     return await useGitWorker().listRemotes({
       dir: store.state.editor.project,
+      fs,
     });
   }
 
@@ -25,14 +26,12 @@ export async function currentBranch({
   readonly dir: string;
 }): Promise<string | void> {
   try {
-    return await fs
-      .readFile(join(dir, ".useGitWorker()/HEAD"), "utf8")
-      .then((base64) =>
-        trim(base64.replace(/^ref: /, ""))
-          .split("/")
-          .slice(2)
-          .join("/")
-      );
+    return await fs.readFile(join(dir, ".git/HEAD"), "utf8").then((base64) =>
+      trim(base64.replace(/^ref: /, ""))
+        .split("/")
+        .slice(2)
+        .join("/")
+    );
   } catch {}
 }
 
@@ -49,6 +48,7 @@ export async function listBranches(
     promiseGetBranches.push(
       (async (): Promise<readonly Branch[]> => {
         const branches = await useGitWorker().listBranches({
+          fs,
           dir: store.state.editor.project as string,
         });
 
@@ -68,16 +68,17 @@ export async function listBranches(
       promiseGetBranches.push(
         ...(await listRemotes()).map(async ({ remote }) => {
           const branches = await useGitWorker().listBranches({
+            fs,
             dir: store.state.editor.project as string,
             remote,
           });
 
           return branches.map((item): Branch => {
             return {
-              name: `${remote}/${item}`,
+              name: `${remote}/${item as string}`,
               type: "remote",
               at: "0x0",
-              current: current === `${remote}/${item}`,
+              current: current === `${remote}/${item as string}`,
             };
           });
         })
@@ -88,6 +89,7 @@ export async function listBranches(
     promiseGetBranches.push(
       (async () => {
         const branches = await useGitWorker().listTags({
+          fs,
           dir: store.state.editor.project as string,
         });
 

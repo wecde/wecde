@@ -58,3 +58,8 @@ function sortFolder(items: readonly StatItem[]): readonly StatItem[] {
 }
 
 export default fs;
+
+if (process.env.NODE_ENV === "development") {
+  // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+  (self as any).fs = fs;
+}

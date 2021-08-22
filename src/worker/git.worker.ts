@@ -1,96 +1,131 @@
 /* eslint-env worker */
-// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
 (self as any).window = self;
 
-import { expose } from "comlink";
-import git, {
+import FS from "capacitor-fs";
+import {
+  add,
   AuthCallback,
   AuthFailureCallback,
   AuthSuccessCallback,
+  checkout,
+  clone,
+  commit,
+  getConfig,
+  init,
+  isIgnored,
+  listBranches,
+  listRemotes,
+  listTags,
   MessageCallback,
   ProgressCallback,
-} from "isomorphic-git-cross";
-import http from "isomorphic-git-cross/http/web/index.js";
-import fs from "modules/filesystem";
+  pull,
+  push,
+  remove,
+  resetIndex,
+  STAGE,
+  status,
+  TREE,
+  walk,
+  WORKDIR,
+} from "isomorphic-git";
+import http from "isomorphic-git/http/web/index.js";
+import { expose } from "workercom";
+
+// eslint-disable-next-line @typescript-eslint/no-namespace
+namespace Cache {
+  export const cache = Object.create(null);
+
+  export function clear(): void {
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const key in cache) {
+      // eslint-disable-next-line functional/immutable-data
+      delete cache[key];
+    }
+    // eslint-disable-next-line functional/immutable-data
+    Object.getOwnPropertySymbols(cache).forEach((key) => delete cache[key]);
+  }
+
+  setInterval(() => void clear(), 5 * 60 * 1000);
+}
+
+function worthWalking(filepath: string, root: string): boolean {
+  if (filepath === "." || root == null || root.length === 0 || root === ".") {
+    return true;
+  }
+  if (root.length >= filepath.length) {
+    return root.startsWith(filepath);
+  } else {
+    return filepath.startsWith(root);
+  }
+}
 
 export type GitRemoteInterface = {
-  readonly clone: (
-    params: {
-      readonly dir: string;
-      readonly url: string;
-      readonly corsProxy?: string | undefined;
-      readonly ref?: string | undefined;
-      readonly singleBranch?: boolean | undefined;
-      readonly noCheckout?: boolean | undefined;
-      readonly noTags?: boolean | undefined;
-      readonly remote?: string | undefined;
-      readonly depth?: number | undefined;
-      readonly since?: Date | undefined;
-      // eslint-disable-next-line functional/prefer-readonly-type
-      readonly exclude?: string[] | undefined;
-      readonly relative?: boolean | undefined;
-      // eslint-disable-next-line functional/prefer-readonly-type
-      readonly headers?: { [x: string]: string } | undefined;
-    },
-    onAuth: AuthCallback,
-    onAuthFailure: AuthFailureCallback,
-    onAuthSuccess: AuthSuccessCallback,
-    onMessage: MessageCallback,
-    onProgress: ProgressCallback
-  ) => Promise<void>;
-  readonly listRemotes: (params: {
-    readonly dir: string | undefined;
-    readonly gitdir?: string | undefined;
-  }) => Promise<readonly { readonly remote: string; readonly url: string }[]>;
-  readonly listBranches: (params: {
-    readonly dir?: string | undefined;
-    readonly gitdir?: string | undefined;
-    readonly remote?: string | undefined;
-  }) => Promise<readonly string[]>;
-  readonly listTags: (params: {
-    readonly dir?: string | undefined;
-    readonly gitdir?: string | undefined;
-  }) => Promise<readonly string[]>;
-  readonly checkout: (
-    params: {
-      readonly dir: string;
-      readonly gitdir?: string | undefined;
-      readonly ref?: string | undefined;
-      // eslint-disable-next-line functional/prefer-readonly-type
-      readonly filepaths?: string[] | undefined;
-      readonly remote?: string | undefined;
-      readonly noCheckout?: boolean | undefined;
-      readonly noUpdateHead?: boolean | undefined;
-      readonly dryRun?: boolean | undefined;
-      readonly force?: boolean | undefined;
-    },
-
-    onProgress?: ProgressCallback
-  ) => Promise<void>;
-  readonly getConfig: (params: {
-    readonly dir?: string | undefined;
-    readonly gitdir?: string | undefined;
-    readonly path: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  }) => Promise<any>;
-  readonly add: (params: {
+  readonly clone: (options: {
     readonly dir: string;
-    readonly filepath: string;
-  }) => Promise<void>;
-  readonly remove: (params: {
-    readonly dir: string;
-    readonly filepath: string;
-  }) => Promise<void>;
-  readonly resetIndex: (params: {
-    readonly dir?: string | undefined;
-    readonly gitdir?: string | undefined;
-    readonly filepath: string;
+    readonly fs: FS;
+    readonly url: string;
+    readonly corsProxy?: string | undefined;
     readonly ref?: string | undefined;
+    readonly singleBranch?: boolean | undefined;
+    readonly noCheckout?: boolean | undefined;
+    readonly noTags?: boolean | undefined;
+    readonly remote?: string | undefined;
+    readonly depth?: number | undefined;
+    readonly since?: Date | undefined;
+    // eslint-disable-next-line functional/prefer-readonly-type
+    readonly exclude?: string[] | undefined;
+    readonly relative?: boolean | undefined;
+    // eslint-disable-next-line functional/prefer-readonly-type
+    readonly headers?: { [x: string]: string } | undefined;
+    readonly onAuth: AuthCallback;
+    readonly onAuthSuccess: AuthSuccessCallback;
+    readonly onAuthFailure: AuthFailureCallback;
+    readonly onMessage?: MessageCallback;
+    readonly onProgress: ProgressCallback;
   }) => Promise<void>;
-  readonly commit: (params: {
+  readonly listRemotes: typeof listRemotes;
+  readonly listBranches: typeof listBranches;
+  readonly listTags: typeof listTags;
+  readonly checkout: typeof checkout;
+  readonly getConfig: typeof getConfig;
+  readonly add: typeof add;
+  readonly remove: typeof remove;
+  readonly resetIndex: typeof resetIndex;
+  readonly commit: typeof commit;
+  readonly init: typeof init;
+  readonly push: (options: {
+    readonly fs: FS;
     readonly dir?: string | undefined;
     readonly gitdir?: string | undefined;
-    readonly message: string;
+    readonly ref?: string | undefined;
+    readonly url?: string | undefined;
+    readonly remote?: string | undefined;
+    readonly remoteRef?: string | undefined;
+    readonly force?: boolean | undefined;
+    readonly delete?: boolean | undefined;
+    readonly corsProxy?: string | undefined;
+    readonly headers?: { readonly [x: string]: string } | undefined;
+
+    readonly onAuth: AuthCallback;
+    readonly onAuthSuccess: AuthSuccessCallback;
+    readonly onAuthFailure: AuthFailureCallback;
+    readonly onMessage?: MessageCallback;
+    readonly onProgress: ProgressCallback;
+  }) => Promise<void>;
+  readonly pull: (options: {
+    readonly fs: FS;
+    readonly dir: string;
+    readonly gitdir?: string | undefined;
+    readonly ref?: string | undefined;
+    readonly url?: string | undefined;
+    readonly remote?: string | undefined;
+    readonly remoteRef?: string | undefined;
+    readonly corsProxy?: string | undefined;
+    readonly singleBranch?: boolean | undefined;
+    readonly fastForwardOnly?: boolean | undefined;
+    // eslint-disable-next-line functional/prefer-readonly-type
+    readonly headers?: { [x: string]: string } | undefined;
     readonly author?:
       | {
           // eslint-disable-next-line functional/prefer-readonly-type
@@ -116,244 +151,131 @@ export type GitRemoteInterface = {
         }
       | undefined;
     readonly signingKey?: string | undefined;
-    readonly dryRun?: boolean | undefined;
-    readonly noUpdateBranch?: boolean | undefined;
-    readonly ref?: string | undefined;
-    // eslint-disable-next-line functional/prefer-readonly-type
-    readonly parent?: string[] | undefined;
-    readonly tree?: string | undefined;
+    readonly onAuth: AuthCallback;
+    readonly onAuthSuccess: AuthSuccessCallback;
+    readonly onAuthFailure: AuthFailureCallback;
+    readonly onMessage?: MessageCallback;
+    readonly onProgress: ProgressCallback;
   }) => Promise<void>;
-  readonly init: (params: {
-    readonly dir?: string | undefined;
-    readonly gitdir?: string | undefined;
-    readonly bare?: boolean | undefined;
-    readonly defaultBranch?: string | undefined;
-  }) => Promise<void>;
-  readonly push: (
-    params: {
-      readonly dir?: string | undefined;
-      readonly gitdir?: string | undefined;
-      readonly ref?: string | undefined;
-      readonly url?: string | undefined;
-      readonly remote?: string | undefined;
-      readonly remoteRef?: string | undefined;
-      readonly force?: boolean | undefined;
-      readonly delete?: boolean | undefined;
-      readonly corsProxy?: string | undefined;
-      readonly headers?: { readonly [x: string]: string } | undefined;
-    },
-
-    onAuth: AuthCallback,
-    onAuthFailure: AuthFailureCallback,
-    onAuthSuccess: AuthSuccessCallback,
-    onMessage: MessageCallback,
-    onProgress: ProgressCallback
-  ) => Promise<void>;
-  readonly pull: (
-    params: {
-      readonly dir: string;
-      readonly gitdir?: string | undefined;
-      readonly ref?: string | undefined;
-      readonly url?: string | undefined;
-      readonly remote?: string | undefined;
-      readonly remoteRef?: string | undefined;
-      readonly corsProxy?: string | undefined;
-      readonly singleBranch?: boolean | undefined;
-      readonly fastForwardOnly?: boolean | undefined;
-      // eslint-disable-next-line functional/prefer-readonly-type
-      readonly headers?: { [x: string]: string } | undefined;
-      readonly author?:
-        | {
-            // eslint-disable-next-line functional/prefer-readonly-type
-            name?: string | undefined;
-            // eslint-disable-next-line functional/prefer-readonly-type
-            email?: string | undefined;
-            // eslint-disable-next-line functional/prefer-readonly-type
-            timestamp?: number | undefined;
-            // eslint-disable-next-line functional/prefer-readonly-type
-            timezoneOffset?: number | undefined;
-          }
-        | undefined;
-      readonly committer?:
-        | {
-            // eslint-disable-next-line functional/prefer-readonly-type
-            name?: string | undefined;
-            // eslint-disable-next-line functional/prefer-readonly-type
-            email?: string | undefined;
-            // eslint-disable-next-line functional/prefer-readonly-type
-            timestamp?: number | undefined;
-            // eslint-disable-next-line functional/prefer-readonly-type
-            timezoneOffset?: number | undefined;
-          }
-        | undefined;
-      readonly signingKey?: string | undefined;
-    },
-
-    onAuth: AuthCallback,
-    onAuthFailure: AuthFailureCallback,
-    onAuthSuccess: AuthSuccessCallback,
-    onMessage: MessageCallback,
-    onProgress: ProgressCallback
-  ) => Promise<void>;
-  readonly status: (params: {
+  readonly status: typeof status;
+  readonly statusMatrix: (options: {
+    readonly fs: FS;
     readonly dir: string;
-    readonly gitdir?: string | undefined;
-    readonly filepath: string;
+    readonly gitdir?: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     readonly cache?: any;
-  }) => Promise<string>;
-  readonly statusMatrix: (params: {
-    readonly dir: string;
-    readonly gitdir?: string | undefined;
-    readonly ref?: string | undefined;
-    // eslint-disable-next-line functional/prefer-readonly-type
-    readonly filepaths?: string[] | undefined;
-    readonly filter?: ((arg0: string) => boolean) | undefined;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly cache?: any;
-  }) => Promise<
-    readonly (readonly [string, 0 | 1, 0 | 2 | 1, 0 | 2 | 1 | 3])[]
-  >;
+    readonly ref?: string;
+    readonly filepaths?: readonly string[];
+    readonly filter?: (filepath: string) => boolean;
+  }) => Promise<readonly (readonly [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2])[]>;
+  readonly log: (msg: string) => Promise<void>;
 };
 
 function callbacks(): GitRemoteInterface {
   return {
-    async clone(
-      params,
-      onAuth,
-      onAuthFailure,
-      onAuthSuccess,
-      onMessage,
-      onProgress
-    ) {
-      await git.clone({
-        fs,
+    async clone(options) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
+      (self as any).fs = options.fs;
+      await clone({
+        http,
+        ...options,
+      });
+    },
+    listRemotes,
+    listBranches,
+    listTags,
+    checkout,
+    getConfig,
+    add,
+    remove,
+    resetIndex,
+    commit,
+    init,
+    async push(params) {
+      await push({
         http,
         ...params,
-        onAuth,
-        onAuthFailure,
-        onAuthSuccess,
-        onMessage,
-        onProgress,
       });
     },
-    async listRemotes(params) {
-      return await git.listRemotes({
-        fs,
-        ...params,
-      });
-    },
-    async listBranches(params) {
-      return await git.listBranches({
-        fs,
-        ...params,
-      });
-    },
-    async listTags(params) {
-      return await git.listTags({
-        fs,
-        ...params,
-      });
-    },
-    async checkout(params, onProgress) {
-      return await git.checkout({
-        fs,
-        ...params,
-        onProgress,
-      });
-    },
-    async getConfig(params) {
-      return await git.getConfig({
-        fs,
-        ...params,
-      });
-    },
-    async add(params) {
-      await git.add({
-        fs,
-        ...params,
-      });
-    },
-    async remove(params) {
-      await git.add({
-        fs,
-        ...params,
-      });
-    },
-    async resetIndex(params) {
-      await git.resetIndex({
-        fs,
-        ...params,
-      });
-    },
-    async commit(params) {
-      await git.commit({
-        fs,
-        ...params,
-      });
-    },
-    async init(params) {
-      await git.init({
-        fs,
-        ...params,
-      });
-    },
-    async push(
-      params,
-      onAuth,
-      onAuthFailure,
-      onAuthSuccess,
-      onMessage,
-      onProgress
-    ) {
-      await git.push({
-        fs,
+    async pull(params) {
+      await pull({
         http,
         ...params,
-        onAuth,
-        onAuthFailure,
-        onAuthSuccess,
-        onMessage,
-        onProgress,
       });
     },
-    async pull(
-      params,
-      onAuth,
-      onAuthFailure,
-      onAuthSuccess,
-      onMessage,
-      onProgress
-    ) {
-      await git.pull({
+    status,
+    statusMatrix({
+      fs,
+      dir,
+      gitdir = dir + "/.git",
+      ref = "HEAD",
+      filepaths = ["."],
+      filter = () => true,
+      cache = {},
+    }) {
+      return walk({
         fs,
-        http,
-        ...params,
-        onAuth,
-        onAuthFailure,
-        onAuthSuccess,
-        onMessage,
-        onProgress,
-      });
-    },
-    async status(params) {
-      return await git.status({
-        fs,
-        ...params,
-      });
-    },
-    async statusMatrix(params) {
-      console.log("git-worker: statusMatrix called");
-      return await git
-        .statusMatrix({
-          fs,
-          ...params,
-        })
-        .then((e) => {
-          console.log("git-worker: statusMatrix ended");
+        cache,
+        dir,
+        gitdir,
+        trees: [TREE({ ref }), WORKDIR(), STAGE()],
+        map: async function (filepath, [head, workdir, stage]) {
+          // Ignore ignored files, but only if they are not already tracked.
+          if (!head && !stage && workdir) {
+            if (
+              await isIgnored({
+                fs,
+                dir,
+                filepath,
+              })
+            ) {
+              return null;
+            }
+          }
+          // match against base paths
+          if (!filepaths.some((base) => worthWalking(filepath, base))) {
+            return null;
+          }
+          // Late filter against file names
+          if (filter) {
+            if (!filter(filepath)) return;
+          }
 
-          return e;
-        });
+          // For now, just bail on directories
+          const headType = head && (await head.type());
+          if (headType === "tree" || headType === "special") return;
+          if (headType === "commit") return null;
+
+          const workdirType = workdir && (await workdir.type());
+          if (workdirType === "tree" || workdirType === "special") return;
+
+          const stageType = stage && (await stage.type());
+          if (stageType === "commit") return null;
+          if (stageType === "special") return;
+
+          // Figure out the oids, using the staged oid for the working dir oid if the stats match.
+          const headOid = head ? await head.oid() : undefined;
+          const stageOid = stage ? await stage.oid() : undefined;
+          // eslint-disable-next-line functional/no-let
+          let workdirOid;
+          if (!head && workdir && !stage) {
+            // We don't actually NEED the sha. Any sha will do
+            // TODO: update this logic to handle N trees instead of just 3.
+            workdirOid = "42";
+          } else if (workdir) {
+            workdirOid = await workdir.oid();
+          }
+          const entry = [undefined, headOid, workdirOid, stageOid];
+          const result = entry.map((value) => entry.indexOf(value));
+          // eslint-disable-next-line functional/immutable-data
+          result.shift(); // remove leading undefined entry
+          return [filepath, ...result];
+        },
+      });
+    },
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async log(cb) {
+      console.log(cb);
     },
   };
 }

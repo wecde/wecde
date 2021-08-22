@@ -12,6 +12,8 @@ const path = require("path");
 
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require("quasar/wrappers");
+/* eslint-disable @typescript-eslint/no-var-requires */
+const webpack = require("webpack");
 
 // eslint-disable-next-line functional/immutable-data
 module.exports = configure(function (ctx) {
@@ -32,12 +34,7 @@ module.exports = configure(function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
-    boot: [
-      "i18n",
-      "capacitor",
-      "vue-timeago.js",
-      "webserver",
-    ],
+    boot: ["i18n", "capacitor", "vue-timeago.js", "webserver"],
 
     // https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: ["app.scss"],
@@ -101,6 +98,14 @@ module.exports = configure(function (ctx) {
           modules: path.resolve("./src/modules"),
           path$: "path-cross/build/module/index.js",
         };
+
+        // eslint-disable-next-line functional/immutable-data
+        cfg.plugins.push(
+          new webpack.ProvidePlugin({
+            // process: "process/browser",
+            Buffer: ["buffer", "Buffer"],
+          })
+        );
       },
     },
 

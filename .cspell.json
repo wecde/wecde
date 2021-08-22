@@ -9,7 +9,8 @@
         "yarn.lock",
         "tsconfig.json",
         "node_modules/**",
-        "quasar.conf.js"
+        "quasar.conf.js",
+        "src/comlink/**"
     ],
     "words": [
         "autofix",
@@ -17,6 +18,7 @@
         "cloneing",
         "Comlink",
         "corss",
+        "Desource",
         "Dreamweaver",
         "espree",
         "Espress",
@@ -29,11 +31,13 @@
         "Kuroir",
         "merbivore",
         "meriyah",
+        "msapplication",
         "nord",
         "normalised",
         "nosync",
         "noteshub",
         "Oget",
+        "oids",
         "permissing",
         "preload",
         "repos",
@@ -41,10 +45,15 @@
         "sqlserver",
         "statuss",
         "stoped",
+        "typedarray",
         "uncommented",
         "undeletemodified",
         "Unmount",
+        "Unpromisify",
         "vetur",
-        "Whitespaces"
+        "Whitespaces",
+        "WORKDIR",
+        "workercom",
+        "workerlink"
     ]
 }

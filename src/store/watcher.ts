@@ -6,7 +6,7 @@ import type { Store } from "vuex";
 import type { StateInterface } from "./index";
 
 export default (store: Store<StateInterface>): void => {
-  // ? for project
+  // * for project
   fs.emitter?.on("move:dir", ({ from, to }) => {
     if (
       store.state.editor.project &&
@@ -16,7 +16,7 @@ export default (store: Store<StateInterface>): void => {
     }
   });
 
-  // ? for sessions
+  // * for sessions
   fs.emitter?.on("move:file", ({ from, to }) => {
     if (
       store.state.editor.project &&
@@ -74,9 +74,9 @@ export default (store: Store<StateInterface>): void => {
       });
     }
   });
-  // ?
+  // *
 
-  // ? for scrollEnhance
+  // * for scrollEnhance
   fs.emitter?.on("move:file", ({ from, to }) => {
     if (
       store.state.editor.project &&
@@ -135,9 +135,9 @@ export default (store: Store<StateInterface>): void => {
       }
     }
   });
-  // ?
+  // *
 
-  // ? update .gitignore
+  // * update .gitignore
   fs.watch("projects/*/.gitignore", ({ path }) => {
     if (
       store.state.editor.project &&
@@ -146,9 +146,9 @@ export default (store: Store<StateInterface>): void => {
       void store.dispatch("git-project/loadIgnore");
     }
   });
-  // ?
+  // *
 
-  // ? watch .git/index
+  // * watch .git/index
   fs.watch("projects/*/.git/index", ({ path }) => {
     if (
       store.state.editor.project &&
@@ -157,9 +157,9 @@ export default (store: Store<StateInterface>): void => {
       void store.dispatch("git-project/checkDotGit");
     }
   });
-  // ?
+  // *
 
-  // ? watch editor.project
+  // * watch editor.project
   store.watch(
     () => store.state.editor.project,
     (value) => {
@@ -172,9 +172,9 @@ export default (store: Store<StateInterface>): void => {
       immediate: true,
     }
   );
-  // ?
+  // *
 
-  // ? watch ** files from projects
+  // * watch ** files from projects
   fs.watch(
     "projects/*/**",
     ({ path }) => {
@@ -209,5 +209,5 @@ export default (store: Store<StateInterface>): void => {
       type: "dir",
     }
   );
-  // ?
+  // *
 };

@@ -1,6 +1,6 @@
 import { Toast } from "@capacitor/toast";
 import { i18n } from "boot/i18n";
-import type { GitAuth, GitProgressEvent } from "isomorphic-git-cross";
+import type { GitAuth, GitProgressEvent } from "isomorphic-git";
 import { store } from "src/store";
 
 export function onStart(message: string): void {
@@ -54,9 +54,12 @@ export function onAuthSuccess(): void {
   store.commit("terminal/success", i18n.global.t("alert.login-success"));
 }
 
-export function onMessage(message: string): void {
-  console.log(`onMessage: ${message}`);
-}
+export const onMessage =
+  process.env.NODE_ENV === "development"
+    ? function onMessage(message: string): void {
+        console.log(`onMessage: ${message}`);
+      }
+    : undefined;
 
 export const configs = {
   corsProxy: "https://cors.isomorphic-git.org",

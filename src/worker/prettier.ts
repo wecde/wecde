@@ -1,5 +1,5 @@
-import { Remote, wrap } from "comlink";
 import Worker from "worker-loader!./prettier.worker";
+import { releaseProxy, Remote, wrap } from "workercom";
 
 import type { PrettierRemoteInterface } from "./prettier.worker";
 
@@ -18,6 +18,7 @@ export function usePrettierConstructor(): Worker {
 export function refreshPrettierWorker(): void {
   console.info("worker-prettier: refresh");
   worker.terminate();
+  workerWrap[releaseProxy]();
   worker = new Worker();
   workerWrap = wrap<PrettierRemoteInterface>(worker);
 }

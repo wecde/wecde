@@ -1,4 +1,4 @@
-import { proxy } from "comlink";
+import fs from "modules/filesystem";
 import { configs as gitConfigs, onError, onProgress } from "src/helpers/git";
 import { store } from "src/store";
 import { useGitWorker } from "src/worker/git";
@@ -12,15 +12,14 @@ export async function checkout(ref: string, force = false): Promise<boolean> {
   store.commit("system/setProgress", true);
   if (store.state.editor.project) {
     try {
-      await useGitWorker().checkout(
-        {
-          dir: store.state.editor.project,
-          ref,
-          force,
-          noCheckout: gitConfigs.noCheckout,
-        },
-        proxy(onProgress)
-      );
+      await useGitWorker().checkout({
+        fs,
+        dir: store.state.editor.project,
+        ref,
+        force,
+        noCheckout: gitConfigs.noCheckout,
+        onProgress,
+      });
 
       result = true;
     } catch (err) {
@@ -35,6 +34,7 @@ export async function checkout(ref: string, force = false): Promise<boolean> {
 export async function getRemoteNow(): Promise<string | void> {
   if (store.state.editor.project) {
     return await useGitWorker().getConfig({
+      fs,
       dir: store.state.editor.project,
       path: "remote.origin.url",
     });
@@ -45,11 +45,13 @@ export async function add({ status, filepath }: Change): Promise<void> {
   if (store.state.editor.project) {
     if (status === "*deleted") {
       await useGitWorker().remove({
+        fs,
         dir: store.state.editor.project,
         filepath,
       });
     } else if (status === "*added" || status === "*modified") {
       await useGitWorker().add({
+        fs,
         dir: store.state.editor.project,
         filepath,
       });
@@ -60,6 +62,7 @@ export async function add({ status, filepath }: Change): Promise<void> {
 export async function reset({ status, filepath }: Change): Promise<void> {
   if (store.state.editor.project && status.startsWith("*") === false) {
     await useGitWorker().resetIndex({
+      fs,
       dir: store.state.editor.project,
       filepath,
     });
@@ -69,6 +72,7 @@ export async function reset({ status, filepath }: Change): Promise<void> {
 export async function resetHard(filepath: string): Promise<void> {
   if (store.state.editor.project) {
     await useGitWorker().checkout({
+      fs,
       dir: store.state.editor.project,
       force: true,
       noUpdateHead: true,
@@ -90,6 +94,7 @@ export async function commit(
       /// commit
       const remoteNow = await getRemoteNow();
       await useGitWorker().commit({
+        fs,
         dir: store.state.editor.project,
         author: {
           email: store.getters["git-configs/getConfig"](

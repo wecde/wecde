@@ -586,11 +586,9 @@ import {
   mdiViewHeadline,
 } from "@quasar/extras/mdi-v5";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
-import { proxy } from "comlink";
 import GitModalCheckout from "components/Git/ModalCheckout.vue";
 import GitModalCommit from "components/Git/ModalCommit.vue";
 import { sort } from "fast-sort";
-import git from "isomorphic-git-cross";
 import fs from "modules/filesystem";
 import { basename } from "path-cross";
 import {
@@ -604,21 +602,14 @@ import {
   onProgress,
   onStart,
 } from "src/helpers/git";
-import gitStatusCache from "src/helpers/git-status-cache";
 import { useStore } from "src/store";
-import {useGitWorker} from "src/worker/git";
+import { useGitWorker } from "src/worker/git";
 import { computed, defineComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import * as GitMethods from "./Git.methods";
 import type { Change, StatusGit, StatusMatrix } from "./Git.types";
 import TemplateTab from "./template/Tab.vue";
-// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
-(self as any).git = git;
-// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
-(self as any).fs = fs;
-// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
-(self as any).cache = gitStatusCache;
 
 export default defineComponent({
   components: {
@@ -673,6 +664,7 @@ export default defineComponent({
       store.commit("system/setProgress", true);
       if (store.state.editor.project) {
         await useGitWorker().init({
+          fs,
           dir: store.state.editor.project,
         });
         await store.dispatch("git-project/refresh");
@@ -699,19 +691,17 @@ export default defineComponent({
       if (store.state.editor.project) {
         try {
           onStart(i18n.t("alert.pulling"));
-          await useGitWorker().pull(
-            {
-              dir: store.state.editor.project,
-              ...gitConfigs,
-              remote,
-            },
-
-            proxy(onAuth),
-            proxy(onAuthFailure),
-            proxy(onAuthSuccess),
-            proxy(onMessage),
-            proxy(onProgress)
-          );
+          await useGitWorker().pull({
+            fs,
+            dir: store.state.editor.project,
+            ...gitConfigs,
+            remote,
+            onAuth,
+            onAuthSuccess,
+            onAuthFailure,
+            onMessage,
+            onProgress,
+          });
           onDone();
           void store.dispatch("git-project/updateMatrix");
         } catch (err) {
@@ -725,18 +715,16 @@ export default defineComponent({
       if (store.state.editor.project) {
         try {
           onStart(i18n.t("alert.pushing"));
-          await useGitWorker().push(
-            {
-              dir: store.state.editor.project,
-              remote,
-            },
-
-            proxy(onAuth),
-            proxy(onAuthFailure),
-            proxy(onAuthSuccess),
-            proxy(onMessage),
-            proxy(onProgress)
-          );
+          await useGitWorker().push({
+            fs,
+            dir: store.state.editor.project,
+            remote,
+            onAuth,
+            onAuthSuccess,
+            onAuthFailure,
+            onMessage,
+            onProgress,
+          });
           onDone();
         } catch (err) {
           onError(err);
