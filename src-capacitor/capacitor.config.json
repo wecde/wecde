@@ -1,7 +1,0 @@
-{
-  "appId": "git.shin.codeeditor",
-  "appName": "Shin Code Editor",
-  "bundledWebRuntime": false,
-  "npmClient": "yarn",
-  "webDir": "www"
-}

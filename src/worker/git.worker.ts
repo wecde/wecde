@@ -2,7 +2,6 @@
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
 (self as any).window = self;
 
-import FS from "capacitor-fs";
 import {
   add,
   AuthCallback,
@@ -30,6 +29,7 @@ import {
   WORKDIR,
 } from "isomorphic-git";
 import http from "isomorphic-git/http/web/index.js";
+import type fs from "modules/filesystem";
 import { expose } from "workercom";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -63,7 +63,7 @@ function worthWalking(filepath: string, root: string): boolean {
 export type GitRemoteInterface = {
   readonly clone: (options: {
     readonly dir: string;
-    readonly fs: FS;
+    readonly fs: typeof fs;
     readonly url: string;
     readonly corsProxy?: string | undefined;
     readonly ref?: string | undefined;
@@ -95,7 +95,7 @@ export type GitRemoteInterface = {
   readonly commit: typeof commit;
   readonly init: typeof init;
   readonly push: (options: {
-    readonly fs: FS;
+    readonly fs: typeof fs;
     readonly dir?: string | undefined;
     readonly gitdir?: string | undefined;
     readonly ref?: string | undefined;
@@ -114,7 +114,7 @@ export type GitRemoteInterface = {
     readonly onProgress: ProgressCallback;
   }) => Promise<void>;
   readonly pull: (options: {
-    readonly fs: FS;
+    readonly fs: typeof fs;
     readonly dir: string;
     readonly gitdir?: string | undefined;
     readonly ref?: string | undefined;
@@ -159,7 +159,7 @@ export type GitRemoteInterface = {
   }) => Promise<void>;
   readonly status: typeof status;
   readonly statusMatrix: (options: {
-    readonly fs: FS;
+    readonly fs: typeof fs;
     readonly dir: string;
     readonly gitdir?: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -176,6 +176,7 @@ function callbacks(): GitRemoteInterface {
     async clone(options) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
       (self as any).fs = options.fs;
+      console.log(options)
       await clone({
         http,
         ...options,

@@ -7,7 +7,7 @@ import type { StateInterface } from "./index";
 
 export default (store: Store<StateInterface>): void => {
   // * for project
-  fs.emitter?.on("move:dir", ({ from, to }) => {
+  fs.on("move:dir", ({ from, to }) => {
     if (
       store.state.editor.project &&
       fs.isEqual(from, store.state.editor.project)
@@ -17,7 +17,7 @@ export default (store: Store<StateInterface>): void => {
   });
 
   // * for sessions
-  fs.emitter?.on("move:file", ({ from, to }) => {
+  fs.on("move:file", ({ from, to }) => {
     if (
       store.state.editor.project &&
       fs.isParentDir(store.state.editor.project, from)
@@ -33,7 +33,7 @@ export default (store: Store<StateInterface>): void => {
     }
   });
 
-  fs.emitter?.on("move:dir", ({ from, to }) => {
+  fs.on("move:dir", ({ from, to }) => {
     if (
       store.state.editor.project &&
       fs.isParentDir(store.state.editor.project, from)
@@ -49,7 +49,7 @@ export default (store: Store<StateInterface>): void => {
     }
   });
 
-  fs.emitter?.on("remove:file", (path) => {
+  fs.on("remove:file", (path) => {
     if (
       store.state.editor.project &&
       fs.isParentDir(store.state.editor.project, path)
@@ -62,7 +62,7 @@ export default (store: Store<StateInterface>): void => {
     }
   });
 
-  fs.emitter?.on("remove:dir", (path) => {
+  fs.on("remove:dir", (path) => {
     if (
       store.state.editor.project &&
       fs.isParentDir(store.state.editor.project, path)
@@ -77,7 +77,7 @@ export default (store: Store<StateInterface>): void => {
   // *
 
   // * for scrollEnhance
-  fs.emitter?.on("move:file", ({ from, to }) => {
+  fs.on("move:file", ({ from, to }) => {
     if (
       store.state.editor.project &&
       fs.isParentDir(store.state.editor.project, from)
@@ -93,7 +93,7 @@ export default (store: Store<StateInterface>): void => {
       }
     }
   });
-  fs.emitter?.on("move:dir", ({ from, to }) => {
+  fs.on("move:dir", ({ from, to }) => {
     if (
       store.state.editor.project &&
       fs.isParentDir(store.state.editor.project, from)
@@ -109,7 +109,7 @@ export default (store: Store<StateInterface>): void => {
       }
     }
   });
-  fs.emitter?.on("remove:file", (path) => {
+  fs.on("remove:file", (path) => {
     if (
       store.state.editor.project &&
       fs.isParentDir(store.state.editor.project, path)
@@ -122,7 +122,7 @@ export default (store: Store<StateInterface>): void => {
       }
     }
   });
-  fs.emitter?.on("remove:dir", (path) => {
+  fs.on("remove:dir", (path) => {
     if (
       store.state.editor.project &&
       fs.isParentDir(store.state.editor.project, path)

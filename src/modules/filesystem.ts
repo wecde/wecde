@@ -1,4 +1,5 @@
-import FS from "capacitor-fs";
+import { Directory, Filesystem } from "@capacitor/filesystem";
+import { createFilesystem } from "capacitor-fs";
 import type { Stat } from "capacitor-fs/build/main/Stat";
 import { sort } from "fast-sort";
 import minimatch from "minimatch";
@@ -6,8 +7,9 @@ import { basename, join } from "path-cross";
 
 const PUBLIC_STORAGE_APPLICATION = "Shin Code Editor";
 
-const fs = new FS({
+const fs = createFilesystem(Filesystem, {
   rootDir: PUBLIC_STORAGE_APPLICATION,
+  directory: Directory.Documents,
   base64Alway: true,
 });
 
@@ -59,7 +61,8 @@ function sortFolder(items: readonly StatItem[]): readonly StatItem[] {
 
 export default fs;
 
-if (process.env.NODE_ENV === "development") {
-  // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
-  (self as any).fs = fs;
-}
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(window as any).fs = fs;
+
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(window as any).cfs = Filesystem;

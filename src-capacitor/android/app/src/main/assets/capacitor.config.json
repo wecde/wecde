@@ -1,7 +1,6 @@
 {
-  "appId": "git.shin.codeeditor",
-  "appName": "Shin Code Editor",
-  "bundledWebRuntime": false,
-  "npmClient": "yarn",
-  "webDir": "www"
+	"appId": "git.shin.code_editor",
+	"appName": "Shin Code Editor",
+	"bundledWebRuntime": false,
+	"webDir": "www"
 }
