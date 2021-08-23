@@ -1,6 +1,8 @@
 /* eslint-env worker */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
 (self as any).window = self;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const window = self;
 
 import {
   add,
@@ -29,7 +31,7 @@ import {
   WORKDIR,
 } from "isomorphic-git";
 import http from "isomorphic-git/http/web/index.js";
-import type fs from "modules/filesystem";
+import fs from "modules/filesystem";
 import { expose } from "workercom";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -63,7 +65,7 @@ function worthWalking(filepath: string, root: string): boolean {
 export type GitRemoteInterface = {
   readonly clone: (options: {
     readonly dir: string;
-    readonly fs: typeof fs;
+    // readonly fs: typeof fs;
     readonly url: string;
     readonly corsProxy?: string | undefined;
     readonly ref?: string | undefined;
@@ -159,7 +161,7 @@ export type GitRemoteInterface = {
   }) => Promise<void>;
   readonly status: typeof status;
   readonly statusMatrix: (options: {
-    readonly fs: typeof fs;
+    // readonly fs: typeof fs;
     readonly dir: string;
     readonly gitdir?: string;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -174,12 +176,10 @@ export type GitRemoteInterface = {
 function callbacks(): GitRemoteInterface {
   return {
     async clone(options) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
-      (self as any).fs = options.fs;
-      console.log(options)
       await clone({
         http,
         ...options,
+        fs,
       });
     },
     listRemotes,
@@ -205,8 +205,7 @@ function callbacks(): GitRemoteInterface {
       });
     },
     status,
-    statusMatrix({
-      fs,
+    async statusMatrix({
       dir,
       gitdir = dir + "/.git",
       ref = "HEAD",
@@ -214,7 +213,8 @@ function callbacks(): GitRemoteInterface {
       filter = () => true,
       cache = {},
     }) {
-      return walk({
+      console.log("Status matrix called");
+      const ret = await  walk({
         fs,
         cache,
         dir,
@@ -248,7 +248,8 @@ function callbacks(): GitRemoteInterface {
           if (headType === "commit") return null;
 
           const workdirType = workdir && (await workdir.type());
-          if (workdirType === "tree" || workdirType === "special") return;
+
+          if (workdirType === "special") return;
 
           const stageType = stage && (await stage.type());
           if (stageType === "commit") return null;
@@ -273,6 +274,10 @@ function callbacks(): GitRemoteInterface {
           return [filepath, ...result];
         },
       });
+
+      console.log( ret )
+
+      return ret
     },
     // eslint-disable-next-line @typescript-eslint/require-await
     async log(cb) {

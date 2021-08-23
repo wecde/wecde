@@ -1,6 +1,5 @@
 import fs from "modules/filesystem";
 import { relative } from "path-cross";
-import { refreshGitWorker } from "src/worker/git";
 import type { Store } from "vuex";
 
 import type { StateInterface } from "./index";
@@ -163,7 +162,6 @@ export default (store: Store<StateInterface>): void => {
   store.watch(
     () => store.state.editor.project,
     (value) => {
-      refreshGitWorker();
       if (value) {
         void store.dispatch("git-project/refresh");
       }

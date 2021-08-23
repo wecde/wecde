@@ -131,7 +131,7 @@ export default defineComponent({
         );
         await useGitWorker().clone({
           dir: `projects/${name}`,
-          fs,
+          // fs,
           url: this.url,
           ref: "master",
           ...gitConfigs,

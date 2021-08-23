@@ -1,7 +1,7 @@
-import Worker from "worker-loader!./prettier.worker";
 import { releaseProxy, Remote, wrap } from "workercom";
 
 import type { PrettierRemoteInterface } from "./prettier.worker";
+import Worker from "./prettier.worker.ts";
 
 // eslint-disable-next-line functional/no-let
 let worker = new Worker();

@@ -1,7 +1,7 @@
-import Worker from "worker-loader!./git.worker";
 import { releaseProxy, Remote, wrap } from "workercom";
 
 import type { GitRemoteInterface } from "./git.worker";
+import Worker from "./git.worker.ts";
 
 // eslint-disable-next-line functional/no-let
 let worker = new Worker();
@@ -22,6 +22,3 @@ export function refreshGitWorker(): void {
   worker = new Worker();
   workerWrap = wrap<GitRemoteInterface>(worker);
 }
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
-(self as any).gitWorker = workerWrap;

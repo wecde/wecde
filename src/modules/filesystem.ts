@@ -62,7 +62,7 @@ function sortFolder(items: readonly StatItem[]): readonly StatItem[] {
 export default fs;
 
 // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
-(window as any).fs = fs;
+(self as any).fs = fs;
 
 // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
-(window as any).cfs = Filesystem;
+(self as any).cfs = Filesystem;

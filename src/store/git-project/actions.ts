@@ -50,7 +50,7 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
     commit("set:matrix.loading", true);
     if (rootState.editor.project && state.status === "ready") {
       const statusMatrixResult = await useGitWorker().statusMatrix({
-        fs,
+        // fs,
         dir: rootState.editor.project,
         filepaths: [...filepaths],
       });
