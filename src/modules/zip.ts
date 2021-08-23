@@ -110,7 +110,8 @@ export async function zip(
 
 export async function unzip(
   file: string | ArrayBuffer,
-  extractTo: string
+  extractTo: string,
+  http = false
 ): Promise<void> {
   store.commit(
     "terminal/info",
@@ -120,7 +121,7 @@ export async function unzip(
   );
 
   if (typeof file === "string") {
-    if (/^(?:(?:https?:\/\/)|\/)/.exec(file)) {
+    if (http) {
       file = await fetch(file)
         .then((res) => res.blob())
         .then((blob) => blob.arrayBuffer());

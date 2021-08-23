@@ -172,7 +172,8 @@ export default defineComponent({
               // eslint-disable-next-line @typescript-eslint/no-var-requires
               require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
                 .default,
-              `projects/${this.templateSelected.name}`
+              `projects/${this.templateSelected.name}`,
+              true
             );
 
             this.$store.commit("terminal/clear");
