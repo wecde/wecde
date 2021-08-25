@@ -2,7 +2,7 @@ import { i18n } from "boot/i18n";
 import { join } from "path-cross";
 import { store } from "src/store";
 
-import fs from "./filesystem";
+import fs from "./fs";
 import selectFile from "./select-file";
 
 export default async function importFiles(

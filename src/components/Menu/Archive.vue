@@ -206,10 +206,10 @@ import GitClone from "components/Git/ModalGitClone.vue";
 import GitProvide from "components/Git/ModalGitProvide.vue";
 import ProjectCreate from "components/Project/Create.vue";
 import ProjectItem from "components/Project/Item.vue";
-import fs, { readdirAndStat } from "modules/filesystem";
-import type { StatItem } from "modules/filesystem";
+import fs from "modules/fs";
 import importZip from "modules/import-zip";
 import { basename } from "path-cross";
+import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { defineComponent, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";

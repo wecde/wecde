@@ -1,17 +1,9 @@
-import { Directory, Filesystem } from "@capacitor/filesystem";
-import { createFilesystem } from "capacitor-fs";
 import type { Stat } from "capacitor-fs/build/main/Stat";
 import { sort } from "fast-sort";
 import minimatch from "minimatch";
+import fs from "modules/fs";
 import { basename, join } from "path-cross";
-
-const PUBLIC_STORAGE_APPLICATION = "Shin Code Editor";
-
-const fs = createFilesystem(Filesystem, {
-  rootDir: PUBLIC_STORAGE_APPLICATION,
-  directory: Directory.Documents,
-  base64Alway: true,
-});
+import { onBeforeUnmount } from "vue";
 
 export type StatItem = {
   readonly stat: Stat;
@@ -59,10 +51,17 @@ function sortFolder(items: readonly StatItem[]): readonly StatItem[] {
   ];
 }
 
-export default fs;
+// eslint-disable-next-line functional/functional-parameters
+export const registerEvent: typeof fs.on = (...params) => {
+  const ev = fs.on(...params);
 
-// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
-(self as any).fs = fs;
+  onBeforeUnmount(() => void ev());
 
-// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
-(self as any).cfs = Filesystem;
+  return ev;
+};
+// eslint-disable-next-line functional/functional-parameters
+export const registerWatch: typeof fs.watch = (...params) => {
+  const watcher = fs.watch(...params);
+
+  return watcher;
+};

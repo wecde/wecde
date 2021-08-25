@@ -1,4 +1,4 @@
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { basename, dirname, join } from "path-cross";
 import { ActionTree } from "vuex";
 

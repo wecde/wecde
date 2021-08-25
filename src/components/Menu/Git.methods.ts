@@ -1,4 +1,5 @@
-import fs from "modules/filesystem";
+
+import fs from "modules/fs";
 import { configs as gitConfigs, onError, onProgress } from "src/helpers/git";
 import { store } from "src/store";
 import { useGitWorker } from "src/worker/git";

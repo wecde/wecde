@@ -5,7 +5,7 @@ import JSZip from "jszip";
 import { join, relative } from "path-cross";
 import { store } from "src/store";
 
-import fs from "./filesystem";
+import fs from "./fs";
 
 async function globby(
   dir: string,

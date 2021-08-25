@@ -189,7 +189,7 @@ import "ace-builds/src-noconflict/keybinding-vscode";
 import "ace-builds/src-noconflict/ext-spellcheck";
 import "ace-builds/src-noconflict/ext-prompt";
 // eslint-disable-next-line import/order
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 // eslint-disable-next-line import/order
 import { useStore } from "src/store";
 // eslint-disable-next-line import/order

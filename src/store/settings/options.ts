@@ -36,7 +36,7 @@ const groups: readonly {
       {
         name: "No checkout",
         type: "boolean",
-        default: true,
+        default: false,
         list: false,
         description:
           "Skipping checkout can save a lot of time normally spent writing files to disk.",
@@ -44,7 +44,7 @@ const groups: readonly {
       {
         name: "No tags",
         type: "boolean",
-        default: true,
+        default: false,
         list: false,
         description:
           "By default clone will fetch all tags. noTags disables that behavior.",
@@ -52,7 +52,7 @@ const groups: readonly {
       {
         name: "Depth",
         type: "int",
-        default: 1,
+        default: 10,
         list: false,
         description:
           "Integer. Determines how much of the git repository's history to retrieve",

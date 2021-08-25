@@ -31,25 +31,8 @@ import {
   WORKDIR,
 } from "isomorphic-git";
 import http from "isomorphic-git/http/web/index.js";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { expose } from "workercom";
-
-// eslint-disable-next-line @typescript-eslint/no-namespace
-namespace Cache {
-  export const cache = Object.create(null);
-
-  export function clear(): void {
-    // eslint-disable-next-line functional/no-loop-statement
-    for (const key in cache) {
-      // eslint-disable-next-line functional/immutable-data
-      delete cache[key];
-    }
-    // eslint-disable-next-line functional/immutable-data
-    Object.getOwnPropertySymbols(cache).forEach((key) => delete cache[key]);
-  }
-
-  setInterval(() => void clear(), 5 * 60 * 1000);
-}
 
 function worthWalking(filepath: string, root: string): boolean {
   if (filepath === "." || root == null || root.length === 0 || root === ".") {
@@ -61,12 +44,26 @@ function worthWalking(filepath: string, root: string): boolean {
     return filepath.startsWith(root);
   }
 }
+const cache = {};
 
+setInterval(() => {
+  [
+    ...Object.getOwnPropertyNames(cache),
+    ...Object.getOwnPropertySymbols(cache),
+  ].forEach((prop) => {
+    // eslint-disable-next-line functional/immutable-data
+    delete cache[prop as keyof typeof cache];
+  });
+}, 30 * 60 * 1000);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
+(self as any).cache = cache;
+// eslint-disable-next-line functional/no-mixed-type
 export type GitRemoteInterface = {
   readonly clone: (options: {
     readonly dir: string;
-    // readonly fs: typeof fs;
     readonly url: string;
+    readonly fs: typeof fs;
     readonly corsProxy?: string | undefined;
     readonly ref?: string | undefined;
     readonly singleBranch?: boolean | undefined;
@@ -161,25 +158,30 @@ export type GitRemoteInterface = {
   }) => Promise<void>;
   readonly status: typeof status;
   readonly statusMatrix: (options: {
-    // readonly fs: typeof fs;
+    readonly fs: typeof fs;
     readonly dir: string;
     readonly gitdir?: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    readonly cache?: any;
     readonly ref?: string;
     readonly filepaths?: readonly string[];
     readonly filter?: (filepath: string) => boolean;
   }) => Promise<readonly (readonly [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2])[]>;
   readonly log: (msg: string) => Promise<void>;
+  readonly setFs: (_fs: typeof fs) => void;
+  // eslint-disable-next-line functional/prefer-readonly-type
+  fs?: typeof fs;
 };
 
 function callbacks(): GitRemoteInterface {
   return {
+    fs,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    setFs(_fs) {
+      // this.fs = fs;
+    },
     async clone(options) {
       await clone({
         http,
         ...options,
-        fs,
       });
     },
     listRemotes,
@@ -207,15 +209,18 @@ function callbacks(): GitRemoteInterface {
     status,
     async statusMatrix({
       dir,
+      // fs,
       gitdir = dir + "/.git",
       ref = "HEAD",
       filepaths = ["."],
       filter = () => true,
-      cache = {},
     }) {
+      console.group("statusMatrix");
       console.log("Status matrix called");
-      const ret = await  walk({
-        fs,
+      console.time("statusMatrix");
+      const ret = await walk({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        fs: this.fs as any,
         cache,
         dir,
         gitdir,
@@ -265,9 +270,11 @@ function callbacks(): GitRemoteInterface {
             // TODO: update this logic to handle N trees instead of just 3.
             workdirOid = "42";
           } else if (workdir) {
-            workdirOid = await workdir.oid();
+            workdirOid = (await workdir.oid()) ?? "0x";
           }
+
           const entry = [undefined, headOid, workdirOid, stageOid];
+
           const result = entry.map((value) => entry.indexOf(value));
           // eslint-disable-next-line functional/immutable-data
           result.shift(); // remove leading undefined entry
@@ -275,9 +282,11 @@ function callbacks(): GitRemoteInterface {
         },
       });
 
-      console.log( ret )
+      console.log(ret);
+      console.timeEnd("statusMatrix");
+      console.groupEnd();
 
-      return ret
+      return ret;
     },
     // eslint-disable-next-line @typescript-eslint/require-await
     async log(cb) {

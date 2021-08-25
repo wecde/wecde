@@ -106,7 +106,7 @@ import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
 import type { Template } from "assets/labs/Release.json";
 import templates from "assets/templates/Release.json";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { unzip } from "modules/zip";
 import nameFileValidates from "src/validator/nameFileValidates";
 import { computed, defineComponent, ref, toRefs } from "vue";

@@ -589,7 +589,7 @@ import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import GitModalCheckout from "components/Git/ModalCheckout.vue";
 import GitModalCommit from "components/Git/ModalCommit.vue";
 import { sort } from "fast-sort";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { basename } from "path-cross";
 import {
   configs as gitConfigs,

@@ -1,4 +1,4 @@
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { relative } from "path-cross";
 import type { Store } from "vuex";
 
@@ -148,14 +148,20 @@ export default (store: Store<StateInterface>): void => {
   // *
 
   // * watch .git/index
-  fs.watch("projects/*/.git/index", ({ path }) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, path as string)
-    ) {
-      void store.dispatch("git-project/checkDotGit");
+  fs.watch(
+    "projects/*/.git/index",
+    ({ path }) => {
+      if (
+        store.state.editor.project &&
+        fs.isParentDir(store.state.editor.project, path as string)
+      ) {
+        void store.dispatch("git-project/checkDotGit");
+      }
+    },
+    {
+      type: "file",
     }
-  });
+  );
   // *
 
   // * watch editor.project

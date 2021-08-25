@@ -93,14 +93,6 @@ module.exports = configure(function (ctx) {
           },
         });
         // eslint-disable-next-line functional/immutable-data
-        cfg.module.rules.unshift({
-          test: /\.worker\.(j|t)sx?$/i,
-          loader: "worker-loader",
-          options: {
-          publicPath: "/workers/"
-          }
-        })
-        // eslint-disable-next-line functional/immutable-data
         cfg.resolve.alias = {
           ...cfg.resolve.alias,
           modules: path.resolve("./src/modules"),

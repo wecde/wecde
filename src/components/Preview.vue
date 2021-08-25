@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts">
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { basename, extname } from "path-cross";
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
 

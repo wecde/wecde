@@ -89,9 +89,9 @@ import {
   mdiPen,
 } from "@quasar/extras/mdi-v5";
 import exportZip from "modules/export-zip";
-import type { StatItem } from "modules/filesystem";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { basename } from "path-cross";
+import type { StatItem } from "src/helpers/fs";
 import { defineComponent, PropType, ref } from "vue";
 
 import FileExplorerRename from "../File Explorer/Rename.vue";

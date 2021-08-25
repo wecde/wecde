@@ -56,7 +56,7 @@
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { basename, dirname, extname, join, relative } from "path-cross";
 import { createTimeoutBy } from "src/utils";
 import nameFileValidates from "src/validator/nameFileValidates";

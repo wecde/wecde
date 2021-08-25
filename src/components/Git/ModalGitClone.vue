@@ -55,7 +55,7 @@
 import { Toast } from "@capacitor/toast";
 import { mdiClose } from "@quasar/extras/mdi-v5";
 import DialogTop from "components/DialogTop.vue";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import {
   configs as gitConfigs,
   onAuth,
@@ -68,6 +68,7 @@ import {
   onStart,
 } from "src/helpers/git";
 import { useGitWorker } from "src/worker/git";
+// import { useGitWorker } from "src/worker/git";
 import { defineComponent, ref, watch } from "vue";
 
 // import $store from "src/store";
@@ -131,8 +132,8 @@ export default defineComponent({
         );
         await useGitWorker().clone({
           dir: `projects/${name}`,
-          // fs,
           url: this.url,
+          fs,
           ref: "master",
           ...gitConfigs,
           onAuth,

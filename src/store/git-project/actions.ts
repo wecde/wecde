@@ -1,4 +1,4 @@
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { join } from "path-cross";
 import { useGitWorker } from "src/worker/git";
 import type { ActionTree } from "vuex";
@@ -11,7 +11,6 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
   async checkDotGit({ commit, rootState }): Promise<void> {
     commit("set:status", "unknown");
     try {
-      console.log(rootState.editor.project);
       if (
         rootState.editor.project &&
         (await fs.stat(join(rootState.editor.project, ".git/index"))).isFile()
@@ -48,10 +47,10 @@ const actions: ActionTree<GitProjectStateInterface, StateInterface> = {
     filepaths: readonly string[] = ["."]
   ) {
     commit("set:matrix.loading", true);
-    if (rootState.editor.project && state.status === "ready") {
+    if (state.status === "ready") {
       const statusMatrixResult = await useGitWorker().statusMatrix({
-        // fs,
-        dir: rootState.editor.project,
+        fs,
+        dir: rootState.editor.project as string,
         filepaths: [...filepaths],
       });
 

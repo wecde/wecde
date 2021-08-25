@@ -1,5 +1,5 @@
 import { encode } from "base-64";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { WebServer } from "modules/webserver";
 import { extname, join } from "path-cross";
 import { boot } from "quasar/wrappers";

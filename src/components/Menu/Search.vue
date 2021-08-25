@@ -190,7 +190,7 @@ import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import escapeRegExp from "escape-string-regexp";
 import isBinaryPath from "is-binary-path-cross";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { basename } from "path-cross";
 import { useStore } from "src/store";
 import { createTimeoutBy, foreachAsync } from "src/utils";

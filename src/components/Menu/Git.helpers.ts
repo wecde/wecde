@@ -1,4 +1,4 @@
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { join } from "path-cross";
 import { store } from "src/store";
 import { useGitWorker } from "src/worker/git";

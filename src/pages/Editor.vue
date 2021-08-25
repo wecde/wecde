@@ -56,7 +56,8 @@
     </div>
   </App-Hammer>
 
-  <div class="absolute fit">
+  <div class="absolute fit" style="height: calc(100% - 50px) !important">
+    <!-- padding-top offset for navbar -->
     <template v-if="fullpath && typeEditor">
       <Preview
         :fullpath="fullpath"
@@ -87,9 +88,10 @@
       </div>
     </template>
     <template v-else>
-      <div class="q-pt-4 text-caption q-px-6 q-pb-6">
-        <img class="image-shallow" :src="require('assets/favicon.svg')" />
-      </div>
+      <img
+        class="image-shallow q-mt-n9 q-px-n6"
+        :src="require('assets/favicon.svg')"
+      />
     </template>
   </div>
 </template>

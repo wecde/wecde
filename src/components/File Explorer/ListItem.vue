@@ -4,21 +4,17 @@
     :class="{
       dark: $q.dark.isActive,
 
-      ignored: ignored || gitStatus === `ignored` || isBeginCut,
+      ignored: ignored || isBeginCut,
       'is-folder': file.stat.isDirectory(),
 
-      'star-modified': gitStatus === `*modified`,
-      modified: gitStatus === `modified`,
+      'star-modified': statusMatrix === `121`,
+      modified: statusMatrix === `122` || statusMatrix === `123`,
 
-      'star-deleted': gitStatus === `*deleted`,
-      deleted: gitStatus === `deleted`,
+      'star-deleted': statusMatrix === `101`,
+      deleted: statusMatrix === `100`,
 
-      'star-undeleted': gitStatus === `*undeleted`,
-
-      'star-added': gitStatus === `*added`,
-      added: gitStatus === `added`,
-
-      loading: gitStatus === `loading`,
+      'star-added': statusMatrix === `020` || statusMatrix === `022`,
+      added: statusMatrix === `023`,
     }"
     v-ripple
     @click="clickToFile"
@@ -218,9 +214,9 @@ import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
 import exportZip from "modules/export-zip";
-import fs, { readdirAndStat } from "modules/filesystem";
-import type { StatItem } from "modules/filesystem";
+import fs from "modules/fs";
 import { basename, relative } from "path-cross";
+import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import {
   computed,
@@ -292,7 +288,6 @@ export default defineComponent({
         )
       );
     });
-    const gitStatus = ref<string | null>(null);
 
     async function refreshFolder() {
       if (file.value.stat.isDirectory()) {
@@ -333,10 +328,19 @@ export default defineComponent({
       basename,
       refreshFolder,
       opening,
-      gitStatus,
       loading,
 
       ignored,
+
+      statusMatrix: computed<string | null>(() => {
+        return (
+          (store.state.editor.project
+            ? store.state["git-project"].matrix.value[
+                relative(store.state.editor.project, file.value.fullpath)
+              ]?.join("")
+            : null) ?? null
+        );
+      }),
     };
   },
   methods: {

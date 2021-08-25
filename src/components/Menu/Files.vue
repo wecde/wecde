@@ -150,9 +150,8 @@ import {
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import FileExplorerAdd from "components/File Explorer/Add.vue";
 import FileExplorerList from "components/File Explorer/List.vue";
-import { readdirAndStat } from "modules/filesystem";
-import type { StatItem } from "modules/filesystem";
 import { basename } from "path-cross";
+import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import { computed, defineComponent, ref } from "vue";
 
