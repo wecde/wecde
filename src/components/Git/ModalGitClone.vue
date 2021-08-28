@@ -9,7 +9,7 @@
           {{ $t("label.clone-repo") }}
         </div>
         <q-space />
-        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
@@ -53,7 +53,6 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import { mdiClose } from "@quasar/extras/mdi-v5";
 import DialogTop from "components/DialogTop.vue";
 import fs from "modules/fs";
 import {
@@ -97,7 +96,6 @@ export default defineComponent({
     );
 
     return {
-      mdiClose,
       url,
     };
   },

@@ -1,29 +1,3 @@
-import MaterialIcons from "assets/extensions/material-icon-theme/dist/material-icons.json";
-import { extname } from "path-cross";
-
-export function getLanguageFile(path: string): string {
-  const type =
-    MaterialIcons.fileExtensions[
-      extname(path).replace(
-        /^\./,
-        ""
-      ) as keyof typeof MaterialIcons.fileExtensions
-    ] || "text";
-
-  switch (type) {
-    case "vue":
-    case "svelte":
-      return "html";
-    case "i18n":
-    case "settings":
-      return "json";
-    case "react":
-      return "jsx";
-  }
-
-  return type;
-}
-
 const storeTimeoutBy = new Map<
   string,
   {

@@ -31,7 +31,7 @@
       <template v-slot:prepend>
         <q-icon
           size="20px"
-          :name="collapse ? mdiChevronDown : mdiChevronRight"
+          :name="collapse ? 'mdi-chevron-down' : 'mdi-chevron-right'"
           v-if="file.stat.isDirectory()"
         />
       </template>
@@ -41,14 +41,14 @@
         <q-icon
           size="13px"
           color="blue"
-          :name="mdiCircleMedium"
+          name="mdi-circle-medium"
           v-if="opening"
         />
       </template>
     </FileExplorer-Rename>
 
     <div class="actions">
-      <q-btn color="inherit" flat dense :icon="mdiDotsVertical" @click.stop>
+      <q-btn color="inherit" flat dense icon="mdi-dots-vertical" @click.stop>
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,
@@ -68,7 +68,7 @@
                 :disable="notAllowPaste"
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon :name="mdiContentPaste" />
+                  <q-icon name="mdi-content-paste" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.paste") }}</q-item-section>
               </q-item>
@@ -86,7 +86,7 @@
                 "
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon :name="mdiFileOutline" />
+                  <q-icon name="mdi-file-outline" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.new-file") }}</q-item-section>
               </q-item>
@@ -101,7 +101,7 @@
                 "
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon :name="mdiFolderOutline" />
+                  <q-icon name="mdi-folder-outline" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
               </q-item>
@@ -113,7 +113,7 @@
                 <template v-slot:default="{ on }">
                   <q-item clickable v-close-popup v-ripple @click="on">
                     <q-item-section avatar class="min-width-0">
-                      <q-icon :name="mdiDownload" />
+                      <q-icon name="mdi-download" />
                     </q-item-section>
                     <q-item-section>{{
                       $t("label.import-files")
@@ -127,14 +127,14 @@
 
             <q-item clickable v-close-popup v-ripple @click="cut">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiContentCut" />
+                <q-icon name="mdi-content-cut" />
               </q-item-section>
               <q-item-section>{{ $t("label.cut") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple @click="copy">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiContentCopy" />
+                <q-icon name="mdi-content-copy" />
               </q-item-section>
               <q-item-section>{{ $t("label.copy") }}</q-item-section>
             </q-item>
@@ -146,21 +146,21 @@
               @click.stop.prevent="renaming = true"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiPen" />
+                <q-icon name="mdi-pen" />
               </q-item-section>
               <q-item-section>{{ $t("label.rename") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple @click="remove">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiDeleteOutline" />
+                <q-icon name="mdi-delete-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.delete") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple @click="exportZip">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiExportVariant" />
+                <q-icon name="mdi-export-variant" />
               </q-item-section>
               <q-item-section>{{
                 $t(
@@ -195,27 +195,12 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import {
-  mdiChevronDown,
-  mdiChevronRight,
-  mdiCircleMedium,
-  mdiContentCopy,
-  mdiContentCut,
-  mdiContentPaste,
-  mdiDeleteOutline,
-  mdiDotsVertical,
-  mdiDownload,
-  mdiExportVariant,
-  mdiFileOutline,
-  mdiFolderOutline,
-  mdiPen,
-} from "@quasar/extras/mdi-v5";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
 import exportZip from "modules/export-zip";
 import fs from "modules/fs";
-import { basename, relative } from "path-cross";
+import { basename } from "path-cross";
 import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import {
@@ -279,15 +264,7 @@ export default defineComponent({
 
       return false;
     });
-    const ignored = computed<boolean>(() => {
-      return (
-        store.state["git-project"].status === "ready" &&
-        store.state.editor.project &&
-        store.getters["git-project/ignored"](
-          relative(store.state.editor.project, file.value.fullpath)
-        )
-      );
-    });
+    const ignored = false
 
     async function refreshFolder() {
       if (file.value.stat.isDirectory()) {
@@ -306,20 +283,6 @@ export default defineComponent({
     });
 
     return {
-      mdiChevronDown,
-      mdiChevronRight,
-      mdiCircleMedium,
-      mdiDotsVertical,
-      mdiContentPaste,
-      mdiFileOutline,
-      mdiFolderOutline,
-      mdiDownload,
-      mdiContentCut,
-      mdiContentCopy,
-      mdiPen,
-      mdiDeleteOutline,
-      mdiExportVariant,
-
       collapse,
       renaming: ref<boolean>(false),
       adding,
@@ -332,15 +295,9 @@ export default defineComponent({
 
       ignored,
 
-      statusMatrix: computed<string | null>(() => {
-        return (
-          (store.state.editor.project
-            ? store.state["git-project"].matrix.value[
-                relative(store.state.editor.project, file.value.fullpath)
-              ]?.join("")
-            : null) ?? null
-        );
-      }),
+      statusMatrix: computed<string|null>(() => {
+        return store.getters["editor/status-matrix"](file.value.fullpath)
+      })
     };
   },
   methods: {

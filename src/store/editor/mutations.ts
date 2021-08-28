@@ -101,6 +101,16 @@ const mutation: MutationTree<EditorStateInterface> = {
   removeScrollEnhance(state, path) {
     delete state.scrollEnhance[path];
   },
+
+  "set:git"(state, value: "unknown" | "unready" | "ready"): void {
+    state.git = value;
+  },
+  "set:gitMatrixLoading"(state, value: boolean): void {
+    state.gitMatrixLoading = value;
+  },
+  "set:gitMatrix"(state, value: EditorStateInterface["gitMatrix"]): void {
+    state.gitMatrix = value;
+  },
 };
 
 export default mutation;

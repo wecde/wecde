@@ -61,7 +61,13 @@ export const registerEvent: typeof fs.on = (...params) => {
 };
 // eslint-disable-next-line functional/functional-parameters
 export const registerWatch: typeof fs.watch = (...params) => {
-  const watcher = fs.watch(...params);
+  const watcher = fs.watch(params[0], params[1], {
+    ...(params[2] || {}),
+    miniOpts: {
+      dot: true,
+      ...(params[2]?.miniOpts || {}),
+    },
+  });
 
   return watcher;
 };

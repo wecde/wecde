@@ -38,7 +38,7 @@
     </q-item-section>
 
     <q-item-section side top>
-      <q-btn :icon="mdiDotsVertical" flat round padding="xs" @click.stop>
+      <q-btn icon="mdi-dots-vertical" flat round padding="xs" @click.stop>
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,
@@ -51,13 +51,13 @@
           <q-list>
             <q-item clickable v-close-popup v-ripple @click="exportZip">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiArchiveOutline" />
+                <q-icon name="mdi-archive-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.export-zip") }}</q-item-section>
             </q-item>
             <q-item clickable v-close-popup v-ripple @click="renaming = true">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiPen" />
+                <q-icon name="mdi-pen" />
               </q-item-section>
               <q-item-section>{{ $t("label.rename") }}</q-item-section>
             </q-item>
@@ -68,7 +68,7 @@
               @click="$emit(`click:delete`)"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiDeleteOutline" />
+                <q-icon name="mdi-delete-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.delete") }}</q-item-section>
             </q-item>
@@ -81,13 +81,6 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import {
-  mdiArchiveOutline,
-  mdiDeleteOutline,
-  mdiDotsVertical,
-  mdiExportVariant,
-  mdiPen,
-} from "@quasar/extras/mdi-v5";
 import exportZip from "modules/export-zip";
 import fs from "modules/fs";
 import { basename } from "path-cross";
@@ -113,12 +106,6 @@ export default defineComponent({
   },
   setup() {
     return {
-      mdiDotsVertical,
-      mdiArchiveOutline,
-      mdiPen,
-      mdiExportVariant,
-      mdiDeleteOutline,
-
       renaming: ref<boolean>(false),
     };
   },

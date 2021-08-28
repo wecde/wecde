@@ -20,7 +20,7 @@
         <q-btn
           dense
           flat
-          :icon="mdiMinus"
+          icon="mdi-minus"
           @click="maximized = false"
           :disable="!maximized"
         >
@@ -31,7 +31,7 @@
         <q-btn
           dense
           flat
-          :icon="mdiCropSquare"
+          icon="mdi-crop-square"
           @click="maximized = true"
           :disable="maximized"
         >
@@ -39,7 +39,7 @@
             >Maximize</q-tooltip
           >
         </q-btn>
-        <q-btn dense flat :icon="mdiClose" v-close-popup>
+        <q-btn dense flat icon="mdi-close" v-close-popup>
           <q-tooltip class="bg-white text-primary">Close</q-tooltip>
         </q-btn>
       </q-bar>
@@ -62,7 +62,6 @@
 </template>
 
 <script lang="ts">
-import { mdiClose, mdiCropSquare, mdiMinus } from "@quasar/extras/mdi-v5";
 import { useQuasar } from "quasar";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
@@ -111,10 +110,6 @@ export default defineComponent({
     );
 
     return {
-      mdiCropSquare,
-      mdiMinus,
-      mdiClose,
-
       terminal,
       lines,
       maximized: ref<boolean>(false),

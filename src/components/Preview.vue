@@ -3,23 +3,24 @@
     <img
       :src="`data:image/${ext};base64,${base64}`"
       :alt="basename(fullpath)"
-      v-if="type === `image`"
+      v-if="isImage(fullpath)"
     />
     <video
       :src="`data:video/${ext};base64,${base64}`"
       :alt="basename(fullpath)"
       controls
-      v-else-if="type === `video`"
+      v-if="isVideo(fullpath)"
     />
     <audio
       :src="`data:audio/${ext};base64,${base64}`"
       :alt="basename(fullpath)"
       controls
       class="fill-width"
-      v-else-if="type === `audio`"
+      v-if="isAudio(fullpath)"
     />
 
-    <font v-else-if="type === `font`">
+    <font 
+      v-if="isFont(fullpath)">
       ABCDEFGHIJKLM<br />
       NOPQRSTUVWXYZ<br />
       abcdefghijklm<br />
@@ -37,7 +38,9 @@
 <script lang="ts">
 import fs from "modules/fs";
 import { basename, extname } from "path-cross";
+import {isAudio, isFont, isImage, isVideo } from "src/helpers/is-file-type"
 import { computed, defineComponent, ref, toRefs, watch } from "vue";
+
 
 export default defineComponent({
   props: {
@@ -45,7 +48,7 @@ export default defineComponent({
       type: String,
       required: true,
     },
-    type: {
+    mime: {
       type: String,
       required: true,
     },
@@ -75,6 +78,11 @@ export default defineComponent({
     return {
       base64,
       ext,
+
+      isAudio,
+      isFont,
+      isImage,
+      isVideo,
     };
   },
   methods: {

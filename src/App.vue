@@ -34,14 +34,17 @@
 import { Filesystem } from "@capacitor/filesystem";
 import { Filesystem as cfs } from "@capacitor/filesystem";
 import { loadLocaleMessages } from "boot/i18n";
-import git from "isomorphic-git";
-import http from "isomorphic-git/http/web/index.js";
+import { Stat } from "capacitor-fs/src/Stat"
+import git, { GitIndex, GitPackIndex } from "isomorphic-git-fast";
+import http from "isomorphic-git-fast/http/web/index.js";
 import fs from "modules/fs";
 import { useQuasar } from "quasar";
 import { configs } from "src/helpers/git";
+import { cacheToJson, jsonToCache } from "src/helpers/git-cache"
 import { useStore } from "src/store";
 import { isDark as themeIsDark } from "src/store/settings/options support/ace-themes";
 import { foreachAsync } from "src/utils";
+import { useGitWorker } from "src/worker/git"
 import { defineComponent, ref, watch } from "vue";
 
 // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
@@ -54,6 +57,18 @@ import { defineComponent, ref, watch } from "vue";
 (self as any).configs = configs;
 // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
 (self as any).http = http;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).GitPackIndex = GitPackIndex;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).GitIndex = GitIndex;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).Stat = Stat;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).cacheToJson = cacheToJson;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).jsonToCache = jsonToCache;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).useGitWorker = useGitWorker;
 
 export default defineComponent({
   setup() {

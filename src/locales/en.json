@@ -23,7 +23,7 @@
     "extract-file": "Extract file {name}",
     "extract-folder": "Extract folder {name}",
     "extracting-zip": "Extracting file zip from {name}",
-    "file-name-invalidate": "A file or folder <strong>{name}</strong> already exists at this location Please choose a different names",
+    "file-name-invalidate": "A file or folder $$name already exists at this location Please choose a different names",
     "file-name-not-empty": "A file or folder name must be provided",
     "import-files": "Import file(s)",
     "imported-project": "Imported project {list}",

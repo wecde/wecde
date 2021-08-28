@@ -9,7 +9,7 @@
           {{ $t("label.credentials") }}
         </div>
         <q-space />
-        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
@@ -99,7 +99,6 @@
 </template>
 
 <script lang="ts">
-import { mdiClose } from "@quasar/extras/mdi-v5";
 import DialogTop from "components/DialogTop.vue";
 import { useStore } from "src/store";
 import type { HostType } from "src/store/git-configs/state";
@@ -169,8 +168,6 @@ export default defineComponent({
     }
 
     return {
-      mdiClose,
-
       hosts,
       hostEditing,
 

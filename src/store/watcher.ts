@@ -1,5 +1,11 @@
 import fs from "modules/fs";
-import { relative } from "path-cross";
+import { join, relative } from "path-cross";
+import {
+  getMetadataStatusMatrix,
+  patchMetadataStatusMatrix,
+} from "src/helpers/metadata";
+import { createTimeoutBy } from "src/utils";
+import { getFilepathFrom, getPathToProjectFrom } from "src/utils/metadata";
 import type { Store } from "vuex";
 
 import type { StateInterface } from "./index";
@@ -136,82 +142,103 @@ export default (store: Store<StateInterface>): void => {
   });
   // *
 
-  // * update .gitignore
-  fs.watch("projects/*/.gitignore", ({ path }) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, path as string)
-    ) {
-      void store.dispatch("git-project/loadIgnore");
-    }
+  function updateEditorDotGit(fullpath: string | null): void {
+    createTimeoutBy(
+      "update git if editor.project change",
+      async () => {
+        store.commit("editor/set:git", "unknown");
+
+        if (fullpath && (await fs.isFile(join(fullpath, ".git/index")))) {
+          store.commit("editor/set:git", "ready");
+        } else {
+          store.commit("editor/set:git", "unready");
+        }
+      },
+      1
+    );
+  }
+  // * watch change editor.project -> update editor.git
+  store.watch(() => store.state.editor.project, updateEditorDotGit, {
+    immediate: true,
   });
   // *
 
-  // * watch .git/index
+  // * watch change projects/*/.git/index -> update editor.git
   fs.watch(
     "projects/*/.git/index",
-    ({ path }) => {
-      if (
-        store.state.editor.project &&
-        fs.isParentDir(store.state.editor.project, path as string)
-      ) {
-        void store.dispatch("git-project/checkDotGit");
-      }
-    },
+    ({ path }) => updateEditorDotGit(path ?? null),
     {
-      type: "file",
+      miniOpts: {
+        dot: true,
+      },
     }
   );
   // *
 
-  // * watch editor.project
-  store.watch(
-    () => store.state.editor.project,
-    (value) => {
-      if (value) {
-        void store.dispatch("git-project/refresh");
+  function updateEditorDotGitMatrix(fullpath: string | null): void {
+    createTimeoutBy(
+      "read file status-matrix.json",
+      async () => {
+        if (fullpath) {
+          store.commit("editor/set:gitMatrixLoading", true);
+          const rawStatusMatrix = await getMetadataStatusMatrix(fullpath);
+          store.commit("editor/set:gitMatrix", rawStatusMatrix || {});
+          store.commit("editor/set:gitMatrixLoading", false);
+          console.log("update store");
+        }
+      },
+      1
+    );
+  }
+  // * watch change editor.project -> update editor.gitMatrix
+  store.watch(() => store.state.editor.project, updateEditorDotGitMatrix, {
+    immediate: true,
+  });
+  // *
+
+  // * watch file status-matrix.json change -> update editor.gitMatrix
+  fs.watch(
+    ".metadata/*/status-matrix.json",
+    ({ path }) => {
+      if (
+        store.state.editor.project &&
+        path &&
+        fs.isParentDir(
+          store.state.editor.project,
+          join("projects", relative(".metadata", path))
+        )
+      ) {
+        /// ok
+        void updateEditorDotGitMatrix(
+          join("projects", relative(".metadata", path))
+        );
       }
     },
     {
-      immediate: true,
+      miniOpts: {
+        dot: true,
+      },
     }
   );
   // *
 
-  // * watch ** files from projects
-  fs.watch(
-    "projects/*/**",
-    ({ path }) => {
-      if (
-        store.state.editor.project &&
-        (fs.isParentDir(store.state.editor.project, path as string) ||
-          fs.isEqual(store.state.editor.project, path as string))
-      ) {
-        void store.dispatch("git-project/updateMatrix", [
-          relative(store.state.editor.project, path as string),
-        ]);
-      }
-    },
-    {
-      type: "file",
+  // * watch file and folder change -> update .metadata/*/status-matrix.json
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  fs.watch("projects/*/**", async ({ path }) => {
+    console.log(path);
+    if (path) {
+      store.commit("editor/set:gitMatrixLoading", true);
+      /// update now;
+      await patchMetadataStatusMatrix(path, [
+        getFilepathFrom(getPathToProjectFrom(path), path),
+      ]);
+      store.commit("editor/set:gitMatrixLoading", false);
     }
-  );
-  fs.watch(
-    "projects/*/**",
-    ({ path }) => {
-      if (
-        store.state.editor.project &&
-        (fs.isParentDir(store.state.editor.project, path as string) ||
-          fs.isEqual(store.state.editor.project, path as string))
-      ) {
-        void store.dispatch("git-project/updateMatrix", [
-          relative(store.state.editor.project, path as string),
-        ]);
-      }
-    },
-    {
-      type: "dir",
+  }, 
+  {
+    miniOpts: {
+      dot: true
     }
-  );
+  });
   // *
 };

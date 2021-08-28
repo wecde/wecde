@@ -25,7 +25,7 @@
         <!-- <template v-if="isPlainText(item) === false">(read only)</template> -->
         <q-icon
           class="times"
-          :name="mdiClose"
+          name="mdi-close"
           @click.prevent.stop="$store.commit(`editor/removeSession`, index)"
         />
       </div>
@@ -38,7 +38,7 @@
         padding="xs"
         v-if="EditorCodeComponent && previewing === false"
         @click="toggleSearchAce"
-        :icon="mdiMagnify"
+        icon="mdi-magnify"
       />
 
       <q-btn
@@ -47,10 +47,10 @@
         padding="xs"
         v-if="EditorPreviewComponent"
         @click="preview"
-        :icon="previewing ? mdiPen : mdiFolderImage"
+        :icon="previewing ? 'mdi-pen' : 'mdi-folder-image'"
       />
 
-      <q-btn flat round :icon="mdiPlay" padding="xs">
+      <q-btn flat round icon="mdi-play" padding="xs">
         <q-badge color="blue" floating v-if="serverStatus" />
       </q-btn>
     </div>
@@ -58,21 +58,22 @@
 
   <div class="absolute fit" style="height: calc(100% - 50px) !important">
     <!-- padding-top offset for navbar -->
-    <template v-if="fullpath && typeEditor">
-      <Preview
-        :fullpath="fullpath"
-        :type="typeEditor"
-        v-if="TypeSupportPreview.includes(typeEditor)"
-      />
+    <template v-if="fullpath">
       <Editor-SVG
         :fullpath="fullpath"
-        v-else-if="typeEditor === 'svg'"
+        v-if="isSvg(fullpath)"
         @change="scrollSessionWrapperToSessionActive"
         ref="editorComponent"
       />
+      <Preview
+        :fullpath="fullpath"
+        v-else-if="
+        isImage(fullpath) || isVideo(fullpath) || isAudio(fullpath) || isFont(fullpath)
+        "
+      />
       <Editor-Markdown
         :fullpath="fullpath"
-        v-else-if="typeEditor === 'markdown'"
+        v-else-if="isMarkdown(fullpath)"
         @change="scrollSessionWrapperToSessionActive"
         ref="editorComponent"
       />
@@ -99,13 +100,6 @@
 <script lang="ts">
 import { Browser } from "@capacitor/browser";
 import { Toast } from "@capacitor/toast";
-import {
-  mdiClose,
-  mdiFolderImage,
-  mdiMagnify,
-  mdiPen,
-  mdiPlay,
-} from "@quasar/extras/mdi-v5";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppHammer from "components/App/Hammer.vue";
 import EditorCode from "components/Editor/Code.vue";
@@ -115,8 +109,9 @@ import Preview from "components/Preview.vue";
 import isBinaryPath from "is-binary-path-cross";
 import { WebServer } from "modules/webserver";
 import { basename } from "path-cross";
+import {isAudio, isFont, isImage, isMarkdown, isSvg, isVideo } from "src/helpers/is-file-type"
 import { useStore } from "src/store";
-import { createTimeoutBy, getLanguageFile } from "src/utils";
+import { createTimeoutBy } from "src/utils";
 import type { DefineComponent } from "vue";
 import { computed, defineComponent, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -134,9 +129,6 @@ export default defineComponent({
     const store = useStore();
     const fullpath = computed<string | null>(
       () => store.getters["editor/session"] as string | null
-    );
-    const typeEditor = computed<string | null>(() =>
-      fullpath.value ? getLanguageFile(fullpath.value) || "text" : null
     );
 
     const editorComponent = ref<DefineComponent | null>(null);
@@ -247,12 +239,6 @@ export default defineComponent({
     );
 
     return {
-      mdiClose,
-      mdiMagnify,
-      mdiPen,
-      mdiFolderImage,
-      mdiPlay,
-
       fullpath,
       serverStatus,
       port,
@@ -260,9 +246,14 @@ export default defineComponent({
       editorComponent,
       scrollSessionWrapperToSessionActive,
       plaintext,
-      typeEditor,
       openBrowser,
-      TypeSupportPreview: ["image", "video", "audio", "font"],
+      
+      isSvg,
+      isAudio,
+      isFont,
+      isImage,
+      isVideo,
+      isMarkdown
     };
   },
   computed: {

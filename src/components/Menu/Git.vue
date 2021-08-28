@@ -9,8 +9,8 @@
       <q-btn
         :icon="
           $store.state['git-configs'].viewAs === 'list'
-            ? mdiViewHeadline
-            : mdiFileTree
+            ? 'mdi-view-headline'
+            : 'mdi-file-tree'
         "
         @click="
           $store.commit(
@@ -24,7 +24,7 @@
         size="13px"
       />
       <q-btn
-        :icon="mdiCheck"
+        icon="mdi-check"
         flat
         round
         padding="xs"
@@ -32,7 +32,7 @@
         @click="commit(commitMessage, allChanges)"
       />
       <q-btn
-        :icon="mdiReload"
+        icon="mdi-reload"
         flat
         round
         padding="xs"
@@ -40,7 +40,7 @@
         @click="refreshStatus"
       />
 
-      <q-btn :icon="mdiDotsHorizontal" flat round padding="xs" size="13px">
+      <q-btn icon="mdi-dots-horizontal" flat round padding="xs" size="13px">
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,
@@ -54,7 +54,7 @@
             <q-item clickable>
               <q-item-section>View & Sort</q-item-section>
               <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
+                <q-icon name="mdi-chevron-right" />
               </q-item-section>
               <q-menu
                 :class="{
@@ -137,7 +137,7 @@
             <q-item clickable>
               <q-item-section>Commit</q-item-section>
               <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
+                <q-icon name="mdi-chevron-right" />
               </q-item-section>
               <q-menu
                 :class="{
@@ -194,7 +194,7 @@
             <q-item clickable>
               <q-item-section>Changes</q-item-section>
               <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
+                <q-icon name="mdi-chevron-right" />
               </q-item-section>
               <q-menu
                 :class="{
@@ -221,7 +221,7 @@
             <q-item clickable>
               <q-item-section>Pull, Push</q-item-section>
               <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
+                <q-icon name="mdi-chevron-right" />
               </q-item-section>
               <q-menu
                 :class="{
@@ -275,7 +275,7 @@
             <q-item clickable>
               <q-item-section>Branch</q-item-section>
               <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
+                <q-icon name="mdi-chevron-right" />
               </q-item-section>
               <q-menu
                 :class="{
@@ -314,7 +314,7 @@
             <q-item clickable>
               <q-item-section>Remote</q-item-section>
               <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
+                <q-icon name="mdi-chevron-right" />
               </q-item-section>
               <q-menu
                 :class="{
@@ -338,7 +338,7 @@
             <q-item clickable>
               <q-item-section>Stash</q-item-section>
               <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
+                <q-icon name="mdi-chevron-right" />
               </q-item-section>
               <q-menu
                 :class="{
@@ -377,7 +377,7 @@
             <q-item clickable>
               <q-item-section>Tags</q-item-section>
               <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
+                <q-icon name="mdi-chevron-right" />
               </q-item-section>
               <q-menu
                 :class="{
@@ -409,7 +409,7 @@
     </template>
 
     <template v-slot:contents>
-      <template v-if="$store.state['git-project'].state === 'unready'">
+      <template v-if="$store.state.editor.git === 'unready'">
         The folder curently open donesn't have a git repository. You can
         initialize a repository which will enable source control features
         powered by git.
@@ -490,7 +490,7 @@
                   color="inherit"
                   flat
                   dense
-                  :icon="mdiMinus"
+                  icon="mdi-minus"
                   padding="none"
                   size="12.5px"
                   @click="reset(item)"
@@ -544,7 +544,7 @@
                   color="inherit"
                   flat
                   dense
-                  :icon="mdiUndo"
+                  icon="mdi-undo"
                   padding="none"
                   size="12.5px"
                   @click="resetHard(item)"
@@ -553,7 +553,7 @@
                   color="inherit"
                   flat
                   dense
-                  :icon="mdiPlus"
+                  icon="mdi-plus"
                   padding="none"
                   size="12.5px"
                   @click="add(item)"
@@ -574,17 +574,6 @@
 </template>
 
 <script lang="ts">
-import {
-  mdiCheck,
-  mdiChevronRight,
-  mdiDotsHorizontal,
-  mdiFileTree,
-  mdiMinus,
-  mdiPlus,
-  mdiReload,
-  mdiUndo,
-  mdiViewHeadline,
-} from "@quasar/extras/mdi-v5";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import GitModalCheckout from "components/Git/ModalCheckout.vue";
 import GitModalCommit from "components/Git/ModalCommit.vue";
@@ -667,7 +656,7 @@ export default defineComponent({
           fs,
           dir: store.state.editor.project,
         });
-        await store.dispatch("git-project/refresh");
+        // await store.dispatch("git-project/refresh");
       }
       store.commit("system/setProgress", false);
     }
@@ -678,7 +667,7 @@ export default defineComponent({
 
       if (!!message) {
         if (await GitMethods.commit(message, changes)) {
-          await store.dispatch("git-project/updateMatrix");
+          // await store.dispatch("git-project/updateMatrix");
         }
 
         stateModalCommit.value = false;
@@ -703,7 +692,7 @@ export default defineComponent({
             onProgress,
           });
           onDone();
-          void store.dispatch("git-project/updateMatrix");
+          // void store.dispatch("git-project/updateMatrix");
         } catch (err) {
           onError(err);
         }
@@ -767,16 +756,6 @@ export default defineComponent({
     }
 
     return {
-      mdiCheck,
-      mdiChevronRight,
-      mdiDotsHorizontal,
-      mdiFileTree,
-      mdiPlus,
-      mdiReload,
-      mdiUndo,
-      mdiViewHeadline,
-      mdiMinus,
-
       getIcon,
 
       loading,

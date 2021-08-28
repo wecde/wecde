@@ -18,11 +18,6 @@
 </template>
 
 <script lang="ts">
-import {
-  mdiChevronDown,
-  mdiChevronRight,
-  mdiClose,
-} from "@quasar/extras/mdi-v5";
 import { defineComponent } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
@@ -30,13 +25,6 @@ import TemplateTab from "./template/Tab.vue";
 export default defineComponent({
   components: {
     TemplateTab,
-  },
-  setup() {
-    return {
-      mdiChevronDown,
-      mdiChevronRight,
-      mdiClose,
-    };
   },
 });
 </script>

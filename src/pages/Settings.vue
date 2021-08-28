@@ -1,6 +1,6 @@
 <template>
   <App-Hammer :show-hammer="false">
-    <q-btn flat round dense :icon="mdiArrowLeft" @click="$router.back()" />
+    <q-btn flat round dense icon="mdi-arrow-left" @click="$router.back()" />
     <q-toolbar-title>Settings</q-toolbar-title>
   </App-Hammer>
 
@@ -80,7 +80,6 @@
 </template>
 
 <script lang="ts">
-import { mdiArrowLeft } from "@quasar/extras/mdi-v5";
 import AppHammer from "components/App/Hammer.vue";
 import { useStore } from "src/store";
 import { groups } from "src/store/settings/options";
@@ -96,8 +95,6 @@ export default defineComponent({
     const store = useStore();
 
     return {
-      mdiArrowLeft,
-
       groups,
 
       createRefStore(path?: string): ComputedRef<ValueType | void> {

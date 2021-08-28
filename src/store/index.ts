@@ -13,8 +13,6 @@ import editor from "./editor";
 import type { EditorStateInterface } from "./editor/state";
 import gitConfigs from "./git-configs";
 import type { GitConfigsStateInterface } from "./git-configs/state";
-import gitProject from "./git-project";
-import type { GitProjectStateInterface } from "./git-project/state";
 import settings from "./settings";
 import type { SettingsStateInterface } from "./settings/state";
 import system from "./system";
@@ -35,7 +33,6 @@ import watcher from "./watcher";
 export type StateInterface = {
   readonly "clipboard-fs": ClipboardFStateInterface;
   readonly editor: EditorStateInterface;
-  readonly "git-project": GitProjectStateInterface;
   readonly settings: SettingsStateInterface;
   readonly system: SystemStateInterface;
   readonly terminal: TerminalStateInterface;
@@ -58,7 +55,6 @@ export const store = createStore<StateInterface>({
   modules: {
     "clipboard-fs": clipboardFs,
     editor,
-    "git-project": gitProject,
     settings,
     system,
     terminal,

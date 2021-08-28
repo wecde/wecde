@@ -1,6 +1,6 @@
 import { Toast } from "@capacitor/toast";
 import { i18n } from "boot/i18n";
-import type { GitAuth, GitProgressEvent } from "isomorphic-git";
+import type { GitAuth, GitProgressEvent } from "isomorphic-git-fast";
 import { store } from "src/store";
 
 export function onStart(message: string): void {

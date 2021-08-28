@@ -34,14 +34,6 @@
 </template>
 
 <script lang="ts">
-import {
-  mdiArchiveOutline,
-  mdiClockOutline,
-  mdiCogOutline,
-  mdiFileMultipleOutline,
-  mdiGit,
-  mdiMagnify,
-} from "@quasar/extras/mdi-v5";
 import MenuArchive from "components/Menu/Archive.vue";
 import MenuFiles from "components/Menu/Files.vue";
 import MenuGit from "components/Menu/Git.vue";
@@ -56,30 +48,30 @@ export default defineComponent({
     const tabs = [
       {
         name: "archive",
-        icon: mdiArchiveOutline,
+        icon: "mdi-archive-outline",
         panel: MenuArchive,
       },
       {
         name: "files",
-        icon: mdiFileMultipleOutline,
+        icon: "mdi-file-multiple-outline",
         panel: MenuFiles,
       },
       {
         name: "git",
-        icon: mdiGit,
+        icon: "mdi-git",
         "alert-icon": computed<string | null>(() =>
-          store.state["git-project"].matrix.loading ? mdiClockOutline : null
+          store.state.editor.gitMatrixLoading ? "mdi-clock-outline" : null
         ),
         panel: MenuGit,
       },
       {
         name: "search",
-        icon: mdiMagnify,
+        icon: "mdi-magnify",
         panel: MenuSearch,
       },
       {
         name: "settings",
-        icon: mdiCogOutline,
+        icon: "mdi-cog-outline",
         panel: MenuSettings,
       },
     ];

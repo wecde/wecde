@@ -4,14 +4,14 @@
 
     <template v-slot:addons>
       <q-btn
-        :icon="mdiReload"
+        icon="mdi-reload"
         @click="reloadListProjects(true)"
         flat
         round
         padding="xs"
         size="13px"
       />
-      <q-btn :icon="mdiGit" flat round padding="xs" size="13px" class="q-ml-xs">
+      <q-btn icon="mdi-git" flat round padding="xs" size="13px" class="q-ml-xs">
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,
@@ -29,7 +29,7 @@
               @click="statePopupGitClone = true"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiGit" />
+                <q-icon name="mdi-git" />
               </q-item-section>
               <q-item-section>{{ $t("label.clone-repo") }}</q-item-section>
             </q-item>
@@ -40,7 +40,7 @@
               @click="statePopupGitProvide = true"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiLockOutline" />
+                <q-icon name="mdi-lock-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.credentials") }}</q-item-section>
             </q-item>
@@ -48,7 +48,7 @@
         </q-menu>
       </q-btn>
       <q-btn
-        :icon="mdiPlus"
+        icon="mdi-plus"
         flat
         round
         padding="xs"
@@ -72,7 +72,7 @@
               @click="creatingProject = true"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiArchiveOutline" />
+                <q-icon name="mdi-archive-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.new-project") }}</q-item-section>
             </q-item>
@@ -83,7 +83,7 @@
               @click="importProjectFromZip"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiZipBoxOutline" />
+                <q-icon name="mdi-zip-box-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.import-zip") }}</q-item-section>
             </q-item>
@@ -97,13 +97,13 @@
               @click="$router.push(`/?tab=logs`)"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiMessageTextOutline" />
+                <q-icon name="mdi-message-text-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.change-logs") }}</q-item-section>
             </q-item>
             <q-item clickable v-close-popup v-ripple @click="$router.push(`/`)">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiCubeOutline" />
+                <q-icon name="mdi-cube-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.view-labs") }}</q-item-section>
             </q-item>
@@ -135,7 +135,7 @@
           {{ $t("label.delete-project") }}
         </div>
         <q-space />
-        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
@@ -190,17 +190,6 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import {
-  mdiArchiveOutline,
-  mdiClose,
-  mdiCubeOutline,
-  mdiGit,
-  mdiLockOutline,
-  mdiMessageTextOutline,
-  mdiPlus,
-  mdiReload,
-  mdiZipBoxOutline,
-} from "@quasar/extras/mdi-v5";
 import DialogTop from "components/DialogTop.vue";
 import GitClone from "components/Git/ModalGitClone.vue";
 import GitProvide from "components/Git/ModalGitProvide.vue";
@@ -247,16 +236,6 @@ export default defineComponent({
     });
 
     return {
-      mdiReload,
-      mdiGit,
-      mdiLockOutline,
-      mdiPlus,
-      mdiArchiveOutline,
-      mdiZipBoxOutline,
-      mdiMessageTextOutline,
-      mdiCubeOutline,
-      mdiClose,
-
       projects,
 
       creatingProject,

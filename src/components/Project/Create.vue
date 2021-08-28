@@ -13,7 +13,7 @@
           {{ $t("label.project-template") }}
         </div>
         <q-space />
-        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
@@ -59,7 +59,7 @@
             :disable="!!error"
             class="q-mr-xs"
           />
-          <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+          <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
         </div>
       </q-card-section>
 
@@ -103,7 +103,6 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import { mdiClose } from "@quasar/extras/mdi-v5";
 import type { Template } from "assets/labs/Release.json";
 import templates from "assets/templates/Release.json";
 import fs from "modules/fs";
@@ -129,8 +128,6 @@ export default defineComponent({
     const templateSelected = ref<Template | null>(null);
 
     return {
-      mdiClose,
-
       templates,
       templateSelected,
       error: nameFileValidates(

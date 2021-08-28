@@ -17,6 +17,14 @@ export type EditorStateInterface = {
       readonly cursorColumn: number;
     }
   >;
+  // eslint-disable-next-line functional/prefer-readonly-type
+  git: "unknown" | "ready" | "unready";
+  // eslint-disable-next-line functional/prefer-readonly-type
+  gitMatrixLoading: boolean;
+  // eslint-disable-next-line functional/prefer-readonly-type
+  gitMatrix: {
+    readonly [filepath: string]: readonly [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
+  };
 };
 
 function state(): EditorStateInterface {
@@ -28,6 +36,10 @@ function state(): EditorStateInterface {
     historySession: [],
 
     scrollEnhance: {},
+
+    git: "unknown",
+    gitMatrixLoading: false,
+    gitMatrix: {},
   };
 }
 

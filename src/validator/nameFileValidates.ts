@@ -31,9 +31,9 @@ export default function nameFileValidates(
           (oldName === false ? true : name !== basename(oldName.value))
       )
     ) {
-      return i18n.global.t("alert.file-name-invalidate", {
-        name: nameCheck.value,
-      });
+      return i18n.global
+        .t("alert.file-name-invalidate")
+        .replace("$$name", `<strong>${nameCheck.value}</strong>`);
     }
 
     return false;

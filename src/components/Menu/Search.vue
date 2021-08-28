@@ -9,7 +9,7 @@
         padding="xs"
         size="13px"
         class="q-ml-xs"
-        :icon="mdiRegex"
+        icon="mdi-regex"
         :color="modeRegexp ? `blue` : undefined"
         @click="modeRegexp = !modeRegexp"
       />
@@ -19,7 +19,7 @@
         padding="xs"
         size="13px"
         class="q-ml-xs"
-        :icon="mdiFormatLetterCase"
+        icon="mdi-format-letter-case"
         :color="modeLetterCase ? `blue` : undefined"
         @click="modeLetterCase = !modeLetterCase"
       />
@@ -29,7 +29,7 @@
         padding="xs"
         size="13px"
         class="q-ml-xs"
-        :icon="mdiFileWordBoxOutline"
+        icon="mdi-file-word-xox-outline"
         :color="modeWordBox ? `blue` : undefined"
         @click="modeWordBox = !modeWordBox"
       />
@@ -40,7 +40,7 @@
         <q-icon
           size="20px"
           @click="openReplace = !openReplace"
-          :name="openReplace ? mdiChevronDown : mdiChevronRight"
+          :name="openReplace ? 'mdi-chevron-down' : 'mdi-chevron-right'"
         />
         <div class="full-width">
           <q-input
@@ -64,7 +64,7 @@
               <q-icon
                 @click="replaceAll"
                 v-ripple="false"
-                :name="mdiFileReplaceOutline"
+                name="mdi-file-replace-outline"
                 size="0.85em"
               />
             </template>
@@ -75,7 +75,7 @@
         <q-icon
           size="20px"
           @click="openRules = !openRules"
-          :name="mdiDotsHorizontal"
+          name="mdi-dots-horizontal"
         />
         <div class="text-left" v-show="openRules">
           <small class="text-caption">{{ $t("label.files-include") }}</small>
@@ -120,7 +120,7 @@
             <div class="file-object" v-on="on" v-ripple>
               <q-icon
                 size="20px"
-                :name="state ? mdiChevronDown : mdiChevronRight"
+                :name="state ? 'mdi-chevron-down' : 'mdi-chevron-right'"
               />
               <img
                 class="icon-file"
@@ -166,7 +166,7 @@
             <q-icon
               size="13px"
               @click.prevent.stop="replaceSearch(item, index)"
-              :name="mdiCheck"
+              name="mdi-check"
             />
           </div>
         </App-Collapse>
@@ -176,16 +176,6 @@
 </template>
 
 <script lang="ts">
-import {
-  mdiCheck,
-  mdiChevronDown,
-  mdiChevronRight,
-  mdiDotsHorizontal,
-  mdiFileReplaceOutline,
-  mdiFileWordBoxOutline,
-  mdiFormatLetterCase,
-  mdiRegex,
-} from "@quasar/extras/mdi-v5";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import escapeRegExp from "escape-string-regexp";
@@ -338,15 +328,6 @@ export default defineComponent({
     // watch(keywordSearch, () => void search());
 
     return {
-      mdiChevronDown,
-      mdiRegex,
-      mdiFormatLetterCase,
-      mdiFileWordBoxOutline,
-      mdiChevronRight,
-      mdiFileReplaceOutline,
-      mdiDotsHorizontal,
-      mdiCheck,
-
       modeRegexp,
       modeLetterCase,
       modeWordBox,
