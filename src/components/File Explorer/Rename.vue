@@ -58,6 +58,7 @@ import { Toast } from "@capacitor/toast";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import fs from "modules/fs";
 import { basename, dirname, extname, join, relative } from "path-cross";
+import { Notify } from "quasar";
 import { createTimeoutBy } from "src/utils";
 import nameFileValidates from "src/validator/nameFileValidates";
 import { defineComponent, ref, toRefs, watch } from "vue";
@@ -143,14 +144,23 @@ export default defineComponent({
       ) {
         this.running = true;
         if (this.allowRename) {
-          /// rename
-          this.$store.commit("system/setProgress", true);
-          //// rename
-
           const [to, from] = [
             join(dirname(this.fullpath), this.newFilename),
             this.fullpath,
           ];
+
+          const task = Notify.create({
+            spinner: true,
+            position: "bottom-right",
+            message: this.$t(
+              `alert.renamed.${this.isFolder ? "folder" : "file"}-from-to`,
+              {
+                old: relative("projects", from),
+                new: relative("projects", to),
+              }
+            ),
+          });
+
           try {
             await fs.rename(from, to);
             void Toast.show({
@@ -162,6 +172,7 @@ export default defineComponent({
                 }
               ),
             });
+            task();
           } catch (err) {
             console.log(err);
             void Toast.show({
@@ -172,8 +183,16 @@ export default defineComponent({
                 }
               ),
             });
+            task({
+              timeout: 3000,
+              message: this.$t(
+                `alert.rename.${this.isFolder ? "folder" : "file"}-failed`,
+                {
+                  path: relative("projects", from),
+                }
+              ),
+            });
           }
-          this.$store.commit("system/setProgress", false);
 
           this.$emit("update:fullpath", to);
         } else {

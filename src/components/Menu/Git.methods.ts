@@ -1,4 +1,3 @@
-
 import fs from "modules/fs";
 import { configs as gitConfigs, onError, onProgress } from "src/helpers/git";
 import { store } from "src/store";
@@ -10,7 +9,6 @@ export async function checkout(ref: string, force = false): Promise<boolean> {
   // eslint-disable-next-line functional/no-let
   let result = false;
 
-  store.commit("system/setProgress", true);
   if (store.state.editor.project) {
     try {
       await useGitWorker().checkout({
@@ -27,7 +25,6 @@ export async function checkout(ref: string, force = false): Promise<boolean> {
       onError(err);
     }
   }
-  store.commit("system/setProgress", false);
 
   return result;
 }
@@ -88,7 +85,7 @@ export async function commit(
 ): Promise<boolean> {
   // eslint-disable-next-line functional/no-let
   let result = false;
-  store.commit("system/setProgress", true);
+
   if (store.state.editor.project) {
     try {
       await Promise.all(changes.map((item) => add(item)));
@@ -115,7 +112,6 @@ export async function commit(
       store.commit("terminal/error", err);
     }
   }
-  store.commit("system/setProgress", false);
 
   return result;
 }

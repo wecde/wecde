@@ -2,18 +2,11 @@
   <q-item
     clickable
     v-ripple
-    @click="$store.commit(`editor/setProject`, project.fullpath)"
+    @click="$store.commit(`editor/set:project`, project.fullpath)"
   >
     <q-item-section avatar>
       <q-img
-        :src="
-          require(`assets/extensions/material-icon-theme/icons/${
-            $store.state.editor.project &&
-            isEqual(project.fullpath, $store.state.editor.project)
-              ? 'folder-project-open.svg'
-              : 'folder-project.svg'
-          }`)
-        "
+        :src="require(`assets/extensions/material-icon-theme/icons/folder.svg`)"
         :size="40"
       />
     </q-item-section>
@@ -29,9 +22,17 @@
           no-icon
           allow-update-store
           :allow-rename="true"
+          :class="{
+            'text-blue': opened,
+          }"
         />
       </q-item-label>
-      <q-item-label caption>
+      <q-item-label
+        caption
+        :class="{
+          'text-blue': opened,
+        }"
+      >
         {{ $t("label.modified") }}
         <vue-timeagojs :time="new Date(project.stat.mtime)" :delay="30000" />
       </q-item-label>
@@ -85,7 +86,8 @@ import exportZip from "modules/export-zip";
 import fs from "modules/fs";
 import { basename } from "path-cross";
 import type { StatItem } from "src/helpers/fs";
-import { defineComponent, PropType, ref } from "vue";
+import { useStore } from "src/store";
+import { computed, defineComponent, PropType, ref } from "vue";
 
 import FileExplorerRename from "../File Explorer/Rename.vue";
 
@@ -104,15 +106,20 @@ export default defineComponent({
       required: true,
     },
   },
-  setup() {
+  setup(props) {
+    const store = useStore();
+
     return {
       renaming: ref<boolean>(false),
+      opened: computed<boolean>(() => {
+        return (
+          !!store.state.editor.project &&
+          fs.isEqual(store.state.editor.project, props.project.fullpath)
+        );
+      }),
     };
   },
   methods: {
-    isEqual(path1: string, path2: string): boolean {
-      return fs.isEqual(path1, path2);
-    },
     async exportZip() {
       try {
         await exportZip(this.project.fullpath);

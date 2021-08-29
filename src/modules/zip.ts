@@ -152,7 +152,10 @@ export async function unzip(
         tasks.push(
           fs.writeFile(
             join(extractTo, path),
-            await (zip.file(path) as JSZip.JSZipObject).async("arraybuffer")
+            await (zip.file(path) as JSZip.JSZipObject).async("arraybuffer"),
+            {
+              recursive: true,
+            }
           )
         );
       }
@@ -170,7 +173,7 @@ export async function unzip(
     }
   }
 
-  await Promise.all(tasks);
+  await Promise.allSettled(tasks);
   store.commit(
     "terminal/print",
     i18n.global.t("alert.unzipped", {

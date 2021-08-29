@@ -7,23 +7,17 @@ export type EditorStateInterface = {
   session: number;
   // eslint-disable-next-line functional/prefer-readonly-type
   historySession: number[];
-  // eslint-disable-next-line functional/prefer-readonly-type
-  scrollEnhance: Record<
-    string,
-    {
-      readonly x: number;
-      readonly y: number;
-      readonly cursorRow: number;
-      readonly cursorColumn: number;
-    }
-  >;
-  // eslint-disable-next-line functional/prefer-readonly-type
-  git: "unknown" | "ready" | "unready";
-  // eslint-disable-next-line functional/prefer-readonly-type
-  gitMatrixLoading: boolean;
-  // eslint-disable-next-line functional/prefer-readonly-type
-  gitMatrix: {
-    readonly [filepath: string]: readonly [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
+  readonly git: {
+    // eslint-disable-next-line functional/prefer-readonly-type
+    status: "unknown" | "ready" | "unready";
+    readonly statusMatrix: {
+      // eslint-disable-next-line functional/prefer-readonly-type
+      loading: boolean;
+      readonly matrix: {
+        // eslint-disable-next-line functional/prefer-readonly-type
+        [filepath: string]: readonly [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
+      };
+    };
   };
 };
 
@@ -35,11 +29,13 @@ function state(): EditorStateInterface {
     session: -1,
     historySession: [],
 
-    scrollEnhance: {},
-
-    git: "unknown",
-    gitMatrixLoading: false,
-    gitMatrix: {},
+    git: {
+      status: "unknown",
+      statusMatrix: {
+        loading: false,
+        matrix: {},
+      },
+    },
   };
 }
 

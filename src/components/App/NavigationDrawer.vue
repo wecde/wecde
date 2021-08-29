@@ -60,7 +60,7 @@ export default defineComponent({
         name: "git",
         icon: "mdi-git",
         "alert-icon": computed<string | null>(() =>
-          store.state.editor.gitMatrixLoading ? "mdi-clock-outline" : null
+          store.state.editor.git.statusMatrix.loading ? "mdi-clock-outline" : null
         ),
         panel: MenuGit,
       },

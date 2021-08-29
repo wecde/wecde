@@ -107,7 +107,7 @@
           size="2px"
           rounded
           style="position: absolute; top: 0"
-          v-if="searching"
+          v-if="loading"
         />
 
         <App-Collapse
@@ -210,7 +210,7 @@ export default defineComponent({
     const modeLetterCase = ref<boolean>(false);
     const modeWordBox = ref<boolean>(false);
 
-    const searching = ref<boolean>(false);
+    const loading = ref<boolean>(false);
     const results = ref<Result[]>([]);
 
     const keywordSearch = ref<string>("");
@@ -287,7 +287,7 @@ export default defineComponent({
         async (): Promise<void> => {
           results.value.splice(0);
 
-          searching.value = true;
+          loading.value = true;
           if (store.state.editor.project && !!keywordSearch.value) {
             // await foreachFiles(
             //   store.state.editor.project,
@@ -313,7 +313,7 @@ export default defineComponent({
             //   }
             // );
           }
-          searching.value = false;
+          loading.value = false;
         },
         500,
         {
@@ -337,7 +337,7 @@ export default defineComponent({
       openReplace: ref<boolean>(false),
       openRules: ref<boolean>(false),
 
-      searching,
+      loading,
       searchInFile,
       results,
 
@@ -351,7 +351,8 @@ export default defineComponent({
     getIcon,
 
     async replaceSearch(item: Result, matchIndex: number): Promise<void> {
-      this.$store.commit("system/setProgress", true);
+      this.loading = true;
+
       const { file } = item;
       const context = await fs.readFile(file, "utf8");
       const { index, value } = item.match[matchIndex];
@@ -374,7 +375,8 @@ export default defineComponent({
       } else {
         this.results.splice(this.results.indexOf(item), 1);
       }
-      this.$store.commit("system/setProgress", false);
+
+      this.loading = false;
     },
 
     async replaceAll(): Promise<void> {

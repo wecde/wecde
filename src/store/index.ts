@@ -68,12 +68,10 @@ export const store = createStore<StateInterface>({
     createPersistedState({
       paths: [
         "settings",
-        "system",
         "editor.project",
         "editor.sessions",
         "editor.session",
         "editor.historySession",
-        "scrollEnhance",
         "bookmark-labs",
         "git-configs",
       ],

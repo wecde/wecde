@@ -7,14 +7,14 @@
       ignored: ignored || isBeginCut,
       'is-folder': file.stat.isDirectory(),
 
-      'star-modified': statusMatrix === `121`,
-      modified: statusMatrix === `122` || statusMatrix === `123`,
+      'star-modified': status === `121` || status === '12x',
+      modified: status === `122` || status === `123`,
 
-      'star-deleted': statusMatrix === `101`,
-      deleted: statusMatrix === `100`,
+      'star-deleted': status === `101` || status === '10x',
+      deleted: status === `100`,
 
-      'star-added': statusMatrix === `020` || statusMatrix === `022`,
-      added: statusMatrix === `023`,
+      'star-added': status === `020` || status === `022` || status === '02x',
+      added: status === `023`,
     }"
     v-ripple
     @click="clickToFile"
@@ -201,6 +201,7 @@ import { saveAs } from "file-saver";
 import exportZip from "modules/export-zip";
 import fs from "modules/fs";
 import { basename } from "path-cross";
+import { Notify } from "quasar";
 import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import {
@@ -264,7 +265,7 @@ export default defineComponent({
 
       return false;
     });
-    const ignored = false
+    const ignored = false;
 
     async function refreshFolder() {
       if (file.value.stat.isDirectory()) {
@@ -295,16 +296,29 @@ export default defineComponent({
 
       ignored,
 
-      statusMatrix: computed<string|null>(() => {
-        return store.getters["editor/status-matrix"](file.value.fullpath)
-      })
+      status: computed<string | null>(() => {
+        return store.getters["editor/status:filepath"](
+          file.value.fullpath,
+          file.value.stat.isDirectory()
+        );
+      }),
     };
   },
   methods: {
     getIcon,
 
     async remove() {
-      this.$store.commit("system/setProgress", true);
+      const task = Notify.create({
+        spinner: true,
+        position: "bottom-right",
+        message: this.$t(
+          `alert.removed.${this.file.stat.isDirectory() ? "folder" : "file"}`,
+          {
+            name: `${this.file.fullpath}`,
+          }
+        ),
+      });
+
       try {
         await fs.unlink(this.file.fullpath, {
           removeAll: true,
@@ -319,6 +333,7 @@ export default defineComponent({
           ),
         });
 
+        task();
         this.$emit("removed");
       } catch {
         void Toast.show({
@@ -331,8 +346,19 @@ export default defineComponent({
             }
           ),
         });
+
+        task({
+          timeout: 3000,
+          message: this.$t(
+            `alert.remove-failed.${
+              this.file.stat.isDirectory() ? "folder" : "file"
+            }`,
+            {
+              name: `${this.file.fullpath}`,
+            }
+          ),
+        });
       }
-      this.$store.commit("system/setProgress", false);
     },
     cut() {
       this.$store.commit("clipboard-fs/cut", [
@@ -387,11 +413,24 @@ export default defineComponent({
           this.$store.commit("terminal/error", err);
         }
       } else {
-        this.$store.commit("system/setProgress", true);
+        const task = Notify.create({
+          spinner: true,
+          position: "bottom-right",
+          message: this.$t(
+            `alert.exported.${
+              this.file.stat.isDirectory() ? "folder" : "file"
+            }`,
+            {
+              name: this.file.fullpath,
+            }
+          ),
+        });
+
         const data = await fs.readFile(this.file.fullpath, "buffer");
 
         saveAs(new Blob([data]), basename(this.file.fullpath));
-        this.$store.commit("system/setProgress", false);
+        task();
+
         void Toast.show({
           text: this.$t(
             `alert.exported.${

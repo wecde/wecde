@@ -1,8 +1,10 @@
 import fs from "modules/fs";
 import { basename, dirname, join } from "path-cross";
+import { Notify } from "quasar";
+import { i18n } from "src/boot/i18n";
 import { ActionTree } from "vuex";
 
-import { StateInterface } from "../index";
+import type { StateInterface } from "../index";
 
 import { storeVm } from "./mutations";
 import { ClipboardFStateInterface } from "./state";
@@ -35,10 +37,6 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
    * @description true if required refresh this component parent
    */
   async paste({ commit, state, getters }, uri: string): Promise<boolean> {
-    commit("system/setProgress", true, {
-      root: true,
-    });
-
     // eslint-disable-next-line functional/no-let
     let refreshParent = false;
 
@@ -61,11 +59,22 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
                     : basename(item.path)
                 );
 
+            const task = Notify.create({
+              spinner: true,
+              position: "bottom-right",
+              message: i18n.global.t(`alert.${state.action}`, {
+                from,
+                to,
+              }),
+            });
+
             if (state.action === "copy") {
               await fs.copy(from, to);
             } else {
               await fs.rename(from, to);
             }
+
+            task();
 
             if (refreshParent === false && fs.isEqual(uri, item.path)) {
               refreshParent = true;
@@ -89,9 +98,6 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
     }
 
     commit("reset");
-    commit("system/setProgress", false, {
-      root: true,
-    });
 
     return refreshParent;
   },

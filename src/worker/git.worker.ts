@@ -32,12 +32,7 @@ import {
 } from "isomorphic-git-fast";
 import http from "isomorphic-git-fast/http/web/index.js";
 import type fs from "modules/fs";
-import { join, resolve } from "path-cross";
-import { cacheToJson, jsonToCache } from "src/helpers/git-cache";
-import type { Cache } from "src/helpers/git-cache";
 import { expose } from "workercom";
-
-const GET_PATH_CACHE_STATUS = (dir: string) => join(dir, ".git/.cache/status");
 
 function worthWalking(filepath: string, root: string): boolean {
   if (filepath === "." || root == null || root.length === 0 || root === ".") {
@@ -49,10 +44,7 @@ function worthWalking(filepath: string, root: string): boolean {
     return filepath.startsWith(root);
   }
 }
-const cache: Cache & {
-  // eslint-disable-next-line functional/prefer-readonly-type
-  dir?: string;
-} = {};
+const cache = {};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
 (self as any).cache = cache;
@@ -90,6 +82,7 @@ export type GitRemoteInterface = {
   readonly resetIndex: typeof resetIndex;
   readonly commit: typeof commit;
   readonly init: typeof init;
+  readonly status: typeof status;
   readonly push: (options: {
     readonly fs: typeof fs;
     readonly dir?: string | undefined;
@@ -153,13 +146,6 @@ export type GitRemoteInterface = {
     readonly onMessage?: MessageCallback;
     readonly onProgress: ProgressCallback;
   }) => Promise<void>;
-  readonly status: (options: {
-    readonly fs: typeof fs;
-    readonly dir: string;
-    readonly gitdir?: string | undefined;
-    readonly filepath: string;
-    readonly force?: boolean;
-  }) => Promise<string>;
   readonly statusMatrix: (options: {
     readonly fs: typeof fs;
     readonly dir: string;
@@ -167,26 +153,7 @@ export type GitRemoteInterface = {
     readonly ref?: string;
     readonly filepaths?: readonly string[];
     readonly filter?: (filepath: string) => boolean;
-    readonly force?: boolean;
   }) => Promise<readonly (readonly [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2])[]>;
-  // * @for cache
-  readonly clearCache: () => void;
-  readonly removeCache: (options: {
-    readonly fs: typeof fs;
-    readonly dir: string;
-  }) => Promise<void>;
-  readonly saveCache: (options: {
-    readonly fs: typeof fs;
-    readonly dir: string;
-  }) => Promise<void>;
-  readonly saveCacheForce: (options: {
-    readonly fs: typeof fs;
-    readonly dir: string;
-  }) => Promise<void>;
-  readonly loadCache: (options: {
-    readonly fs: typeof fs;
-    readonly dir: string;
-  }) => Promise<void>;
 };
 
 function callbacks(): GitRemoteInterface {
@@ -219,32 +186,7 @@ function callbacks(): GitRemoteInterface {
         ...params,
       });
     },
-    async status({ fs, dir, gitdir, filepath, force }) {
-      console.group("status");
-      console.log("getting status");
-
-      console.time("load cache");
-      await this.loadCache({ fs, dir });
-      console.timeEnd("load cache");
-
-      const result = await status({
-        fs,
-        dir,
-        gitdir,
-        filepath,
-      });
-
-      console.time("save cache");
-      if (force) {
-        await this.saveCacheForce({ fs, dir });
-      } else {
-        await this.saveCache({ fs, dir });
-      }
-      console.timeEnd("save cache");
-      console.groupEnd();
-
-      return result;
-    },
+    status,
     async statusMatrix({
       dir,
       fs,
@@ -252,15 +194,8 @@ function callbacks(): GitRemoteInterface {
       ref = "HEAD",
       filepaths = ["."],
       filter = () => true,
-      force = false,
     }) {
-      console.group("statusMatrix");
-      console.log("Status matrix called");
       console.time("statusMatrix");
-
-      console.time("load cache");
-      await this.loadCache({ fs, dir });
-      console.timeEnd("load cache");
 
       const ret = await walk({
         fs,
@@ -325,74 +260,9 @@ function callbacks(): GitRemoteInterface {
         },
       });
 
-      console.time("save cache");
-      if (force) {
-        await this.saveCacheForce({ fs, dir });
-      } else {
-        await this.saveCache({ fs, dir });
-      }
-      console.timeEnd("save cache");
-
-      console.log(ret);
       console.timeEnd("statusMatrix");
-      console.groupEnd();
 
       return ret;
-    },
-    // * for @cache
-    clearCache(): void {
-      Object.getOwnPropertyNames(cache).forEach((prop) => {
-        // eslint-disable-next-line functional/immutable-data
-        delete cache[prop as keyof typeof cache];
-      });
-    },
-    async removeCache({ fs, dir }): Promise<void> {
-      if (cache.dir && resolve(cache.dir) === resolve(dir)) {
-        this.clearCache();
-      }
-
-      try {
-        await fs.unlink(GET_PATH_CACHE_STATUS(dir));
-      } catch {}
-    },
-    async saveCache({ fs, dir }): Promise<void> {
-      if (!cache.dir) {
-        // if cache object for dir -> save();
-        await this.saveCacheForce({ fs, dir });
-      }
-    },
-    // this method for update cache old. Example: after push, pull, add...
-    async saveCacheForce({ fs, dir }): Promise<void> {
-      await fs.writeFile(
-        GET_PATH_CACHE_STATUS(dir),
-        cacheToJson(cache),
-        "utf8"
-      );
-    },
-    async loadCache({ fs, dir }): Promise<void> {
-      if (cache.dir && resolve(cache.dir) !== resolve(dir)) {
-        // if cache is other project -> clear()
-        this.clearCache();
-      }
-      if (!cache.dir && (await fs.exists(GET_PATH_CACHE_STATUS(dir)))) {
-        // if cache anonymous and cache project not exist -> use cache anonymous -> exit()
-        this.clearCache();
-
-        return;
-      }
-
-      if (!cache.dir || resolve(cache.dir) !== resolve(dir)) {
-        try {
-          // eslint-disable-next-line functional/immutable-data
-          Object.assign(
-            cache,
-            jsonToCache(await fs.readFile(GET_PATH_CACHE_STATUS(dir), "utf8")),
-            {
-              dir: resolve(dir),
-            }
-          );
-        } catch {}
-      }
     },
   };
 }

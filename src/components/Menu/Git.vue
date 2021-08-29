@@ -409,7 +409,7 @@
     </template>
 
     <template v-slot:contents>
-      <template v-if="$store.state.editor.git === 'unready'">
+      <template v-if="$store.state.editor.git.status === 'unready'">
         The folder curently open donesn't have a git repository. You can
         initialize a repository which will enable source control features
         powered by git.
@@ -650,15 +650,17 @@ export default defineComponent({
       stateModalCheckout = ref<boolean>(false);
 
     async function init(): Promise<void> {
-      store.commit("system/setProgress", true);
       if (store.state.editor.project) {
+        loading.value = true;
+
         await useGitWorker().init({
           fs,
           dir: store.state.editor.project,
         });
+
+        loading.value = false;
         // await store.dispatch("git-project/refresh");
       }
-      store.commit("system/setProgress", false);
     }
     async function commit(message: string, changes: Change[]): Promise<void> {
       /// check commit message ready
@@ -676,8 +678,9 @@ export default defineComponent({
       }
     }
     async function pull(remote = "origin"): Promise<void> {
-      store.commit("system/setProgress", true);
       if (store.state.editor.project) {
+        loading.value = true;
+
         try {
           onStart(i18n.t("alert.pulling"));
           await useGitWorker().pull({
@@ -696,12 +699,14 @@ export default defineComponent({
         } catch (err) {
           onError(err);
         }
+
+        loading.value = false;
       }
-      store.commit("system/setProgress", false);
     }
     async function push(remote = "origin"): Promise<void> {
-      store.commit("system/setProgress", true);
       if (store.state.editor.project) {
+        loading.value = true;
+
         try {
           onStart(i18n.t("alert.pushing"));
           await useGitWorker().push({
@@ -719,7 +724,8 @@ export default defineComponent({
           onError(err);
         }
       }
-      store.commit("system/setProgress", false);
+
+      loading.value = false;
     }
 
     async function add(change: Change): Promise<void> {

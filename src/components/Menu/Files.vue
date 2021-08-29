@@ -114,20 +114,25 @@
 
     <template v-slot:contents v-if="$store.state.editor.project">
       <div>
-        <FileExplorer-Add
-          v-model:adding="adding"
-          :is-folder="addingFolder"
-          :names-exists="tree.map((item) => basename(item.fullpath))"
-          :dirname="$store.state.editor.project"
-          allow-open-editor
-          @created="reloadListFile"
-        />
+        <q-pull-to-refresh
+          @refresh="(done) => void reloadListFile().then(() => void done())"
+          icon="mdi-refresh"
+        >
+          <FileExplorer-Add
+            v-model:adding="adding"
+            :is-folder="addingFolder"
+            :names-exists="tree.map((item) => basename(item.fullpath))"
+            :dirname="$store.state.editor.project"
+            allow-open-editor
+            @created="reloadListFile"
+          />
 
-        <FileExplorer-List
-          :files-list="tree"
-          @remove-children="tree.splice($event, 1)"
-          @request:refresh="reloadListFile"
-        />
+          <FileExplorer-List
+            :files-list="tree"
+            @remove-children="tree.splice($event, 1)"
+            @request:refresh="reloadListFile"
+          />
+        </q-pull-to-refresh>
       </div>
     </template>
   </Template-Tab>
@@ -139,6 +144,7 @@ import ActionImportFiles from "components/Action-ImportFiles.vue";
 import FileExplorerAdd from "components/File Explorer/Add.vue";
 import FileExplorerList from "components/File Explorer/List.vue";
 import { basename } from "path-cross";
+import { Notify } from "quasar";
 import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import { computed, defineComponent, ref } from "vue";
@@ -182,6 +188,12 @@ export default defineComponent({
     basename,
 
     async reloadListFile(notification = false): Promise<void> {
+      const task = Notify.create({
+        spinner: true,
+        position: "bottom-right",
+        message: this.$t("alert.reload-files"),
+      });
+
       try {
         if (!this.$store.state.editor.project) {
           // eslint-disable-next-line functional/no-throw-statement
@@ -192,14 +204,18 @@ export default defineComponent({
           ...(await readdirAndStat(this.$store.state.editor.project)),
         ];
 
+        task();
+
         if (notification) {
           void Toast.show({
             text: this.$t("alert.reload-files"),
           });
         }
       } catch (err) {
-        console.log(err);
         this.tree = [];
+        task({
+          message: this.$t("alert.reload-files-failed"),
+        });
       }
     },
 
