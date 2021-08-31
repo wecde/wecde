@@ -10,8 +10,8 @@
 </template>
 
 <script lang="ts">
-import type { StatItem } from "modules/filesystem";
 import { basename } from "path-cross";
+import type { StatItem } from "src/helpers/fs";
 import { defineComponent, PropType } from "vue";
 
 import FileExplorerListItem from "./ListItem.vue";

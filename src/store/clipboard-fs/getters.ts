@@ -1,4 +1,4 @@
-import fs from "src/modules/filesystem";
+import fs from "modules/fs";
 import { GetterTree } from "vuex";
 
 import { StateInterface } from "../index";

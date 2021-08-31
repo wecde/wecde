@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { join } from "path-cross";
 import { useStore } from "src/store";
 import { defineComponent, PropType, ref, toRefs, watch } from "vue";
@@ -68,7 +68,7 @@ export default defineComponent({
         const pathTo = join(dirname.value, filename.value);
         if (isFolder.value) {
           await fs.mkdir(pathTo, {
-            recursive: true
+            recursive: true,
           });
         } else {
           await fs.writeFile(pathTo, "");
@@ -96,10 +96,12 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "./ListItem.scss";
+@import "src/sass/file-object.scss";
+@import "src/sass/git-color.scss";
 
 .file-object {
-  @include file-object($enable-git: false);
+  @include file-object;
+  @include git-color;
   margin-right: 32px;
 }
 </style>

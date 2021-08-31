@@ -10,6 +10,16 @@
          "name": "Launch Chrome against localhost",
          "url": "http://localhost:8080",
          "webRoot": "${workspaceFolder}"
-      }
+      },
+      {
+         "type": "android-webview",
+         "request": "attach",
+         "name": "Attach to Android WebView",
+         "webRoot": "${workspaceFolder}/src-capacitor/www",
+         "sourceMaps": true,
+         "sourceMapPathOverrides": {
+             "webpack:/*": "${workspaceFolder}/src-capacitor/*"
+         }
+     }
    ]
 }

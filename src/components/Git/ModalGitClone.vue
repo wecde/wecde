@@ -9,7 +9,7 @@
           {{ $t("label.clone-repo") }}
         </div>
         <q-space />
-        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
@@ -53,9 +53,8 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import { mdiClose } from "@quasar/extras/mdi-v5";
 import DialogTop from "components/DialogTop.vue";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import {
   configs as gitConfigs,
   onAuth,
@@ -67,7 +66,7 @@ import {
   onProgress,
   onStart,
 } from "src/helpers/git";
-import { useGitWorker } from "src/worker/git";
+import { useGitCloneWorker } from "src/worker/git-clone";
 import { defineComponent, ref, watch } from "vue";
 
 // import $store from "src/store";
@@ -96,7 +95,6 @@ export default defineComponent({
     );
 
     return {
-      mdiClose,
       url,
     };
   },
@@ -129,10 +127,10 @@ export default defineComponent({
             url: this.url,
           })
         );
-        await useGitWorker().clone({
+        await useGitCloneWorker()({
           dir: `projects/${name}`,
-          // fs,
           url: this.url,
+          fs,
           ref: "master",
           ...gitConfigs,
           onAuth,

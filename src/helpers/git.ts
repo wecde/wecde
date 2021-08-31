@@ -109,4 +109,15 @@ export const configs = {
         .filter(Boolean) ?? []
     );
   },
+  authorFor(url: string): {
+    readonly user: string;
+    readonly email: string;
+  } {
+    const auth = store.getters["git-configs/getConfig"](url);
+
+    return {
+      user: auth.name,
+      email: auth.email,
+    };
+  },
 };

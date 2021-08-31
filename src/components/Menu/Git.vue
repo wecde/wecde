@@ -2,15 +2,18 @@
   <Template-Tab no-flat contents-class="q-mt-3">
     <template v-slot:title
       >{{ $t("label.source-control") }}
-      <q-badge rounded color="primary" :label="allChanges.length"
+      <q-badge
+        rounded
+        color="primary"
+        :label="$store.getters['editor/changes.length']"
     /></template>
 
     <template v-slot:addons>
       <q-btn
         :icon="
           $store.state['git-configs'].viewAs === 'list'
-            ? mdiViewHeadline
-            : mdiFileTree
+            ? 'mdi-view-headline'
+            : 'mdi-file-tree'
         "
         @click="
           $store.commit(
@@ -24,23 +27,16 @@
         size="13px"
       />
       <q-btn
-        :icon="mdiCheck"
+        icon="mdi-check"
         flat
         round
         padding="xs"
         size="13px"
-        @click="commit(commitMessage, allChanges)"
+        @click="commitAll(commitMessage)"
       />
-      <q-btn
-        :icon="mdiReload"
-        flat
-        round
-        padding="xs"
-        size="13px"
-        @click="refreshStatus"
-      />
+      <q-btn icon="mdi-reload" flat round padding="xs" size="13px" />
 
-      <q-btn :icon="mdiDotsHorizontal" flat round padding="xs" size="13px">
+      <q-btn icon="mdi-dots-horizontal" flat round padding="xs" size="13px">
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,
@@ -50,11 +46,16 @@
           anchor="bottom right"
           self="top right"
         >
-          <q-list dense style="min-width: 100px">
-            <q-item clickable>
-              <q-item-section>View & Sort</q-item-section>
+          <q-list
+            dense
+            style="min-width: 100px"
+            v-for="(item, index) in menu"
+            :key="index"
+          >
+            <q-item clickable v-if="item.subs">
+              <q-item-section>{{ item.name }}</q-item-section>
               <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
+                <q-icon name="mdi-chevron-right" />
               </q-item-section>
               <q-menu
                 :class="{
@@ -64,344 +65,26 @@
                 anchor="top end"
                 self="top start"
               >
-                <q-list>
-                  <q-item
-                    clickable
-                    v-close-popup
-                    dense
-                    :active="$store.state['git-configs'].viewAs === 'list'"
-                    @click="$store.commit('git-configs/setViewAs', 'list')"
-                  >
-                    <q-item-section>View as List</q-item-section>
-                  </q-item>
-                  <q-item
-                    clickable
-                    v-close-popup
-                    dense
-                    :active="$store.state['git-configs'].viewAs === 'tree'"
-                    @click="$store.commit('git-configs/setViewAs', 'tree')"
-                  >
-                    <q-item-section>View as Tree</q-item-section>
-                  </q-item>
-
-                  <q-separator />
-
-                  <q-item
-                    clickable
-                    v-close-popup
-                    dense
-                    :active="$store.state['git-configs'].sortBy === 'name'"
-                    @click="$store.commit('git-configs/setSortBy', 'name')"
-                  >
-                    <q-item-section>Sort by Name</q-item-section>
-                  </q-item>
-                  <q-item
-                    clickable
-                    v-close-popup
-                    dense
-                    :active="$store.state['git-configs'].sortBy === 'path'"
-                    @click="$store.commit('git-configs/setSortBy', 'path')"
-                  >
-                    <q-item-section>Sort by Path</q-item-section>
-                  </q-item>
-                  <q-item
-                    clickable
-                    v-close-popup
-                    dense
-                    :active="$store.state['git-configs'].sortBy === 'status'"
-                    @click="$store.commit('git-configs/setSortBy', 'status')"
-                  >
-                    <q-item-section>Sort by Status</q-item-section>
-                  </q-item>
-                </q-list>
+                <template v-for="(item, index) in item.subs" :key="index">
+                  <q-separator v-if="item.separator" />
+                  <q-list v-else>
+                    <q-item
+                      clickable
+                      v-close-popup
+                      dense
+                      :active="item.active?.value"
+                      :disabled="item.disabled"
+                      @click="item.onClick"
+                    >
+                      <q-item-section>{{ item.name }}</q-item-section>
+                    </q-item>
+                  </q-list>
+                </template>
               </q-menu>
             </q-item>
-
-            <q-separator />
-
-            <q-item clickable v-close-popup @click="pull">
-              <q-item-section>Pull</q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="push">
-              <q-item-section>Push</q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="() => false" disabled>
-              <q-item-section>Clone</q-item-section>
-            </q-item>
-            <q-item clickable v-close-popup @click="stateModalCheckout = true">
-              <q-item-section>Checkout to...</q-item-section>
-            </q-item>
-
-            <q-separator />
-
-            <q-item clickable>
-              <q-item-section>Commit</q-item-section>
-              <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
-              </q-item-section>
-              <q-menu
-                :class="{
-                  'bg-grey-9': $q.dark.isActive,
-                }"
-                auto-close
-                anchor="top end"
-                self="top start"
-              >
-                <q-list>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Commit</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Commit Staged</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Commit All</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Undo Last Commit</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Abort Rebase</q-item-section>
-                  </q-item>
-
-                  <q-separator />
-
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Commit Staged (Amend)</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Commit All (Amend)</q-item-section>
-                  </q-item>
-
-                  <q-separator />
-
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Commit Staged (Singed Off)</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Commit All (Singed Off)</q-item-section>
-                  </q-item>
-
-                  <q-separator />
-
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Add Co-authors</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-item>
-
-            <q-item clickable>
-              <q-item-section>Changes</q-item-section>
-              <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
-              </q-item-section>
-              <q-menu
-                :class="{
-                  'bg-grey-9': $q.dark.isActive,
-                }"
-                auto-close
-                anchor="top end"
-                self="top start"
-              >
-                <q-list>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Stage All Changes</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Unstage All Change</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Discard All Change</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-item>
-
-            <q-item clickable>
-              <q-item-section>Pull, Push</q-item-section>
-              <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
-              </q-item-section>
-              <q-menu
-                :class="{
-                  'bg-grey-9': $q.dark.isActive,
-                }"
-                auto-close
-                anchor="top end"
-                self="top start"
-              >
-                <q-list>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Sync</q-item-section>
-                  </q-item>
-
-                  <q-separator />
-
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Pull</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Pull (Rebase)</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Pull from...</q-item-section>
-                  </q-item>
-
-                  <q-separator />
-
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Push</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Push to...</q-item-section>
-                  </q-item>
-
-                  <q-separator />
-
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Fetch</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Fetch (Prune)</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Fetch From All Remotes</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-item>
-
-            <q-item clickable>
-              <q-item-section>Branch</q-item-section>
-              <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
-              </q-item-section>
-              <q-menu
-                :class="{
-                  'bg-grey-9': $q.dark.isActive,
-                }"
-                auto-close
-                anchor="top end"
-                self="top start"
-              >
-                <q-list>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Merge Branch...</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Rebase Branch...</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Create Branch...</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Create Branch From...</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Rename Branch...</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Delete Branch...</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Publish Branch...</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-item>
-
-            <q-item clickable>
-              <q-item-section>Remote</q-item-section>
-              <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
-              </q-item-section>
-              <q-menu
-                :class="{
-                  'bg-grey-9': $q.dark.isActive,
-                }"
-                auto-close
-                anchor="top end"
-                self="top start"
-              >
-                <q-list>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Add Remote...</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Remove Remote</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-item>
-
-            <q-item clickable>
-              <q-item-section>Stash</q-item-section>
-              <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
-              </q-item-section>
-              <q-menu
-                :class="{
-                  'bg-grey-9': $q.dark.isActive,
-                }"
-                auto-close
-                anchor="top end"
-                self="top start"
-              >
-                <q-list>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Stash</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Stash (Include Untracked)</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Apply Latest Stash</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Apply Stash...</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Pop Latest Stash</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Pop Stash...</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Drop Stash...</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-item>
-
-            <q-item clickable>
-              <q-item-section>Tags</q-item-section>
-              <q-item-section side class="q-mr-n4">
-                <q-icon :name="mdiChevronRight" />
-              </q-item-section>
-              <q-menu
-                :class="{
-                  'bg-grey-9': $q.dark.isActive,
-                }"
-                auto-close
-                anchor="top end"
-                self="top start"
-              >
-                <q-list>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Create Tag</q-item-section>
-                  </q-item>
-                  <q-item clickable v-close-popup dense>
-                    <q-item-section>Delete Tag</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-item>
-
-            <q-separator />
-
-            <q-item clickable v-close-popup>
-              <q-item-section>Show Git Output</q-item-section>
+            <q-separator v-else-if="item.separator" />
+            <q-item clickable v-close-popup @click="item.onClick" v-else>
+              <q-item-section>{{ item.name }}</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -409,7 +92,7 @@
     </template>
 
     <template v-slot:contents>
-      <template v-if="$store.state['git-project'].state === 'unready'">
+      <template v-if="gitOfProjectReady === false">
         The folder curently open donesn't have a git repository. You can
         initialize a repository which will enable source control features
         powered by git.
@@ -445,376 +128,436 @@
             v-if="loading"
           />
 
-          <div class="q-ml-n4 q-mt-3">
-            <div
-              class="file-object"
-              v-for="item in stageds"
-              :key="item.fullpath"
-              :class="{
-                dark: $q.dark.isActive,
+          <App-Collapse
+            eager
+            v-if="$store.getters['editor/changes-staged.length'] !== 0"
+          >
+            <template v-slot:activator="{ on, state }">
+              <div
+                v-on="on"
+                class="toolbar flex no-wrap justify-between items-center q-py-1"
+              >
+                <div>
+                  <q-icon
+                    color="inherit"
+                    :name="state ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+                    size="1.3em"
+                  />
+                  Staged
+                </div>
 
-                'star-modified': item.status === `*modified`,
-                modified: item.status === `modified`,
+                <div class="self-end">
+                  <q-btn
+                    color="inherit"
+                    flat
+                    dense
+                    icon="mdi-undo"
+                    padding="none"
+                    size="12.5px"
+                    rounded
+                    @click.prevent.stop="reset('', true, true)"
+                  />
+                  <q-btn
+                    color="inherit"
+                    flat
+                    dense
+                    icon="mdi-minus"
+                    padding="none"
+                    size="12.5px"
+                    rounded
+                    @click.prevent.stop="resetIndex('', true)"
+                  />
 
-                'star-deleted': item.status === `*deleted`,
-                deleted: item.status === `deleted`,
+                  <q-badge
+                    rounded
+                    color="primary"
+                    :label="$store.getters['editor/changes-staged.length']"
+                  />
+                </div>
+              </div>
+            </template>
 
-                'star-undeleted': item.status === `*undeleted`,
-
-                'star-added': item.status === `*added`,
-                added: item.status === `added`,
-              }"
-              v-ripple
-            >
-              <img
-                class="icon-file"
-                :src="
-                  getIcon({
-                    light: false,
-                    isOpen: false,
-                    isFolder: false,
-                    name: item.basename,
-                  })
-                "
+            <div class="q-ml-n4">
+              <ChangesList
+                v-if="$store.state['git-configs'].viewAs === 'list'"
+                :filter="(filepath, matrix) => matrix[2] === 2"
               />
-
-              <div class="full-width text-truncate">
-                {{ item.basename }}
-                <small class="text-caption" style="opacity: 0.8">{{
-                  item.fullpath
-                }}</small>
-              </div>
-
-              <div class="actions flex no-wrap">
-                <q-btn
-                  color="inherit"
-                  flat
-                  dense
-                  :icon="mdiMinus"
-                  padding="none"
-                  size="12.5px"
-                  @click="reset(item)"
-                />
-              </div>
-            </div>
-          </div>
-          Changes
-          <div class="q-ml-n4 q-mt-3">
-            <div
-              class="file-object"
-              v-for="item in changeds"
-              :key="item.fullpath"
-              :class="{
-                dark: $q.dark.isActive,
-
-                'star-modified': item.status === `*modified`,
-                modified: item.status === `modified`,
-
-                'star-deleted': item.status === `*deleted`,
-                deleted: item.status === `deleted`,
-
-                'star-undeleted': item.status === `*undeleted`,
-
-                'star-added': item.status === `*added`,
-                added: item.status === `added`,
-              }"
-              v-ripple
-            >
-              <img
-                class="icon-file"
-                :src="
-                  getIcon({
-                    light: false,
-                    isOpen: false,
-                    isFolder: false,
-                    name: item.basename,
-                  })
-                "
+              <ChangesTree
+                v-else
+                :filter="(filepath, matrix) => matrix[2] === 2"
               />
-
-              <div class="full-width text-truncate">
-                {{ item.basename }}
-                <small class="text-caption" style="opacity: 0.8">{{
-                  item.fullpath
-                }}</small>
-              </div>
-
-              <div class="actions flex no-wrap">
-                <q-btn
-                  color="inherit"
-                  flat
-                  dense
-                  :icon="mdiUndo"
-                  padding="none"
-                  size="12.5px"
-                  @click="resetHard(item)"
-                />
-                <q-btn
-                  color="inherit"
-                  flat
-                  dense
-                  :icon="mdiPlus"
-                  padding="none"
-                  size="12.5px"
-                  @click="add(item)"
-                />
-              </div>
             </div>
-          </div>
+          </App-Collapse>
+
+          <App-Collapse eager>
+            <template v-slot:activator="{ on, state }">
+              <div
+                v-on="on"
+                class="toolbar flex no-wrap justify-between items-center q-py-1"
+              >
+                <div>
+                  <q-icon
+                    color="inherit"
+                    :name="state ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+                    size="1.3em"
+                  />
+                  Changes
+                </div>
+
+                <div class="self-end">
+                  <q-btn
+                    color="inherit"
+                    flat
+                    dense
+                    icon="mdi-undo"
+                    padding="none"
+                    size="12.5px"
+                    rounded
+                    @click.prevent.stop="reset('', false, true)"
+                  />
+                  <q-btn
+                    color="inherit"
+                    flat
+                    dense
+                    icon="mdi-plus"
+                    padding="none"
+                    size="12.5px"
+                    rounded
+                    @click.prevent.stop="add('', true)"
+                  />
+
+                  <q-badge
+                    rounded
+                    color="primary"
+                    :label="
+                      $store.getters['editor/changes.length'] -
+                      $store.getters['editor/changes-staged.length']
+                    "
+                  />
+                </div>
+              </div>
+            </template>
+
+            <div class="q-ml-n4">
+              <ChangesList
+                v-if="$store.state['git-configs'].viewAs === 'list'"
+                :filter="(filepath, matrix) => matrix[2] !== 2"
+              />
+              <ChangesTree
+                v-else
+                :filter="(filepath, matrix) => matrix[2] !== 2"
+              />
+            </div>
+          </App-Collapse>
         </div>
       </template>
     </template>
   </Template-Tab>
 
-  <Git-Modal-Commit
-    v-model="stateModalCommit"
-    @enter="commit($event.target.value, allChanges)"
-  />
-  <Git-Modal-Checkout v-model="stateModalCheckout" @done="refreshStatus" />
+  <Commit-Manager :model-value="true" />
 </template>
 
-<script lang="ts">
-import {
-  mdiCheck,
-  mdiChevronRight,
-  mdiDotsHorizontal,
-  mdiFileTree,
-  mdiMinus,
-  mdiPlus,
-  mdiReload,
-  mdiUndo,
-  mdiViewHeadline,
-} from "@quasar/extras/mdi-v5";
-import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
-import GitModalCheckout from "components/Git/ModalCheckout.vue";
-import GitModalCommit from "components/Git/ModalCommit.vue";
-import { sort } from "fast-sort";
-import fs from "modules/filesystem";
-import { basename } from "path-cross";
-import {
-  configs as gitConfigs,
-  onAuth,
-  onAuthFailure,
-  onAuthSuccess,
-  onDone,
-  onError,
-  onMessage,
-  onProgress,
-  onStart,
-} from "src/helpers/git";
+<script lang="ts" setup>
+import AppCollapse from "components/App/Collapse.vue";
+import ChangesList from "components/Git/ChangesList.vue";
+import ChangesTree from "components/Git/ChangesTree.vue";
+import CommitManager from "components/Git/CommitManager"
+import git from "isomorphic-git";
+import fs from "modules/fs";
+import { join } from "path-cross";
+import { registerWatch } from "src/helpers/fs";
+import { add, commitAll, reset, resetIndex } from "src/shared/git";
 import { useStore } from "src/store";
-import { useGitWorker } from "src/worker/git";
-import { computed, defineComponent, ref } from "vue";
-import { useI18n } from "vue-i18n";
+import { computed, ComputedRef, ref, watch } from "vue";
 
-import * as GitMethods from "./Git.methods";
-import type { Change, StatusGit, StatusMatrix } from "./Git.types";
 import TemplateTab from "./template/Tab.vue";
 
-export default defineComponent({
-  components: {
-    GitModalCheckout,
-    GitModalCommit,
-    TemplateTab,
-  },
-  setup() {
-    const store = useStore();
-    const i18n = useI18n();
+type SubItem = {
+  readonly name: string;
+  readonly disabled?: boolean;
+  readonly active?: ComputedRef<boolean>;
+  readonly onClick?: () => void;
+};
+type SeparatorItem = {
+  readonly separator: true;
+};
+type MenuItem = {
+  readonly name: string;
+  readonly subs: readonly (SubItem | SeparatorItem)[];
+};
+type Menu = readonly (MenuItem | SubItem | SeparatorItem)[];
 
-    const loading = ref<boolean>(false);
-    const matrix = ref<StatusMatrix>({});
-    const allChanges = computed<Change[]>(() => {
-      const statuss = Object.entries(matrix.value).map(
-        ([fullpath, { status, filepath }]) => ({
-          fullpath,
-          filepath,
-          status,
-          basename: basename(fullpath),
-        })
-      );
-      switch (store.state["git-configs"].sortBy) {
-        case "name":
-          return sort(statuss).asc((item) => item.basename);
-        case "path":
-          return sort(statuss).asc((item) => item.fullpath);
-        case "status":
-          return sort(statuss).asc([
-            (item) => item.status,
-            (item) => item.fullpath,
-          ]);
-        default:
-          return statuss;
-      }
-    });
-    const changeds = computed<Change[]>(() => {
-      return allChanges.value.filter((item) => item.status.startsWith("*"));
-    });
-    const stageds = computed<Change[]>(() => {
-      return allChanges.value.filter(
-        (item) => item.status.startsWith("*") === false
-      );
-    });
+const store = useStore();
 
-    const commitMessage = ref<string>("");
+const loading = ref<boolean>(false);
+const gitOfProjectReady = ref<boolean>(false);
+const commitMessage = ref<string>("");
 
-    const stateModalCommit = ref<boolean>(false),
-      stateModalCheckout = ref<boolean>(false);
-
-    async function init(): Promise<void> {
-      store.commit("system/setProgress", true);
-      if (store.state.editor.project) {
-        await useGitWorker().init({
-          fs,
-          dir: store.state.editor.project,
-        });
-        await store.dispatch("git-project/refresh");
-      }
-      store.commit("system/setProgress", false);
-    }
-    async function commit(message: string, changes: Change[]): Promise<void> {
-      /// check commit message ready
-
-      message = message.trim();
-
-      if (!!message) {
-        if (await GitMethods.commit(message, changes)) {
-          await store.dispatch("git-project/updateMatrix");
-        }
-
-        stateModalCommit.value = false;
-      } else {
-        stateModalCommit.value = true;
-      }
-    }
-    async function pull(remote = "origin"): Promise<void> {
-      store.commit("system/setProgress", true);
-      if (store.state.editor.project) {
-        try {
-          onStart(i18n.t("alert.pulling"));
-          await useGitWorker().pull({
-            fs,
-            dir: store.state.editor.project,
-            ...gitConfigs,
-            remote,
-            onAuth,
-            onAuthSuccess,
-            onAuthFailure,
-            onMessage,
-            onProgress,
-          });
-          onDone();
-          void store.dispatch("git-project/updateMatrix");
-        } catch (err) {
-          onError(err);
-        }
-      }
-      store.commit("system/setProgress", false);
-    }
-    async function push(remote = "origin"): Promise<void> {
-      store.commit("system/setProgress", true);
-      if (store.state.editor.project) {
-        try {
-          onStart(i18n.t("alert.pushing"));
-          await useGitWorker().push({
-            fs,
-            dir: store.state.editor.project,
-            remote,
-            onAuth,
-            onAuthSuccess,
-            onAuthFailure,
-            onMessage,
-            onProgress,
-          });
-          onDone();
-        } catch (err) {
-          onError(err);
-        }
-      }
-      store.commit("system/setProgress", false);
-    }
-
-    async function add(change: Change): Promise<void> {
-      await GitMethods.add(change);
-
-      // eslint-disable-next-line functional/immutable-data
-      matrix.value[change.fullpath] = {
-        filepath: change.filepath,
-        status: change.status.replace(/^\*/, "") as StatusGit,
-      };
-    }
-    async function reset(change: Change): Promise<void> {
-      await GitMethods.reset(change);
-
-      // eslint-disable-next-line functional/immutable-data
-      matrix.value[change.fullpath] = {
-        filepath: change.filepath,
-        status: (change.status.startsWith("*")
-          ? change.status.replace(/^\*/, "")
-          : `*${change.status}`) as StatusGit,
-      };
-    }
-    async function resetHard({ filepath }: Change): Promise<void> {
-      await GitMethods.resetHard(filepath);
-      // matrix.value[fullpath] = {
-      //   filepath,
-      //   status: await git.status({
-      //     fs,
-      //     dir: store.state.editor.project as string,
-      //     filepath,
-      //     cache: gitStatusCache,
-      //   }),
-      // };
-    }
-
-    return {
-      mdiCheck,
-      mdiChevronRight,
-      mdiDotsHorizontal,
-      mdiFileTree,
-      mdiPlus,
-      mdiReload,
-      mdiUndo,
-      mdiViewHeadline,
-      mdiMinus,
-
-      getIcon,
-
-      loading,
-
-      matrix,
-      allChanges,
-      changeds,
-      stageds,
-
-      commitMessage,
-
-      stateModalCommit,
-      stateModalCheckout,
-
-      init,
-      commit,
-      pull,
-      push,
-      add,
-      reset,
-      resetHard,
-    };
+async function refreshGit(): Promise<void> {
+  gitOfProjectReady.value =
+    !!store.state.editor.project &&
+    (await fs.isFile(join(store.state.editor.project, ".git/index")));
+}
+watch(
+  () => store.state.editor.project,
+  () => void refreshGit(),
+  {
+    immediate: true,
+  }
+);
+registerWatch("projects/*/.git/index", () => void refreshGit(), {
+  dir: () => store.state.editor.project,
+  miniOpts: {
+    dot: true,
   },
 });
-</script>
 
-<style lang="scss" scoped>
-@import "components/File Explorer/ListItem.scss";
-@import "components/File Explorer/Rename.scss";
+const menu: Menu = [
+  {
+    name: "View & Sort",
+    subs: [
+      {
+        name: "View as List",
+        active: computed<boolean>(
+          () => store.state["git-configs"].viewAs === "list"
+        ),
+        onClick: () => store.commit("git-configs/setViewAs", "list"),
+      },
+      {
+        name: "View as Tree",
+        active: computed<boolean>(
+          () => store.state["git-configs"].viewAs === "tree"
+        ),
+        onClick: () => store.commit("git-configs/setViewAs", "tree"),
+      },
+      {
+        separator: true,
+      },
+      {
+        name: "Sort by Name",
+        active: computed<boolean>(
+          () => store.state["git-configs"].sortBy === "name"
+        ),
+        onClick: () => store.commit("git-configs/setSortBy", "name"),
+      },
+      {
+        name: "Sort by Path",
+        active: computed<boolean>(
+          () => store.state["git-configs"].sortBy === "path"
+        ),
+        onClick: () => store.commit("git-configs/setSortBy", "path"),
+      },
+      {
+        name: "Sort by Status",
+        active: computed<boolean>(
+          () => store.state["git-configs"].sortBy === "status"
+        ),
+        onClick: () => store.commit("git-configs/setSortBy", "status"),
+      },
+    ],
+  },
+  {
+    separator: true,
+  },
+  {
+    name: "Pull",
+  },
+  {
+    name: "Push",
+  },
+  {
+    name: "Clone",
+    onClick: () => void 0,
+    disabled: true,
+  },
+  {
+    name: "Checkout to...",
+  },
+  {
+    separator: true,
+  },
+  {
+    name: "Commit",
+    subs: [
+      {
+        name: "Commit",
+      },
+      {
+        name: "Commit Staged",
+      },
+      {
+        name: "Commit All",
+      },
+      {
+        name: "Undo Last Commit",
+      },
+      {
+        name: "Abort Rebase",
+      },
+      {
+        separator: true,
+      },
+      {
+        name: "Commit Staged (Amend)",
+      },
+      {
+        name: "Commit All (Amend)",
+      },
+      {
+        separator: true,
+      },
+      {
+        name: "Commit Staged (Singed Off)",
+      },
+      {
+        name: "Commit All (Singed Off)",
+      },
+      {
+        separator: true,
+      },
+      {
+        name: "Add Co-authors",
+      },
+    ],
+  },
+  {
+    name: "Changes",
+    subs: [
+      {
+        name: "Stage All Changes",
+      },
+      {
+        name: "Unstage All Change",
+      },
+      {
+        name: "Discard All Change",
+      },
+    ],
+  },
+  {
+    name: "Pull, Push",
+    subs: [
+      {
+        name: "Sync",
+      },
+      {
+        separator: true,
+      },
+      {
+        name: "Pull",
+      },
+      {
+        name: "Pull (Rebase)",
+      },
+      {
+        name: "Pull from...",
+      },
+      {
+        separator: true,
+      },
+      {
+        name: "Fetch",
+      },
+      {
+        name: "Fetch (Prune)",
+      },
+      {
+        name: "Fetch From All Remotes",
+      },
+    ],
+  },
+  {
+    name: "Branch",
+    subs: [
+      {
+        name: "Merge Branch...",
+      },
+      {
+        name: "Rebase Branch...",
+      },
+      {
+        name: "Create Branch...",
+      },
+      {
+        name: "Create Branch From...",
+      },
+      {
+        name: "Rename Branch...",
+      },
+      {
+        name: "Delete Branch...",
+      },
+      {
+        name: "Publish Branch...",
+      },
+    ],
+  },
+  {
+    name: "Remote",
+    subs: [
+      {
+        name: "Add Remote...",
+      },
+      {
+        name: "Remove Remote",
+      },
+    ],
+  },
+  {
+    name: "Stash",
+    subs: [
+      {
+        name: "Stash",
+      },
+      {
+        name: "Stash (Include Untracked)",
+      },
+      {
+        name: "Apply Latest Stash",
+      },
+      {
+        name: "Apply Stash...",
+      },
+      {
+        name: "Pop Latest Stash",
+      },
+      {
+        name: "Pop Stash...",
+      },
+      {
+        name: "Drop Stash...",
+      },
+    ],
+  },
+  {
+    name: "Tags",
+    subs: [
+      {
+        name: "Create Tag",
+      },
+      {
+        name: "Delete Tag",
+      },
+    ],
+  },
+  {
+    separator: true,
+  },
+  {
+    name: "Show Git Output",
+  },
+];
 
-.file-object {
-  @include file-object($enable-git: true);
-  padding: {
-    left: 0;
-    right: 0;
+async function init(): Promise<void> {
+  if (store.state.editor.project) {
+    loading.value = true;
+
+    await git.init({
+      fs,
+      dir: store.state.editor.project,
+    });
+
+    loading.value = false;
   }
 }
-.icon-file {
-  @include icon-file();
-}
-</style>
+</script>

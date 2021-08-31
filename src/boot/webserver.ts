@@ -1,6 +1,6 @@
-import { encode } from "base-64";
-import fs from "modules/filesystem";
-import { WebServer } from "modules/webserver";
+import { WebServer } from "@ionic-native/web-server";
+import { btoa } from "js-base64";
+import fs from "modules/fs";
 import { extname, join } from "path-cross";
 import { boot } from "quasar/wrappers";
 import { store } from "src/store";
@@ -10,7 +10,7 @@ import codeEruda from "!raw-loader!eruda2/eruda.js";
 boot(() => {
   const base64CodeEruda = [
     "data:application/javascript;base64,",
-    encode(
+    btoa(
       unescape(
         encodeURIComponent(
           codeEruda +
@@ -43,11 +43,8 @@ boot(() => {
 
   try {
     WebServer.onRequest().subscribe(
-      async (data: {
-        readonly path: string;
-        readonly requestId: string;
-        readonly headers: Record<string, string>;
-      }) => {
+      // eslint-disable-next-line @typescript-eslint/no-misused-promises
+      async (data) => {
         /// get project
 
         const { project } = store.state.editor;
@@ -85,7 +82,7 @@ boot(() => {
 
               if (await fs.stat(pathToFile)) {
                 if (/^\.html?$/.test(extname(pathToFile))) {
-                  WebServer.sendResponse(data.requestId, {
+                  await WebServer.sendResponse(data.requestId, {
                     status: 200,
                     body: addEruda(await fs.readFile(pathToFile, "utf8")),
                     headers: {
@@ -93,7 +90,7 @@ boot(() => {
                     },
                   });
                 } else {
-                  WebServer.sendResponse(data.requestId, {
+                  await WebServer.sendResponse(data.requestId, {
                     status: 201,
                     path: await fs.getUri(pathToFile),
                     headers: {},
@@ -108,7 +105,7 @@ boot(() => {
               throw new Error("NOT_FOUND");
             }
           } catch {
-            WebServer.sendResponse(data.requestId, {
+            await WebServer.sendResponse(data.requestId, {
               status: 404,
               body: `
           <h1>404 Not Found</h1>
@@ -119,7 +116,7 @@ boot(() => {
             });
           }
         } else {
-          WebServer.sendResponse(data.requestId, {
+          await WebServer.sendResponse(data.requestId, {
             status: 404,
             body: `
         <h1>404 Not Found</h1>

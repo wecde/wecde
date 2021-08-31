@@ -15,9 +15,12 @@
       },
       contentsClass,
     ]"
+    v-if="$slots.contents"
   >
     <slot name="contents" />
   </div>
+
+  <slot name="default" />
 </template>
 
 <script lang="ts">

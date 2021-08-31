@@ -4,14 +4,14 @@
 
     <template v-slot:addons>
       <q-btn
-        :icon="mdiReload"
+        icon="mdi-reload"
         @click="reloadListProjects(true)"
         flat
         round
         padding="xs"
         size="13px"
       />
-      <q-btn :icon="mdiGit" flat round padding="xs" size="13px" class="q-ml-xs">
+      <q-btn icon="mdi-git" flat round padding="xs" size="13px" class="q-ml-xs">
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,
@@ -29,7 +29,7 @@
               @click="statePopupGitClone = true"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiGit" />
+                <q-icon name="mdi-git" />
               </q-item-section>
               <q-item-section>{{ $t("label.clone-repo") }}</q-item-section>
             </q-item>
@@ -40,7 +40,7 @@
               @click="statePopupGitProvide = true"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiLockOutline" />
+                <q-icon name="mdi-lock-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.credentials") }}</q-item-section>
             </q-item>
@@ -48,7 +48,7 @@
         </q-menu>
       </q-btn>
       <q-btn
-        :icon="mdiPlus"
+        icon="mdi-plus"
         flat
         round
         padding="xs"
@@ -72,7 +72,7 @@
               @click="creatingProject = true"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiArchiveOutline" />
+                <q-icon name="mdi-archive-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.new-project") }}</q-item-section>
             </q-item>
@@ -83,7 +83,7 @@
               @click="importProjectFromZip"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiZipBoxOutline" />
+                <q-icon name="mdi-zip-box-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.import-zip") }}</q-item-section>
             </q-item>
@@ -97,13 +97,13 @@
               @click="$router.push(`/?tab=logs`)"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiMessageTextOutline" />
+                <q-icon name="mdi-message-text-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.change-logs") }}</q-item-section>
             </q-item>
             <q-item clickable v-close-popup v-ripple @click="$router.push(`/`)">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiCubeOutline" />
+                <q-icon name="mdi-cube-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.view-labs") }}</q-item-section>
             </q-item>
@@ -114,13 +114,21 @@
 
     <template v-slot:contents>
       <q-list>
-        <Project-Item
-          v-for="item in projects"
-          :key="item.fullpath"
-          :project="item"
-          :names-exists="projects.map((item) => basename(item.fullpath))"
-          @click:delete="projectRemoving = item"
-        />
+        <q-pull-to-refresh
+          @refresh="(done) => void reloadListProjects().then(() => void done())"
+          icon="mdi-refresh"
+        >
+          <Project-Item
+            v-for="item in projects"
+            :key="item.value.fullpath"
+            :project="item.value"
+            :git="item.git"
+            :names-exists="
+              projects.map((item) => basename(item.value.fullpath))
+            "
+            @click:delete="projectRemoving = item.value"
+          />
+        </q-pull-to-refresh>
       </q-list>
     </template>
   </Template-Tab>
@@ -135,7 +143,7 @@
           {{ $t("label.delete-project") }}
         </div>
         <q-space />
-        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
@@ -184,32 +192,23 @@
   <Project-Create
     v-model:state="creatingProject"
     @created="reloadListProjects"
-    :names-exists="projects.map((item) => basename(item.fullpath))"
+    :names-exists="projects.map((item) => basename(item.value.fullpath))"
   />
 </template>
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import {
-  mdiArchiveOutline,
-  mdiClose,
-  mdiCubeOutline,
-  mdiGit,
-  mdiLockOutline,
-  mdiMessageTextOutline,
-  mdiPlus,
-  mdiReload,
-  mdiZipBoxOutline,
-} from "@quasar/extras/mdi-v5";
 import DialogTop from "components/DialogTop.vue";
 import GitClone from "components/Git/ModalGitClone.vue";
 import GitProvide from "components/Git/ModalGitProvide.vue";
 import ProjectCreate from "components/Project/Create.vue";
 import ProjectItem from "components/Project/Item.vue";
-import fs, { readdirAndStat } from "modules/filesystem";
-import type { StatItem } from "modules/filesystem";
-import importZip from "modules/import-zip";
-import { basename } from "path-cross";
+import { sort } from "fast-sort";
+import fs from "modules/fs";
+import { basename, join } from "path-cross";
+import { Notify } from "quasar";
+import createProjectFromZip from "src/helpers/createProjectFromZip";
+import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { defineComponent, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
@@ -229,7 +228,12 @@ export default defineComponent({
     DialogTop,
   },
   setup() {
-    const projects = ref<StatItem[]>([]);
+    const projects = ref<
+      {
+        readonly git: boolean;
+        readonly value: StatItem;
+      }[]
+    >([]);
     const creatingProject = ref<boolean>(false);
     const projectRemoving = ref<null | StatItem>(null);
     const code = ref<null | string>(null);
@@ -247,16 +251,6 @@ export default defineComponent({
     });
 
     return {
-      mdiReload,
-      mdiGit,
-      mdiLockOutline,
-      mdiPlus,
-      mdiArchiveOutline,
-      mdiZipBoxOutline,
-      mdiMessageTextOutline,
-      mdiCubeOutline,
-      mdiClose,
-
       projects,
 
       creatingProject,
@@ -276,19 +270,39 @@ export default defineComponent({
     basename,
 
     async reloadListProjects(notification = false): Promise<void> {
-      this.$store.commit("system/setProgress", true);
+      const task = Notify.create({
+        spinner: true,
+        position: "bottom-right",
+        message: this.$t("alert.reload-projects"),
+      });
+
       try {
-        this.projects = (await readdirAndStat("projects"))
-          .filter((project) => {
-            return project.stat.type === "directory";
-          })
-          .sort((a, b) => {
-            return b.stat.mtimeMs - a.stat.mtimeMs;
-          });
+        this.projects = sort(
+          await Promise.all(
+            await readdirAndStat("projects").then((item) => {
+              return item
+                .filter((project) => {
+                  return project.stat.type === "directory";
+                })
+                .map(async (item) => {
+                  return {
+                    git: await fs.isFile(join(item.fullpath, ".git/index")),
+                    value: item,
+                  };
+                });
+            })
+          )
+        ).asc((item) => basename(item.value.fullpath));
+
+        task();
       } catch {
         this.projects = [];
+        task({
+          message: this.$t("alert.reload-projects-failed"),
+          timeout: 3000,
+        });
       }
-      this.$store.commit("system/setProgress", false);
+
       if (notification) {
         void Toast.show({
           text: this.$t("alert.reload-projects"),
@@ -297,7 +311,7 @@ export default defineComponent({
     },
     async importProjectFromZip(): Promise<void> {
       try {
-        const names = await importZip("projects/");
+        const names = await createProjectFromZip("projects/");
         this.$store.commit("terminal/clear");
         void Toast.show({
           text: this.$t("alert.imported-project", {
@@ -310,20 +324,33 @@ export default defineComponent({
       await this.reloadListProjects();
     },
     async remove(): Promise<void> {
-      this.$store.commit("system/setProgress", true);
       if (this.code === this.codeInput && this.projectRemoving) {
+        const task = Notify.create({
+          spinner: true,
+          position: "bottom-right",
+          message: this.$t("alert.removing.project", {
+            name: basename(this.projectRemoving.fullpath),
+          }),
+        });
+
         try {
           await fs.rmdir(this.projectRemoving.fullpath, {
             recursive: true,
           });
+          task();
           void Toast.show({
             text: this.$t("alert.removed.project", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });
         } catch {
+          task({
+            message: this.$t("alert.remove.project-failed", {
+              name: basename(this.projectRemoving.fullpath),
+            }),
+          });
           void Toast.show({
-            text: this.$t("alert.remove-project-failed", {
+            text: this.$t("alert.remove.project-failed", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });
@@ -332,7 +359,6 @@ export default defineComponent({
         await this.reloadListProjects();
         this.projectRemoving = null;
       }
-      this.$store.commit("system/setProgress", false);
     },
     clonedRepo(): void {
       this.statePopupGitClone = false;

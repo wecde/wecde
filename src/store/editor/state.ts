@@ -7,16 +7,16 @@ export type EditorStateInterface = {
   session: number;
   // eslint-disable-next-line functional/prefer-readonly-type
   historySession: number[];
-  // eslint-disable-next-line functional/prefer-readonly-type
-  scrollEnhance: Record<
-    string,
-    {
-      readonly x: number;
-      readonly y: number;
-      readonly cursorRow: number;
-      readonly cursorColumn: number;
-    }
-  >;
+  readonly git: {
+    readonly statusMatrix: {
+      // eslint-disable-next-line functional/prefer-readonly-type
+      loading: boolean;
+      readonly matrix: {
+        // eslint-disable-next-line functional/prefer-readonly-type
+        [filepath: string]: readonly [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3];
+      };
+    };
+  };
 };
 
 function state(): EditorStateInterface {
@@ -27,7 +27,12 @@ function state(): EditorStateInterface {
     session: -1,
     historySession: [],
 
-    scrollEnhance: {},
+    git: {
+      statusMatrix: {
+        loading: false,
+        matrix: {},
+      },
+    },
   };
 }
 

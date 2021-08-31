@@ -13,6 +13,7 @@
         "src/comlink/**"
     ],
     "words": [
+        "autofetch",
         "autofix",
         "backboardd",
         "cloneing",
@@ -22,6 +23,7 @@
         "Dreamweaver",
         "espree",
         "Espress",
+        "fcanvas",
         "fullname",
         "gitdir",
         "globby",
@@ -31,6 +33,7 @@
         "Kuroir",
         "merbivore",
         "meriyah",
+        "Metdadata",
         "msapplication",
         "nord",
         "normalised",
@@ -38,6 +41,7 @@
         "noteshub",
         "Oget",
         "oids",
+        "Packfile",
         "permissing",
         "preload",
         "repos",

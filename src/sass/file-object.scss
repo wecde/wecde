@@ -1,0 +1,15 @@
+@mixin file-object() {
+  font-size: 15px;
+  // padding: 5px 13px 5px 10px;
+  padding: 2.5px 8px 2.5px 7px;
+  // color: #b9bbc1;
+  color: #4a4a49;
+  &.dark {
+    // color: #b9bbc1;
+    color: #fff;
+  }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+}

@@ -25,21 +25,12 @@
 </template>
 
 <script lang="ts">
-import {
-  mdiBookmarkCheck,
-  mdiBookmarkOutline,
-  mdiLoading,
-} from "@quasar/extras/mdi-v5";
 import Labs from "assets/labs/Release.json";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   setup() {
     return {
-      mdiBookmarkCheck,
-      mdiBookmarkOutline,
-      mdiLoading,
-
       Labs,
     };
   },

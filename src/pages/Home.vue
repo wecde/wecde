@@ -9,9 +9,9 @@
         class="tabs"
         v-model="tab"
       >
-        <q-tab :icon="mdiCubeOutline" name="labs" />
+        <q-tab icon="mdi-cube-outline" name="labs" />
 
-        <q-tab :icon="mdiAndroidMessages" name="changelog" />
+        <q-tab icon="mdi-android-messages" name="changelog" />
       </q-tabs>
     </div>
 
@@ -29,7 +29,6 @@
 </template>
 
 <script lang="ts">
-import { mdiAndroidMessages, mdiCubeOutline } from "@quasar/extras/mdi-v5";
 import AppHammer from "components/App/Hammer.vue";
 import HomeChangelog from "components/Home/Changelog.vue";
 import HomeLabs from "components/Home/Labs.vue";
@@ -43,9 +42,6 @@ export default defineComponent({
   },
   setup() {
     return {
-      mdiCubeOutline,
-      mdiAndroidMessages,
-
       tab: ref<string>("labs"),
     };
   },

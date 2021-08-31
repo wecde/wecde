@@ -13,7 +13,7 @@
           {{ $t("label.project-template") }}
         </div>
         <q-space />
-        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
@@ -59,7 +59,7 @@
             :disable="!!error"
             class="q-mr-xs"
           />
-          <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+          <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
         </div>
       </q-card-section>
 
@@ -103,14 +103,13 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import { mdiClose } from "@quasar/extras/mdi-v5";
 import type { Template } from "assets/labs/Release.json";
 import templates from "assets/templates/Release.json";
-import fs from "modules/filesystem";
-import { unzip } from "modules/zip";
+import fs from "modules/fs";
 import nameFileValidates from "src/validator/nameFileValidates";
 import { computed, defineComponent, ref, toRefs } from "vue";
 import type { PropType } from "vue";
+import { unzip } from "zip2";
 
 export default defineComponent({
   emits: ["update:state", "created"],
@@ -129,8 +128,6 @@ export default defineComponent({
     const templateSelected = ref<Template | null>(null);
 
     return {
-      mdiClose,
-
       templates,
       templateSelected,
       error: nameFileValidates(
@@ -168,13 +165,40 @@ export default defineComponent({
       if (this.templateSelected) {
         if (this.templateSelected.isTemplate) {
           try {
-            await unzip(
+            const urlFileZip =
               // eslint-disable-next-line @typescript-eslint/no-var-requires
-              require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
-                .default,
-              `projects/${this.templateSelected.name}`,
-              true
+              require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`).default;
+
+            this.$store.commit(
+              "terminal/info",
+              this.$t("alert.extracting-zip", {
+                name: urlFileZip,
+              })
             );
+            await unzip({
+              fs,
+              data: await fetch(urlFileZip)
+                .then((res) => res.blob())
+                .then((blob) => blob.arrayBuffer()),
+              extractTo: `projects/${this.templateSelected.name}`,
+              onProgress: (event) => {
+                if (event.isDirectory) {
+                  this.$store.commit(
+                    "terminal/print",
+                    this.$t("alert.extract-folder", {
+                      name: event.filename,
+                    })
+                  );
+                } else {
+                  this.$store.commit(
+                    "terminal/print",
+                    this.$t("alert.extract-file", {
+                      name: event.filename,
+                    })
+                  );
+                }
+              },
+            });
 
             this.$store.commit("terminal/clear");
             created = true;
