@@ -14,7 +14,7 @@
 
 <script lang="ts">
 import marked from "marked";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { defineComponent, ref, toRefs, watch } from "vue";
 import type { DefineComponent } from "vue";
 

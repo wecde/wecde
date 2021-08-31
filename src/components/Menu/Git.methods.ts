@@ -1,7 +1,7 @@
-import fs from "modules/filesystem";
+import git from "isomorphic-git"
+import fs from "modules/fs";
 import { configs as gitConfigs, onError, onProgress } from "src/helpers/git";
 import { store } from "src/store";
-import { useGitWorker } from "src/worker/git";
 
 import type { Change } from "./Git.types";
 
@@ -9,10 +9,9 @@ export async function checkout(ref: string, force = false): Promise<boolean> {
   // eslint-disable-next-line functional/no-let
   let result = false;
 
-  store.commit("system/setProgress", true);
   if (store.state.editor.project) {
     try {
-      await useGitWorker().checkout({
+      await git.checkout({
         fs,
         dir: store.state.editor.project,
         ref,
@@ -26,14 +25,13 @@ export async function checkout(ref: string, force = false): Promise<boolean> {
       onError(err);
     }
   }
-  store.commit("system/setProgress", false);
 
   return result;
 }
 
 export async function getRemoteNow(): Promise<string | void> {
   if (store.state.editor.project) {
-    return await useGitWorker().getConfig({
+    return await git.getConfig({
       fs,
       dir: store.state.editor.project,
       path: "remote.origin.url",
@@ -44,13 +42,13 @@ export async function getRemoteNow(): Promise<string | void> {
 export async function add({ status, filepath }: Change): Promise<void> {
   if (store.state.editor.project) {
     if (status === "*deleted") {
-      await useGitWorker().remove({
+      await git.remove({
         fs,
         dir: store.state.editor.project,
         filepath,
       });
     } else if (status === "*added" || status === "*modified") {
-      await useGitWorker().add({
+      await git.add({
         fs,
         dir: store.state.editor.project,
         filepath,
@@ -61,7 +59,7 @@ export async function add({ status, filepath }: Change): Promise<void> {
 
 export async function reset({ status, filepath }: Change): Promise<void> {
   if (store.state.editor.project && status.startsWith("*") === false) {
-    await useGitWorker().resetIndex({
+    await git.resetIndex({
       fs,
       dir: store.state.editor.project,
       filepath,
@@ -71,7 +69,7 @@ export async function reset({ status, filepath }: Change): Promise<void> {
 
 export async function resetHard(filepath: string): Promise<void> {
   if (store.state.editor.project) {
-    await useGitWorker().checkout({
+    await git.checkout({
       fs,
       dir: store.state.editor.project,
       force: true,
@@ -87,13 +85,13 @@ export async function commit(
 ): Promise<boolean> {
   // eslint-disable-next-line functional/no-let
   let result = false;
-  store.commit("system/setProgress", true);
+
   if (store.state.editor.project) {
     try {
       await Promise.all(changes.map((item) => add(item)));
       /// commit
       const remoteNow = await getRemoteNow();
-      await useGitWorker().commit({
+      await git.commit({
         fs,
         dir: store.state.editor.project,
         author: {
@@ -114,7 +112,6 @@ export async function commit(
       store.commit("terminal/error", err);
     }
   }
-  store.commit("system/setProgress", false);
 
   return result;
 }

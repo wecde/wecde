@@ -73,6 +73,6 @@
     "assets/templates",
     "resources",
     "src-capacitor",
-    "/src/worker/index.js"
+    "src/fs"
   ]
 }

@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { join } from "path-cross";
 import { useStore } from "src/store";
 import { defineComponent, PropType, ref, toRefs, watch } from "vue";

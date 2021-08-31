@@ -3,7 +3,7 @@ import { MutationTree } from "vuex";
 import { EditorStateInterface } from "./state";
 
 const mutation: MutationTree<EditorStateInterface> = {
-  setProject(state, value: string): void {
+  "set:project"(state, value: string): void {
     state.project = value;
     state.sessions.splice(0);
     state.session = -1;
@@ -71,35 +71,41 @@ const mutation: MutationTree<EditorStateInterface> = {
     state.sessions.splice(index, 1, value);
   },
 
-  setScrollEnhance(
+  "set:git.status"(state, value: "unknown" | "unready" | "ready"): void {
+    state.git.status = value;
+  },
+  "set:git.statusMatrix.loading"(state, value: boolean): void {
+    state.git.statusMatrix.loading = value;
+  },
+  "set:git.statusMatrix.matrix"(
     state,
-    {
-      file,
-      value,
-    }: {
-      readonly file: string;
-      readonly value: {
-        readonly x: number;
-        readonly y: number;
-        readonly cursorRow: number;
-        readonly cursorColumn: number;
-      };
+    value: EditorStateInterface["git"]["statusMatrix"]["matrix"]
+  ): void {
+    // first. clear;
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this as any).commit("filter/assign:git.statusMatrix.matrix", () => false);
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (this as any).commit("editor/assign:git.statusMatrix.matrix", value);
+  },
+  "assign:git.statusMatrix.matrix"(
+    state,
+    value: EditorStateInterface["git"]["statusMatrix"]["matrix"]
+  ): void {
+    // append value;
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const filepath in value) {
+      state.git.statusMatrix.matrix[filepath] = value[filepath];
     }
-  ): void {
-    state.scrollEnhance = {
-      ...state.scrollEnhance,
-      [file]: value,
-    };
   },
-  updateFileScrollEnhance(
-    state,
-    { file, newFile }: { readonly file: string; readonly newFile: string }
-  ): void {
-    state.scrollEnhance[newFile] = state.scrollEnhance[file];
-    delete state.scrollEnhance[file];
-  },
-  removeScrollEnhance(state, path) {
-    delete state.scrollEnhance[path];
+  "filter:git.statusMatrix.matrix"(state, filter): void {
+    // eslint-disable-next-line functional/no-loop-statement
+    for (const filepath in state.git.statusMatrix.matrix) {
+      if (filter(filepath) === false) {
+        delete state.git.statusMatrix.matrix[filepath];
+      }
+    }
   },
 };
 

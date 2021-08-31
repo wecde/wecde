@@ -18,7 +18,7 @@
           :disabled="!branch"
           @click="checkout(branch)"
         />
-        <q-btn :icon="mdiClose" v-ripple flat round dense v-close-popup />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
@@ -48,19 +48,19 @@
         <q-list dense class="q-mx-n4 q-mt-1">
           <q-item v-ripple @click="$emit('click:new')">
             <q-item-section side>
-              <q-icon :name="mdiPlus" />
+              <q-icon name="mdi-plus" />
             </q-item-section>
             <q-item-section>Create new branch...</q-item-section>
           </q-item>
           <q-item v-ripple @click="$emit('click:new-from')">
             <q-item-section side>
-              <q-icon :name="mdiPlus" />
+              <q-icon name="mdi-plus" />
             </q-item-section>
             <q-item-section>Create new branch from...</q-item-section>
           </q-item>
           <q-item v-ripple @click="$emit('click:delete')">
             <q-item-section side>
-              <q-icon :name="mdiLightningBolt" />
+              <q-icon name="md-lightning-bolt" />
             </q-item-section>
             <q-item-section>Checkout detached...</q-item-section>
           </q-item>
@@ -71,7 +71,6 @@
 </template>
 
 <script lang="ts">
-import { mdiClose, mdiLightningBolt, mdiPlus } from "@quasar/extras/mdi-v5";
 import DialogTop from "components/DialogTop.vue";
 import { listBranches } from "components/Menu/Git.helpers";
 import { checkout } from "components/Menu/Git.methods";
@@ -105,9 +104,7 @@ export default defineComponent({
         if (state) {
           branches.value.splice(0);
           branches.value.push(
-            ...(await listBranches()).filter(
-              (item) => item.current === false
-            )
+            ...(await listBranches()).filter((item) => item.current === false)
           );
         } else {
           branches.value.splice(0);
@@ -116,10 +113,6 @@ export default defineComponent({
     );
 
     return {
-      mdiLightningBolt,
-      mdiPlus,
-      mdiClose,
-
       loading,
       branches,
       branch: ref<string>(""),

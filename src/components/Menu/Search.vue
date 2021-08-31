@@ -9,7 +9,7 @@
         padding="xs"
         size="13px"
         class="q-ml-xs"
-        :icon="mdiRegex"
+        icon="mdi-regex"
         :color="modeRegexp ? `blue` : undefined"
         @click="modeRegexp = !modeRegexp"
       />
@@ -19,7 +19,7 @@
         padding="xs"
         size="13px"
         class="q-ml-xs"
-        :icon="mdiFormatLetterCase"
+        icon="mdi-format-letter-case"
         :color="modeLetterCase ? `blue` : undefined"
         @click="modeLetterCase = !modeLetterCase"
       />
@@ -29,7 +29,7 @@
         padding="xs"
         size="13px"
         class="q-ml-xs"
-        :icon="mdiFileWordBoxOutline"
+        icon="mdi-file-word-xox-outline"
         :color="modeWordBox ? `blue` : undefined"
         @click="modeWordBox = !modeWordBox"
       />
@@ -40,7 +40,7 @@
         <q-icon
           size="20px"
           @click="openReplace = !openReplace"
-          :name="openReplace ? mdiChevronDown : mdiChevronRight"
+          :name="openReplace ? 'mdi-chevron-down' : 'mdi-chevron-right'"
         />
         <div class="full-width">
           <q-input
@@ -64,7 +64,7 @@
               <q-icon
                 @click="replaceAll"
                 v-ripple="false"
-                :name="mdiFileReplaceOutline"
+                name="mdi-file-replace-outline"
                 size="0.85em"
               />
             </template>
@@ -75,7 +75,7 @@
         <q-icon
           size="20px"
           @click="openRules = !openRules"
-          :name="mdiDotsHorizontal"
+          name="mdi-dots-horizontal"
         />
         <div class="text-left" v-show="openRules">
           <small class="text-caption">{{ $t("label.files-include") }}</small>
@@ -107,7 +107,7 @@
           size="2px"
           rounded
           style="position: absolute; top: 0"
-          v-if="searching"
+          v-if="loading"
         />
 
         <App-Collapse
@@ -120,7 +120,7 @@
             <div class="file-object" v-on="on" v-ripple>
               <q-icon
                 size="20px"
-                :name="state ? mdiChevronDown : mdiChevronRight"
+                :name="state ? 'mdi-chevron-down' : 'mdi-chevron-right'"
               />
               <img
                 class="icon-file"
@@ -166,7 +166,7 @@
             <q-icon
               size="13px"
               @click.prevent.stop="replaceSearch(item, index)"
-              :name="mdiCheck"
+              name="mdi-check"
             />
           </div>
         </App-Collapse>
@@ -176,21 +176,11 @@
 </template>
 
 <script lang="ts">
-import {
-  mdiCheck,
-  mdiChevronDown,
-  mdiChevronRight,
-  mdiDotsHorizontal,
-  mdiFileReplaceOutline,
-  mdiFileWordBoxOutline,
-  mdiFormatLetterCase,
-  mdiRegex,
-} from "@quasar/extras/mdi-v5";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import escapeRegExp from "escape-string-regexp";
 import isBinaryPath from "is-binary-path-cross";
-import fs from "modules/filesystem";
+import fs from "modules/fs";
 import { basename } from "path-cross";
 import { useStore } from "src/store";
 import { createTimeoutBy, foreachAsync } from "src/utils";
@@ -220,7 +210,7 @@ export default defineComponent({
     const modeLetterCase = ref<boolean>(false);
     const modeWordBox = ref<boolean>(false);
 
-    const searching = ref<boolean>(false);
+    const loading = ref<boolean>(false);
     const results = ref<Result[]>([]);
 
     const keywordSearch = ref<string>("");
@@ -297,7 +287,7 @@ export default defineComponent({
         async (): Promise<void> => {
           results.value.splice(0);
 
-          searching.value = true;
+          loading.value = true;
           if (store.state.editor.project && !!keywordSearch.value) {
             // await foreachFiles(
             //   store.state.editor.project,
@@ -323,7 +313,7 @@ export default defineComponent({
             //   }
             // );
           }
-          searching.value = false;
+          loading.value = false;
         },
         500,
         {
@@ -338,15 +328,6 @@ export default defineComponent({
     // watch(keywordSearch, () => void search());
 
     return {
-      mdiChevronDown,
-      mdiRegex,
-      mdiFormatLetterCase,
-      mdiFileWordBoxOutline,
-      mdiChevronRight,
-      mdiFileReplaceOutline,
-      mdiDotsHorizontal,
-      mdiCheck,
-
       modeRegexp,
       modeLetterCase,
       modeWordBox,
@@ -356,7 +337,7 @@ export default defineComponent({
       openReplace: ref<boolean>(false),
       openRules: ref<boolean>(false),
 
-      searching,
+      loading,
       searchInFile,
       results,
 
@@ -370,7 +351,8 @@ export default defineComponent({
     getIcon,
 
     async replaceSearch(item: Result, matchIndex: number): Promise<void> {
-      this.$store.commit("system/setProgress", true);
+      this.loading = true;
+
       const { file } = item;
       const context = await fs.readFile(file, "utf8");
       const { index, value } = item.match[matchIndex];
@@ -393,7 +375,8 @@ export default defineComponent({
       } else {
         this.results.splice(this.results.indexOf(item), 1);
       }
-      this.$store.commit("system/setProgress", false);
+
+      this.loading = false;
     },
 
     async replaceAll(): Promise<void> {

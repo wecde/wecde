@@ -3,8 +3,7 @@
   "alert": {
     "adding": {
       "directory": "Adding folder {name}",
-      "file": "Adding file {name}",
-      "folder": "Adding folder {name}"
+      "file": "Adding file {name}"
     },
     "clone-failed": "Clone repo {url} failed: {message}",
     "clone-success": "Clone repo {url} successfully",
@@ -12,8 +11,7 @@
     "created": {
       "file": "Created file {name}",
       "folder": "Created folder {name}",
-      "project": "Created project {name}",
-      "zip": "Successfully created zip"
+      "project": "Created project {name}"
     },
     "exported": {
       "file": "Exported file {name}",
@@ -23,7 +21,7 @@
     "extract-file": "Extract file {name}",
     "extract-folder": "Extract folder {name}",
     "extracting-zip": "Extracting file zip from {name}",
-    "file-name-invalidate": "A file or folder <strong>{name}</strong> already exists at this location Please choose a different names",
+    "file-name-invalidate": "A file or folder $$name already exists at this location Please choose a different names",
     "file-name-not-empty": "A file or folder name must be provided",
     "import-files": "Import file(s)",
     "imported-project": "Imported project {list}",
@@ -31,15 +29,20 @@
     "login-success": "Login success!",
     "reload-files": "Reload files(s)",
     "reload-projects": "Reload projects",
-    "remove-failed": {
-      "file": "Remove file {name} failed",
-      "folder": "Remove folder {name} failed"
+    "remove": {
+      "file-failed": "Remove file {name} failed",
+      "folder-failed": "Remove folder {name} failed",
+      "project-failed": "Remove project {name} failed"
     },
     "removed": {
       "file": "Removed file {name}",
       "folder": "Removed folder {name}",
-      "project": "Removed project {name}",
-      "project-failed": "Remove {type} {name} failed"
+      "project": "Removed project {name}"
+    },
+    "removing": {
+      "file": "Removing file {name}",
+      "folder": "Removing folder {name}",
+      "project": "Removing project {name}"
     },
     "rename": {
       "file-failed": "Rename file {path} failed",
@@ -51,7 +54,6 @@
     },
     "saving-file": "Saving file {name}",
     "saving-file-index": "Saving file {name} {index}/{length}",
-    "unzipped": "Extracted zip to {to}",
     "webserver-start-at": "WebServer started on port {port}",
     "webserver-stoped": "WebServer closed",
     "zip-saved": "Successfully zip saved in {name}",

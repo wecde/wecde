@@ -32,13 +32,28 @@
 
 <script lang="ts">
 import { Filesystem } from "@capacitor/filesystem";
+import { Filesystem as cfs } from "@capacitor/filesystem";
 import { loadLocaleMessages } from "boot/i18n";
-import fs from "modules/filesystem";
+import git from "isomorphic-git";
+import http from "isomorphic-git/http/web/index.js";
+import fs from "modules/fs";
 import { useQuasar } from "quasar";
+import { configs } from "src/helpers/git";
 import { useStore } from "src/store";
 import { isDark as themeIsDark } from "src/store/settings/options support/ace-themes";
 import { foreachAsync } from "src/utils";
 import { defineComponent, ref, watch } from "vue";
+
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).fs = fs;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).cfs = cfs;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).git = git;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).configs = configs;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(self as any).http = http;
 
 export default defineComponent({
   setup() {
@@ -87,9 +102,9 @@ export default defineComponent({
         },
       },
       {
-        message: "init root dir",
+        message: "Filesystem setup",
         async handler() {
-          await fs.initRootDir();
+          await fs.init();
 
           return true;
         },

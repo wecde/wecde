@@ -4,21 +4,19 @@
     :class="{
       dark: $q.dark.isActive,
 
-      ignored: ignored || gitStatus === `ignored` || isBeginCut,
+
+
+      'star-added': status === `020` || status === `022` || status === '02x',
+      added: status === `023`,
+      
+      ignored: ignored,
       'is-folder': file.stat.isDirectory(),
 
-      'star-modified': gitStatus === `*modified`,
-      modified: gitStatus === `modified`,
+      'star-modified': status === `121` || status === '12x',
+      modified: status === `122` || status === `123`,
 
-      'star-deleted': gitStatus === `*deleted`,
-      deleted: gitStatus === `deleted`,
-
-      'star-undeleted': gitStatus === `*undeleted`,
-
-      'star-added': gitStatus === `*added`,
-      added: gitStatus === `added`,
-
-      loading: gitStatus === `loading`,
+      'star-deleted': status === `101` || status === '10x',
+      deleted: status === `100`,
     }"
     v-ripple
     @click="clickToFile"
@@ -35,24 +33,25 @@
       <template v-slot:prepend>
         <q-icon
           size="20px"
-          :name="collapse ? mdiChevronDown : mdiChevronRight"
+          :name="collapse ? 'mdi-chevron-down' : 'mdi-chevron-right'"
           v-if="file.stat.isDirectory()"
         />
       </template>
 
       <template v-slot:append-text>
-        <q-spinner-hourglass color="blue" v-if="loading" />
+        <q-spinner-hourglass color="green" v-if="loading" />
         <q-icon
           size="13px"
           color="blue"
-          :name="mdiCircleMedium"
+          name="mdi-circle-medium"
           v-if="opening"
         />
+        <q-icon size="13px" name="mdi-content-cut" v-if="isBeginCut" />
       </template>
     </FileExplorer-Rename>
 
     <div class="actions">
-      <q-btn color="inherit" flat dense :icon="mdiDotsVertical" @click.stop>
+      <q-btn color="inherit" flat dense icon="mdi-dots-vertical" @click.stop>
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,
@@ -72,7 +71,7 @@
                 :disable="notAllowPaste"
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon :name="mdiContentPaste" />
+                  <q-icon name="mdi-content-paste" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.paste") }}</q-item-section>
               </q-item>
@@ -90,7 +89,7 @@
                 "
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon :name="mdiFileOutline" />
+                  <q-icon name="mdi-file-outline" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.new-file") }}</q-item-section>
               </q-item>
@@ -105,7 +104,7 @@
                 "
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon :name="mdiFolderOutline" />
+                  <q-icon name="mdi-folder-outline" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
               </q-item>
@@ -117,7 +116,7 @@
                 <template v-slot:default="{ on }">
                   <q-item clickable v-close-popup v-ripple @click="on">
                     <q-item-section avatar class="min-width-0">
-                      <q-icon :name="mdiDownload" />
+                      <q-icon name="mdi-download" />
                     </q-item-section>
                     <q-item-section>{{
                       $t("label.import-files")
@@ -131,14 +130,14 @@
 
             <q-item clickable v-close-popup v-ripple @click="cut">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiContentCut" />
+                <q-icon name="mdi-content-cut" />
               </q-item-section>
               <q-item-section>{{ $t("label.cut") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple @click="copy">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiContentCopy" />
+                <q-icon name="mdi-content-copy" />
               </q-item-section>
               <q-item-section>{{ $t("label.copy") }}</q-item-section>
             </q-item>
@@ -150,21 +149,21 @@
               @click.stop.prevent="renaming = true"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiPen" />
+                <q-icon name="mdi-pen" />
               </q-item-section>
               <q-item-section>{{ $t("label.rename") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple @click="remove">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiDeleteOutline" />
+                <q-icon name="mdi-delete-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.delete") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple @click="exportZip">
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiExportVariant" />
+                <q-icon name="mdi-export-variant" />
               </q-item-section>
               <q-item-section>{{
                 $t(
@@ -199,28 +198,15 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import {
-  mdiChevronDown,
-  mdiChevronRight,
-  mdiCircleMedium,
-  mdiContentCopy,
-  mdiContentCut,
-  mdiContentPaste,
-  mdiDeleteOutline,
-  mdiDotsVertical,
-  mdiDownload,
-  mdiExportVariant,
-  mdiFileOutline,
-  mdiFolderOutline,
-  mdiPen,
-} from "@quasar/extras/mdi-v5";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
-import exportZip from "modules/export-zip";
-import fs, { readdirAndStat } from "modules/filesystem";
-import type { StatItem } from "modules/filesystem";
-import { basename, relative } from "path-cross";
+import { isIgnored } from "isomorphic-git";
+import exportZip from "src/helpers/exportDirectoryByZip";
+import fs from "modules/fs";
+import { basename } from "path-cross";
+import { Notify } from "quasar";
+import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import {
   computed,
@@ -261,6 +247,25 @@ export default defineComponent({
     const collapse = ref<boolean>(false);
     const adding = ref<boolean>(false);
     const loading = ref<boolean>(false);
+    const ignored = ref<boolean>(false);
+
+    registerWatch(
+      "projects/*/.gitignore",
+      async () => {
+        ignored.value = await isIgnored({
+          fs,
+          dir: store.state.editor.project as string,
+          filepath: fs.relative(
+            store.state.editor.project as string,
+            file.value.fullpath
+          ),
+        });
+      },
+      {
+        immediate: true,
+        dir: () => store.state.editor.project,
+      }
+    );
 
     watch(adding, (newValue) => {
       if (newValue) {
@@ -283,16 +288,6 @@ export default defineComponent({
 
       return false;
     });
-    const ignored = computed<boolean>(() => {
-      return (
-        store.state["git-project"].status === "ready" &&
-        store.state.editor.project &&
-        store.getters["git-project/ignored"](
-          relative(store.state.editor.project, file.value.fullpath)
-        )
-      );
-    });
-    const gitStatus = ref<string | null>(null);
 
     async function refreshFolder() {
       if (file.value.stat.isDirectory()) {
@@ -311,20 +306,6 @@ export default defineComponent({
     });
 
     return {
-      mdiChevronDown,
-      mdiChevronRight,
-      mdiCircleMedium,
-      mdiDotsVertical,
-      mdiContentPaste,
-      mdiFileOutline,
-      mdiFolderOutline,
-      mdiDownload,
-      mdiContentCut,
-      mdiContentCopy,
-      mdiPen,
-      mdiDeleteOutline,
-      mdiExportVariant,
-
       collapse,
       renaming: ref<boolean>(false),
       adding,
@@ -333,17 +314,33 @@ export default defineComponent({
       basename,
       refreshFolder,
       opening,
-      gitStatus,
       loading,
 
       ignored,
+
+      status: computed<string | null>(() => {
+        return store.getters["editor/status:filepath"](
+          file.value.fullpath,
+          file.value.stat.isDirectory()
+        );
+      }),
     };
   },
   methods: {
     getIcon,
 
     async remove() {
-      this.$store.commit("system/setProgress", true);
+      const task = Notify.create({
+        spinner: true,
+        position: "bottom-right",
+        message: this.$t(
+          `alert.removing.${this.file.stat.isDirectory() ? "folder" : "file"}`,
+          {
+            name: `${this.file.fullpath}`,
+          }
+        ),
+      });
+
       try {
         await fs.unlink(this.file.fullpath, {
           removeAll: true,
@@ -358,6 +355,7 @@ export default defineComponent({
           ),
         });
 
+        task();
         this.$emit("removed");
       } catch {
         void Toast.show({
@@ -370,8 +368,19 @@ export default defineComponent({
             }
           ),
         });
+
+        task({
+          timeout: 3000,
+          message: this.$t(
+            `alert.remove-failed.${
+              this.file.stat.isDirectory() ? "folder" : "file"
+            }`,
+            {
+              name: `${this.file.fullpath}`,
+            }
+          ),
+        });
       }
-      this.$store.commit("system/setProgress", false);
     },
     cut() {
       this.$store.commit("clipboard-fs/cut", [
@@ -426,11 +435,24 @@ export default defineComponent({
           this.$store.commit("terminal/error", err);
         }
       } else {
-        this.$store.commit("system/setProgress", true);
+        const task = Notify.create({
+          spinner: true,
+          position: "bottom-right",
+          message: this.$t(
+            `alert.exported.${
+              this.file.stat.isDirectory() ? "folder" : "file"
+            }`,
+            {
+              name: this.file.fullpath,
+            }
+          ),
+        });
+
         const data = await fs.readFile(this.file.fullpath, "buffer");
 
         saveAs(new Blob([data]), basename(this.file.fullpath));
-        this.$store.commit("system/setProgress", false);
+        task();
+
         void Toast.show({
           text: this.$t(
             `alert.exported.${

@@ -1,6 +1,11 @@
-import fs from "modules/filesystem";
-import { relative } from "path-cross";
+import minimatch from "minimatch";
+import fs from "modules/fs";
+import { basename, join } from "path-cross";
+import { statusMatrix, worthWalking } from "src/helpers/git";
+import { createTimeoutBy } from "src/utils";
 import type { Store } from "vuex";
+
+import { EditorStateInterface } from "./editor/state";
 
 import type { StateInterface } from "./index";
 
@@ -11,9 +16,43 @@ export default (store: Store<StateInterface>): void => {
       store.state.editor.project &&
       fs.isEqual(from, store.state.editor.project)
     ) {
-      store.commit("editor/setProject", to);
+      store.commit("editor/set:project", to);
     }
   });
+  // *
+
+  // * rename .metadata/* if rename project
+  fs.on("move:dir", ({ from, to }) => {
+    if (
+      minimatch(from, "projects/*", {
+        dot: true,
+      })
+    ) {
+      try {
+        void fs.rename(
+          join(".metadata", basename(from)),
+          join(".metadata", basename(to))
+        );
+      } catch {}
+    }
+  });
+  // *
+
+  // * remove .metadata/* if remove project
+  fs.on("remove:dir", (fullpath) => {
+    if (
+      minimatch(fullpath, "projects/*", {
+        dot: true,
+      })
+    ) {
+      try {
+        void fs.unlink(join(".metadata", basename(fullpath)), {
+          removeAll: true,
+        });
+      } catch {}
+    }
+  });
+  // *
 
   // * for sessions
   fs.on("move:file", ({ from, to }) => {
@@ -75,96 +114,89 @@ export default (store: Store<StateInterface>): void => {
   });
   // *
 
-  // * for scrollEnhance
-  fs.on("move:file", ({ from, to }) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, from)
-    ) {
-      // eslint-disable-next-line functional/no-loop-statement
-      for (const file in store.state.editor.scrollEnhance) {
-        if (fs.isEqual(from, file)) {
-          store.commit("editor/updateFileScrollEnhance", {
-            file,
-            newFile: to,
-          });
-        }
-      }
-    }
-  });
-  fs.on("move:dir", ({ from, to }) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, from)
-    ) {
-      // eslint-disable-next-line functional/no-loop-statement
-      for (const file in store.state.editor.scrollEnhance) {
-        if (fs.isParentDir(from, file)) {
-          store.commit("editor/updateFileScrollEnhance", {
-            file,
-            newFile: fs.replaceParentDir(file, from, to),
-          });
-        }
-      }
-    }
-  });
-  fs.on("remove:file", (path) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, path)
-    ) {
-      // eslint-disable-next-line functional/no-loop-statement
-      for (const file in store.state.editor.scrollEnhance) {
-        if (fs.isEqual(path, file)) {
-          store.commit("editor/removeScrollEnhance", file);
-        }
-      }
-    }
-  });
-  fs.on("remove:dir", (path) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, path)
-    ) {
-      // eslint-disable-next-line functional/no-loop-statement
-      for (const file in store.state.editor.scrollEnhance) {
-        if (fs.isParentDir(path, file)) {
-          store.commit("editor/removeScrollEnhance", file);
-        }
-      }
-    }
-  });
-  // *
+  function update_state_editor_git_status(): void {
+    createTimeoutBy(
+      "update git if editor.project change",
+      async () => {
+        const dir = store.state.editor.project;
+        store.commit("editor/set:git.status", "unknown");
 
-  // * update .gitignore
-  fs.watch("projects/*/.gitignore", ({ path }) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, path as string)
-    ) {
-      void store.dispatch("git-project/loadIgnore");
-    }
-  });
-  // *
-
-  // * watch .git/index
-  fs.watch("projects/*/.git/index", ({ path }) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, path as string)
-    ) {
-      void store.dispatch("git-project/checkDotGit");
-    }
-  });
-  // *
-
-  // * watch editor.project
+        if (dir && (await fs.isFile(join(dir, ".git/index")))) {
+          store.commit("editor/set:git.status", "ready");
+        } else {
+          store.commit("editor/set:git.status", "unready");
+        }
+      },
+      1
+    );
+  }
+  // * watch change editor.project -> update editor.git.status
   store.watch(
     () => store.state.editor.project,
-    (value) => {
-      if (value) {
-        void store.dispatch("git-project/refresh");
-      }
+    () => void update_state_editor_git_status(),
+    {
+      immediate: true,
+    }
+  );
+  // *
+
+  // * watch change projects/*/.git/index -> update editor.git.status
+  fs.watch("projects/*/.git/index", () => update_state_editor_git_status(), {
+    miniOpts: {
+      dot: true,
+    },
+    type: "file",
+    dir: () => store.state.editor.project,
+  });
+  // *
+
+  function update_state_editor_git_statusMatrix(fullpath: string | null): void {
+    createTimeoutBy(
+      "update status matrix",
+      async () => {
+        if (
+          store.state.editor.project &&
+          (await fs.isFile(join(store.state.editor.project, ".git/index")))
+        ) {
+          const filepaths = [
+            fullpath ? fs.relative(store.state.editor.project, fullpath) : ".",
+          ];
+
+          store.commit("editor/set:git.statusMatrix.loading", true);
+
+          const matrix = (
+            await statusMatrix({
+              fs,
+              dir: store.state.editor.project,
+              filepaths,
+            })
+          ).reduce((obj, [filepath, ...value]) => {
+            // eslint-disable-next-line functional/immutable-data
+            obj[filepath] = value;
+            return obj;
+          }, {} as EditorStateInterface["git"]["statusMatrix"]["matrix"]);
+
+          console.log(fullpath, matrix);
+
+          store.commit(
+            "editor/filter:git.statusMatrix.matrix",
+            (filepath: string) =>
+              !filepaths.some((base) => worthWalking(filepath, base))
+          );
+          store.commit("editor/assign:git.statusMatrix.matrix", matrix);
+
+          store.commit("editor/set:git.statusMatrix.loading", false);
+        }
+      },
+      1
+    );
+  }
+  // * watch change editor.project -> update editor.git.statusMatrix
+  store.watch(
+    () => store.state.editor.project,
+    () => {
+      store.commit("editor/filter:git.statusMatrix.matrix", () => false);
+      update_state_editor_git_statusMatrix(null);
     },
     {
       immediate: true,
@@ -172,39 +204,35 @@ export default (store: Store<StateInterface>): void => {
   );
   // *
 
-  // * watch ** files from projects
+  // * watch file and folder change -> update editor.git.statusMatrix
   fs.watch(
     "projects/*/**",
     ({ path }) => {
+      const gitdir = join(store.state.editor.project as string, ".git");
       if (
-        store.state.editor.project &&
-        (fs.isParentDir(store.state.editor.project, path as string) ||
-          fs.isEqual(store.state.editor.project, path as string))
+        fs.isEqual(gitdir, path) === false &&
+        fs.isParentDir(gitdir, path) === false
       ) {
-        void store.dispatch("git-project/updateMatrix", [
-          relative(store.state.editor.project, path as string),
-        ]);
+        // bypass .git. Example: projects/fcanvas/{.git}/index
+        void update_state_editor_git_statusMatrix(path);
       }
     },
     {
-      type: "file",
+      miniOpts: {
+        dot: true,
+      },
+      dir: () => store.state.editor.project,
     }
   );
+  // *
+
+  // * if .gitignore change -> update editor.git.statusMatrix
   fs.watch(
-    "projects/*/**",
-    ({ path }) => {
-      if (
-        store.state.editor.project &&
-        (fs.isParentDir(store.state.editor.project, path as string) ||
-          fs.isEqual(store.state.editor.project, path as string))
-      ) {
-        void store.dispatch("git-project/updateMatrix", [
-          relative(store.state.editor.project, path as string),
-        ]);
-      }
-    },
+    "projects/*/.gitignore",
+    () => update_state_editor_git_statusMatrix(null),
     {
-      type: "dir",
+      type: "file",
+      dir: () => store.state.editor.project,
     }
   );
   // *

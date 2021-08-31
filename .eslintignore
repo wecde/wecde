@@ -8,5 +8,4 @@
 babel.config.js
 /src-ssr
 /resources
-/src/comlink
-/src/worker/index.js
+/src/fs

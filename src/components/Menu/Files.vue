@@ -4,7 +4,7 @@
 
     <template v-slot:addons>
       <q-btn
-        :icon="mdiReload"
+        icon="mdi-reload"
         @click="reloadListFile(true)"
         flat
         round
@@ -12,7 +12,7 @@
         size="13px"
       />
       <q-btn
-        :icon="mdiPlus"
+        icon="mdi-plus"
         flat
         round
         padding="xs"
@@ -38,7 +38,7 @@
                 :disable="notAllowPaste"
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon :name="mdiContentPaste" />
+                  <q-icon name="mdi-content-paste" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.paste") }}</q-item-section>
               </q-item>
@@ -55,7 +55,7 @@
               "
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiFileOutline" />
+                <q-icon name="mdi-file-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.new-file") }}</q-item-section>
             </q-item>
@@ -70,7 +70,7 @@
               "
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiFolderOutline" />
+                <q-icon name="mdi-folder-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
             </q-item>
@@ -83,7 +83,7 @@
               <template v-slot:default="{ on }">
                 <q-item clickable v-close-popup v-ripple @click="on">
                   <q-item-section avatar class="min-width-0">
-                    <q-icon :name="mdiDownload" />
+                    <q-icon name="mdi-download" />
                   </q-item-section>
                   <q-item-section>{{
                     $t("label.import-files")
@@ -96,14 +96,14 @@
 
             <q-item clickable v-close-popup v-ripple>
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiUndo" />
+                <q-icon name="mdi-undo" />
               </q-item-section>
               <q-item-section>{{ $t("label.undo") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple>
               <q-item-section avatar class="min-width-0">
-                <q-icon :name="mdiRedo" />
+                <q-icon name="mdi-redo" />
               </q-item-section>
               <q-item-section>{{ $t("label.redo") }}</q-item-section>
             </q-item>
@@ -114,20 +114,25 @@
 
     <template v-slot:contents v-if="$store.state.editor.project">
       <div>
-        <FileExplorer-Add
-          v-model:adding="adding"
-          :is-folder="addingFolder"
-          :names-exists="tree.map((item) => basename(item.fullpath))"
-          :dirname="$store.state.editor.project"
-          allow-open-editor
-          @created="reloadListFile"
-        />
+        <q-pull-to-refresh
+          @refresh="(done) => void reloadListFile().then(() => void done())"
+          icon="mdi-refresh"
+        >
+          <FileExplorer-Add
+            v-model:adding="adding"
+            :is-folder="addingFolder"
+            :names-exists="tree.map((item) => basename(item.fullpath))"
+            :dirname="$store.state.editor.project"
+            allow-open-editor
+            @created="reloadListFile"
+          />
 
-        <FileExplorer-List
-          :files-list="tree"
-          @remove-children="tree.splice($event, 1)"
-          @request:refresh="reloadListFile"
-        />
+          <FileExplorer-List
+            :files-list="tree"
+            @remove-children="tree.splice($event, 1)"
+            @request:refresh="reloadListFile"
+          />
+        </q-pull-to-refresh>
       </div>
     </template>
   </Template-Tab>
@@ -135,24 +140,12 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import {
-  mdiChevronDown,
-  mdiClose,
-  mdiContentPaste,
-  mdiDownload,
-  mdiFileOutline,
-  mdiFolderOutline,
-  mdiPlus,
-  mdiRedo,
-  mdiReload,
-  mdiUndo,
-} from "@quasar/extras/mdi-v5";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import FileExplorerAdd from "components/File Explorer/Add.vue";
 import FileExplorerList from "components/File Explorer/List.vue";
-import { readdirAndStat } from "modules/filesystem";
-import type { StatItem } from "modules/filesystem";
 import { basename } from "path-cross";
+import { Notify } from "quasar";
+import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import { computed, defineComponent, ref } from "vue";
 
@@ -176,17 +169,6 @@ export default defineComponent({
     );
 
     return {
-      mdiReload,
-      mdiPlus,
-      mdiContentPaste,
-      mdiFileOutline,
-      mdiFolderOutline,
-      mdiDownload,
-      mdiUndo,
-      mdiRedo,
-      mdiChevronDown,
-      mdiClose,
-
       adding,
       addingFolder,
       tree,
@@ -206,6 +188,12 @@ export default defineComponent({
     basename,
 
     async reloadListFile(notification = false): Promise<void> {
+      const task = Notify.create({
+        spinner: true,
+        position: "bottom-right",
+        message: this.$t("alert.reload-files"),
+      });
+
       try {
         if (!this.$store.state.editor.project) {
           // eslint-disable-next-line functional/no-throw-statement
@@ -216,14 +204,18 @@ export default defineComponent({
           ...(await readdirAndStat(this.$store.state.editor.project)),
         ];
 
+        task();
+
         if (notification) {
           void Toast.show({
             text: this.$t("alert.reload-files"),
           });
         }
-      } catch (err) {
-        console.log(err);
+      } catch {
         this.tree = [];
+        task({
+          message: this.$t("alert.reload-files-failed"),
+        });
       }
     },
 

@@ -1,7 +1,28 @@
 import { Toast } from "@capacitor/toast";
 import { i18n } from "boot/i18n";
 import type { GitAuth, GitProgressEvent } from "isomorphic-git";
+import { isIgnored, STAGE, TREE, walk, WORKDIR } from "isomorphic-git";
+import type { default as $fs } from "modules/fs";
 import { store } from "src/store";
+
+export function worthWalking(filepath: string, root?: string): boolean {
+  if (filepath === "." || root == null || root.length === 0 || root === ".") {
+    return true;
+  }
+
+  if (filepath === root) {
+    return true;
+  }
+
+  const filepathSpited = filepath.split("/");
+  const rootSpited = root.split("/");
+
+  if (root.length >= filepath.length) {
+    return filepathSpited.every((item, index) => rootSpited[index] === item);
+  } else {
+    return rootSpited.every((item, index) => filepathSpited[index] === item);
+  }
+}
 
 export function onStart(message: string): void {
   store.commit("terminal/info", message);
@@ -110,3 +131,89 @@ export const configs = {
     );
   },
 };
+
+const cache = {};
+export async function statusMatrix({
+  dir,
+  fs,
+  gitdir = dir + "/.git",
+  ref = "HEAD",
+  filepaths = ["."],
+  filter = () => true,
+}: {
+  readonly fs: typeof $fs;
+  readonly dir: string;
+  readonly gitdir?: string;
+  readonly ref?: string;
+  readonly filepaths?: readonly string[];
+  readonly filter?: (filepath: string) => boolean;
+}): Promise<readonly (readonly [string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2])[]> {
+  console.time("statusMatrix");
+
+  const ret = await walk({
+    fs,
+    cache,
+    dir,
+    gitdir,
+    trees: [TREE({ ref }), WORKDIR(), STAGE()],
+    map: async function (filepath, [head, workdir, stage]) {
+      // Ignore ignored files, but only if they are not already tracked.
+      if (!head && !stage && workdir) {
+        if (
+          await isIgnored({
+            fs,
+            dir,
+            filepath,
+          })
+        ) {
+          return null;
+        }
+      }
+      // match against base paths
+      if (!filepaths.some((base) => worthWalking(filepath, base))) {
+        return null;
+      }
+      // Late filter against file names
+      if (filter) {
+        if (!filter(filepath)) return;
+      }
+
+      // For now, just bail on directories
+      const headType = head && (await head.type());
+      if (headType === "tree" || headType === "special") return;
+      if (headType === "commit") return null;
+
+      const workdirType = workdir && (await workdir.type());
+
+      if (workdirType === "special") return;
+
+      const stageType = stage && (await stage.type());
+      if (stageType === "commit") return null;
+      if (stageType === "special") return;
+
+      // Figure out the oids, using the staged oid for the working dir oid if the stats match.
+      const headOid = head ? await head.oid() : undefined;
+      const stageOid = stage ? await stage.oid() : undefined;
+      // eslint-disable-next-line functional/no-let
+      let workdirOid;
+      if (!head && workdir && !stage) {
+        // We don't actually NEED the sha. Any sha will do
+        // TODO: update this logic to handle N trees instead of just 3.
+        workdirOid = "42";
+      } else if (workdir) {
+        workdirOid = (await workdir.oid()) ?? "0x";
+      }
+
+      const entry = [undefined, headOid, workdirOid, stageOid];
+
+      const result = entry.map((value) => entry.indexOf(value));
+      // eslint-disable-next-line functional/immutable-data
+      result.shift(); // remove leading undefined entry
+      return [filepath, ...result];
+    },
+  });
+
+  console.timeEnd("statusMatrix");
+
+  return ret;
+}

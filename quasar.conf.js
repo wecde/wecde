@@ -34,7 +34,7 @@ module.exports = configure(function (ctx) {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli/boot-files
-    boot: ["i18n", "vue-timeago.js", "webserver"],
+    boot: ["capacitor", "i18n", "vue-timeago.js", "webserver"],
 
     // https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-css
     css: ["app.scss"],
@@ -42,7 +42,7 @@ module.exports = configure(function (ctx) {
     // https://github.com/quasarframework/quasar/tree/dev/extras
     extras: [
       // 'ionicons-v4',
-      // "mdi-v5",
+      "mdi-v5",
       // 'fontawesome-v5',
       // 'eva-icons',
       // 'themify',
@@ -93,14 +93,6 @@ module.exports = configure(function (ctx) {
           },
         });
         // eslint-disable-next-line functional/immutable-data
-        cfg.module.rules.unshift({
-          test: /\.worker\.(j|t)sx?$/i,
-          loader: "worker-loader",
-          options: {
-          publicPath: "/workers/"
-          }
-        })
-        // eslint-disable-next-line functional/immutable-data
         cfg.resolve.alias = {
           ...cfg.resolve.alias,
           modules: path.resolve("./src/modules"),
@@ -128,7 +120,7 @@ module.exports = configure(function (ctx) {
     framework: {
       config: {},
 
-      iconSet: "svg-mdi-v5", // Quasar icon set
+      iconSet: "mdi-v5", // Quasar icon set
       // lang: 'en-US', // Quasar language pack
 
       // For special cases outside of where the auto-import strategy can have an impact
@@ -139,7 +131,7 @@ module.exports = configure(function (ctx) {
       // directives: [],
 
       // Quasar plugins
-      plugins: [],
+      plugins: ["Notify"],
     },
 
     // animations: 'all', // --- includes all animations

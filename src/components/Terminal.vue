@@ -8,7 +8,9 @@
     persistent
     class="max-width-dialog"
   >
-    <q-card class="bg-grey-10 text-white">
+    <q-card
+      class="bg-grey-10 text-white full-height never-scroll flex column no-wrap"
+    >
       <q-bar>
         <div class="text-weight-medium text-subtitle1">
           {{ $t("Console") }}
@@ -18,7 +20,7 @@
         <q-btn
           dense
           flat
-          :icon="mdiMinus"
+          icon="mdi-minus"
           @click="maximized = false"
           :disable="!maximized"
         >
@@ -29,7 +31,7 @@
         <q-btn
           dense
           flat
-          :icon="mdiCropSquare"
+          icon="mdi-crop-square"
           @click="maximized = true"
           :disable="maximized"
         >
@@ -37,7 +39,7 @@
             >Maximize</q-tooltip
           >
         </q-btn>
-        <q-btn dense flat :icon="mdiClose" v-close-popup>
+        <q-btn dense flat icon="mdi-close" v-close-popup>
           <q-tooltip class="bg-white text-primary">Close</q-tooltip>
         </q-btn>
       </q-bar>
@@ -60,7 +62,6 @@
 </template>
 
 <script lang="ts">
-import { mdiClose, mdiCropSquare, mdiMinus } from "@quasar/extras/mdi-v5";
 import { useQuasar } from "quasar";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
@@ -109,10 +110,6 @@ export default defineComponent({
     );
 
     return {
-      mdiCropSquare,
-      mdiMinus,
-      mdiClose,
-
       terminal,
       lines,
       maximized: ref<boolean>(false),
@@ -124,36 +121,14 @@ export default defineComponent({
 
 <style lang="scss" scoped>
 .terminal {
-  font-family: monospace, courier, fixed, swiss, sans-serif;
-  font-weight: normal;
-  font-variant-ligatures: none;
+  font: {
+    family: monospace, courier, fixed, swiss, sans-serif;
+    weight: normal;
+    variant-ligatures: none;
+    size: 14px;
+  }
   line-height: normal;
-  overflow: hidden scroll;
   white-space: pre-line;
   word-break: break-all;
-  font-size: 14px;
-  font-weight: normal;
-
-  .header {
-    padding: {
-      bottom: 10px;
-      font-size: 20px;
-      font-weight: bold;
-    }
-  }
-
-  .cursor {
-    color: #000000;
-    background: #00ff00;
-    &.fake {
-      display: inline-block;
-      width: 0.5em;
-      height: 1em;
-      margin: 0;
-      padding: 0;
-      line-height: 1;
-      transform: translateY(10%);
-    }
-  }
 }
 </style>
