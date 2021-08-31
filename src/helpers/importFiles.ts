@@ -1,16 +1,20 @@
 import { i18n } from "boot/i18n";
 import { join } from "path-cross";
+import selectFiles from "select-files";
 import { store } from "src/store";
 
-import fs from "./fs";
-import selectFile from "./select-file";
+import fs from "../modules/fs";
 
 export default async function importFiles(
   folderSave: string,
   multiple = true
 ): Promise<readonly string[]> {
   store.commit("terminal/print", i18n.global.t("alert.import-files"));
-  const files = await selectFile("", multiple);
+  const files = Array.from(
+    (await selectFiles({
+      multiple,
+    })) || []
+  );
 
   if (files.length > 0) {
     await Promise.all(

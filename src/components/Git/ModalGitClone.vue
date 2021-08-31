@@ -66,8 +66,7 @@ import {
   onProgress,
   onStart,
 } from "src/helpers/git";
-import { useGitWorker } from "src/worker/git";
-// import { useGitWorker } from "src/worker/git";
+import { useGitCloneWorker } from "src/worker/git-clone";
 import { defineComponent, ref, watch } from "vue";
 
 // import $store from "src/store";
@@ -128,7 +127,7 @@ export default defineComponent({
             url: this.url,
           })
         );
-        await useGitWorker().clone({
+        await useGitCloneWorker()({
           dir: `projects/${name}`,
           url: this.url,
           fs,

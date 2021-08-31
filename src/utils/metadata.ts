@@ -1,9 +1,4 @@
-import fs from "modules/fs";
 import { join, relative } from "path-cross";
-
-export function getFilepathFrom(project: string, fullpath: string): string {
-  return relative(fs.relatively(project), fs.relatively(fullpath));
-}
 
 export function getPathToProjectFrom(fullpath: string): string {
   const fullpathSplit = join("./", fullpath)
@@ -19,5 +14,8 @@ export function getPathToProjectFrom(fullpath: string): string {
 }
 
 export function getPathToMetadataOf(fullpath: string): string {
-  return join(".metadata", relative("projects", getPathToProjectFrom(fullpath)))
+  return join(
+    ".metadata",
+    relative("projects", getPathToProjectFrom(fullpath))
+  );
 }

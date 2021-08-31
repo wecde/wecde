@@ -220,8 +220,8 @@ const groups: readonly {
     options: [
       {
         name: "Port",
-        type: "tel",
-        default: "8080",
+        type: "int",
+        default: 8080,
         list: false,
       },
     ],

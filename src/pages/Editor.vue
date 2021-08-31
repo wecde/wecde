@@ -68,7 +68,10 @@
       <Preview
         :fullpath="fullpath"
         v-else-if="
-        isImage(fullpath) || isVideo(fullpath) || isAudio(fullpath) || isFont(fullpath)
+          isImage(fullpath) ||
+          isVideo(fullpath) ||
+          isAudio(fullpath) ||
+          isFont(fullpath)
         "
       />
       <Editor-Markdown
@@ -100,6 +103,7 @@
 <script lang="ts">
 import { Browser } from "@capacitor/browser";
 import { Toast } from "@capacitor/toast";
+import { WebServer } from "@ionic-native/web-server";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppHammer from "components/App/Hammer.vue";
 import EditorCode from "components/Editor/Code.vue";
@@ -107,9 +111,15 @@ import EditorMarkdown from "components/Editor/Markdown.vue";
 import EditorSVG from "components/Editor/SVG.vue";
 import Preview from "components/Preview.vue";
 import isBinaryPath from "is-binary-path-cross";
-import { WebServer } from "modules/webserver";
 import { basename } from "path-cross";
-import {isAudio, isFont, isImage, isMarkdown, isSvg, isVideo } from "src/helpers/is-file-type"
+import {
+  isAudio,
+  isFont,
+  isImage,
+  isMarkdown,
+  isSvg,
+  isVideo,
+} from "src/helpers/is-file-type";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
 import type { DefineComponent } from "vue";
@@ -134,8 +144,8 @@ export default defineComponent({
     const editorComponent = ref<DefineComponent | null>(null);
 
     const serverStatus = ref<boolean>(false);
-    const port = computed<string>(
-      () => store.state.settings["preview**port"] as string
+    const port = computed<number>(
+      () => store.state.settings["preview**port"] as number
     );
     const plaintext = computed<boolean>(() =>
       fullpath.value ? !isBinaryPath(fullpath.value) : false
@@ -158,7 +168,7 @@ export default defineComponent({
       });
     }
 
-    async function startServer(port: string): Promise<void> {
+    async function startServer(port: number): Promise<void> {
       await WebServer.start(port).catch((err: unknown) => console.log(err));
 
       void Toast.show({
@@ -174,7 +184,7 @@ export default defineComponent({
         text: i18n.t("alert.webserver-stoped"),
       });
     }
-    async function changePort(port: string): Promise<void> {
+    async function changePort(port: number): Promise<void> {
       await stopServer();
       await startServer(port);
     }
@@ -182,7 +192,7 @@ export default defineComponent({
     watch(serverStatus, async (newValue) => {
       try {
         if (newValue) {
-          await startServer(store.state.settings["preview**port"] as string);
+          await startServer(store.state.settings["preview**port"] as number);
           await openWebView();
         } else {
           await stopServer();
@@ -247,13 +257,13 @@ export default defineComponent({
       scrollSessionWrapperToSessionActive,
       plaintext,
       openBrowser,
-      
+
       isSvg,
       isAudio,
       isFont,
       isImage,
       isVideo,
-      isMarkdown
+      isMarkdown,
     };
   },
   computed: {

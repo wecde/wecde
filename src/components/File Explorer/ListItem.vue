@@ -4,7 +4,12 @@
     :class="{
       dark: $q.dark.isActive,
 
-      ignored: ignored || isBeginCut,
+
+
+      'star-added': status === `020` || status === `022` || status === '02x',
+      added: status === `023`,
+      
+      ignored: ignored,
       'is-folder': file.stat.isDirectory(),
 
       'star-modified': status === `121` || status === '12x',
@@ -12,9 +17,6 @@
 
       'star-deleted': status === `101` || status === '10x',
       deleted: status === `100`,
-
-      'star-added': status === `020` || status === `022` || status === '02x',
-      added: status === `023`,
     }"
     v-ripple
     @click="clickToFile"
@@ -37,13 +39,14 @@
       </template>
 
       <template v-slot:append-text>
-        <q-spinner-hourglass color="blue" v-if="loading" />
+        <q-spinner-hourglass color="green" v-if="loading" />
         <q-icon
           size="13px"
           color="blue"
           name="mdi-circle-medium"
           v-if="opening"
         />
+        <q-icon size="13px" name="mdi-content-cut" v-if="isBeginCut" />
       </template>
     </FileExplorer-Rename>
 
@@ -198,11 +201,12 @@ import { Toast } from "@capacitor/toast";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
-import exportZip from "modules/export-zip";
+import { isIgnored } from "isomorphic-git";
+import exportZip from "src/helpers/exportDirectoryByZip";
 import fs from "modules/fs";
 import { basename } from "path-cross";
 import { Notify } from "quasar";
-import { readdirAndStat, StatItem } from "src/helpers/fs";
+import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import {
   computed,
@@ -243,6 +247,25 @@ export default defineComponent({
     const collapse = ref<boolean>(false);
     const adding = ref<boolean>(false);
     const loading = ref<boolean>(false);
+    const ignored = ref<boolean>(false);
+
+    registerWatch(
+      "projects/*/.gitignore",
+      async () => {
+        ignored.value = await isIgnored({
+          fs,
+          dir: store.state.editor.project as string,
+          filepath: fs.relative(
+            store.state.editor.project as string,
+            file.value.fullpath
+          ),
+        });
+      },
+      {
+        immediate: true,
+        dir: () => store.state.editor.project,
+      }
+    );
 
     watch(adding, (newValue) => {
       if (newValue) {
@@ -265,7 +288,6 @@ export default defineComponent({
 
       return false;
     });
-    const ignored = false;
 
     async function refreshFolder() {
       if (file.value.stat.isDirectory()) {
@@ -312,7 +334,7 @@ export default defineComponent({
         spinner: true,
         position: "bottom-right",
         message: this.$t(
-          `alert.removed.${this.file.stat.isDirectory() ? "folder" : "file"}`,
+          `alert.removing.${this.file.stat.isDirectory() ? "folder" : "file"}`,
           {
             name: `${this.file.fullpath}`,
           }

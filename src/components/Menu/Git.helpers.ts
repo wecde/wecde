@@ -1,7 +1,7 @@
+import git from "isomorphic-git"
 import fs from "modules/fs";
 import { join } from "path-cross";
 import { store } from "src/store";
-import { useGitWorker } from "src/worker/git";
 
 import type { Branch, Remote } from "./Git.types";
 
@@ -11,7 +11,7 @@ function trim(str: string): string {
 
 export async function listRemotes(): Promise<readonly Remote[]> {
   if (store.state.editor.project) {
-    return await useGitWorker().listRemotes({
+    return await git.listRemotes({
       dir: store.state.editor.project,
       fs,
     });
@@ -47,7 +47,7 @@ export async function listBranches(
     // eslint-disable-next-line functional/immutable-data
     promiseGetBranches.push(
       (async (): Promise<readonly Branch[]> => {
-        const branches = await useGitWorker().listBranches({
+        const branches = await git.listBranches({
           fs,
           dir: store.state.editor.project as string,
         });
@@ -67,7 +67,7 @@ export async function listBranches(
       // eslint-disable-next-line functional/immutable-data
       promiseGetBranches.push(
         ...(await listRemotes()).map(async ({ remote }) => {
-          const branches = await useGitWorker().listBranches({
+          const branches = await git.listBranches({
             fs,
             dir: store.state.editor.project as string,
             remote,
@@ -88,7 +88,7 @@ export async function listBranches(
     // eslint-disable-next-line functional/immutable-data
     promiseGetBranches.push(
       (async () => {
-        const branches = await useGitWorker().listTags({
+        const branches = await git.listTags({
           fs,
           dir: store.state.editor.project as string,
         });

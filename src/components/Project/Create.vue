@@ -106,10 +106,10 @@ import { Toast } from "@capacitor/toast";
 import type { Template } from "assets/labs/Release.json";
 import templates from "assets/templates/Release.json";
 import fs from "modules/fs";
-import { unzip } from "modules/zip";
 import nameFileValidates from "src/validator/nameFileValidates";
 import { computed, defineComponent, ref, toRefs } from "vue";
 import type { PropType } from "vue";
+import { unzip } from "zip2";
 
 export default defineComponent({
   emits: ["update:state", "created"],
@@ -165,13 +165,40 @@ export default defineComponent({
       if (this.templateSelected) {
         if (this.templateSelected.isTemplate) {
           try {
-            await unzip(
+            const urlFileZip =
               // eslint-disable-next-line @typescript-eslint/no-var-requires
-              require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`)
-                .default,
-              `projects/${this.templateSelected.name}`,
-              true
+              require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`).default;
+
+            this.$store.commit(
+              "terminal/info",
+              this.$t("alert.extracting-zip", {
+                name: urlFileZip,
+              })
             );
+            await unzip({
+              fs,
+              data: await fetch(urlFileZip)
+                .then((res) => res.blob())
+                .then((blob) => blob.arrayBuffer()),
+              extractTo: `projects/${this.templateSelected.name}`,
+              onProgress: (event) => {
+                if (event.isDirectory) {
+                  this.$store.commit(
+                    "terminal/print",
+                    this.$t("alert.extract-folder", {
+                      name: event.filename,
+                    })
+                  );
+                } else {
+                  this.$store.commit(
+                    "terminal/print",
+                    this.$t("alert.extract-file", {
+                      name: event.filename,
+                    })
+                  );
+                }
+              },
+            });
 
             this.$store.commit("terminal/clear");
             created = true;

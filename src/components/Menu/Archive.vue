@@ -120,10 +120,13 @@
         >
           <Project-Item
             v-for="item in projects"
-            :key="item.fullpath"
-            :project="item"
-            :names-exists="projects.map((item) => basename(item.fullpath))"
-            @click:delete="projectRemoving = item"
+            :key="item.value.fullpath"
+            :project="item.value"
+            :git="item.git"
+            :names-exists="
+              projects.map((item) => basename(item.value.fullpath))
+            "
+            @click:delete="projectRemoving = item.value"
           />
         </q-pull-to-refresh>
       </q-list>
@@ -189,7 +192,7 @@
   <Project-Create
     v-model:state="creatingProject"
     @created="reloadListProjects"
-    :names-exists="projects.map((item) => basename(item.fullpath))"
+    :names-exists="projects.map((item) => basename(item.value.fullpath))"
   />
 </template>
 
@@ -202,9 +205,9 @@ import ProjectCreate from "components/Project/Create.vue";
 import ProjectItem from "components/Project/Item.vue";
 import { sort } from "fast-sort";
 import fs from "modules/fs";
-import importZip from "modules/import-zip";
-import { basename } from "path-cross";
+import { basename, join } from "path-cross";
 import { Notify } from "quasar";
+import createProjectFromZip from "src/helpers/createProjectFromZip";
 import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { defineComponent, ref, watch } from "vue";
 
@@ -225,7 +228,12 @@ export default defineComponent({
     DialogTop,
   },
   setup() {
-    const projects = ref<StatItem[]>([]);
+    const projects = ref<
+      {
+        readonly git: boolean;
+        readonly value: StatItem;
+      }[]
+    >([]);
     const creatingProject = ref<boolean>(false);
     const projectRemoving = ref<null | StatItem>(null);
     const code = ref<null | string>(null);
@@ -270,10 +278,21 @@ export default defineComponent({
 
       try {
         this.projects = sort(
-          (await readdirAndStat("projects")).filter((project) => {
-            return project.stat.type === "directory";
-          })
-        ).asc((item) => basename(item.fullpath));
+          await Promise.all(
+            await readdirAndStat("projects").then((item) => {
+              return item
+                .filter((project) => {
+                  return project.stat.type === "directory";
+                })
+                .map(async (item) => {
+                  return {
+                    git: await fs.isFile(join(item.fullpath, ".git/index")),
+                    value: item,
+                  };
+                });
+            })
+          )
+        ).asc((item) => basename(item.value.fullpath));
 
         task();
       } catch {
@@ -292,7 +311,7 @@ export default defineComponent({
     },
     async importProjectFromZip(): Promise<void> {
       try {
-        const names = await importZip("projects/");
+        const names = await createProjectFromZip("projects/");
         this.$store.commit("terminal/clear");
         void Toast.show({
           text: this.$t("alert.imported-project", {
@@ -307,9 +326,9 @@ export default defineComponent({
     async remove(): Promise<void> {
       if (this.code === this.codeInput && this.projectRemoving) {
         const task = Notify.create({
-          progress: true,
+          spinner: true,
           position: "bottom-right",
-          message: this.$t("alert.removed.project", {
+          message: this.$t("alert.removing.project", {
             name: basename(this.projectRemoving.fullpath),
           }),
         });
@@ -326,12 +345,12 @@ export default defineComponent({
           });
         } catch {
           task({
-            message: this.$t("alert.remove-project-failed", {
+            message: this.$t("alert.remove.project-failed", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });
           void Toast.show({
-            text: this.$t("alert.remove-project-failed", {
+            text: this.$t("alert.remove.project-failed", {
               name: basename(this.projectRemoving.fullpath),
             }),
           });

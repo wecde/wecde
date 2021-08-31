@@ -1,6 +1,4 @@
-import { relative } from "path-cross";
-import fs from "src/modules/fs";
-import { getFilepathFrom } from "src/utils/metadata";
+import fs from "modules/fs";
 import { GetterTree } from "vuex";
 
 import { StateInterface } from "../index";
@@ -18,10 +16,10 @@ const getters: GetterTree<EditorStateInterface, StateInterface> = {
       }
 
       if (isFolder) {
-        const filepathFolder = `${relative(
-          fs.relatively(project),
-          fs.relatively(fullpath)
-        )}/`.replace(/\/{2,}/g, "/"); // format: examples/, src/, docs/
+        const filepathFolder = `${fs.relative(project, fullpath)}/`.replace(
+          /\/{2,}/g,
+          "/"
+        ); // format: examples/, src/, docs/
 
         // eslint-disable-next-line functional/no-let
         let modified = false;
@@ -60,9 +58,8 @@ const getters: GetterTree<EditorStateInterface, StateInterface> = {
         return null;
       } else {
         return project
-          ? git.statusMatrix.matrix[getFilepathFrom(project, fullpath)]?.join(
-              ""
-            ) ?? null
+          ? git.statusMatrix.matrix[fs.relative(project, fullpath)]?.join("") ??
+              null
           : null;
       }
     };

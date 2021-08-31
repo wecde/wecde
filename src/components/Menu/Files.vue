@@ -211,7 +211,7 @@ export default defineComponent({
             text: this.$t("alert.reload-files"),
           });
         }
-      } catch (err) {
+      } catch {
         this.tree = [];
         task({
           message: this.$t("alert.reload-files-failed"),

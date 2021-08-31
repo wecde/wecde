@@ -6,7 +6,11 @@
   >
     <q-item-section avatar>
       <q-img
-        :src="require(`assets/extensions/material-icon-theme/icons/folder.svg`)"
+        :src="
+          git
+            ? require(`assets/extensions/material-icon-theme/icons/folder-git.svg`)
+            : require(`assets/extensions/material-icon-theme/icons/folder.svg`)
+        "
         :size="40"
       />
     </q-item-section>
@@ -25,7 +29,11 @@
           :class="{
             'text-blue': opened,
           }"
-        />
+        >
+          <template v-slot:append-text v-if="git">
+            <small>GIT</small>
+          </template>
+        </FileExplorer-Rename>
       </q-item-label>
       <q-item-label
         caption
@@ -34,7 +42,7 @@
         }"
       >
         {{ $t("label.modified") }}
-        <vue-timeagojs :time="new Date(project.stat.mtime)" :delay="30000" />
+        <vue-timeagojs :time="new Date(project.stat.mtimeMs)" :delay="30000" />
       </q-item-label>
     </q-item-section>
 
@@ -82,7 +90,7 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import exportZip from "modules/export-zip";
+import exportZip from "src/helpers/exportDirectoryByZip";
 import fs from "modules/fs";
 import { basename } from "path-cross";
 import type { StatItem } from "src/helpers/fs";
@@ -103,6 +111,10 @@ export default defineComponent({
     },
     namesExists: {
       type: Array as PropType<string[]>,
+      required: true,
+    },
+    git: {
+      type: Boolean,
       required: true,
     },
   },

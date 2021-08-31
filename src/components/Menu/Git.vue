@@ -578,6 +578,8 @@ import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import GitModalCheckout from "components/Git/ModalCheckout.vue";
 import GitModalCommit from "components/Git/ModalCommit.vue";
 import { sort } from "fast-sort";
+import git from "isomorphic-git"
+import http from "isomorphic-git/http/web/index.js"
 import fs from "modules/fs";
 import { basename } from "path-cross";
 import {
@@ -592,7 +594,6 @@ import {
   onStart,
 } from "src/helpers/git";
 import { useStore } from "src/store";
-import { useGitWorker } from "src/worker/git";
 import { computed, defineComponent, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -653,7 +654,7 @@ export default defineComponent({
       if (store.state.editor.project) {
         loading.value = true;
 
-        await useGitWorker().init({
+        await git.init({
           fs,
           dir: store.state.editor.project,
         });
@@ -683,8 +684,9 @@ export default defineComponent({
 
         try {
           onStart(i18n.t("alert.pulling"));
-          await useGitWorker().pull({
+          await git.pull({
             fs,
+            http,
             dir: store.state.editor.project,
             ...gitConfigs,
             remote,
@@ -709,8 +711,9 @@ export default defineComponent({
 
         try {
           onStart(i18n.t("alert.pushing"));
-          await useGitWorker().push({
+          await git.push({
             fs,
+            http,
             dir: store.state.editor.project,
             remote,
             onAuth,

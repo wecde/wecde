@@ -173,8 +173,7 @@ export default defineComponent({
               ),
             });
             task();
-          } catch (err) {
-            console.log(err);
+          } catch {
             void Toast.show({
               text: this.$t(
                 `alert.rename.${this.isFolder ? "folder" : "file"}-failed`,
