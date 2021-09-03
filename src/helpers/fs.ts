@@ -13,7 +13,7 @@ export type StatItem = {
 export async function readdirAndStat(
   path: string
 ): Promise<readonly StatItem[]> {
-  return sortFolder(
+  return sortTreeFilesystem(
     await Promise.all(
       (
         await fs.readdir(path)
@@ -29,7 +29,7 @@ export async function readdirAndStat(
   );
 }
 
-function sortFolder(items: readonly StatItem[]): readonly StatItem[] {
+export function sortTreeFilesystem(items: readonly StatItem[]): readonly StatItem[] {
   // eslint-disable-next-line functional/prefer-readonly-type
   const files: StatItem[] = [];
   // eslint-disable-next-line functional/prefer-readonly-type

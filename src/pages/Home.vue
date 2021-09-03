@@ -28,30 +28,23 @@
   </q-tab-panels>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import AppHammer from "components/App/Hammer.vue";
 import HomeChangelog from "components/Home/Changelog.vue";
 import HomeLabs from "components/Home/Labs.vue";
-import { defineComponent, ref } from "vue";
+import { ref, watch } from "vue";
+import { useRoute } from "vue-router";
 
-export default defineComponent({
-  components: {
-    AppHammer,
-    HomeLabs,
-    HomeChangelog,
+const tab = ref<string>("labs");
+const route = useRoute();
+
+watch(
+  () => route.query.tab,
+  (newValue) => {
+    tab.value = (newValue as string) || "labs";
   },
-  setup() {
-    return {
-      tab: ref<string>("labs"),
-    };
-  },
-  watch: {
-    "$route.query.tab": {
-      handler(newValue: string | void) {
-        this.tab = newValue ? newValue : "labs";
-      },
-      immediate: true,
-    },
-  },
-});
+  {
+    immediate: true,
+  }
+);
 </script>

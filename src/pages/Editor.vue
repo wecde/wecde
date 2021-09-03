@@ -15,7 +15,7 @@
         round
         padding="xs"
         v-if="EditorCodeComponent && previewing === false"
-        @click="toggleSearchAce"
+        @click="toggleSearchBar"
         icon="mdi-magnify"
       />
 
@@ -28,20 +28,29 @@
         :icon="previewing ? 'mdi-pen' : 'mdi-folder-image'"
       />
 
-      <q-btn flat round icon="mdi-play" padding="xs">
-        <q-badge color="blue" floating v-if="serverStatus" />
+      <q-btn
+        flat
+        round
+        icon="mdi-play"
+        padding="xs"
+        @click="serverIsRunning = true"
+      >
+        <q-badge color="blue" floating v-if="serverIsRunning" />
       </q-btn>
     </div>
   </App-Hammer>
 
-  <div class="absolute fit" style="height: calc(100% - 50px) !important">
+  <div
+    class="absolute fit"
+    style="height: calc(100% - 50px) !important"
+    ref="wrapEditor"
+  >
     <!-- padding-top offset for navbar -->
     <template v-if="fullpath">
       <Editor-SVG
         :fullpath="fullpath"
         v-if="isSvg(fullpath)"
         @change="scrollSessionWrapperToSessionActive"
-        ref="editorComponent"
       />
       <Preview
         :fullpath="fullpath"
@@ -56,13 +65,11 @@
         :fullpath="fullpath"
         v-else-if="isMarkdown(fullpath)"
         @change="scrollSessionWrapperToSessionActive"
-        ref="editorComponent"
       />
       <Editor-Code
         :fullpath="fullpath"
-        v-else-if="plaintext"
+        v-else-if="fullpath && !isBinaryPath(fullpath.value)"
         @change="scrollSessionWrapperToSessionActive"
-        ref="editorComponent"
       />
       <div class="q-pt-4 text-caption q-px-6 q-pb-6" v-else>
         This file is not displayed in the text editor because it is either
@@ -78,10 +85,11 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Browser } from "@capacitor/browser";
 import { Toast } from "@capacitor/toast";
 import { WebServer } from "@ionic-native/web-server";
+import type { Ace } from "ace-builds";
 import AppHammer from "components/App/Hammer.vue";
 import EditorCode from "components/Editor/Code.vue";
 import EditorMarkdown from "components/Editor/Markdown.vue";
@@ -99,208 +107,126 @@ import {
 } from "src/helpers/is-file-type";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
-import type { DefineComponent } from "vue";
-import { computed, defineComponent, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-export default defineComponent({
-  components: {
-    AppHammer,
-    Preview,
-    EditorSVG,
-    EditorMarkdown,
-    EditorCode,
-    SessionItem,
-  },
-  setup() {
-    const i18n = useI18n();
-    const store = useStore();
-    const fullpath = computed<string | null>(
-      () => store.getters["editor/session"] as string | null
-    );
+const i18n = useI18n();
+const store = useStore();
+const fullpath = computed<string | null>(
+  () => store.getters["editor/session"] as string | null
+);
 
-    const editorComponent = ref<DefineComponent | null>(null);
+const serverIsRunning = ref<boolean>(false);
+const port = computed<number>(
+  () => store.state.settings["preview**port"] as number
+);
 
-    const serverStatus = ref<boolean>(false);
-    const port = computed<number>(
-      () => store.state.settings["preview**port"] as number
-    );
-    const plaintext = computed<boolean>(() =>
-      fullpath.value ? !isBinaryPath(fullpath.value) : false
-    );
+async function startServer(): Promise<void> {
+  await WebServer.start(Number(store.state.settings["preview**port"])).catch(
+    (err: unknown) => console.log(err)
+  );
 
-    const sessionWrapper = ref<Element | null>(null);
-
-    // eslint-disable-next-line functional/no-let
-    let isMounted = false;
-
-    onMounted(() => void (isMounted = true));
-
-    async function openWebView() {
-      await Browser.open({
-        url: `http://localhost:${
-          store.state.settings["preview**port"] as string
-        }`,
-        toolbarColor: "#212121",
-        presentationStyle: "popover",
-      });
-    }
-
-    async function startServer(port: number): Promise<void> {
-      await WebServer.start(port).catch((err: unknown) => console.log(err));
-
-      void Toast.show({
-        text: i18n.t("alert.webserver-start-at", {
-          port,
-        }),
-      });
-    }
-    async function stopServer() {
-      await WebServer.stop();
-
-      void Toast.show({
-        text: i18n.t("alert.webserver-stoped"),
-      });
-    }
-    async function changePort(port: number): Promise<void> {
-      await stopServer();
-      await startServer(port);
-    }
-
-    watch(serverStatus, async (newValue) => {
-      try {
-        if (newValue) {
-          await startServer(store.state.settings["preview**port"] as number);
-          await openWebView();
-        } else {
-          await stopServer();
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    });
-    watch(port, async (newValue) => {
-      if (serverStatus.value) {
-        await changePort(newValue);
-      }
-    });
-
-    function openBrowser(): void {
-      if (serverStatus.value) {
-        try {
-          void openWebView();
-        } catch (err) {
-          console.error(err);
-        }
-      } else {
-        serverStatus.value = true;
-      }
-    }
-
-    function scrollSessionWrapperToSessionActive() {
-      createTimeoutBy(
-        "pages.editor.fix-async-dom-scroll-to-tab-session-active",
-        () => {
-          const wrapper = sessionWrapper.value as HTMLElement;
-          const active = wrapper.querySelector(".active") as HTMLElement;
-
-          wrapper.scrollTo(active?.offsetLeft || 0, 0);
-        },
-        70
-      );
-    }
-
-    watch(
-      fullpath,
-      (newValue) => {
-        if (newValue) {
-          if (isMounted) {
-            scrollSessionWrapperToSessionActive();
-          } else {
-            onMounted(() => void scrollSessionWrapperToSessionActive());
-          }
-        }
-      },
-      {
-        immediate: true,
-      }
-    );
-
-    return {
-      fullpath,
-      serverStatus,
+  void Toast.show({
+    text: i18n.t("alert.webserver-start-at", {
       port,
-      sessionWrapper,
-      editorComponent,
-      scrollSessionWrapperToSessionActive,
-      plaintext,
-      openBrowser,
+    }),
+  });
+  await Browser.open({
+    url: `http://localhost:${store.state.settings["preview**port"] + ""}`,
+    toolbarColor: "#212121",
+    presentationStyle: "popover",
+  });
+}
+async function stopServer() {
+  await WebServer.stop();
 
-      isSvg,
-      isAudio,
-      isFont,
-      isImage,
-      isVideo,
-      isMarkdown,
-    };
-  },
-  computed: {
-    EditorCodeComponent(): DefineComponent | null {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/no-let
-      let EditorCodeComponent: any = this.editorComponent;
+  void Toast.show({
+    text: i18n.t("alert.webserver-stoped"),
+  });
+}
 
-      // eslint-disable-next-line functional/no-loop-statement
-      while (
-        EditorCodeComponent &&
-        EditorCodeComponent?.$options.name !== "Editor-Code"
-      ) {
-        EditorCodeComponent = EditorCodeComponent.codeEditor ?? null;
+watch(serverIsRunning, async (newValue) => {
+  try {
+    if (newValue) {
+      await startServer();
+    } else {
+      await stopServer();
+    }
+  } catch (err) {
+    console.error(err);
+  }
+});
+watch(port, async () => {
+  await stopServer();
+  await startServer();
+});
+
+const sessionWrapper = ref<Element | null>(null);
+
+// eslint-disable-next-line functional/no-let
+let isMounted = false;
+
+onMounted(() => void (isMounted = true));
+
+function scrollSessionWrapperToSessionActive() {
+  createTimeoutBy(
+    "pages.editor.fix-async-dom-scroll-to-tab-session-active",
+    () => {
+      const wrapper = sessionWrapper.value as HTMLElement;
+      const active = wrapper.querySelector(".active") as HTMLElement;
+
+      wrapper.scrollTo(active?.offsetLeft || 0, 0);
+    },
+    70
+  );
+}
+
+watch(
+  fullpath,
+  (newValue) => {
+    if (newValue) {
+      if (isMounted) {
+        scrollSessionWrapperToSessionActive();
+      } else {
+        onMounted(() => void scrollSessionWrapperToSessionActive());
       }
-
-      return EditorCodeComponent?.$options.name === "Editor-Code"
-        ? EditorCodeComponent
-        : null;
-    },
-    EditorPreviewComponent(): DefineComponent | null {
-      // eslint-disable-next-line functional/no-let, @typescript-eslint/no-explicit-any
-      let EditorPreviewComponent: any = this.editorComponent;
-
-      // eslint-disable-next-line functional/no-loop-statement
-      while (
-        EditorPreviewComponent &&
-        EditorPreviewComponent?.$options.name.startsWith("Editor-Preview-") ===
-          false
-      ) {
-        EditorPreviewComponent = EditorPreviewComponent.codeEditor ?? null;
-      }
-
-      return EditorPreviewComponent?.$options.name.startsWith("Editor-Preview-")
-        ? EditorPreviewComponent
-        : null;
-    },
-    previewing: {
-      get(): boolean {
-        return !!(
-          this.EditorPreviewComponent &&
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (this.EditorPreviewComponent as any).previewing
-        );
-      },
-      set(value: boolean): void {
-        this.EditorPreviewComponent &&
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any, functional/immutable-data
-          ((this.EditorPreviewComponent as any).previewing = value);
-      },
-    },
+    }
   },
-  methods: {
-    toggleSearchAce(): void {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this.EditorCodeComponent as any)?.ace.value?.execCommand("find");
-    },
-    preview(): void {
-      this.previewing = !this.previewing;
-    },
+  {
+    immediate: true,
+  }
+);
+
+const wrapEditor = ref<HTMLDivElement | null>(null);
+function toggleSearchBar(): void {
+  (
+    wrapEditor.value?.querySelector("[data-id=editor]") as
+      | null
+      | (HTMLDivElement & {
+          ace?: Ace.Editor;
+        })
+  )?.ace?.execCommand("find");
+}
+
+const previewing = computed<boolean>({
+  get() {
+    return (
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
+      (wrapEditor.value?.querySelector("[data-id=previewer]") as any)
+        ?.__vueParentComponent.ctx.previewing || false
+    );
+  },
+  set(value) {
+    if (
+      wrapEditor.value &&
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
+      (wrapEditor.value?.querySelector("[data-id=previewer]") as any)
+        ?.__vueParentComponent.ctx
+    ) {
+      const el = wrapEditor.value.querySelector("[data-id=previewer]");
+      // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+      (el as any).__vueParentComponent.ctx.previewing = value;
+    }
   },
 });
 </script>
