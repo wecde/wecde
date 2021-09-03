@@ -118,17 +118,22 @@ export async function add(filepath: string, isFolder = false): Promise<void> {
 export async function commitAll(message: string): Promise<void> {
   if (store.state.editor.project) {
     await add("", true);
-    await git.commit({
-      fs,
-      dir: store.state.editor.project,
-      message,
-      author: configs.authorFor(
-        (await git.getConfig({
-          fs,
-          dir: store.state.editor.project,
-          path: "remote.origin.url",
-        })) || "https://github.com/"
-      ),
-    });
+    await commit(message)
+  }
+}
+export async function commit(message: string): Promise<void> {
+  if (store.state.editor.project) {
+  await git.commit({
+    fs,
+    dir: store.state.editor.project,
+    message,
+    author: configs.authorFor(
+      (await git.getConfig({
+        fs,
+        dir: store.state.editor.project,
+        path: "remote.origin.url",
+      })) || "https://github.com/"
+    ),
+  });
   }
 }

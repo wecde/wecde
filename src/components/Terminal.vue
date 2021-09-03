@@ -61,61 +61,29 @@
   </q-dialog>
 </template>
 
-<script lang="ts">
-import { useQuasar } from "quasar";
+<script lang="ts" setup>
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
-import { computed, defineComponent, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 
-export default defineComponent({
-  setup() {
-    const store = useStore();
-    const lines = computed<
-      {
-        color?: string;
-        message: string;
-      }[]
-    >(() => store.state.terminal.lines);
-    const $q = useQuasar();
-    const terminal = ref<Element | null>(null);
+const store = useStore();
+const maximized = ref<boolean>(false);
+const lines = computed<
+  {
+    color?: string;
+    message: string;
+  }[]
+>(() => store.state.terminal.lines);
+const terminal = ref<Element | null>(null);
 
-    function onBeforeClose() {
-      $q.dialog({
-        title: "Are you sure?",
-        message:
-          "After closing the window you won't see the front log anymore?",
-        cancel: true,
-      }).onOk(() => {
-        // console.log('OK')
-        store.commit("terminal/clear");
-      });
-    }
-
-    watch(
-      lines,
-      () => {
-        if (terminal.value) {
-          createTimeoutBy(
-            "terminal.index.fix-async-dom-scroll",
-            () => {
-              terminal.value?.scrollTo(0, terminal.value.scrollHeight);
-            },
-            70
-          );
-        }
-      },
-      {
-        deep: true,
-      }
+watch(lines, () => {
+  if (terminal.value) {
+    createTimeoutBy(
+      "terminal.index.fix-async-dom-scroll",
+      () => terminal.value?.scrollTo(0, terminal.value.scrollHeight),
+      70
     );
-
-    return {
-      terminal,
-      lines,
-      maximized: ref<boolean>(false),
-      onBeforeClose,
-    };
-  },
+  }
 });
 </script>
 

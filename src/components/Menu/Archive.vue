@@ -149,7 +149,10 @@
       <q-separator />
 
       <q-card-section class="fit scroll q-pt-2 q-pb-3">
-        {{ $t("label.type") }} <span class="text-blue">{{ code }}</span>
+        {{ $t("label.type") }}
+        <span class="text-blue">{{
+          `u0/${basename(projectRemoving.fullpath)}`
+        }}</span>
         {{ $t("label.to-confirm") }}
         <span class="text-blue">{{
           projectRemoving && basename(projectRemoving.fullpath)
@@ -159,7 +162,11 @@
           dense
           :rules="[
             () =>
-              code === codeInput ? true : $t('error.match-code', { code }),
+              code === codeInput
+                ? true
+                : $t('error.match-code', {
+                    code: `u0/${basename(projectRemoving.fullpath)}`,
+                  }),
           ]"
           required
           v-model.trim="codeInput"
@@ -196,7 +203,7 @@
   />
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import DialogTop from "components/DialogTop.vue";
 import GitClone from "components/Git/ModalGitClone.vue";
@@ -209,161 +216,130 @@ import { basename, join } from "path-cross";
 import { Notify } from "quasar";
 import createProjectFromZip from "src/helpers/createProjectFromZip";
 import { readdirAndStat, StatItem } from "src/helpers/fs";
-import { defineComponent, ref, watch } from "vue";
+import { useStore } from "src/store";
+import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import TemplateTab from "./template/Tab.vue";
 
-function random(value: number): number {
-  return Math.round(Math.random() * value);
-}
+defineEmits<{
+  (event: "open:project"): void;
+}>();
 
-export default defineComponent({
-  emits: ["open:project"],
-  components: {
-    TemplateTab,
-    ProjectItem,
-    ProjectCreate,
-    GitProvide,
-    GitClone,
-    DialogTop,
-  },
-  setup() {
-    const projects = ref<
-      {
-        readonly git: boolean;
-        readonly value: StatItem;
-      }[]
-    >([]);
-    const creatingProject = ref<boolean>(false);
-    const projectRemoving = ref<null | StatItem>(null);
-    const code = ref<null | string>(null);
-    const codeInput = ref<null | string>(null);
+const i18n = useI18n();
+const store = useStore();
 
-    watch(projectRemoving, (newValue) => {
-      if (newValue) {
-        code.value = [random(9), random(9), random(9)].join("");
-      } else {
-        code.value = null;
-      }
-    });
-    watch(code, () => {
-      codeInput.value = null;
-    });
+const projects = ref<
+  {
+    readonly git: boolean;
+    readonly value: StatItem;
+  }[]
+>([]);
+const creatingProject = ref<boolean>(false);
+const projectRemoving = ref<null | StatItem>(null);
+const codeInput = ref<string>("");
+const statePopupGitClone = ref<boolean>(false);
+const statePopupGitProvide = ref<boolean>(false);
 
-    return {
-      projects,
+watch(projectRemoving, () => void (codeInput.value = ""));
+void reloadListProjects();
 
-      creatingProject,
+async function reloadListProjects(notification = false): Promise<void> {
+  const task = Notify.create({
+    spinner: true,
+    position: "bottom-right",
+    message: i18n.t("alert.reload-projects"),
+  });
 
-      projectRemoving,
-
-      code,
-      codeInput,
-      statePopupGitClone: ref<boolean>(false),
-      statePopupGitProvide: ref<boolean>(false),
-    };
-  },
-  async created() {
-    await this.reloadListProjects();
-  },
-  methods: {
-    basename,
-
-    async reloadListProjects(notification = false): Promise<void> {
-      const task = Notify.create({
-        spinner: true,
-        position: "bottom-right",
-        message: this.$t("alert.reload-projects"),
-      });
-
-      try {
-        this.projects = sort(
-          await Promise.all(
-            await readdirAndStat("projects").then((item) => {
-              return item
-                .filter((project) => {
-                  return project.stat.type === "directory";
-                })
-                .map(async (item) => {
-                  return {
-                    git: await fs.isFile(join(item.fullpath, ".git/index")),
-                    value: item,
-                  };
-                });
+  try {
+    projects.value = sort(
+      await Promise.all(
+        await readdirAndStat("projects").then((item) => {
+          return item
+            .filter((project) => {
+              return project.stat.type === "directory";
             })
-          )
-        ).asc((item) => basename(item.value.fullpath));
+            .map(async (item) => {
+              return {
+                git: await fs.isFile(join(item.fullpath, ".git/index")),
+                value: item,
+              };
+            });
+        })
+      )
+    ).asc((item) => basename(item.value.fullpath));
 
-        task();
-      } catch {
-        this.projects = [];
-        task({
-          message: this.$t("alert.reload-projects-failed"),
-          timeout: 3000,
-        });
-      }
+    task();
+  } catch {
+    projects.value = [];
+    task({
+      message: i18n.t("alert.reload-projects-failed"),
+      timeout: 3000,
+    });
+  }
 
-      if (notification) {
-        void Toast.show({
-          text: this.$t("alert.reload-projects"),
-        });
-      }
-    },
-    async importProjectFromZip(): Promise<void> {
-      try {
-        const names = await createProjectFromZip("projects/");
-        this.$store.commit("terminal/clear");
-        void Toast.show({
-          text: this.$t("alert.imported-project", {
-            list: names.map((item) => `"${item}"`).join(", "),
-          }),
-        });
-      } catch (err) {
-        this.$store.commit("terminal/error", err);
-      }
-      await this.reloadListProjects();
-    },
-    async remove(): Promise<void> {
-      if (this.code === this.codeInput && this.projectRemoving) {
-        const task = Notify.create({
-          spinner: true,
-          position: "bottom-right",
-          message: this.$t("alert.removing.project", {
-            name: basename(this.projectRemoving.fullpath),
-          }),
-        });
+  if (notification) {
+    void Toast.show({
+      text: i18n.t("alert.reload-projects"),
+    });
+  }
+}
+async function importProjectFromZip(): Promise<void> {
+  try {
+    const names = await createProjectFromZip("projects/");
+    store.commit("terminal/clear");
+    void Toast.show({
+      text: i18n.t("alert.imported-project", {
+        list: names.map((item) => `"${item}"`).join(", "),
+      }),
+    });
+  } catch (err) {
+    store.commit("terminal/error", err);
+  }
+  await reloadListProjects();
+}
+async function remove(): Promise<void> {
+  if (
+    projectRemoving.value &&
+    codeInput.value === `u0/${basename(projectRemoving.value.fullpath)}`
+  ) {
+    const task = Notify.create({
+      spinner: true,
+      position: "bottom-right",
+      message: i18n.t("alert.removing.project", {
+        name: basename(projectRemoving.value.fullpath),
+      }),
+    });
 
-        try {
-          await fs.rmdir(this.projectRemoving.fullpath, {
-            recursive: true,
-          });
-          task();
-          void Toast.show({
-            text: this.$t("alert.removed.project", {
-              name: basename(this.projectRemoving.fullpath),
-            }),
-          });
-        } catch {
-          task({
-            message: this.$t("alert.remove.project-failed", {
-              name: basename(this.projectRemoving.fullpath),
-            }),
-          });
-          void Toast.show({
-            text: this.$t("alert.remove.project-failed", {
-              name: basename(this.projectRemoving.fullpath),
-            }),
-          });
-        }
+    try {
+      await fs.rmdir(projectRemoving.value.fullpath, {
+        recursive: true,
+      });
+      task();
+      void Toast.show({
+        text: i18n.t("alert.removed.project", {
+          name: basename(projectRemoving.value.fullpath),
+        }),
+      });
+    } catch {
+      task({
+        message: i18n.t("alert.remove.project-failed", {
+          name: basename(projectRemoving.value.fullpath),
+        }),
+      });
+      void Toast.show({
+        text: i18n.t("alert.remove.project-failed", {
+          name: basename(projectRemoving.value.fullpath),
+        }),
+      });
+    }
 
-        await this.reloadListProjects();
-        this.projectRemoving = null;
-      }
-    },
-    clonedRepo(): void {
-      this.statePopupGitClone = false;
-      void this.reloadListProjects();
-    },
-  },
-});
+    await reloadListProjects();
+    projectRemoving.value = null;
+  }
+}
+function clonedRepo(): void {
+  statePopupGitClone.value = false;
+  void reloadListProjects();
+}
 </script>

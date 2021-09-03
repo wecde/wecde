@@ -968,25 +968,25 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@capacitor/android@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-3.2.0.tgz#9f41d5229a541726c3ab253b17cb71d5fa0272bb"
-  integrity sha512-DtYEAxIwH7ToP3UtYKL/eQ3hDWJkxV3kTzv1J24gdbRcAyQlT2+iRZo4Uv5iwA21rTb0ynd4/k2xQqcWnmByzA==
+"@capacitor/android@^3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/android/-/android-3.2.2.tgz#0847d62d21c4e7007cf0b34fd95965afa22ba619"
+  integrity sha512-+/qbSZIHPP1VndRUe5c6dgheLV0MgX9CXeUo7el8ODHgVrC2DXKhczgvs+EpTAmvS2VZFxzDeld7AMUmHybTcg==
 
-"@capacitor/app@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@capacitor/app/-/app-1.0.2.tgz#920dbf7055aa8ba060932d6e8dcac6f8bbc821af"
-  integrity sha512-P9PInUnUdkiqYk+7wzd51Oe6AzJ4KyKDRFVebDMGo7UgHFuK2ogDTDLabrv9XQUV1Zk2tXvpEoGmw46dd+2Img==
+"@capacitor/app@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/app/-/app-1.0.3.tgz#d9c7f774a1b3a93786c64477cb9adfb9d00a66bb"
+  integrity sha512-kilAdWODV5p32wz0jVGdSoQTEx4Q0TM/xYj9w3iYYNI24v1WIRnEs04TaGTG8JFYIUksJaOqGC3PoZddfZ1POA==
 
-"@capacitor/browser@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@capacitor/browser/-/browser-1.0.2.tgz#7defe6a66a234eb724450f302fc00cf591d1255f"
-  integrity sha512-XR2rVT5RndxD0392yeL/pnCZZ5/YcTCXVxhJ4f3MkXFjKJTx1esbeXs+xVX4t6K3OQOXtX9XKj0xusPRiOOsuA==
+"@capacitor/browser@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/browser/-/browser-1.0.3.tgz#ec7c62a5e74c70d6bd6bb32e4954f4bd4cffc197"
+  integrity sha512-19ZxlnRhsBuTTNW0Bgn6lyUiQmLvxEXvWORTymJxzMcwe3hTGjyFy94/tPn9npPXy5SCEWLHU006DLQaSUFtfg==
 
-"@capacitor/cli@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-3.2.0.tgz#9bd63843fa1cce8b2409d62f1fd81dad9da97130"
-  integrity sha512-KwfNS8eKdAcJyC9yHnujvt31gRlnHU9lKxHqQdgUWlID74jIa++ORk1aqsCu5cE5dfqkqOuBTLy2DwM03YSWIg==
+"@capacitor/cli@^3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/cli/-/cli-3.2.2.tgz#791c04a562584820b1bf76b9b6bc4d8bcdbd6c01"
+  integrity sha512-/yradyGNGxO+Dj1ppzty3ReK+/Ukmnz0GdAE5nX3zySGSQg0ebZs81gKYDKJaXknQhx1ZZJGlT9D9ORiN3sbhw==
   dependencies:
     "@ionic/cli-framework-output" "^2.2.1"
     "@ionic/utils-fs" "^3.1.5"
@@ -1005,32 +1005,32 @@
     tslib "^2.1.0"
     xml2js "^0.4.23"
 
-"@capacitor/clipboard@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@capacitor/clipboard/-/clipboard-1.0.2.tgz#835d42a4ce5d56232c356a20b1c28704b6644cd0"
-  integrity sha512-uYed+v10UjZapn1v5pRbRAJd6od6gUW1ROuu/pO0JxMABVV3SwmwqQbu9y6K8l4ptqNH5ZmpqkFmc4Qz0lN3JA==
+"@capacitor/clipboard@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/clipboard/-/clipboard-1.0.3.tgz#1e1fa6c5a8a64a35273162ece8b5b4714bf1a93d"
+  integrity sha512-Q4gZ47Fn1isbgE2R+s7MHYLHnB0FN94TM9jvyDONRmjnhEf1BBP/r7kmE0vb3+NyeFCEntv+QL8qGghl1r4Xhw==
 
-"@capacitor/core@^3.2.0":
-  version "3.2.0"
-  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-3.2.0.tgz#1c05538c50577881fa99a98810106e94aa1e8733"
-  integrity sha512-OJJFk54QSA0r35ElIpNfVDJImGGemspn4dVlFAujfxoAFIGTYiLzVF6Sj5o4cBpm3DZKs4ai152S9qeFdFcnZA==
+"@capacitor/core@^3.2.2":
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/core/-/core-3.2.2.tgz#5926788920ba9117aa735d2941f5b2bdc4a6889a"
+  integrity sha512-xY3VyLbF0vSxQmQto6cI1PqP8idbwmfEAeaj248uuSrIYHeMc1L3RS6UN/yNBDPYPeAfNUwBhVqSTCtuZkEIcg==
   dependencies:
     tslib "^2.1.0"
 
-"@capacitor/filesystem@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@capacitor/filesystem/-/filesystem-1.0.2.tgz#5327454addf354de0ad89e9a970443dc5563c646"
-  integrity sha512-cDxNUubS/l1WLt94pviB657l/pA17jIZQ2wQBDyTvXPflOBL0sFC4QR9TT6nuOBX2oVWsgG3HogEdmgwXeGeHA==
+"@capacitor/filesystem@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/filesystem/-/filesystem-1.0.3.tgz#70a5bb6c6cadfd952799b0793609d8ee077c4e92"
+  integrity sha512-7vmIGsO/qheb20xbaY9/ohLDD1BPEcp7EcX/LV6CFB3R0fMqPp43mg85Yy6WnC2nV5mR27xtzkcSEndRVsHshg==
 
-"@capacitor/splash-screen@^1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@capacitor/splash-screen/-/splash-screen-1.1.1.tgz#315eee45913386675d0fae98dfce5e82ab81f688"
-  integrity sha512-gOAwW0COijsFcpWko3z0TV06v9UvLzG2XYGBNRojKVouKQCD9uYtrSZFVUG7mcbsni7k8P8sZAeF+3y6FxOdew==
+"@capacitor/splash-screen@^1.1.2":
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/@capacitor/splash-screen/-/splash-screen-1.1.2.tgz#7f94e8f0b7355b13bc75335efed789d9a5b4cd67"
+  integrity sha512-LWI40hYAdce/3Nniuerz+18y8jaLI+qJyPf8dzBmM1FYXeTXGq0uP+FG4S/MqeBFxm6fVANq2lIMSWwwKzWnSQ==
 
-"@capacitor/toast@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@capacitor/toast/-/toast-1.0.2.tgz#3984960b797a6dc6ac971b0602bf8c363b39394f"
-  integrity sha512-4R4aUP/BeqQ9/CRJpuoE+U+3tO1pmoZE8fNPhmcXZJYNedprX/uZfNzxBDz6kCJ90RETjrF4e/BxtBFXLiXxxQ==
+"@capacitor/toast@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@capacitor/toast/-/toast-1.0.3.tgz#726c208eca364fdc51e6ff3bca77202fecba74f6"
+  integrity sha512-wqayrEy0kyR3cFbg0Law5bbLeIMKUE+Drpaa1/MbDM0cIYkLeVXdQzFhwAF+tytssgwKxFjxHK44svzWF6DdUQ==
 
 "@electron/get@^1.3.1":
   version "1.13.0"
@@ -1115,10 +1115,10 @@
     "@intlify/core-base" "9.2.0-beta.3"
     "@intlify/shared" "9.2.0-beta.3"
 
-"@ionic-native/core@^5.34.0":
-  version "5.34.0"
-  resolved "https://registry.npmjs.org/@ionic-native/core/-/core-5.34.0.tgz"
-  integrity sha512-x3xZNe4ZpifVV6nI/rliJ7j9dwiI56HTaJfrA19w8JSgVcW7ZcTvwX1RPWR1b47INOgU8RAsxVohlBQKggap1g==
+"@ionic-native/core@^5.36.0":
+  version "5.36.0"
+  resolved "https://registry.yarnpkg.com/@ionic-native/core/-/core-5.36.0.tgz#712c40a530b119b0039e8d16cb577899f50541d4"
+  integrity sha512-lOrkktadlKYbYf1LrDyAtsu1JnQ0oCCdkOU7iHQ8oXnNOkMwobFfD2m62F1CoOr0u9LIkpYnZSPjng8lZbmbNw==
   dependencies:
     "@types/cordova" latest
 
@@ -1350,10 +1350,10 @@
     core-js "^3.6.5"
     core-js-compat "^3.6.5"
 
-"@quasar/extras@^1.10.10":
-  version "1.10.10"
-  resolved "https://registry.npmjs.org/@quasar/extras/-/extras-1.10.10.tgz"
-  integrity sha512-G1zGj/UVfRSA0zqn1lMtIAghww+7CnVT8vqlUht5v9x9B2Wnxyso51TuDyllrZph91Ryi3AwNqY/KS5eRRd2OA==
+"@quasar/extras@^1.10.12":
+  version "1.10.12"
+  resolved "https://registry.yarnpkg.com/@quasar/extras/-/extras-1.10.12.tgz#a0724bce058de6cea44519be45ab2af35496a88b"
+  integrity sha512-CVSxLw/Z6kaEYrooJX7mpby6YDm0eSa8D9/1+KEfiTYfLrPE4wTRuNGKN5liuLtVhFMdGrEkj6T6DInKpQWW9A==
 
 "@quasar/fastclick@1.1.4":
   version "1.1.4"
@@ -2487,10 +2487,10 @@ caniuse-lite@^1.0.30001219:
   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001248.tgz"
   integrity sha512-NwlQbJkxUFJ8nMErnGtT0QTM2TJ33xgz4KXJSMIrjXIbDVdaYueGyjOrLKRtJC+rTiWfi6j5cnZN1NBiSBJGNw==
 
-capacitor-fs@^0.0.39-b1:
-  version "0.0.39-b1"
-  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.39-b1.tgz#b4ec513bceb7e4fcdcb33f5f6e90f392d7ab687d"
-  integrity sha512-xrdi8ooLQTS+KRtvreyu2jwovW6Fc3V6xHOUumD5x3D0fP4ub4HmNv4Z/Hr9Fpfl3RYNT80GuuSn9AVd9yx0Iw==
+capacitor-fs@^0.0.39:
+  version "0.0.39"
+  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.39.tgz#9517580259b5a0942b7de6ea818d6373e3d0f254"
+  integrity sha512-ULs1UUDf/0DmmTJgiOYdD5tww81PDaNnVjdqrxdf06E79yxwrM0eDdCdh5s4djEphN59+KICHSS6MpTaJ5kUAQ==
   dependencies:
     js-base64 "^3.6.1"
     minimatch "^3.0.4"
@@ -7936,10 +7936,10 @@ zip-stream@^4.1.0:
     compress-commons "^4.1.0"
     readable-stream "^3.6.0"
 
-zip2@^0.0.2:
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/zip2/-/zip2-0.0.2.tgz#ac2f278a9bcc744087bcd116f8bdd1c43d5fe627"
-  integrity sha512-DArUXCAy2uIwiHvJxiDvc0f1cteasv/2lobN8O9FMZcTVfoXrkirSMaYZ4RNXs+c4UosHHMvERDt1SseC37fsQ==
+zip2@^0.0.3:
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/zip2/-/zip2-0.0.3.tgz#978766c69d5c850a02f7d4075e1a9273ebefe6b4"
+  integrity sha512-8gpW0/1l1ZJghfp1GsWDfyrBA9/Q1J4a1Md40cnTusWxDGc2MbqgKWyzyJokhZP77Nn2ZdGcQ/IwoycIeyorwg==
   dependencies:
     jszip "^3.7.1"
     path-cross "^0.0.3"

@@ -2,31 +2,31 @@
   <slot name="default" :on="() => importFile()" />
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import importFiles from "src/helpers/importFiles";
-import { defineComponent } from "vue";
+import { useStore } from "src/store";
+import { useI18n } from "vue-i18n";
 
-export default defineComponent({
-  emits: ["imported"],
-  props: {
-    dirname: {
-      type: String,
-      required: true,
-    },
-  },
-  methods: {
-    async importFile(): Promise<void> {
-      const names = await importFiles(this.dirname);
-      this.$store.commit("terminal/clear");
-      void Toast.show({
-        text: this.$t("alert.imported-type", {
-          type: this.$t("file(s)"),
-          list: names.map((item) => `"${item}"`).join(", "),
-        }),
-      });
-      this.$emit("imported");
-    },
-  },
-});
+const props = defineProps<{
+  dirname: string;
+}>();
+const emit = defineEmits<{
+  (name: "imported"): void;
+}>();
+
+const store = useStore();
+const i18n = useI18n();
+
+async function importFile(): Promise<void> {
+  const names = await importFiles(props.dirname);
+  store.commit("terminal/clear");
+  void Toast.show({
+    text: i18n.t("alert.imported-type", {
+      type: i18n.t("file(s)"),
+      list: names.map((item) => `"${item}"`).join(", "),
+    }),
+  });
+  emit("imported");
+}
 </script>

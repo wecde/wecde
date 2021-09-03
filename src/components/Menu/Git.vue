@@ -254,7 +254,7 @@
     </template>
   </Template-Tab>
 
-  <Commit-Manager :model-value="true" />
+  <Commit-Manager v-model="commitManager" />
 </template>
 
 <script lang="ts" setup>
@@ -271,6 +271,10 @@ import { useStore } from "src/store";
 import { computed, ComputedRef, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
+
+// * states
+const commitManager = ref<boolean>(false)
+// *
 
 type SubItem = {
   readonly name: string;

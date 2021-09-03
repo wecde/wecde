@@ -17,14 +17,6 @@
   </Template-Tab>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-
+<script lang="ts" setup>
 import TemplateTab from "./template/Tab.vue";
-
-export default defineComponent({
-  components: {
-    TemplateTab,
-  },
-});
 </script>

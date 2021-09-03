@@ -1,6 +1,7 @@
 import ISO from "iso-639-1";
 import { basename } from "path-cross";
 import { boot } from "quasar/wrappers";
+import { store } from "src/store";
 import { createI18n } from "vue-i18n";
 
 export function setI18nLanguage(locale: string): void {
@@ -42,6 +43,16 @@ const i18n = createI18n({
 
 export default boot(({ app }) => {
   app.use(i18n);
+
+  store.watch(
+    () => store.state.settings["appearance**language"],
+    (newValue) => {
+      void loadLocaleMessages(newValue as string);
+    },
+    {
+      immediate: true,
+    }
+  );
 });
 
 export { i18n };

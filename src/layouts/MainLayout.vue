@@ -9,15 +9,7 @@
   </q-layout>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import AppNavigationDrawer from "components/App/NavigationDrawer.vue";
 import Terminal from "components/Terminal.vue";
-import { defineComponent } from "vue";
-
-export default defineComponent({
-  components: {
-    AppNavigationDrawer,
-    Terminal,
-  },
-});
 </script>
