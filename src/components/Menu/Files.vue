@@ -184,6 +184,7 @@ watch(
 async function reloadListFile(notification = false): Promise<void> {
   const task = Notify.create({
     spinner: true,
+    timeout: 9999999999,
     position: "bottom-right",
     message: i18n.t("alert.reload-files"),
   });

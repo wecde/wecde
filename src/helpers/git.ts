@@ -110,14 +110,14 @@ export const configs = {
     );
   },
   authorFor(url: string): {
-    readonly user: string;
+    readonly name: string;
     readonly email: string;
   } {
     const auth = store.getters["git-configs/getConfig"](url);
 
     return {
-      user: auth.name,
-      email: auth.email,
+      name: !!auth.name ? auth.name : "System OS",
+      email: !!auth.email ? auth.email : "u0@localhost",
     };
   },
 };

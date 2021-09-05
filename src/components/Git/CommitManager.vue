@@ -85,15 +85,21 @@
 
 <script lang="ts" setup>
 import DialogTop from "components/DialogTop.vue";
-import { commit as _commit, commitAll as _commitAll } from "src/shared/git";
+import {
+  commit as _commit,
+  commitAll as _commitAll,
+} from "src/shared/git-shared";
+import { useStore } from "src/store";
 import { ref } from "vue";
 
 defineProps<{
   modelValue: boolean;
 }>();
 const emit = defineEmits<{
-  "update:model-value": ($event: boolean) => void;
+  (e: "update:model-value", v: boolean): ($event: boolean) => void;
 }>();
+
+const store = useStore();
 
 const amend = ref<boolean>(false);
 const commitMessage = ref<string>("");
@@ -119,7 +125,9 @@ async function commit(): Promise<void> {
     await _commit(commitMessage.value);
   }
 
+  await store.dispatch("editor/update:matrix-of-filepath");
   loading.value = false;
-  emit("update:model-value");
+
+  emit("update:model-value", false);
 }
 </script>

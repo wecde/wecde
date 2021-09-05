@@ -61,6 +61,7 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
 
             const task = Notify.create({
               spinner: true,
+              timeout: 9999999999,
               position: "bottom-right",
               message: i18n.global.t(`alert.${state.action}`, {
                 from,

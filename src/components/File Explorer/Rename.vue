@@ -151,6 +151,7 @@ export default defineComponent({
 
           const task = Notify.create({
             spinner: true,
+            timeout: 9999999999,
             position: "bottom-right",
             message: this.$t(
               `alert.renamed.${this.isFolder ? "folder" : "file"}-from-to`,

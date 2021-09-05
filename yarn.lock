@@ -2487,10 +2487,10 @@ caniuse-lite@^1.0.30001219:
   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001248.tgz"
   integrity sha512-NwlQbJkxUFJ8nMErnGtT0QTM2TJ33xgz4KXJSMIrjXIbDVdaYueGyjOrLKRtJC+rTiWfi6j5cnZN1NBiSBJGNw==
 
-capacitor-fs@^0.0.39:
-  version "0.0.39"
-  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.39.tgz#9517580259b5a0942b7de6ea818d6373e3d0f254"
-  integrity sha512-ULs1UUDf/0DmmTJgiOYdD5tww81PDaNnVjdqrxdf06E79yxwrM0eDdCdh5s4djEphN59+KICHSS6MpTaJ5kUAQ==
+capacitor-fs@^0.0.41-b2:
+  version "0.0.41-b2"
+  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.41-b2.tgz#acfdcff87d55dceeba2ad8ad828802f104548495"
+  integrity sha512-2soUngE9wTsKNMur0G6xbLAJJYZETSWm6B6H2+pj65tVxCXGwBIZQKsKzsv5dJGI2c1Vy0Bg3pBn4LlzO/vyCA==
   dependencies:
     js-base64 "^3.6.1"
     minimatch "^3.0.4"

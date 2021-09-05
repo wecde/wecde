@@ -1,4 +1,4 @@
-import { statusMatrix } from "isomorphic-git-addons";
+import { statusMatrix } from "isomorphic-git";
 import { join } from "path-cross";
 import fs from "src/modules/fs";
 import { createTimeoutBy } from "src/utils";

@@ -64,7 +64,7 @@
             padding="none"
             size="12.5px"
             rounded
-            @click="reset(filepath, null, isFolder)"
+            @click="reset(filesOfFolder)"
           />
           <q-btn
             color="inherit"
@@ -76,8 +76,8 @@
             rounded
             @click="
               status[2] === '2'
-                ? void resetIndex(filepath, isFolder)
-                : void add(filepath, isFolder)
+                ? void resetIndex(filesOfFolder)
+                : void add(filesOfFolder)
             "
           />
         </div>
@@ -92,7 +92,7 @@
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import { basename, join } from "path-cross";
-import { add, reset, resetIndex } from "src/shared/git";
+import { add, reset, resetIndex } from "src/shared/git-shared";
 import { useStore } from "src/store";
 import { computed } from "vue";
 
@@ -117,6 +117,15 @@ const status = computed<string | null>(() => {
   }
 
   return null;
+});
+const filesOfFolder = computed<string[]>(() => {
+  if (props.isFolder) {
+    return Object.keys(store.state.editor.git.statusMatrix.matrix).filter(
+      (item) => item.startsWith(props.filepath)
+    );
+  }
+
+  return [props.filepath];
 });
 </script>
 

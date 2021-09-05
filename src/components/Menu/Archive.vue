@@ -247,6 +247,7 @@ void reloadListProjects();
 async function reloadListProjects(notification = false): Promise<void> {
   const task = Notify.create({
     spinner: true,
+    timeout: 9999999999,
     position: "bottom-right",
     message: i18n.t("alert.reload-projects"),
   });
@@ -256,9 +257,7 @@ async function reloadListProjects(notification = false): Promise<void> {
       await Promise.all(
         await readdirAndStat("projects").then((item) => {
           return item
-            .filter((project) => {
-              return project.stat.type === "directory";
-            })
+            .filter((project) => project.stat.type === "directory")
             .map(async (item) => {
               return {
                 git: await fs.isFile(join(item.fullpath, ".git/index")),
@@ -305,6 +304,7 @@ async function remove(): Promise<void> {
   ) {
     const task = Notify.create({
       spinner: true,
+      timeout: 9999999999,
       position: "bottom-right",
       message: i18n.t("alert.removing.project", {
         name: basename(projectRemoving.value.fullpath),

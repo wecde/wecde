@@ -337,6 +337,7 @@ export default defineComponent({
     async remove() {
       const task = Notify.create({
         spinner: true,
+        timeout: 9999999999,
         position: "bottom-right",
         message: this.$t(
           `alert.removing.${this.file.stat.isDirectory() ? "folder" : "file"}`,
@@ -375,7 +376,6 @@ export default defineComponent({
         });
 
         task({
-          timeout: 3000,
           message: this.$t(
             `alert.remove-failed.${
               this.file.stat.isDirectory() ? "folder" : "file"
@@ -441,6 +441,7 @@ export default defineComponent({
         }
       } else {
         const task = Notify.create({
+          timeout: 9999999999,
           spinner: true,
           position: "bottom-right",
           message: this.$t(

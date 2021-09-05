@@ -14,7 +14,7 @@
         flat
         round
         padding="xs"
-        v-if="EditorCodeComponent && previewing === false"
+        v-if="previewing === false"
         @click="toggleSearchBar"
         icon="mdi-magnify"
       />
@@ -23,8 +23,6 @@
         flat
         round
         padding="xs"
-        v-if="EditorPreviewComponent"
-        @click="preview"
         :icon="previewing ? 'mdi-pen' : 'mdi-folder-image'"
       />
 

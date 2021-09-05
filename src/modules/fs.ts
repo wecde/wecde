@@ -1,6 +1,7 @@
 
 import { Directory, Filesystem } from "@capacitor/filesystem";
 import { createFilesystem } from "capacitor-fs";
+import git from "isomorphic-git"
 
 const fs = createFilesystem(Filesystem, {
   rootDir: "Shin Code Editor",
@@ -12,5 +13,7 @@ const fs = createFilesystem(Filesystem, {
 
 // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
 (window as any).fs = fs;
+// eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+(window as any).git = git;
 
 export default fs;

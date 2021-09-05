@@ -155,7 +155,7 @@
                     padding="none"
                     size="12.5px"
                     rounded
-                    @click.prevent.stop="reset('', true, true)"
+                    @click.prevent.stop="reset(filesStaged)"
                   />
                   <q-btn
                     color="inherit"
@@ -165,7 +165,7 @@
                     padding="none"
                     size="12.5px"
                     rounded
-                    @click.prevent.stop="resetIndex('', true)"
+                    @click.prevent.stop="resetIndex(filesStaged)"
                   />
 
                   <q-badge
@@ -213,7 +213,7 @@
                     padding="none"
                     size="12.5px"
                     rounded
-                    @click.prevent.stop="reset('', false, true)"
+                    @click.prevent.stop="reset(filesChanges)"
                   />
                   <q-btn
                     color="inherit"
@@ -223,7 +223,7 @@
                     padding="none"
                     size="12.5px"
                     rounded
-                    @click.prevent.stop="add('', true)"
+                    @click.prevent.stop="add(filesChanges)"
                   />
 
                   <q-badge
@@ -261,19 +261,19 @@
 import AppCollapse from "components/App/Collapse.vue";
 import ChangesList from "components/Git/ChangesList.vue";
 import ChangesTree from "components/Git/ChangesTree.vue";
-import CommitManager from "components/Git/CommitManager"
+import CommitManager from "components/Git/CommitManager";
 import git from "isomorphic-git";
 import fs from "modules/fs";
 import { join } from "path-cross";
 import { registerWatch } from "src/helpers/fs";
-import { add, commitAll, reset, resetIndex } from "src/shared/git";
+import { add, commitAll, reset, resetIndex } from "src/shared/git-shared";
 import { useStore } from "src/store";
 import { computed, ComputedRef, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
 
 // * states
-const commitManager = ref<boolean>(false)
+const commitManager = ref<boolean>(false);
 // *
 
 type SubItem = {
@@ -296,6 +296,21 @@ const store = useStore();
 const loading = ref<boolean>(false);
 const gitOfProjectReady = ref<boolean>(false);
 const commitMessage = ref<string>("");
+
+const filesStaged = computed<readonly string[]>(() => {
+  return Object.keys(store.state.editor.git.statusMatrix.matrix).filter(
+    (item) => {
+      return store.state.editor.git.statusMatrix.matrix[item][2] === 2;
+    }
+  );
+});
+const filesChanges = computed<readonly string[]>(() => {
+  return Object.keys(store.state.editor.git.statusMatrix.matrix).filter(
+    (item) => {
+      return store.state.editor.git.statusMatrix.matrix[item][2] !== 2;
+    }
+  );
+});
 
 async function refreshGit(): Promise<void> {
   gitOfProjectReady.value =
@@ -382,7 +397,8 @@ const menu: Menu = [
   },
   {
     name: "Commit",
-    subs: [
+    onClick: () => void (commitManager.value = true),
+    /*subs: [
       {
         name: "Commit",
       },
@@ -422,7 +438,7 @@ const menu: Menu = [
       {
         name: "Add Co-authors",
       },
-    ],
+    ],*/
   },
   {
     name: "Changes",

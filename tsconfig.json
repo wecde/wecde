@@ -73,6 +73,7 @@
     "assets/templates",
     "resources",
     "src-capacitor",
-    "src/fs"
+    "src/fs",
+    "src/git.js"
   ]
 }
