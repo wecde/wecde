@@ -294,12 +294,16 @@ export default defineComponent({
       return false;
     });
 
+    // eslint-disable-next-line functional/no-let
+    let refresingFolder = false;
     async function refreshFolder() {
-      if (file.value.stat.isDirectory()) {
+      if (refresingFolder === false && file.value.stat.isDirectory()) {
         loading.value = true;
+        refresingFolder = true;
         files.value.splice(0);
         files.value.push(...(await readdirAndStat(file.value.fullpath)));
         loading.value = false;
+        refresingFolder = false;
       }
     }
 

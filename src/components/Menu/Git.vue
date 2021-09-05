@@ -32,7 +32,7 @@
         round
         padding="xs"
         size="13px"
-        @click="commitAll(commitMessage)"
+        @click="commitAll"
       />
       <q-btn icon="mdi-reload" flat round padding="xs" size="13px" />
 
@@ -116,16 +116,17 @@
           placeholder="Message"
           v-model.trim="commitMessage"
           maxlength="80"
+          color="blue"
         />
 
-        <div style="position: relative">
+        <div style="position: relative" class="q-mt-3">
           <q-linear-progress
             indeterminate
             color="cyan"
             size="2px"
             rounded
             style="position: absolute; top: 0"
-            v-if="loading"
+            v-if="store.state.system.navTabGit"
           />
 
           <App-Collapse
@@ -266,7 +267,12 @@ import git from "isomorphic-git";
 import fs from "modules/fs";
 import { join } from "path-cross";
 import { registerWatch } from "src/helpers/fs";
-import { add, commitAll, reset, resetIndex } from "src/shared/git-shared";
+import {
+  add as _add,
+  commit as _commit,
+  reset as _reset,
+  resetIndex as _resetIndex,
+} from "src/shared/git-shared";
 import { useStore } from "src/store";
 import { computed, ComputedRef, ref, watch } from "vue";
 
@@ -293,7 +299,6 @@ type Menu = readonly (MenuItem | SubItem | SeparatorItem)[];
 
 const store = useStore();
 
-const loading = ref<boolean>(false);
 const gitOfProjectReady = ref<boolean>(false);
 const commitMessage = ref<string>("");
 
@@ -569,15 +574,56 @@ const menu: Menu = [
 ];
 
 async function init(): Promise<void> {
-  if (store.state.editor.project) {
-    loading.value = true;
+  if (store.state.editor.project && store.state.system.navTabGit === false) {
+    store.commit("set:navTabGit", true);
 
     await git.init({
       fs,
       dir: store.state.editor.project,
     });
 
-    loading.value = false;
+    store.commit("set:navTabGit", false);
+  }
+}
+async function commitAll(): Promise<void> {
+  if (store.state.system.navTabGit === false) {
+    store.commit("set:navTabGit", true);
+
+    await _add(Object.keys(store.state.editor.git.statusMatrix.matrix));
+    await _commit({
+      message: commitMessage.value,
+      amend: false,
+      noEdit: false,
+    });
+
+    store.commit("set:navTabGit", false);
+  }
+}
+async function add(filepaths: readonly string[]) {
+  if (store.state.system.navTabGit === false) {
+    store.commit("set:navTabGit", true);
+
+    await _add(filepaths);
+
+    store.commit("set:navTabGit", false);
+  }
+}
+async function reset(filepaths: readonly string[]) {
+  if (store.state.system.navTabGit === false) {
+    store.commit("set:navTabGit", true);
+
+    await _reset(filepaths);
+
+    store.commit("set:navTabGit", false);
+  }
+}
+async function resetIndex(filepaths: readonly string[]) {
+  if (store.state.system.navTabGit === false) {
+    store.commit("set:navTabGit", true);
+
+    await _resetIndex(filepaths);
+
+    store.commit("set:navTabGit", false);
   }
 }
 </script>

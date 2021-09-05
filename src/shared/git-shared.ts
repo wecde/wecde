@@ -61,28 +61,63 @@ export async function add(filepaths: readonly string[]): Promise<void> {
     );
   }
 }
-export async function commitAll(message: string): Promise<void> {
+export async function commit({
+  message,
+  amend,
+  noEdit,
+}: {
+  readonly message: string | void;
+  readonly amend: boolean;
+  readonly noEdit: boolean;
+}): Promise<void> {
   if (store.state.editor.project) {
-    await add(Object.keys(store.state.editor.git.statusMatrix.matrix));
-    await commit(message);
-  }
-}
-export async function commit(message: string): Promise<void> {
-  if (store.state.editor.project) {
-    const author = configs.authorFor(
-      (await git.getConfig({
+    // eslint-disable-next-line functional/no-let
+    let author: {
+      readonly name: string;
+      readonly email: string;
+    };
+    if (amend) {
+      const logs = await git.log({
         fs,
         dir: store.state.editor.project,
-        path: "remote.origin.url",
-      })) || "https://github.com/"
-    );
+        depth: 2,
+        ref: "HEAD",
+      });
+
+      if (logs.length < 2) {
+        // eslint-disable-next-line functional/no-throw-statement
+        throw new Error("Can't commit amend branch empty commit");
+      }
+
+      await git.checkout({
+        fs,
+        dir: store.state.editor.project,
+        ref: logs[1].oid,
+      });
+
+      // checkout done
+
+      author = logs[0].commit.author;
+
+      if (noEdit === true) {
+        message = logs[0].commit.message;
+      }
+    } else {
+      author = configs.authorFor(
+        (await git.getConfig({
+          fs,
+          dir: store.state.editor.project,
+          path: "remote.origin.url",
+        })) || "https://github.com/"
+      );
+    }
 
     const oid = await git.commit({
       fs,
       dir: store.state.editor.project,
       author,
-      message,
-      ref: "HEAD" // if not select ref -> run checkout(oid) after oid = commit()
+      message: message as string,
+      ref: "HEAD", // if not select ref -> run checkout(oid) after oid = commit()
     });
 
     void store.dispatch(

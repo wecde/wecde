@@ -92,7 +92,11 @@
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import { basename, join } from "path-cross";
-import { add, reset, resetIndex } from "src/shared/git-shared";
+import {
+  add as _add,
+  reset as _reset,
+  resetIndex as _resetIndex,
+} from "src/shared/git-shared";
 import { useStore } from "src/store";
 import { computed } from "vue";
 
@@ -127,6 +131,34 @@ const filesOfFolder = computed<string[]>(() => {
 
   return [props.filepath];
 });
+
+async function add(filepaths: readonly string[]) {
+  if (store.state.system.navTabGit === false) {
+    store.commit("system/set:navTabGit", true);
+
+    await _add(filepaths);
+
+    store.commit("system/set:navTabGit", false);
+  }
+}
+async function reset(filepaths: readonly string[]) {
+  if (store.state.system.navTabGit === false) {
+    store.commit("system/set:navTabGit", true);
+
+    await _reset(filepaths);
+
+    store.commit("system/set:navTabGit", false);
+  }
+}
+async function resetIndex(filepaths: readonly string[]) {
+  if (store.state.system.navTabGit === false) {
+    store.commit("system/set:navTabGit", true);
+
+    await _resetIndex(filepaths);
+
+    store.commit("system/set:navTabGit", false);
+  }
+}
 </script>
 
 <style lang="scss" scoped>
