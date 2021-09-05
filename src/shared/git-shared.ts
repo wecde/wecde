@@ -9,6 +9,7 @@ export async function reset(filepaths: readonly string[]): Promise<void> {
       fs,
       dir: store.state.editor.project,
       filepaths: filepaths.slice(0),
+      force: true, // nhà tôi 3 đời <--
       ref: "HEAD",
     });
   }
@@ -26,7 +27,7 @@ export async function resetIndex(filepaths: readonly string[]): Promise<void> {
               filepath,
             });
 
-            void store.dispatch("editor/update:matrix-of-filepath", filepath);
+            void store.dispatch("editor/update:matrix-of-filepath", [filepath]);
           }
         })
     );
@@ -54,7 +55,7 @@ export async function add(filepaths: readonly string[]): Promise<void> {
               });
             }
 
-            void store.dispatch("editor/update:matrix-of-filepath", filepath);
+            void store.dispatch("editor/update:matrix-of-filepath", [filepath]);
           }
         })
     );
@@ -81,8 +82,16 @@ export async function commit(message: string): Promise<void> {
       dir: store.state.editor.project,
       author,
       message,
+      ref: "HEAD" // if not select ref -> run checkout(oid) after oid = commit()
     });
 
+    void store.dispatch(
+      "editor/update:matrix-of-filepath",
+      Object.keys(store.state.editor.git.statusMatrix.matrix).filter(
+        (item) =>
+          store.state.editor.git.statusMatrix.matrix[item].join("") !== "111"
+      )
+    );
     console.info(`Committed ${oid}`);
   }
 }

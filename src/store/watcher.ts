@@ -137,10 +137,9 @@ export default (store: Store<StateInterface>): void => {
         ) {
           // bypass .git. Example: projects/fcanvas/{.git}/index
 
-          void store.dispatch(
-            "editor/update:matrix-of-filepath",
-            fs.relative(store.state.editor.project, path)
-          );
+          void store.dispatch("editor/update:matrix-of-filepath", [
+            fs.relative(store.state.editor.project, path),
+          ]);
         }
       }
     },
