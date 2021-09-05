@@ -79,42 +79,31 @@
   </q-list>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import AppHammer from "components/App/Hammer.vue";
 import { useStore } from "src/store";
 import { groups } from "src/store/settings/options";
 import type { ValueType } from "src/store/settings/options";
-import { computed, defineComponent } from "vue";
+import { computed } from "vue";
 import type { ComputedRef } from "vue";
 
-export default defineComponent({
-  components: {
-    AppHammer,
-  },
-  setup() {
-    const store = useStore();
+const store = useStore();
 
-    return {
-      groups,
-
-      createRefStore(path?: string): ComputedRef<ValueType | void> {
-        if (!path) {
-          // eslint-disable-next-line functional/no-throw-statement
-          throw new Error("Empty path");
-        }
-        return computed<ValueType | void>({
-          get() {
-            return store.state.settings[path];
-          },
-          set(value) {
-            store.commit("settings/set", {
-              path,
-              value,
-            });
-          },
-        });
-      },
-    };
-  },
-});
+function createRefStore(path?: string): ComputedRef<ValueType | void> {
+  if (!path) {
+    // eslint-disable-next-line functional/no-throw-statement
+    throw new Error("Empty path");
+  }
+  return computed<ValueType | void>({
+    get() {
+      return store.state.settings[path];
+    },
+    set(value) {
+      store.commit("settings/set", {
+        path,
+        value,
+      });
+    },
+  });
+}
 </script>

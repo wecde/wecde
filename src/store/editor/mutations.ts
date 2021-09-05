@@ -71,9 +71,6 @@ const mutation: MutationTree<EditorStateInterface> = {
     state.sessions.splice(index, 1, value);
   },
 
-  "set:git.status"(state, value: "unknown" | "unready" | "ready"): void {
-    state.git.status = value;
-  },
   "set:git.statusMatrix.loading"(state, value: boolean): void {
     state.git.statusMatrix.loading = value;
   },
@@ -82,7 +79,7 @@ const mutation: MutationTree<EditorStateInterface> = {
     value: EditorStateInterface["git"]["statusMatrix"]["matrix"]
   ): void {
     // first. clear;
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (this as any).commit("filter/assign:git.statusMatrix.matrix", () => false);
 
@@ -96,7 +93,10 @@ const mutation: MutationTree<EditorStateInterface> = {
     // append value;
     // eslint-disable-next-line functional/no-loop-statement
     for (const filepath in value) {
-      state.git.statusMatrix.matrix[filepath] = value[filepath];
+      if (filepath.replace(/\s|\u0000/g, "") !== "") {
+        // filter " "
+        state.git.statusMatrix.matrix[filepath] = value[filepath];
+      }
     }
   },
   "filter:git.statusMatrix.matrix"(state, filter): void {

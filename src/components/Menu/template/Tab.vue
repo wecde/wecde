@@ -15,27 +15,20 @@
       },
       contentsClass,
     ]"
+    v-if="$slots.contents"
   >
     <slot name="contents" />
   </div>
+
+  <slot name="default" />
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-
-export default defineComponent({
-  props: {
-    noFlat: {
-      type: Boolean,
-      default: false,
-      required: false,
-    },
-    contentsClass: {
-      type: [String, Object, Array],
-      required: false,
-    },
-  },
-});
+<script lang="ts" setup>
+defineProps<{
+  noFlat?: boolean;
+  // eslint-disable-next-line @typescript-eslint/ban-types, @typescript-eslint/no-explicit-any
+  contentsClass?: string | any[] | Object;
+}>();
 </script>
 
 <style lang="scss" scoped>

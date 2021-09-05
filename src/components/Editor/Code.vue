@@ -182,6 +182,7 @@ import fs from "modules/fs";
 import { extname } from "path-cross";
 import { getSupportInfo } from "prettier";
 import type { SupportLanguage } from "prettier";
+import { registerWatch } from "src/helpers/fs";
 import { getScrollBehavior, setScrollBehavior } from "src/helpers/metadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
@@ -267,6 +268,9 @@ export default defineComponent({
       );
     }
 
+    // eslint-disable-next-line functional/no-let
+    let watcherFile: () => void;
+
     async function loadFile(fullpath: string): Promise<void> {
       const { mode } = modelist.getModeForPath(fullpath);
 
@@ -274,15 +278,57 @@ export default defineComponent({
         // remove handle change
         ace.value?.off("change", onChange);
 
-        ace.value?.setValue(await fs.readFile(fullpath, "utf8"));
+        // register
+        if (watcherFile) {
+          watcherFile();
+        }
+        watcherFile = registerWatch(
+          () => fullpath,
+          async () => {
+            if (ace.value) {
+              const metadata = {
+                left: ace.value.session.getScrollLeft() || 0,
+                top: ace.value.session.getScrollTop() || 0,
+                row: ace.value.getCursorPosition()?.row || 0,
+                column: ace.value.getCursorPosition()?.column || 0,
+              };
+
+              try {
+                const raw = await fs.readFile(fullpath, "utf8");
+
+                if (raw !== ace.value.getValue()) {
+                  ace.value?.off("change", onChange);
+                  ace.value.setValue(raw);
+                  ace.value?.on("change", onChange);
+                }
+              } catch (err) {
+                if (err.code === "ENOENT") {
+                  ace.value?.off("change", onChange);
+                  ace.value.setValue("");
+                  ace.value?.on("change", onChange);
+                }
+              }
+
+              ace.value.clearSelection();
+
+              ace.value.session.setScrollLeft(metadata.left);
+              ace.value.session.setScrollTop(metadata.top);
+              ace.value.moveCursorTo(metadata.row, metadata.column);
+            }
+          },
+          {
+            immediate: true,
+          }
+        );
+
+        // ace.value?.setValue(await fs.readFile(fullpath, "utf8"));
         ace.value?.session.setMode(mode);
-        ace.value?.clearSelection();
 
         console.log(`Language mode: ${mode as string}`);
 
         ace.value?.on("change", onChange);
 
-        Ace.require(`ace/snippets/${mode as string}.js`);
+        Ace.require(`ace/snippets/${mode as string}`);
 
         // remove handle scroll if setValue success
         ace.value?.session.off("changeScrollTop", onScroll);

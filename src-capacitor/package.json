@@ -4,15 +4,5 @@
   "description": "A Quasar Framework app",
   "author": "Shin Tachibana <thanhnguyennguyen1995@gmail.com>",
   "private": true,
-  "dependencies": {
-    "@capacitor/android": "^3.2.0",
-    "@capacitor/app": "^1.0.2",
-    "@capacitor/browser": "^1.0.2",
-    "@capacitor/cli": "^3.2.0",
-    "@capacitor/clipboard": "^1.0.2",
-    "@capacitor/core": "^3.2.0",
-    "@capacitor/filesystem": "^1.0.2",
-    "@capacitor/splash-screen": "^1.1.1",
-    "@capacitor/toast": "^1.0.2"
-  }
+  "dependencies": {}
 }

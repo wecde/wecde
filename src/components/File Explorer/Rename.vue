@@ -151,6 +151,7 @@ export default defineComponent({
 
           const task = Notify.create({
             spinner: true,
+            timeout: 9999999999,
             position: "bottom-right",
             message: this.$t(
               `alert.renamed.${this.isFolder ? "folder" : "file"}-from-to`,
@@ -255,12 +256,13 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "./Rename.scss";
+@import "src/sass/icon-file.scss";
+@import "src/sass/name-changer.scss";
 
 .icon-file {
-  @include icon-file();
+  @include icon-file;
 }
 .name-changer {
-  @include name-changer();
+  @include name-changer;
 }
 </style>

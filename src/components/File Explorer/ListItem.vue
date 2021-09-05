@@ -4,11 +4,9 @@
     :class="{
       dark: $q.dark.isActive,
 
-
-
       'star-added': status === `020` || status === `022` || status === '02x',
       added: status === `023`,
-      
+
       ignored: ignored,
       'is-folder': file.stat.isDirectory(),
 
@@ -161,7 +159,12 @@
               <q-item-section>{{ $t("label.delete") }}</q-item-section>
             </q-item>
 
-            <q-item clickable v-close-popup v-ripple @click="exportZip">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="exportDirectoryByZip"
+            >
               <q-item-section avatar class="min-width-0">
                 <q-icon name="mdi-export-variant" />
               </q-item-section>
@@ -202,10 +205,10 @@ import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
 import { isIgnored } from "isomorphic-git";
-import exportZip from "src/helpers/exportDirectoryByZip";
 import fs from "modules/fs";
 import { basename } from "path-cross";
 import { Notify } from "quasar";
+import exportDirectoryByZip from "src/helpers/exportDirectoryByZip";
 import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import {
@@ -252,14 +255,16 @@ export default defineComponent({
     registerWatch(
       "projects/*/.gitignore",
       async () => {
-        ignored.value = await isIgnored({
-          fs,
-          dir: store.state.editor.project as string,
-          filepath: fs.relative(
-            store.state.editor.project as string,
-            file.value.fullpath
-          ),
-        });
+        if (store.state.editor.project) {
+          ignored.value = await isIgnored({
+            fs,
+            dir: store.state.editor.project,
+            filepath: fs.relative(
+              store.state.editor.project,
+              file.value.fullpath
+            ),
+          });
+        }
       },
       {
         immediate: true,
@@ -332,6 +337,7 @@ export default defineComponent({
     async remove() {
       const task = Notify.create({
         spinner: true,
+        timeout: 9999999999,
         position: "bottom-right",
         message: this.$t(
           `alert.removing.${this.file.stat.isDirectory() ? "folder" : "file"}`,
@@ -370,7 +376,6 @@ export default defineComponent({
         });
 
         task({
-          timeout: 3000,
           message: this.$t(
             `alert.remove-failed.${
               this.file.stat.isDirectory() ? "folder" : "file"
@@ -416,10 +421,10 @@ export default defineComponent({
       }
     },
 
-    async exportZip() {
+    async exportDirectoryByZip() {
       if (this.file.stat.isDirectory()) {
         try {
-          await exportZip(this.file.fullpath);
+          await exportDirectoryByZip(this.file.fullpath);
           this.$store.commit("terminal/clear");
           void Toast.show({
             text: this.$t(
@@ -436,6 +441,7 @@ export default defineComponent({
         }
       } else {
         const task = Notify.create({
+          timeout: 9999999999,
           spinner: true,
           position: "bottom-right",
           message: this.$t(
@@ -495,9 +501,11 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "./ListItem.scss";
+@import "src/sass/file-object.scss";
+@import "src/sass/git-color.scss";
 
 .file-object {
-  @include file-object($enable-git: true);
+  @include file-object;
+  @include git-color;
 }
 </style>

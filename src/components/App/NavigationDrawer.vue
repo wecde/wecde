@@ -10,9 +10,13 @@
         :key="tab.name"
         :name="tab.name"
         :icon="tab.icon"
-        :alert="'alert-icon' in tab && tab['alert-icon'].value ? 'blue' : false"
-        :alert-icon="'alert-icon' in tab ? tab['alert-icon'].value : undefined"
-      />
+        :alert="tab['alert-icon']?.value ? 'blue' : false"
+        :alert-icon="tab['alert-icon']?.value ?? undefined"
+      >
+        <q-badge rounded color="primary" floating v-if="tab.badge?.value">{{
+          tab.badge.value
+        }}</q-badge>
+      </q-tab>
     </q-tabs>
 
     <q-tab-panels
@@ -33,64 +37,60 @@
   </q-drawer>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import MenuArchive from "components/Menu/Archive.vue";
 import MenuFiles from "components/Menu/Files.vue";
 import MenuGit from "components/Menu/Git.vue";
 import MenuSearch from "components/Menu/Search.vue";
 import MenuSettings from "components/Menu/Settings.vue";
 import { useStore } from "src/store";
-import { computed, defineComponent, ref } from "vue";
+import { computed, ref } from "vue";
 
-export default defineComponent({
-  setup() {
-    const store = useStore();
-    const tabs = [
-      {
-        name: "archive",
-        icon: "mdi-archive-outline",
-        panel: MenuArchive,
-      },
-      {
-        name: "files",
-        icon: "mdi-file-multiple-outline",
-        panel: MenuFiles,
-      },
-      {
-        name: "git",
-        icon: "mdi-git",
-        "alert-icon": computed<string | null>(() =>
-          store.state.editor.git.statusMatrix.loading ? "mdi-clock-outline" : null
-        ),
-        panel: MenuGit,
-      },
-      {
-        name: "search",
-        icon: "mdi-magnify",
-        panel: MenuSearch,
-      },
-      {
-        name: "settings",
-        icon: "mdi-cog-outline",
-        panel: MenuSettings,
-      },
-    ];
+const store = useStore();
 
-    return {
-      tabs,
-
-      navigationTabs: ref<string>("archive"),
-      navigation: computed<boolean>({
-        get() {
-          return store.state.system.navigation;
-        },
-        set(value): void {
-          store.commit("system/setNavigation", value);
-        },
-      }),
-    };
+const navigationTabs = ref<string>("archive");
+const navigation = computed<boolean>({
+  get() {
+    return store.state.system.navigation;
+  },
+  set(value): void {
+    store.commit("system/setNavigation", value);
   },
 });
+
+const tabs = [
+  {
+    name: "archive",
+    icon: "mdi-archive-outline",
+    panel: MenuArchive,
+  },
+  {
+    name: "files",
+    icon: "mdi-file-multiple-outline",
+    panel: MenuFiles,
+  },
+  {
+    name: "git",
+    icon: "mdi-source-branch",
+    "alert-icon": computed<string | null>(() =>
+      store.state.editor.git.statusMatrix.loading ? "mdi-clock" : null
+    ),
+    badge: computed<number | null>(
+      () => store.getters["editor/changes.length"] || null
+    ), // if =0 -> set null
+    panel: MenuGit,
+  },
+  {
+    name: "search",
+    icon: "mdi-magnify",
+    panel: MenuSearch,
+  },
+  {
+    name: "settings",
+    icon: "mdi-cog-outline",
+    panel: MenuSettings,
+  },
+];
 </script>
 
 <style lang="scss" scoped>

@@ -58,7 +58,7 @@
           self="top right"
         >
           <q-list>
-            <q-item clickable v-close-popup v-ripple @click="exportZip">
+            <q-item clickable v-close-popup v-ripple @click="exportDirectoryByZip">
               <q-item-section avatar class="min-width-0">
                 <q-icon name="mdi-archive-outline" />
               </q-item-section>
@@ -90,9 +90,9 @@
 
 <script lang="ts">
 import { Toast } from "@capacitor/toast";
-import exportZip from "src/helpers/exportDirectoryByZip";
 import fs from "modules/fs";
 import { basename } from "path-cross";
+import exportDirectoryByZip from "src/helpers/exportDirectoryByZip";
 import type { StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import { computed, defineComponent, PropType, ref } from "vue";
@@ -132,9 +132,9 @@ export default defineComponent({
     };
   },
   methods: {
-    async exportZip() {
+    async exportDirectoryByZip() {
       try {
-        await exportZip(this.project.fullpath);
+        await exportDirectoryByZip(this.project.fullpath);
         this.$store.commit("terminal/clear");
 
         void Toast.show({

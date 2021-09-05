@@ -1,0 +1,16 @@
+@mixin icon-file {
+   width: 24px;
+   height: 24px;
+   margin: auto;
+   display: block;
+   object-fit: cover;
+   margin-right: 4px;
+ 
+   &.rename-float {
+     position: relative;
+     z-index: 101;
+   }
+   &:first-child {
+     margin-left: (20px - 5px);
+   }
+ }

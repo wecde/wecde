@@ -1,11 +1,7 @@
 import minimatch from "minimatch";
 import fs from "modules/fs";
 import { basename, join } from "path-cross";
-import { statusMatrix, worthWalking } from "src/helpers/git";
-import { createTimeoutBy } from "src/utils";
 import type { Store } from "vuex";
-
-import { EditorStateInterface } from "./editor/state";
 
 import type { StateInterface } from "./index";
 
@@ -114,89 +110,14 @@ export default (store: Store<StateInterface>): void => {
   });
   // *
 
-  function update_state_editor_git_status(): void {
-    createTimeoutBy(
-      "update git if editor.project change",
-      async () => {
-        const dir = store.state.editor.project;
-        store.commit("editor/set:git.status", "unknown");
+  // ------------------------------------------------
 
-        if (dir && (await fs.isFile(join(dir, ".git/index")))) {
-          store.commit("editor/set:git.status", "ready");
-        } else {
-          store.commit("editor/set:git.status", "unready");
-        }
-      },
-      1
-    );
-  }
-  // * watch change editor.project -> update editor.git.status
-  store.watch(
-    () => store.state.editor.project,
-    () => void update_state_editor_git_status(),
-    {
-      immediate: true,
-    }
-  );
-  // *
-
-  // * watch change projects/*/.git/index -> update editor.git.status
-  fs.watch("projects/*/.git/index", () => update_state_editor_git_status(), {
-    miniOpts: {
-      dot: true,
-    },
-    type: "file",
-    dir: () => store.state.editor.project,
-  });
-  // *
-
-  function update_state_editor_git_statusMatrix(fullpath: string | null): void {
-    createTimeoutBy(
-      "update status matrix",
-      async () => {
-        if (
-          store.state.editor.project &&
-          (await fs.isFile(join(store.state.editor.project, ".git/index")))
-        ) {
-          const filepaths = [
-            fullpath ? fs.relative(store.state.editor.project, fullpath) : ".",
-          ];
-
-          store.commit("editor/set:git.statusMatrix.loading", true);
-
-          const matrix = (
-            await statusMatrix({
-              fs,
-              dir: store.state.editor.project,
-              filepaths,
-            })
-          ).reduce((obj, [filepath, ...value]) => {
-            // eslint-disable-next-line functional/immutable-data
-            obj[filepath] = value;
-            return obj;
-          }, {} as EditorStateInterface["git"]["statusMatrix"]["matrix"]);
-
-          console.log(fullpath, matrix);
-
-          store.commit(
-            "editor/filter:git.statusMatrix.matrix",
-            (filepath: string) =>
-              !filepaths.some((base) => worthWalking(filepath, base))
-          );
-          store.commit("editor/assign:git.statusMatrix.matrix", matrix);
-
-          store.commit("editor/set:git.statusMatrix.loading", false);
-        }
-      },
-      1
-    );
-  }
   // * watch change editor.project -> update editor.git.statusMatrix
   store.watch(
     () => store.state.editor.project,
     () => {
       store.commit("editor/filter:git.statusMatrix.matrix", () => false);
-      update_state_editor_git_statusMatrix(null);
+      void store.dispatch("editor/update:matrix-of-filepath");
     },
     {
       immediate: true,
@@ -208,13 +129,19 @@ export default (store: Store<StateInterface>): void => {
   fs.watch(
     "projects/*/**",
     ({ path }) => {
-      const gitdir = join(store.state.editor.project as string, ".git");
-      if (
-        fs.isEqual(gitdir, path) === false &&
-        fs.isParentDir(gitdir, path) === false
-      ) {
-        // bypass .git. Example: projects/fcanvas/{.git}/index
-        void update_state_editor_git_statusMatrix(path);
+      if (store.state.editor.project) {
+        const gitdir = join(store.state.editor.project, ".git");
+        if (
+          fs.isEqual(gitdir, path) === false &&
+          fs.isParentDir(gitdir, path) === false
+        ) {
+          // bypass .git. Example: projects/fcanvas/{.git}/index
+
+          void store.dispatch(
+            "editor/update:matrix-of-filepath",
+            fs.relative(store.state.editor.project, path)
+          );
+        }
       }
     },
     {
@@ -229,11 +156,22 @@ export default (store: Store<StateInterface>): void => {
   // * if .gitignore change -> update editor.git.statusMatrix
   fs.watch(
     "projects/*/.gitignore",
-    () => update_state_editor_git_statusMatrix(null),
+    () => void store.dispatch("editor/update:matrix-of-filepath"),
     {
       type: "file",
       dir: () => store.state.editor.project,
     }
   );
   // *
+
+  // // * watch status file change by .add(), resetIndex(), pull(), -> .git/index -> update editor.git.statusMatrix
+  // fs.watch(
+  //   "projects/*/.git/index",
+  //   () => update_state_editor_git_statusMatrix(null),
+  //   {
+  //     type: "file",
+  //     dir: () => store.state.editor.project,
+  //   }
+  // );
+  // // *
 };

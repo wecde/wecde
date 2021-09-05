@@ -138,7 +138,7 @@
   </Template-Tab>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import FileExplorerAdd from "components/File Explorer/Add.vue";
@@ -147,98 +147,74 @@ import { basename } from "path-cross";
 import { Notify } from "quasar";
 import { readdirAndStat, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
-import { computed, defineComponent, ref } from "vue";
+import { computed, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import TemplateTab from "./template/Tab.vue";
 
-export default defineComponent({
-  components: {
-    TemplateTab,
-    FileExplorerList,
-    FileExplorerAdd,
-    ActionImportFiles,
-  },
-  setup() {
-    const store = useStore();
-    const adding = ref<boolean>(false);
-    const addingFolder = ref<boolean>(false);
-    const tree = ref<StatItem[]>([]);
-    const project = computed<string | null>(() => store.state.editor.project);
-    const projectName = computed<string | null>(() =>
-      project.value ? basename(project.value) : null
-    );
+const store = useStore();
+const i18n = useI18n();
+const adding = ref<boolean>(false);
+const addingFolder = ref<boolean>(false);
+const tree = ref<readonly StatItem[]>([]);
+const project = computed<string | null>(() => store.state.editor.project);
+const projectName = computed<string | null>(() =>
+  project.value ? basename(project.value) : null
+);
+const clipboardExists = computed<boolean>(
+  () => store.getters["clipboard-fs/isEmpty"] === false
+);
+const notAllowPaste = computed<boolean>(
+  () =>
+    store.getters["clipboard-fs/allowPaste"](store.state.editor.project) ===
+    false
+);
 
-    return {
-      adding,
-      addingFolder,
-      tree,
-      projectName,
-    };
+watch(
+  () => store.state.editor.project,
+  async () => {
+    tree.value = [];
+    await reloadListFile();
   },
-  watch: {
-    "$store.state.editor.project": {
-      async handler() {
-        this.tree.splice(0);
-        await this.reloadListFile();
-      },
-      immediate: true,
-    },
-  },
-  methods: {
-    basename,
+  {
+    immediate: true,
+  }
+);
 
-    async reloadListFile(notification = false): Promise<void> {
-      const task = Notify.create({
-        spinner: true,
-        position: "bottom-right",
-        message: this.$t("alert.reload-files"),
+async function reloadListFile(notification = false): Promise<void> {
+  const task = Notify.create({
+    spinner: true,
+    timeout: 9999999999,
+    position: "bottom-right",
+    message: i18n.t("alert.reload-files"),
+  });
+
+  try {
+    if (!store.state.editor.project) {
+      // eslint-disable-next-line functional/no-throw-statement
+      throw new Error("IS_NOT_DIR");
+    }
+
+    tree.value = await readdirAndStat(store.state.editor.project);
+
+    task();
+
+    if (notification) {
+      void Toast.show({
+        text: i18n.t("alert.reload-files"),
       });
+    }
+  } catch {
+    tree.value.slice(0);
+    task({
+      message: i18n.t("alert.reload-files-failed"),
+    });
+  }
+}
 
-      try {
-        if (!this.$store.state.editor.project) {
-          // eslint-disable-next-line functional/no-throw-statement
-          throw new Error("IS_NOT_DIR");
-        }
+async function paste() {
+  await store.dispatch("clipboard-fs/paste", store.state.editor.project);
 
-        this.tree = [
-          ...(await readdirAndStat(this.$store.state.editor.project)),
-        ];
-
-        task();
-
-        if (notification) {
-          void Toast.show({
-            text: this.$t("alert.reload-files"),
-          });
-        }
-      } catch {
-        this.tree = [];
-        task({
-          message: this.$t("alert.reload-files-failed"),
-        });
-      }
-    },
-
-    async paste() {
-      await this.$store.dispatch(
-        "clipboard-fs/paste",
-        this.$store.state.editor.project
-      );
-
-      await this.reloadListFile();
-    },
-  },
-  computed: {
-    clipboardExists(): boolean {
-      return this.$store.getters["clipboard-fs/isEmpty"] === false;
-    },
-    notAllowPaste(): boolean {
-      return (
-        this.$store.getters["clipboard-fs/allowPaste"](
-          this.$store.state.editor.project
-        ) === false
-      );
-    },
-  },
-});
+  await reloadListFile();
+}
 </script>

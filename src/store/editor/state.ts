@@ -8,8 +8,6 @@ export type EditorStateInterface = {
   // eslint-disable-next-line functional/prefer-readonly-type
   historySession: number[];
   readonly git: {
-    // eslint-disable-next-line functional/prefer-readonly-type
-    status: "unknown" | "ready" | "unready";
     readonly statusMatrix: {
       // eslint-disable-next-line functional/prefer-readonly-type
       loading: boolean;
@@ -30,7 +28,6 @@ function state(): EditorStateInterface {
     historySession: [],
 
     git: {
-      status: "unknown",
       statusMatrix: {
         loading: false,
         matrix: {},

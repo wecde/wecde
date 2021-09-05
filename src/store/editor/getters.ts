@@ -64,6 +64,16 @@ const getters: GetterTree<EditorStateInterface, StateInterface> = {
       }
     };
   },
+  "changes.length"({ git }): number {
+    return Object.values(git.statusMatrix.matrix).filter(
+      (item) => item.join("") !== "111"
+    ).length;
+  },
+  "changes-staged.length"({ git }): number {
+    return Object.values(git.statusMatrix.matrix).filter(
+      (item) => item.join("") !== "111" && item[2] === 2
+    ).length;
+  },
 };
 
 export default getters;

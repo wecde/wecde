@@ -400,17 +400,18 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
-@import "components/File Explorer/ListItem.scss";
-@import "components/File Explorer/Rename.scss";
+@import "src/sass/file-object.scss";
+@import "src/sass/icon-file.scss";
 
 .file-object {
-  @include file-object($enable-git: false);
+  @include file-object;
+
   padding: {
     left: 0;
     right: 0;
   }
 }
 .icon-file {
-  @include icon-file();
+  @include icon-file;
 }
 </style>

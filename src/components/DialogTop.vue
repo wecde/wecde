@@ -12,21 +12,12 @@
   </q-dialog>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
-
-export default defineComponent({
-  events: ["update:model-value"],
-  props: {
-    modelValue: {
-      type: Boolean,
-      default: false,
-    },
-    persistent: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-  },
-});
+<script lang="ts" setup>
+defineProps<{
+  modelValue: boolean;
+  persistent?: boolean;
+}>();
+defineEmits<{
+  (event: "update:model-value", value: boolean): void;
+}>();
 </script>

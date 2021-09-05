@@ -9,3 +9,4 @@ babel.config.js
 /src-ssr
 /resources
 /src/fs
+/src/git.js

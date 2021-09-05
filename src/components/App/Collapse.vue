@@ -6,7 +6,7 @@
       click: () => void (state = !state),
     }"
   />
-  <div v-show="state" v-if="setuped" :class="contentClass">
+  <div v-show="state" v-if="setuped && !disabled" :class="contentClass">
     <slot name="default" />
   </div>
 </template>
@@ -16,6 +16,11 @@ import { defineComponent, ref, toRefs, watch } from "vue";
 
 export default defineComponent({
   props: {
+    disabled: {
+      type: Boolean,
+      required: false,
+      default: false,
+    },
     eager: {
       type: Boolean,
       default: false,
