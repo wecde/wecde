@@ -269,16 +269,16 @@
   </Template-Tab>
 
   <Commit-Manager v-model="commitManager" />
-  <Branch-Manager v-modeel="branchManager" />
-  <Remote-Manager :model-value="true" />
+  <Branch-Manager v-model="branchManager" />
+  <Remote-Manager v-model="remoteManager" />
 </template>
 
 <script lang="ts" setup>
 import AppCollapse from "components/App/Collapse.vue";
+import BranchManager from "components/Git/BranchManager.vue";
 import ChangesList from "components/Git/ChangesList.vue";
 import ChangesTree from "components/Git/ChangesTree.vue";
 import CommitManager from "components/Git/CommitManager.vue";
-import BranchManager from "components/Git/BranchManager.vue";
 import RemoteManager from "components/Git/RemoteManager.vue";
 import git, { checkout as _checkout } from "isomorphic-git";
 import http from "isomorphic-git/http/web";
@@ -454,7 +454,7 @@ const menu: Menu = [
           onError(err);
         }
 
-        store.commit("system/set:newTabGit", false);
+        store.commit("system/set:navTabGit", false);
       }
     },
   },
@@ -649,33 +649,6 @@ const menu: Menu = [
     //   },
     // ],
   },
-  // {
-  //   name: "Stash",
-  //   icon: "mdi-cube-outline",
-  //   subs: [
-  //     {
-  //       name: "Stash",
-  //     },
-  //     {
-  //       name: "Stash (Include Untracked)",
-  //     },
-  //     {
-  //       name: "Apply Latest Stash",
-  //     },
-  //     {
-  //       name: "Apply Stash...",
-  //     },
-  //     {
-  //       name: "Pop Latest Stash",
-  //     },
-  //     {
-  //       name: "Pop Stash...",
-  //     },
-  //     {
-  //       name: "Drop Stash...",
-  //     },
-  //   ],
-  // },
   {
     name: "Tags",
     icon: "mdi-tag-outline",
@@ -759,7 +732,7 @@ async function pull() {
       onError(err);
     }
 
-    store.commit("system/set:newTabGit", false);
+    store.commit("system/set:navTabGit", false);
   }
 }
 async function fetch({
@@ -792,7 +765,7 @@ async function fetch({
       onError(err);
     }
 
-    store.commit("system/set:newTabGit", false);
+    store.commit("system/set:navTabGit", false);
   }
 }
 </script>
