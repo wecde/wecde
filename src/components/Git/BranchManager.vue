@@ -17,14 +17,7 @@
         <q-space />
         <div>
           <q-btn icon="mdi-plus" v-ripple flat round dense @click="branch" />
-          <q-btn
-            icon="mdi-close"
-            v-ripple
-            flat
-            round
-            dense
-            v-close-popup
-          />
+          <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
         </div>
       </q-card-section>
 
@@ -99,6 +92,7 @@
                         </q-item-section>
                         <q-item-section>Checkout</q-item-section>
                       </q-item>
+
                       <q-item
                         clickable
                         v-close-popup
@@ -111,17 +105,32 @@
                         </q-item-section>
                         <q-item-section>Merge Branch</q-item-section>
                       </q-item>
+
                       <q-item
                         clickable
                         v-close-popup
                         v-ripple
                         class="no-min-height"
                         @click="deleteBranch(branch.path)"
+                        v-if="type !== 'tags'"
                       >
                         <q-item-section avatar class="min-width-0">
                           <q-icon name="mdi-source-branch-minus" />
                         </q-item-section>
                         <q-item-section>Delete Branch</q-item-section>
+                      </q-item>
+                      <q-item
+                        clickable
+                        v-close-popup
+                        v-ripple
+                        class="no-min-height"
+                        @click="deleteTag(branch.name)"
+                        v-else
+                      >
+                        <q-item-section avatar class="min-width-0">
+                          <q-icon name="mdi-tag-minus-outline" />
+                        </q-item-section>
+                        <q-item-section>Delete Tag</q-item-section>
                       </q-item>
 
                       <q-item
@@ -153,6 +162,7 @@ import {
   branch as _branch,
   checkout as _checkout,
   deleteBranch as _deleteBranch,
+  deleteTag as _deleteTag,
   merge as _merge,
 } from "isomorphic-git";
 import fs from "modules/fs";
@@ -237,6 +247,22 @@ async function deleteBranch(ref: string) {
   allBranches.value = await listAllBranches();
   loading.value = false;
 }
+async function deleteTag(ref: string) {
+  loading.value = true;
+
+  try {
+    await _deleteTag({
+      fs,
+      dir: store.state.editor.project as string,
+      ref,
+    });
+  } catch (err) {
+    onError(err);
+  }
+
+  allBranches.value = await listAllBranches();
+  loading.value = false;
+}
 function forkBranch(ref: string) {
   $q.dialog({
     title: "Fork branch",
@@ -248,6 +274,12 @@ function forkBranch(ref: string) {
       maxlength: 20,
       // class: "q-mt-2",
       model: "",
+      isValid(val: string) {
+        return (
+          !/\s/.test(val) ||
+          "Branch name can't only space"
+        );
+      },
       type: "text", // optional
     },
     cancel: true,
@@ -284,6 +316,12 @@ function branch() {
       maxlength: 20,
       // class: "q-mt-2",
       model: "",
+      isValid(val: string) {
+        return (
+          !/\s/.test(val) ||
+          "Branch name can't only space"
+        );
+      },
       type: "text", // optional
     },
     cancel: true,
