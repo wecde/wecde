@@ -44,7 +44,7 @@
           name="mdi-circle-medium"
           v-if="opening"
         />
-        <q-icon size="13px" name="mdi-content-cut" v-if="isBeginCut" />
+        <q-icon size="13px" name="ti-cut" v-if="isBeginCut" />
       </template>
     </FileExplorer-Rename>
 
@@ -60,16 +60,17 @@
           self="top right"
         >
           <q-list>
-            <template v-if="clipboardExists">
+            <template v-if="clipboardExists && notAllowPaste === false">
               <q-item
                 clickable
                 v-close-popup
                 v-ripple
                 @click="paste"
                 :disable="notAllowPaste"
+                class="no-min-height"
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon name="mdi-content-paste" />
+                  <q-icon name="ti-clipboard" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.paste") }}</q-item-section>
               </q-item>
@@ -85,9 +86,10 @@
                   adding = true;
                   addingFolder = false;
                 "
+                class="no-min-height"
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon name="mdi-file-outline" />
+                  <q-icon name="ti-file" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.new-file") }}</q-item-section>
               </q-item>
@@ -100,9 +102,10 @@
                   adding = true;
                   addingFolder = true;
                 "
+                class="no-min-height"
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon name="mdi-folder-outline" />
+                  <q-icon name="ti-folder" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
               </q-item>
@@ -112,9 +115,15 @@
                 @imported="refreshFolder"
               >
                 <template v-slot:default="{ on }">
-                  <q-item clickable v-close-popup v-ripple @click="on">
+                  <q-item
+                    clickable
+                    v-close-popup
+                    v-ripple
+                    @click="on"
+                    class="no-min-height"
+                  >
                     <q-item-section avatar class="min-width-0">
-                      <q-icon name="mdi-download" />
+                      <q-icon name="ti-import" />
                     </q-item-section>
                     <q-item-section>{{
                       $t("label.import-files")
@@ -126,16 +135,28 @@
               <q-separator />
             </template>
 
-            <q-item clickable v-close-popup v-ripple @click="cut">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="cut"
+              class="no-min-height"
+            >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-content-cut" />
+                <q-icon name="ti-cut" />
               </q-item-section>
               <q-item-section>{{ $t("label.cut") }}</q-item-section>
             </q-item>
 
-            <q-item clickable v-close-popup v-ripple @click="copy">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="copy"
+              class="no-min-height"
+            >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-content-copy" />
+                <q-icon name="ti-files" />
               </q-item-section>
               <q-item-section>{{ $t("label.copy") }}</q-item-section>
             </q-item>
@@ -145,16 +166,23 @@
               v-ripple
               v-close-popup
               @click.stop.prevent="renaming = true"
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-pen" />
+                <q-icon name="ti-pencil" />
               </q-item-section>
               <q-item-section>{{ $t("label.rename") }}</q-item-section>
             </q-item>
 
-            <q-item clickable v-close-popup v-ripple @click="remove">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="remove"
+              class="no-min-height"
+            >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-delete-outline" />
+                <q-icon name="ti-trash" />
               </q-item-section>
               <q-item-section>{{ $t("label.delete") }}</q-item-section>
             </q-item>
@@ -164,9 +192,10 @@
               v-close-popup
               v-ripple
               @click="exportDirectoryByZip"
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-export-variant" />
+                <q-icon name="ti-share" />
               </q-item-section>
               <q-item-section>{{
                 $t(

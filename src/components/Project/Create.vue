@@ -5,7 +5,8 @@
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
-    v-model="stateLocal"
+    :model-value="modelValue"
+    @update:model-value="$emit('update:model-value', $event)"
   >
     <q-card v-if="!templateSelected" class="flex column no-wrap">
       <q-card-section class="row items-center q-pb-1 q-pt-2">
@@ -101,132 +102,118 @@
   </q-dialog>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import type { Template } from "assets/labs/Release.json";
 import templates from "assets/templates/Release.json";
 import fs from "modules/fs";
+import { useStore } from "src/store";
 import nameFileValidates from "src/validator/nameFileValidates";
-import { computed, defineComponent, ref, toRefs } from "vue";
-import type { PropType } from "vue";
+import { computed, ref, toRefs, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { unzip } from "zip2";
 
-export default defineComponent({
-  emits: ["update:state", "created"],
-  props: {
-    state: {
-      type: Boolean,
-      default: false,
-    },
-    namesExists: {
-      type: Array as PropType<readonly string[]>,
-      required: true,
-    },
-  },
-  setup(props) {
-    const { namesExists } = toRefs(props);
-    const templateSelected = ref<Template | null>(null);
+const props = defineProps<{
+  modelValue: boolean;
+  namesExists: readonly string[];
+}>();
+const emit = defineEmits<{
+  (ev: "update:model-value", v: boolean): void;
+  (ev: "created"): void;
+}>();
 
-    return {
-      templates,
-      templateSelected,
-      error: nameFileValidates(
-        computed(() => templateSelected.value?.name || ""),
-        false,
-        namesExists,
-        true
-      ),
-    };
-  },
-  computed: {
-    stateLocal: {
-      get(): boolean {
-        return this.state;
-      },
-      set(value: boolean): void {
-        this.$emit("update:state", value);
+const store = useStore();
+const i18n = useI18n();
 
-        if (value === false) {
-          this.templateSelected = null;
-        }
-      },
-    },
-  },
-  methods: {
-    selectTemplate(template: Template): void {
-      this.templateSelected = {
-        ...template,
-      };
-    },
-    async create() {
-      // eslint-disable-next-line functional/no-let
-      let created = false;
+const { namesExists } = toRefs(props);
+const templateSelected = ref<Template | null>(null);
+const error = nameFileValidates(
+  computed(() => templateSelected.value?.name || ""),
+  false,
+  namesExists,
+  true
+);
 
-      if (this.templateSelected) {
-        if (this.templateSelected.isTemplate) {
-          try {
-            const urlFileZip =
-              // eslint-disable-next-line @typescript-eslint/no-var-requires
-              require(`assets/templates/${this.templateSelected["directory-name"]}/template.zip`).default;
+watch(
+  () => props.modelValue,
+  (value: boolean) => {
+    if (value === false) {
+      templateSelected.value = null;
+    }
+  }
+);
 
-            this.$store.commit(
-              "terminal/info",
-              this.$t("alert.extracting-zip", {
-                name: urlFileZip,
-              })
-            );
-            await unzip({
-              fs,
-              data: await fetch(urlFileZip)
-                .then((res) => res.blob())
-                .then((blob) => blob.arrayBuffer()),
-              extractTo: `projects/${this.templateSelected.name}`,
-              onProgress: (event) => {
-                if (event.isDirectory) {
-                  this.$store.commit(
-                    "terminal/print",
-                    this.$t("alert.extract-folder", {
-                      name: event.filename,
-                    })
-                  );
-                } else {
-                  this.$store.commit(
-                    "terminal/print",
-                    this.$t("alert.extract-file", {
-                      name: event.filename,
-                    })
-                  );
-                }
-              },
-            });
+function selectTemplate(template: Template): void {
+  templateSelected.value = {
+    ...template,
+  };
+}
+async function create() {
+  // eslint-disable-next-line functional/no-let
+  let created = false;
 
-            this.$store.commit("terminal/clear");
-            created = true;
-          } catch (err) {
-            console.log(err);
-            this.$store.commit("terminal/error", err);
-          }
-        } else {
-          await fs.mkdir(`projects/${this.templateSelected.name}`, {
-            recursive: true,
-          });
-          created = true;
-        }
+  if (templateSelected.value) {
+    if (templateSelected.value.isTemplate) {
+      try {
+        const urlFileZip =
+          // eslint-disable-next-line @typescript-eslint/no-var-requires
+          require(`assets/templates/${templateSelected.value["directory-name"]}/template.zip`).default;
 
-        if (created) {
-          void Toast.show({
-            text: this.$t("alert.created.project", {
-              name: this.templateSelected.name,
-            }),
-          });
-          console.log("created project");
-          this.$emit("created");
-          this.stateLocal = false;
-        }
+        store.commit(
+          "terminal/info",
+          i18n.t("alert.extracting-zip", {
+            name: urlFileZip,
+          })
+        );
+        await unzip({
+          fs,
+          data: await fetch(urlFileZip)
+            .then((res) => res.blob())
+            .then((blob) => blob.arrayBuffer()),
+          extractTo: `projects/${templateSelected.value.name}`,
+          onProgress: (event) => {
+            if (event.isDirectory) {
+              store.commit(
+                "terminal/print",
+                i18n.t("alert.extract-folder", {
+                  name: event.filename,
+                })
+              );
+            } else {
+              store.commit(
+                "terminal/print",
+                i18n.t("alert.extract-file", {
+                  name: event.filename,
+                })
+              );
+            }
+          },
+        });
+
+        store.commit("terminal/clear");
+        created = true;
+      } catch (err) {
+        store.commit("terminal/error", err);
       }
-    },
-  },
-});
+    } else {
+      await fs.mkdir(`projects/${templateSelected.value.name}`, {
+        recursive: true,
+      });
+      created = true;
+    }
+
+    if (created) {
+      void Toast.show({
+        text: i18n.t("alert.created.project", {
+          name: templateSelected.value.name,
+        }),
+      });
+      emit("created");
+    }
+
+    emit("update:model-value", false);
+  }
+}
 </script>
 
 <style lang="scss" scoped>

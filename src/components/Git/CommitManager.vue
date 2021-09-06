@@ -1,5 +1,9 @@
 <template>
-  <Dialog-Top
+  <q-dialog
+    class="max-width-dialog inner-bottom-auto"
+    full-width
+    transition-show="jump-down"
+    transition-hide="jump-up"
     :model-value="modelValue"
     @update:model-value="$emit('update:model-value', $event)"
     :persistent="loading"
@@ -89,11 +93,10 @@
         />
       </q-card-actions>
     </q-card>
-  </Dialog-Top>
+  </q-dialog>
 </template>
 
 <script lang="ts" setup>
-import DialogTop from "components/DialogTop.vue";
 import { add as _add, commit as _commit } from "src/shared/git-shared";
 import { useStore } from "src/store";
 import { ref } from "vue";

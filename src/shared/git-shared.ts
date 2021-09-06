@@ -1,5 +1,6 @@
 import git from "isomorphic-git";
 import fs from "modules/fs";
+import { join } from "path-cross";
 import { configs } from "src/helpers/git";
 import { store } from "src/store";
 
@@ -129,4 +130,78 @@ export async function commit({
     );
     console.info(`Committed ${oid}`);
   }
+}
+
+type Branches = readonly {
+  readonly name: string;
+  readonly path: string;
+  readonly "last-oid": string;
+}[];
+export async function listAllBranches(): Promise<{
+  readonly heads?: Branches;
+  readonly remotes?: Branches;
+  readonly tags?: Branches
+}> {
+  if (store.state.editor.project) {
+    // eslint-disable-next-line functional/no-let
+    let heads: readonly string[] = [],
+      remotes: readonly string[] = [],
+      tags: readonly string[] = [];
+
+    await Promise.allSettled([
+      fs.readdir(join(store.state.editor.project, ".git/refs/heads")),
+      fs.readdir(join(store.state.editor.project, ".git/refs/remotes")),
+      fs.readdir(join(store.state.editor.project, ".git/refs/tags")),
+    ]).then(async (status) => {
+      if (status[0].status === "fulfilled") {
+        heads = status[0].value.map((item) => `heads/${item}`);
+      }
+      if (status[1].status === "fulfilled") {
+        remotes = await Promise.all(
+          status[1].value.map(async (remote) => {
+            // read
+            const refsOfRemote = await fs.readdir(
+              join(
+                store.state.editor.project as string,
+                `.git/refs/remotes/${remote}`
+              )
+            );
+
+            return refsOfRemote.map((item) => `remotes/${remote}/${item}`);
+          })
+        ).then((result) => result.flat(1));
+      }
+      if (status[2].status === "fulfilled") {
+        tags = status[2].value.map((item) => `tags/${item}`);
+      }
+    });
+
+    //ok. start read last-oid
+    const result = await Promise.all(
+      [heads, remotes, tags].map((refs) =>
+        Promise.all(
+          refs.map(async (ref) => {
+            return {
+              name: ref.split("/").slice(1).join("/"),
+              path: `refs/${ref}`,
+              "last-oid": await fs
+                .readFile(
+                  join(store.state.editor.project as string, ".git/refs", ref),
+                  "utf8"
+                )
+                .then((res) => res.split("\n")[0]),
+            };
+          })
+        )
+      )
+    );
+
+    return {
+      heads: result[0],
+      remotes: result[1],
+      tags: result[2],
+    };
+  }
+
+  return {};
 }

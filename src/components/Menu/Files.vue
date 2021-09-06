@@ -36,9 +36,10 @@
                 v-ripple
                 @click="paste"
                 :disable="notAllowPaste"
+                class="no-min-height"
               >
                 <q-item-section avatar class="min-width-0">
-                  <q-icon name="mdi-content-paste" />
+                  <q-icon name="ti-clipboard" />
                 </q-item-section>
                 <q-item-section>{{ $t("label.paste") }}</q-item-section>
               </q-item>
@@ -53,9 +54,10 @@
                 adding = true;
                 addingFolder = false;
               "
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-file-outline" />
+                <q-icon name="ti-file" />
               </q-item-section>
               <q-item-section>{{ $t("label.new-file") }}</q-item-section>
             </q-item>
@@ -68,9 +70,10 @@
                 adding = true;
                 addingFolder = true;
               "
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-folder-outline" />
+                <q-icon name="ti-folder" />
               </q-item-section>
               <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
             </q-item>
@@ -81,9 +84,15 @@
               v-if="$store.state.editor.project"
             >
               <template v-slot:default="{ on }">
-                <q-item clickable v-close-popup v-ripple @click="on">
+                <q-item
+                  clickable
+                  v-close-popup
+                  v-ripple
+                  @click="on"
+                  class="no-min-height"
+                >
                   <q-item-section avatar class="min-width-0">
-                    <q-icon name="mdi-download" />
+                    <q-icon name="ti-import" />
                   </q-item-section>
                   <q-item-section>{{
                     $t("label.import-files")
@@ -94,16 +103,16 @@
 
             <q-separator />
 
-            <q-item clickable v-close-popup v-ripple>
+            <q-item clickable v-close-popup v-ripple class="no-min-height">
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-undo" />
+                <q-icon name="ti-back-left" />
               </q-item-section>
               <q-item-section>{{ $t("label.undo") }}</q-item-section>
             </q-item>
 
-            <q-item clickable v-close-popup v-ripple>
+            <q-item clickable v-close-popup v-ripple class="no-min-height">
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-redo" />
+                <q-icon name="ti-back-right" />
               </q-item-section>
               <q-item-section>{{ $t("label.redo") }}</q-item-section>
             </q-item>
