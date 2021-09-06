@@ -11,7 +11,14 @@
         padding="xs"
         size="13px"
       />
-      <q-btn icon="mdi-git" flat round padding="xs" size="13px" class="q-ml-xs">
+      <q-btn
+        icon="mdi-source-branch"
+        flat
+        round
+        padding="xs"
+        size="13px"
+        class="q-ml-xs"
+      >
         <q-menu
           :class="{
             'bg-grey-9': $q.dark.isActive,
@@ -27,9 +34,10 @@
               v-close-popup
               v-ripple
               @click="statePopupGitClone = true"
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-git" />
+                <q-icon name="mdi-source-branch" />
               </q-item-section>
               <q-item-section>{{ $t("label.clone-repo") }}</q-item-section>
             </q-item>
@@ -38,6 +46,7 @@
               v-close-popup
               v-ripple
               @click="statePopupGitProvide = true"
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
                 <q-icon name="mdi-lock-outline" />
@@ -70,6 +79,7 @@
               v-close-popup
               v-ripple
               @click="creatingProject = true"
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
                 <q-icon name="mdi-archive-outline" />
@@ -81,6 +91,7 @@
               v-close-popup
               v-ripple
               @click="importProjectFromZip"
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
                 <q-icon name="mdi-zip-box-outline" />
@@ -95,13 +106,20 @@
               v-close-popup
               v-ripple
               @click="$router.push(`/?tab=logs`)"
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
                 <q-icon name="mdi-message-text-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.change-logs") }}</q-item-section>
             </q-item>
-            <q-item clickable v-close-popup v-ripple @click="$router.push(`/`)">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="$router.push(`/`)"
+              class="no-min-height"
+            >
               <q-item-section avatar class="min-width-0">
                 <q-icon name="mdi-cube-outline" />
               </q-item-section>
@@ -133,7 +151,11 @@
     </template>
   </Template-Tab>
 
-  <Dialog-Top
+  <q-dialog
+    class="max-width-dialog inner-bottom-auto"
+    full-width
+    transition-show="jump-down"
+    transition-hide="jump-up"
     :model-value="!!projectRemoving"
     @update:model-value="$event ? null : (projectRemoving = null)"
   >
@@ -192,12 +214,12 @@
         />
       </q-card-actions>
     </q-card>
-  </Dialog-Top>
+  </q-dialog>
 
-  <Git-Clone v-model:state="statePopupGitClone" @cloned="clonedRepo" />
-  <Git-Provide v-model:state="statePopupGitProvide" />
+  <Git-Clone v-model="statePopupGitClone" @cloned="clonedRepo" />
+  <Git-Provide v-model="statePopupGitProvide" />
   <Project-Create
-    v-model:state="creatingProject"
+    v-model="creatingProject"
     @created="reloadListProjects"
     :names-exists="projects.map((item) => basename(item.value.fullpath))"
   />
@@ -205,7 +227,6 @@
 
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
-import DialogTop from "components/DialogTop.vue";
 import GitClone from "components/Git/ModalGitClone.vue";
 import GitProvide from "components/Git/ModalGitProvide.vue";
 import ProjectCreate from "components/Project/Create.vue";

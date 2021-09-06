@@ -1,7 +1,11 @@
 <template>
-  <Dialog-Top
-    :model-value="state"
-    @update:model-value="$emit('update:state', $event)"
+  <q-dialog
+    class="max-width-dialog inner-bottom-auto"
+    full-width
+    transition-show="jump-down"
+    transition-hide="jump-up"
+    :model-value="modelValue"
+    @update:model-value="$emit('update:model-value', $event)"
   >
     <q-card>
       <q-card-section class="row items-center q-pb-1 q-pt-2">
@@ -48,12 +52,11 @@
         />
       </q-card-actions>
     </q-card>
-  </Dialog-Top>
+  </q-dialog>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
-import DialogTop from "components/DialogTop.vue";
 import fs from "modules/fs";
 import {
   configs as gitConfigs,
@@ -67,101 +70,91 @@ import {
   onStart,
 } from "src/helpers/git";
 import { useGitCloneWorker } from "src/worker/git-clone";
-import { defineComponent, ref, watch } from "vue";
+import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
-// import $store from "src/store";
+const props = defineProps<{
+  modelValue: boolean;
+}>();
+const emit = defineEmits<{
+  (ev: "update:model-value", v: boolean): void;
+  (ev: "cloned"): void;
+}>();
 
-export default defineComponent({
-  emits: ["update:state", "cloned"],
-  components: {
-    DialogTop,
-  },
-  props: {
-    state: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  setup(props) {
-    const url = ref<string>("");
+const i18n = useI18n();
 
-    watch(
-      () => props.state,
-      (newValue) => {
-        if (newValue === true) {
-          url.value = "";
-        }
+const url = ref<string>("");
+
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    if (newValue === true) {
+      url.value = "";
+    }
+  }
+);
+
+async function cloneRepo() {
+  try {
+    const name = /([^/]+)(?:\.git)?$/.exec(url.value)?.[1] || "";
+
+    if ((await fs.exists("projects")) === false) {
+      await fs.mkdir("projects", {
+        recursive: true,
+      });
+    }
+
+    // eslint-disable-next-line functional/no-let
+    let existsProject = false;
+    try {
+      if ((await fs.stat(`projects/${name}`)).isDirectory()) {
+        existsProject = true;
       }
+    } catch {}
+
+    if (existsProject) {
+      // eslint-disable-next-line functional/no-throw-statement
+      throw new Error(`Project "${name}" exists`);
+    }
+
+    onStart(
+      i18n.t("alert.cloneing", {
+        url: url.value,
+      })
     );
+    await useGitCloneWorker()({
+      dir: `projects/${name}`,
+      url: url.value,
+      fs,
+      ref: "master",
+      ...gitConfigs,
+      onAuth,
+      onAuthSuccess,
+      onAuthFailure,
+      onProgress,
+      onMessage,
+    });
+    onDone();
 
-    return {
-      url,
-    };
-  },
-  methods: {
-    async cloneRepo() {
-      try {
-        const name = /([^/]+)(?:\.git)?$/.exec(this.url)?.[1] || "";
+    void Toast.show({
+      text: i18n.t("alert.clone-success", {
+        url: url.value,
+      }),
+    });
 
-        if ((await fs.exists("projects")) === false) {
-          await fs.mkdir("projects", {
-            recursive: true,
-          });
-        }
+    emit("cloned");
 
-        // eslint-disable-next-line functional/no-let
-        let existsProject = false;
-        try {
-          if ((await fs.stat(`projects/${name}`)).isDirectory()) {
-            existsProject = true;
-          }
-        } catch {}
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
+    onError(err);
+    void Toast.show({
+      text: i18n.t("alert.clone-failed", {
+        url: url.value,
+        message: err.message,
+      }),
+    });
+  }
 
-        if (existsProject) {
-          // eslint-disable-next-line functional/no-throw-statement
-          throw new Error(`Project "${name}" exists`);
-        }
-
-        onStart(
-          this.$t("alert.cloneing", {
-            url: this.url,
-          })
-        );
-        await useGitCloneWorker()({
-          dir: `projects/${name}`,
-          url: this.url,
-          fs,
-          ref: "master",
-          ...gitConfigs,
-          onAuth,
-          onAuthSuccess,
-          onAuthFailure,
-          onProgress,
-          onMessage,
-        });
-        onDone();
-
-        void Toast.show({
-          text: this.$t("alert.clone-success", {
-            url: this.url,
-          }),
-        });
-
-        this.$emit("cloned");
-
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        onError(err);
-        void Toast.show({
-          text: this.$t("alert.clone-failed", {
-            url: this.url,
-            message: err.message,
-          }),
-        });
-      }
-
-      this.$emit("update:state", false);
-    },
-  },
-});
+  emit("update:model-value", false);
+}
 </script>

@@ -9,7 +9,11 @@ import { StateInterface } from "..";
 import { EditorStateInterface } from "./state";
 
 const actions: ActionTree<EditorStateInterface, StateInterface> = {
-  "update:matrix-of-filepath"({ state, commit }, filepath = "."): void {
+  "update:matrix-of-filepath"(
+    { state, commit },
+    // eslint-disable-next-line functional/prefer-readonly-type
+    filepaths: string[] = ["."]
+  ): void {
     createTimeoutBy(
       "update status matrix",
       async () => {
@@ -17,8 +21,6 @@ const actions: ActionTree<EditorStateInterface, StateInterface> = {
           state.project &&
           (await fs.isFile(join(state.project, ".git/index")))
         ) {
-          const filepaths = [filepath];
-
           commit("set:git.statusMatrix.loading", true);
 
           const matrix = (

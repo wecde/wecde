@@ -16,14 +16,14 @@
         padding="xs"
         v-if="previewing === false"
         @click="toggleSearchBar"
-        icon="mdi-magnify"
+        icon="ti-search"
       />
 
       <q-btn
         flat
         round
         padding="xs"
-        :icon="previewing ? 'mdi-pen' : 'mdi-folder-image'"
+        :icon="previewing ? 'ti-pencil-alt' : 'ti-image'"
       />
 
       <q-btn

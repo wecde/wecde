@@ -1,7 +1,11 @@
 <template>
-  <Dialog-Top
-    :model-value="state"
-    @update:model-value="$emit('update:state', $event)"
+  <q-dialog
+    class="max-width-dialog inner-bottom-auto"
+    full-width
+    transition-show="jump-down"
+    transition-hide="jump-up"
+    :model-value="modelValue"
+    @update:model-value="$emit('update:model-value', $event)"
   >
     <q-card>
       <q-card-section class="row items-center q-pb-1 q-pt-2">
@@ -95,88 +99,63 @@
         />
       </q-card-actions>
     </q-card>
-  </Dialog-Top>
+  </q-dialog>
 </template>
 
-<script lang="ts">
-import DialogTop from "components/DialogTop.vue";
+<script lang="ts" setup>
 import { useStore } from "src/store";
 import type { HostType } from "src/store/git-configs/state";
 import { hosts } from "src/store/git-configs/state";
-import { defineComponent, ref, watch } from "vue";
+import { ref, watch } from "vue";
 
-export default defineComponent({
-  emits: ["update:state"],
-  components: {
-    DialogTop,
+defineProps<{
+  modelValue: boolean;
+}>();
+defineEmits<{
+  (ev: "update:model-value", v: boolean): void;
+}>();
+
+const hostEditing = ref<HostType>("github.com");
+const store = useStore();
+
+const username = ref<string>("");
+const password = ref<string>("");
+const email = ref<string>("");
+const name = ref<string>("");
+
+watch(
+  hostEditing,
+  (host) => {
+    username.value = store.getters["git-configs/getConfig"](host, "username");
+    password.value = store.getters["git-configs/getConfig"](host, "password");
+    email.value = store.getters["git-configs/getConfig"](host, "email");
+    name.value = store.getters["git-configs/getConfig"](host, "name");
   },
-  props: {
-    state: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  setup() {
-    const hostEditing = ref<HostType>("github.com");
-    const store = useStore();
+  {
+    immediate: true,
+  }
+);
 
-    const username = ref<string>("");
-    const password = ref<string>("");
-    const email = ref<string>("");
-    const name = ref<string>("");
-
-    watch(
-      hostEditing,
-      (host) => {
-        username.value = store.getters["git-configs/getConfig"](
-          host,
-          "username"
-        );
-        password.value = store.getters["git-configs/getConfig"](
-          host,
-          "password"
-        );
-        email.value = store.getters["git-configs/getConfig"](host, "email");
-        name.value = store.getters["git-configs/getConfig"](host, "name");
-      },
-      {
-        immediate: true,
-      }
-    );
-
-    function save(): void {
-      store.commit("git-configs/setConfig", {
-        host: hostEditing.value,
-        prop: "username",
-        value: username.value,
-      });
-      store.commit("git-configs/setConfig", {
-        host: hostEditing.value,
-        prop: "password",
-        value: password.value,
-      });
-      store.commit("git-configs/setConfig", {
-        host: hostEditing.value,
-        prop: "email",
-        value: email.value,
-      });
-      store.commit("git-configs/setConfig", {
-        host: hostEditing.value,
-        prop: "name",
-        value: name.value,
-      });
-    }
-
-    return {
-      hosts,
-      hostEditing,
-
-      username,
-      password,
-      email,
-      name,
-      save,
-    };
-  },
-});
+function save(): void {
+  store.commit("git-configs/setConfig", {
+    host: hostEditing.value,
+    prop: "username",
+    value: username.value,
+  });
+  store.commit("git-configs/setConfig", {
+    host: hostEditing.value,
+    prop: "password",
+    value: password.value,
+  });
+  store.commit("git-configs/setConfig", {
+    host: hostEditing.value,
+    prop: "email",
+    value: email.value,
+  });
+  store.commit("git-configs/setConfig", {
+    host: hostEditing.value,
+    prop: "name",
+    value: name.value,
+  });
+}
 </script>

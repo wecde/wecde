@@ -1,5 +1,9 @@
 <template>
-  <Dialog-Top
+  <q-dialog
+    class="max-width-dialog inner-bottom-auto"
+    full-width
+    transition-show="jump-down"
+    transition-hide="jump-up"
     :model-value="modelValue"
     @update:model-value="$emit('update:model-value', $event)"
     :persistent="loading"
@@ -32,11 +36,20 @@
           v-if="loading"
         />
 
-        <q-toggle
-          v-model="amend"
-          color="blue"
-          label="Commit Amend (git commit --amend)"
-        />
+        <div class="flex items-center justify-space-between">
+          <q-toggle
+            v-model="amend"
+            color="blue"
+            label="Commit amend (git commit --amend)"
+          />
+
+          <q-toggle
+            v-model="noEdit"
+            :disable="amend === false"
+            color="blue"
+            label="Commit no edit (flat --no-edit)"
+          />
+        </div>
 
         <q-input
           autogrow
@@ -46,7 +59,7 @@
           placeholder="Message"
           maxlength="80"
           class="q-mt-2"
-          :disable="amend"
+          :disable="amend && noEdit"
           v-model.trim="commitMessage"
         />
 
@@ -80,15 +93,11 @@
         />
       </q-card-actions>
     </q-card>
-  </Dialog-Top>
+  </q-dialog>
 </template>
 
 <script lang="ts" setup>
-import DialogTop from "components/DialogTop.vue";
-import {
-  commit as _commit,
-  commitAll as _commitAll,
-} from "src/shared/git-shared";
+import { add as _add, commit as _commit } from "src/shared/git-shared";
 import { useStore } from "src/store";
 import { ref } from "vue";
 
@@ -102,6 +111,7 @@ const emit = defineEmits<{
 const store = useStore();
 
 const amend = ref<boolean>(false);
+const noEdit = ref<boolean>(true);
 const commitMessage = ref<string>("");
 const commitWhat = ref<"all" | "staged">("all");
 const loading = ref<boolean>(false);
@@ -117,17 +127,21 @@ const commitWhatOptions = [
 ];
 
 async function commit(): Promise<void> {
-  loading.value = true;
+  if (loading.value === false) {
+    loading.value = true;
 
-  if (commitWhat.value === "all") {
-    await _commitAll(commitMessage.value);
-  } else {
-    await _commit(commitMessage.value);
+    if (commitWhat.value === "all") {
+      await _add(Object.keys(store.state.editor.git.statusMatrix.matrix));
+    }
+    await _commit({
+      message: commitMessage.value,
+      amend: amend.value,
+      noEdit: noEdit.value,
+    });
+
+    loading.value = false;
+
+    emit("update:model-value", false);
   }
-
-  await store.dispatch("editor/update:matrix-of-filepath");
-  loading.value = false;
-
-  emit("update:model-value", false);
 }
 </script>

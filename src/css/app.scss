@@ -48,3 +48,11 @@ pwa-toast {
 * {
   scrollbar-width: none;
 }
+
+.no-min-height {
+  min-height: 0;
+}
+
+.q-item__section--side > .q-icon {
+  font-size: 1.3em;
+}

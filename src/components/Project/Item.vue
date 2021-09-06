@@ -3,6 +3,7 @@
     clickable
     v-ripple
     @click="$store.commit(`editor/set:project`, project.fullpath)"
+    class="no-min-height"
   >
     <q-item-section avatar>
       <q-img
@@ -46,7 +47,7 @@
       </q-item-label>
     </q-item-section>
 
-    <q-item-section side top>
+    <q-item-section side top class="no-min-height">
       <q-btn icon="mdi-dots-vertical" flat round padding="xs" @click.stop>
         <q-menu
           :class="{
@@ -58,15 +59,27 @@
           self="top right"
         >
           <q-list>
-            <q-item clickable v-close-popup v-ripple @click="exportDirectoryByZip">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="exportDirectoryByZip"
+              class="no-min-height"
+            >
               <q-item-section avatar class="min-width-0">
                 <q-icon name="mdi-archive-outline" />
               </q-item-section>
               <q-item-section>{{ $t("label.export-zip") }}</q-item-section>
             </q-item>
-            <q-item clickable v-close-popup v-ripple @click="renaming = true">
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="renaming = true"
+              class="no-min-height"
+            >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-pen" />
+                <q-icon name="ti-pencil" />
               </q-item-section>
               <q-item-section>{{ $t("label.rename") }}</q-item-section>
             </q-item>
@@ -75,9 +88,10 @@
               v-close-popup
               v-ripple
               @click="$emit(`click:delete`)"
+              class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
-                <q-icon name="mdi-delete-outline" />
+                <q-icon name="ti-trash" />
               </q-item-section>
               <q-item-section>{{ $t("label.delete") }}</q-item-section>
             </q-item>

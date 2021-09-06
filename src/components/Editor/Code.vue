@@ -55,10 +55,10 @@
         <q-icon name="mdi-chevron-double-left" />
       </div>
       <div class="item" v-ripple @mousedown="fixBlurEditor" @click="undo">
-        <q-icon name="mdi-undo-variant" />
+        <q-icon name="ti-back-left-variant" />
       </div>
       <div class="item" v-ripple @mousedown="fixBlurEditor" @click="redo">
-        <q-icon name="mdi-redo-variant" />
+        <q-icon name="ti-back-right-variant" />
       </div>
       <div class="item" v-ripple @mousedown="fixBlurEditor" @click="selectAll">
         <q-icon name="mdi-select-all" />
@@ -70,7 +70,7 @@
         <q-icon name="mdi-content-cut" />
       </div>
       <div class="item" v-ripple @mousedown="fixBlurEditor" @click="paste">
-        <q-icon name="mdi-content-paste" />
+        <q-icon name="mdi-content-clipboard" />
       </div>
 
       <div class="item" v-ripple @mousedown="fixBlurEditor">
@@ -111,7 +111,7 @@
                   @mousedown="fixBlurEditor"
                   @click="findAll"
                 >
-                  <q-icon size="13px" name="mdi-magnify" />
+                  <q-icon size="13px" name="ti-search" />
                   <span>{{ $t("label.find-all") }}</span>
                 </div>
                 <div
