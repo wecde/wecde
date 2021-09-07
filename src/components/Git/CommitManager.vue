@@ -36,21 +36,6 @@
           v-if="loading"
         />
 
-        <div class="flex items-center justify-space-between">
-          <q-toggle
-            v-model="amend"
-            color="blue"
-            label="Commit amend (git commit --amend)"
-          />
-
-          <q-toggle
-            v-model="noEdit"
-            :disable="amend === false"
-            color="blue"
-            label="Commit no edit (flat --no-edit)"
-          />
-        </div>
-
         <q-input
           autogrow
           dense
@@ -58,18 +43,47 @@
           outlined
           placeholder="Message"
           maxlength="80"
-          class="q-mt-2"
+          class="q-mb-2"
           :disable="amend && noEdit"
           v-model.trim="commitMessage"
         />
 
-        <div class="q-mt-3">
-          <label>Commit What?</label>
-          <q-option-group
-            v-model="commitWhat"
-            :options="commitWhatOptions"
+        <div class="flex items-center justify-space-between">
+          <q-toggle
+            v-model="amend"
             color="blue"
-            inline
+            label="Commit amend (git commit --amend)"
+            size="sm"
+          />
+
+          <q-toggle
+            v-model="noEdit"
+            :disable="amend === false"
+            color="blue"
+            label="Commit no edit (flat --no-edit)"
+            size="sm"
+          />
+        </div>
+
+        <div class="q-mt-3">
+          <q-checkbox
+            left-label
+            v-model="isCommitAll"
+            label="Commit All"
+            size="xs"
+          />
+        </div>
+      </q-card-section>
+
+      <q-card-section class="fill scroll q-mt-n4 q-pt-0">
+        <div class="q-ml-n4">
+          <Changes-List
+            v-if="$store.state['git-configs'].viewAs === 'list'"
+            :filter="(filepath, matrix) => isCommitAll || matrix[2] === 2"
+          />
+          <Changes-Tree
+            v-else
+            :filter="(filepath, matrix) => isCommitAll || matrix[2] === 2"
           />
         </div>
       </q-card-section>
@@ -97,6 +111,8 @@
 </template>
 
 <script lang="ts" setup>
+import ChangesList from "components/Git/ChangesList.vue";
+import ChangesTree from "components/Git/ChangesTree.vue";
 import { add as _add, commit as _commit } from "src/shared/git-shared";
 import { useStore } from "src/store";
 import { ref } from "vue";
@@ -113,24 +129,14 @@ const store = useStore();
 const amend = ref<boolean>(false);
 const noEdit = ref<boolean>(true);
 const commitMessage = ref<string>("");
-const commitWhat = ref<"all" | "staged">("all");
+const isCommitAll = ref<boolean>(true);
 const loading = ref<boolean>(false);
-const commitWhatOptions = [
-  {
-    label: "All",
-    value: "all",
-  },
-  {
-    label: "Staged",
-    value: "staged",
-  },
-];
 
 async function commit(): Promise<void> {
   if (loading.value === false) {
     loading.value = true;
 
-    if (commitWhat.value === "all") {
+    if (isCommitAll.value) {
       await _add(Object.keys(store.state.editor.git.statusMatrix.matrix));
     }
     await _commit({

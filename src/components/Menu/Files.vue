@@ -80,7 +80,6 @@
 
             <Action-Import-Files
               :dirname="$store.state.editor.project"
-              @imported="reloadListFile"
               v-if="$store.state.editor.project"
             >
               <template v-slot:default="{ on }">
@@ -105,14 +104,14 @@
 
             <q-item clickable v-close-popup v-ripple class="no-min-height">
               <q-item-section avatar class="min-width-0">
-                <q-icon name="ti-back-left" />
+                <q-icon name="mdi-undo" />
               </q-item-section>
               <q-item-section>{{ $t("label.undo") }}</q-item-section>
             </q-item>
 
             <q-item clickable v-close-popup v-ripple class="no-min-height">
               <q-item-section avatar class="min-width-0">
-                <q-icon name="ti-back-right" />
+                <q-icon name="mdi-redo" />
               </q-item-section>
               <q-item-section>{{ $t("label.redo") }}</q-item-section>
             </q-item>
@@ -130,17 +129,12 @@
           <FileExplorer-Add
             v-model:adding="adding"
             :is-folder="addingFolder"
-            :names-exists="tree.map((item) => basename(item.fullpath))"
+            :names-exists="files.map((item) => basename(item.fullpath))"
             :dirname="$store.state.editor.project"
             allow-open-editor
-            @created="reloadListFile"
           />
 
-          <FileExplorer-List
-            :files-list="tree"
-            @remove-children="tree.splice($event, 1)"
-            @request:refresh="reloadListFile"
-          />
+          <FileExplorer-List :files-list="files" />
         </q-pull-to-refresh>
       </div>
     </template>
@@ -154,7 +148,13 @@ import FileExplorerAdd from "components/File Explorer/Add.vue";
 import FileExplorerList from "components/File Explorer/List.vue";
 import { basename } from "path-cross";
 import { Notify } from "quasar";
-import { readdirAndStat, StatItem } from "src/helpers/fs";
+import {
+  readdirAndStat,
+  registerWatch,
+  sortTreeFilesystem,
+  StatItem,
+} from "src/helpers/fs";
+import fs from "src/modules/fs";
 import { useStore } from "src/store";
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -163,12 +163,12 @@ import TemplateTab from "./template/Tab.vue";
 
 const store = useStore();
 const i18n = useI18n();
+
 const adding = ref<boolean>(false);
 const addingFolder = ref<boolean>(false);
-const tree = ref<readonly StatItem[]>([]);
-const project = computed<string | null>(() => store.state.editor.project);
+const files = ref<readonly StatItem[]>([]);
 const projectName = computed<string | null>(() =>
-  project.value ? basename(project.value) : null
+  store.state.editor.project ? basename(store.state.editor.project) : null
 );
 const clipboardExists = computed<boolean>(
   () => store.getters["clipboard-fs/isEmpty"] === false
@@ -182,7 +182,7 @@ const notAllowPaste = computed<boolean>(
 watch(
   () => store.state.editor.project,
   async () => {
-    tree.value = [];
+    files.value = [];
     await reloadListFile();
   },
   {
@@ -204,7 +204,7 @@ async function reloadListFile(notification = false): Promise<void> {
       throw new Error("IS_NOT_DIR");
     }
 
-    tree.value = await readdirAndStat(store.state.editor.project);
+    files.value = await readdirAndStat(store.state.editor.project);
 
     task();
 
@@ -214,7 +214,7 @@ async function reloadListFile(notification = false): Promise<void> {
       });
     }
   } catch {
-    tree.value.slice(0);
+    files.value.slice(0);
     task({
       message: i18n.t("alert.reload-files-failed"),
     });
@@ -223,7 +223,50 @@ async function reloadListFile(notification = false): Promise<void> {
 
 async function paste() {
   await store.dispatch("clipboard-fs/paste", store.state.editor.project);
-
-  await reloadListFile();
 }
+
+registerWatch(
+  "projects/*/*",
+  async ({ path }) => {
+    // fork
+    // if not exists
+    if (
+      basename(path) !== ".git" &&
+      files.value.some(({ fullpath }) => fs.isEqual(fullpath, path)) === false
+    ) {
+      try {
+        const stat = await fs.stat(path);
+
+        files.value = sortTreeFilesystem([
+          ...files.value,
+          {
+            stat,
+            fullpath: path,
+          },
+        ]);
+      } catch {}
+    }
+  },
+  {
+    exists: true,
+    dir: () => store.state.editor.project,
+  }
+);
+registerWatch(
+  "projects/*/*",
+  ({ path }) => {
+    if (
+      basename(path) !== ".git" &&
+      files.value.some(({ fullpath }) => fs.isEqual(fullpath, path))
+    ) {
+      files.value = files.value.filter(
+        ({ fullpath }) => fs.isEqual(fullpath, path) === false
+      );
+    }
+  },
+  {
+    exists: false,
+    dir: () => store.state.editor.project,
+  }
+);
 </script>

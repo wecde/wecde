@@ -45,11 +45,7 @@
   >
     <!-- padding-top offset for navbar -->
     <template v-if="fullpath">
-      <Editor-SVG
-        :fullpath="fullpath"
-        v-if="isSvg(fullpath)"
-        @change="scrollSessionWrapperToSessionActive"
-      />
+      <Editor-SVG :fullpath="fullpath" v-if="isSvg(fullpath)" />
       <Preview
         :fullpath="fullpath"
         v-else-if="
@@ -59,15 +55,10 @@
           isFont(fullpath)
         "
       />
-      <Editor-Markdown
-        :fullpath="fullpath"
-        v-else-if="isMarkdown(fullpath)"
-        @change="scrollSessionWrapperToSessionActive"
-      />
+      <Editor-Markdown :fullpath="fullpath" v-else-if="isMarkdown(fullpath)" />
       <Editor-Code
         :fullpath="fullpath"
         v-else-if="fullpath && !isBinaryPath(fullpath.value)"
-        @change="scrollSessionWrapperToSessionActive"
       />
       <div class="q-pt-4 text-caption q-px-6 q-pb-6" v-else>
         This file is not displayed in the text editor because it is either

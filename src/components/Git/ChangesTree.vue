@@ -13,6 +13,8 @@
       </div>
     </ChangesItem>
   </template>
+
+  <div class="text-center" v-if="listChanges.length === 0">No changes</div>
 </template>
 
 <script lang="ts">

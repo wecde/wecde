@@ -1,16 +1,13 @@
 export type ClipboardFStateInterface = {
   // eslint-disable-next-line functional/prefer-readonly-type
-  readonly objects: {
-    readonly path: string;
-    readonly vue: number;
-  }[];
+  clipboardFile: string | null;
   // eslint-disable-next-line functional/prefer-readonly-type
   action: "cut" | "copy";
 };
 
 function state(): ClipboardFStateInterface {
   return {
-    objects: [],
+    clipboardFile: null,
     action: "copy",
   };
 }

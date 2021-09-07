@@ -21,10 +21,10 @@ export async function resetIndex(filepaths: readonly string[]): Promise<void> {
       Object.entries(store.state.editor.git.statusMatrix.matrix)
         .filter(([_filepath]) => filepaths.includes(_filepath))
         .map(async ([filepath, matrix]) => {
-          if (matrix.join("") !== "111") {
+          if (store.state.editor.project && matrix.join("") !== "111") {
             await git.resetIndex({
               fs,
-              dir: store.state.editor.project as string,
+              dir: store.state.editor.project,
               filepath,
             });
 
@@ -40,18 +40,18 @@ export async function add(filepaths: readonly string[]): Promise<void> {
       Object.entries(store.state.editor.git.statusMatrix.matrix)
         .filter(([_filepath]) => filepaths.includes(_filepath))
         .map(async ([filepath, matrix]) => {
-          if (matrix.join("") !== "111") {
+          if (store.state.editor.project && matrix.join("") !== "111") {
             if (matrix[0] === 1 && matrix[1] === 0) {
               // deleted
               await git.remove({
                 fs,
-                dir: store.state.editor.project as string,
+                dir: store.state.editor.project,
                 filepath,
               });
             } else {
               await git.add({
                 fs,
-                dir: store.state.editor.project as string,
+                dir: store.state.editor.project,
                 filepath,
               });
             }

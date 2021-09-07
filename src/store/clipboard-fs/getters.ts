@@ -8,27 +8,20 @@ import { ClipboardFStateInterface } from "./state";
 const getters: GetterTree<ClipboardFStateInterface, StateInterface> = {
   has:
     (state) =>
-    (uri: string): boolean => {
-      return state.objects.some((item) => fs.isEqual(item.path, uri));
-    },
+    (uri: string): boolean =>
+      state.clipboardFile !== null && fs.isEqual(state.clipboardFile, uri),
   isEmpty(state): boolean {
-    return state.objects.length === 0;
+    return state.clipboardFile === null;
   },
   cutting({ action }): boolean {
     return action === "cut";
   },
   allowPaste(state) {
     return (fullpath: string): boolean => {
-      // if this.file.fullpath as children -> exit
-      const indexParentFile = state.objects.findIndex((item) => {
-        return fs.isEqual(item.path, fullpath);
-      });
-
-      if (indexParentFile === -1) {
-        return true;
-      }
-
-      return false;
+      return (
+        state.clipboardFile !== null &&
+        fs.isParentDir(state.clipboardFile, fullpath) !== true
+      );
     };
   },
 };

@@ -1,7 +1,6 @@
 <template>
   <q-dialog
-    class="max-width-dialog"
-    full-height
+    class="max-width-dialog inner-bottom-auto"
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
@@ -9,21 +8,18 @@
     @update:model-value="$emit('update:model-value', $event)"
     :persistent="loading"
   >
-    <q-card>
+    <q-card class="flex column no-wrap">
       <q-card-section class="row items-center q-pb-1 q-pt-2">
         <div class="text-weight-medium text-subtitle1">Branch manager</div>
         <q-space />
 
-        <q-space />
-        <div>
-          <q-btn icon="mdi-plus" v-ripple flat round dense @click="branch" />
-          <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
-        </div>
+        <q-btn icon="mdi-plus" v-ripple flat round dense @click="branch" />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
 
-      <q-card-section class="q-pb-3">
+      <q-card-section class="fit scroll q-py-0">
         <q-linear-progress
           indeterminate
           color="blue"
@@ -34,7 +30,7 @@
           v-if="loading"
         />
 
-        <q-list padding class="q-mx-n4 q-mt-n4">
+        <q-list padding class="q-mx-n4" v-if="allBranches.length > 0">
           <template v-for="(branches, type) in allBranches" :key="type">
             <q-item
               clickable
@@ -152,6 +148,9 @@
             </q-item>
           </template>
         </q-list>
+        <div class="text-center q-py-3" v-else>
+          No Branch. Click + to add aremote.
+        </div>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -199,69 +198,77 @@ watch(
 );
 
 async function checkout(ref: string) {
-  loading.value = true;
+  if (store.state.editor.project) {
+    loading.value = true;
 
-  try {
-    await _checkout({
-      fs,
-      dir: store.state.editor.project as string,
-      force: true,
-      ref,
-    });
-  } catch (err) {
-    onError(err);
+    try {
+      await _checkout({
+        fs,
+        dir: store.state.editor.project,
+        force: true,
+        ref,
+      });
+    } catch (err) {
+      onError(err);
+    }
+
+    loading.value = false;
   }
-
-  loading.value = false;
 }
 async function merge(ref: string) {
-  loading.value = true;
+  if (store.state.editor.project) {
+    loading.value = true;
 
-  try {
-    await _merge({
-      fs,
-      dir: store.state.editor.project as string,
-      ours: "HEAD",
-      theirs: ref,
-    });
-  } catch (err) {
-    onError(err);
+    try {
+      await _merge({
+        fs,
+        dir: store.state.editor.project,
+        ours: "HEAD",
+        theirs: ref,
+      });
+    } catch (err) {
+      onError(err);
+    }
+
+    allBranches.value = await listAllBranches();
+    loading.value = false;
   }
-
-  allBranches.value = await listAllBranches();
-  loading.value = false;
 }
 async function deleteBranch(ref: string) {
-  loading.value = true;
+  if (store.state.editor.project) {
+    loading.value = true;
 
-  try {
-    await _deleteBranch({
-      fs,
-      dir: store.state.editor.project as string,
-      ref,
-    });
-  } catch (err) {
-    onError(err);
+    try {
+      await _deleteBranch({
+        fs,
+        dir: store.state.editor.project,
+        ref,
+      });
+    } catch (err) {
+      onError(err);
+    }
+
+    allBranches.value = await listAllBranches();
+    loading.value = false;
   }
-
-  allBranches.value = await listAllBranches();
-  loading.value = false;
 }
 async function deleteTag(ref: string) {
-  loading.value = true;
+  if (store.state.editor.project) {
+    loading.value = true;
 
-  try {
-    await _deleteTag({
-      fs,
-      dir: store.state.editor.project as string,
-      ref,
-    });
-  } catch (err) {
-    onError(err);
+    try {
+      await _deleteTag({
+        fs,
+        dir: store.state.editor.project,
+        ref,
+      });
+    } catch (err) {
+      onError(err);
+    }
+
+    allBranches.value = await listAllBranches();
+    loading.value = false;
   }
-
-  allBranches.value = await listAllBranches();
-  loading.value = false;
 }
 function forkBranch(ref: string) {
   $q.dialog({
@@ -275,34 +282,33 @@ function forkBranch(ref: string) {
       // class: "q-mt-2",
       model: "",
       isValid(val: string) {
-        return (
-          !/\s/.test(val) ||
-          "Branch name can't only space"
-        );
+        return !/\s/.test(val) || "Branch name can't only space";
       },
       type: "text", // optional
     },
     cancel: true,
     persistent: true,
   }).onOk(async (nameNewRef: string) => {
-    // checkout to ref
-    await _checkout({
-      fs,
-      dir: store.state.editor.project as string,
-      force: true,
-      ref,
-    });
+    if (store.state.editor.project) {
+      // checkout to ref
+      await _checkout({
+        fs,
+        dir: store.state.editor.project,
+        force: true,
+        ref,
+      });
 
-    // branch
+      // branch
 
-    await _branch({
-      fs,
-      dir: store.state.editor.project as string,
-      ref: nameNewRef,
-      checkout: true,
-    });
+      await _branch({
+        fs,
+        dir: store.state.editor.project,
+        ref: nameNewRef,
+        checkout: true,
+      });
 
-    allBranches.value = await listAllBranches();
+      allBranches.value = await listAllBranches();
+    }
   });
 }
 function branch() {
@@ -317,24 +323,23 @@ function branch() {
       // class: "q-mt-2",
       model: "",
       isValid(val: string) {
-        return (
-          !/\s/.test(val) ||
-          "Branch name can't only space"
-        );
+        return !/\s/.test(val) || "Branch name can't only space";
       },
       type: "text", // optional
     },
     cancel: true,
     persistent: true,
   }).onOk(async (nameNewRef: string) => {
-    await _branch({
-      fs,
-      dir: store.state.editor.project as string,
-      ref: nameNewRef,
-      checkout: true,
-    });
+    if (store.state.editor.project) {
+      await _branch({
+        fs,
+        dir: store.state.editor.project,
+        ref: nameNewRef,
+        checkout: true,
+      });
 
-    allBranches.value = await listAllBranches();
+      allBranches.value = await listAllBranches();
+    }
   });
 }
 </script>

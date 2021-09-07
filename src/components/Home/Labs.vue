@@ -24,15 +24,6 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import Labs from "assets/labs/Release.json";
-import { defineComponent } from "vue";
-
-export default defineComponent({
-  setup() {
-    return {
-      Labs,
-    };
-  },
-});
 </script>

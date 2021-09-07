@@ -11,46 +11,28 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, ref, toRefs, watch } from "vue";
+<script lang="ts" setup>
+import { ref, watch } from "vue";
 
-export default defineComponent({
-  props: {
-    disabled: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-    eager: {
-      type: Boolean,
-      default: false,
-    },
-    contentClass: {
-      type: [Array, Object, String],
-      required: false,
-    },
-  },
-  setup(props) {
-    const { eager } = toRefs(props);
-    const state = ref<boolean>(eager.value);
-    const setuped = ref<boolean>(false);
+const props = defineProps<{
+  disabled?: boolean;
+  eager?: boolean;
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  contentClass?: string[] | Object | string;
+}>();
 
-    const watchState = watch(state, (newValue) => {
-      if (newValue) {
-        setuped.value = true;
-        watchState();
-      }
-    });
+const state = ref<boolean>(props.eager || false);
+const setuped = ref<boolean>(false);
 
-    if (eager.value) {
-      setuped.value = true;
-      watchState();
-    }
-
-    return {
-      state,
-      setuped,
-    };
-  },
+const watchState = watch(state, (newValue) => {
+  if (newValue) {
+    setuped.value = true;
+    watchState();
+  }
 });
+
+if (props.eager) {
+  setuped.value = true;
+  watchState();
+}
 </script>
