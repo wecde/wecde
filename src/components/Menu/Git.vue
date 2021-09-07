@@ -283,6 +283,7 @@
   <Commit-Manager v-model="commitManager" />
   <Branch-Manager v-model="branchManager" />
   <Remote-Manager v-model="remoteManager" />
+  <Tag-Manager v-model="tagManager" />
 </template>
 
 <script lang="ts" setup>
@@ -292,6 +293,7 @@ import ChangesList from "components/Git/ChangesList.vue";
 import ChangesTree from "components/Git/ChangesTree.vue";
 import CommitManager from "components/Git/CommitManager.vue";
 import RemoteManager from "components/Git/RemoteManager.vue";
+import TagManager from "components/Git/TagManager.vue";
 import git, { checkout as _checkout } from "isomorphic-git";
 import http from "isomorphic-git/http/web";
 import fs from "modules/fs";

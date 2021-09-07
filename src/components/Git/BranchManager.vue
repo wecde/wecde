@@ -30,7 +30,16 @@
           v-if="loading"
         />
 
-        <q-list padding class="q-mx-n4" v-if="allBranches.length > 0">
+        <q-list
+          padding
+          class="q-mx-n4"
+          v-if="
+            (allBranches.heads?.length || 0) +
+              (allBranches.remotes?.length || 0) +
+              (allBranches.tags?.length || 0) >
+            0
+          "
+        >
           <template v-for="(branches, type) in allBranches" :key="type">
             <q-item
               clickable
@@ -87,6 +96,20 @@
                           <q-icon name="ti-share" />
                         </q-item-section>
                         <q-item-section>Checkout</q-item-section>
+                      </q-item>
+
+                      <q-item
+                        clickable
+                        v-close-popup
+                        v-ripple
+                        class="no-min-height"
+                        @click="renameBranch(branch.path)"
+                        v-if="type !== 'tags'"
+                      >
+                        <q-item-section avatar class="min-width-0">
+                          <q-icon name="ti-pencil" />
+                        </q-item-section>
+                        <q-item-section>Rename Branch</q-item-section>
                       </q-item>
 
                       <q-item
@@ -163,8 +186,10 @@ import {
   deleteBranch as _deleteBranch,
   deleteTag as _deleteTag,
   merge as _merge,
+  renameBranch as _renameBranch,
 } from "isomorphic-git";
 import fs from "modules/fs";
+import { basename } from "path-cross";
 import { useQuasar } from "quasar";
 import { onError } from "src/helpers/git";
 import { listAllBranches } from "src/shared/git-shared";
@@ -214,6 +239,43 @@ async function checkout(ref: string) {
 
     loading.value = false;
   }
+}
+function renameBranch(ref: string) {
+  $q.dialog({
+    title: "Rename branch",
+    message: "Branch's new name:",
+    prompt: {
+      // dense: true,
+      square: true,
+      outlined: true,
+      maxlength: 20,
+      // class: "q-mt-2",
+      model: basename(ref),
+      type: "text", // optional
+    },
+    cancel: true,
+    persistent: true,
+  }).onOk(async (newName: string) => {
+    newName = newName.replace(/\s/g, "-");
+
+    if (store.state.editor.project) {
+      loading.value = true;
+
+      try {
+        await _renameBranch({
+          fs,
+          dir: store.state.editor.project,
+          ref: basename(newName),
+          oldref: basename(ref),
+        });
+      } catch (err) {
+        onError(err);
+      }
+
+      allBranches.value = await listAllBranches();
+      loading.value = false;
+    }
+  });
 }
 async function merge(ref: string) {
   if (store.state.editor.project) {
@@ -281,14 +343,13 @@ function forkBranch(ref: string) {
       maxlength: 20,
       // class: "q-mt-2",
       model: "",
-      isValid(val: string) {
-        return !/\s/.test(val) || "Branch name can't only space";
-      },
       type: "text", // optional
     },
     cancel: true,
     persistent: true,
   }).onOk(async (nameNewRef: string) => {
+    nameNewRef = nameNewRef.replace(/\s/g, "-");
+
     if (store.state.editor.project) {
       // checkout to ref
       await _checkout({
@@ -322,20 +383,18 @@ function branch() {
       maxlength: 20,
       // class: "q-mt-2",
       model: "",
-      isValid(val: string) {
-        return !/\s/.test(val) || "Branch name can't only space";
-      },
       type: "text", // optional
     },
     cancel: true,
     persistent: true,
   }).onOk(async (nameNewRef: string) => {
+    nameNewRef = nameNewRef.replace(/\s/g, "-");
+
     if (store.state.editor.project) {
       await _branch({
         fs,
         dir: store.state.editor.project,
         ref: nameNewRef,
-        checkout: true,
       });
 
       allBranches.value = await listAllBranches();

@@ -10,10 +10,10 @@
   >
     <q-card class="flex column no-wrap">
       <q-card-section class="row items-center q-pb-1 q-pt-2">
-        <div class="text-weight-medium text-subtitle1">Remote manager</div>
+        <div class="text-weight-medium text-subtitle1">Tag manager</div>
         <q-space />
 
-        <q-btn icon="mdi-plus" v-ripple flat round dense @click="addRemote" />
+        <q-btn icon="mdi-plus" v-ripple flat round dense @click="addTag" />
         <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
@@ -30,22 +30,19 @@
           v-if="loading"
         />
 
-        <q-list padding class="q-mx-n4" v-if="remotes.length > 0">
+        <q-list padding class="q-mx-n4" v-if="tags.length > 0">
           <q-item
             clickable
             v-ripple
-            v-for="remote in remotes"
-            :key="remote.remote"
+            v-for="tag in tags"
+            :key="tag.remote"
             class="no-min-height"
           >
             <q-item-section>
               <q-item-label>
                 {{ remote.remote }}
-                <small class="text-info">
-                  refs/remotes/{{ remote.remote }}
-                </small>
+                <small class="text-info"> refs/tags/{{ tag.remote }} </small>
               </q-item-label>
-              <q-item-label caption>{{ remote.url }}</q-item-label>
             </q-item-section>
             <q-item-section side top>
               <q-btn
@@ -70,19 +67,7 @@
                       v-close-popup
                       v-ripple
                       class="no-min-height"
-                      @click="copyURL(remote.url)"
-                    >
-                      <q-item-section avatar class="min-width-0">
-                        <q-icon name="ti-layers" />
-                      </q-item-section>
-                      <q-item-section>Copy URL</q-item-section>
-                    </q-item>
-                    <q-item
-                      clickable
-                      v-close-popup
-                      v-ripple
-                      class="no-min-height"
-                      @click="deleteRemote(remote.remote)"
+                      @click="deleteTag(remote.remote)"
                     >
                       <q-item-section avatar class="min-width-0">
                         <q-icon name="ti-trash" />
@@ -104,12 +89,10 @@
 </template>
 
 <script lang="ts" setup>
-import { Clipboard } from "@capacitor/clipboard";
-import { Toast } from "@capacitor/toast";
 import {
-  addRemote as _addRemote,
-  deleteRemote as _deleteRemote,
-  listRemotes as _listRemotes,
+  deleteTag as _deleteTag,
+  listTags as _listTags,
+  tag as _tag,
 } from "isomorphic-git";
 import fs from "modules/fs";
 import { useQuasar } from "quasar";
@@ -125,12 +108,11 @@ const $q = useQuasar();
 
 const loading = ref<boolean>(false);
 
-type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
-const remotes = ref<ThenArg<ReturnType<typeof listRemotes>>>([]);
+const tags = ref<string[]>([]);
 
-async function listRemotes() {
+async function listTags() {
   if (store.state.editor.project) {
-    return await _listRemotes({
+    return await _listTags({
       fs,
       dir: store.state.editor.project,
     });
@@ -143,9 +125,9 @@ watch(
   () => props.modelValue,
   async (val) => {
     if (val) {
-      remotes.value = await listRemotes();
+      tags.value = await listTags();
     } else {
-      remotes.value = [];
+      tags.value = [];
     }
   },
   {
@@ -153,10 +135,10 @@ watch(
   }
 );
 
-function addRemote() {
+function addTag() {
   $q.dialog({
-    title: "Add remote",
-    message: "URL for remote:",
+    title: "Add tag",
+    message: "Tag name:",
     prompt: {
       // dense: true,
       square: true,
@@ -164,62 +146,28 @@ function addRemote() {
       maxlength: 20,
       // class: "q-mt-2",
       model: "",
-      type: "url", // optional
+      type: "string", // optional
     },
     cancel: true,
     persistent: true,
-  }).onOk((url: string) => {
-    $q.dialog({
-      title: "Add remote",
-      message: "Name for remote:",
-      prompt: {
-        // dense: true,
-        square: true,
-        outlined: true,
-        maxlength: 20,
-        // class: "q-mt-2",
-        model: "",
-        type: "url", // optional
-      },
-      cancel: true,
-      persistent: true,
-    }).onOk(async (name: string) => {
-      if (store.state.editor.project) {
-        await _addRemote({
-          fs,
-          dir: store.state.editor.project,
-          remote: name,
-          url,
-        });
+  }).onOk(async (name: string) => {
+    if (store.state.editor.project) {
+      await _tag({
+        fs,
+        dir: store.state.editor.project,
+        ref: name,
+      });
 
-        remotes.value = await listRemotes();
-      }
-    });
+      tags.value = await listTags();
+    }
   });
 }
-
-async function copyURL(url: string) {
-  try {
-    await Clipboard.write({
-      string: url,
-    });
-
-    void Toast.show({
-      text: "Copied remote URL",
-    });
-  } catch {
-    void Toast.show({
-      text: "Copy remote URL failed",
-    });
-  }
-}
-
-async function deleteRemote(remote: string) {
+async function deleteTag(tag: string) {
   if (store.state.editor.project) {
-    await _deleteRemote({
+    await _deleteTag({
       fs,
       dir: store.state.editor.project,
-      remote,
+      ref: tag,
     });
   }
 }

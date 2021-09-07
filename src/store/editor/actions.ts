@@ -25,17 +25,18 @@ const actions: ActionTree<EditorStateInterface, StateInterface> = {
           )
       );
 
-      const matrix = (
-        await statusMatrix({
-          fs,
-          dir: state.project,
-          filepaths,
-        })
-      ).reduce((obj, [filepath, ...value]) => {
-        // eslint-disable-next-line functional/immutable-data
-        obj[filepath] = value;
-        return obj;
-      }, {} as EditorStateInterface["git"]["statusMatrix"]["matrix"]);
+      const matrix =
+        (
+          await statusMatrix({
+            fs,
+            dir: state.project,
+            filepaths,
+          })
+        )?.reduce((obj, [filepath, ...value]) => {
+          // eslint-disable-next-line functional/immutable-data
+          obj[filepath] = value;
+          return obj;
+        }, {} as EditorStateInterface["git"]["statusMatrix"]["matrix"]) || {};
 
       commit("assign:git.statusMatrix.matrix", matrix);
 
