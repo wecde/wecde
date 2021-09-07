@@ -1,7 +1,6 @@
 <template>
   <q-dialog
-    class="max-width-dialog"
-    full-height
+    class="max-width-dialog inner-bottom-auto"
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
@@ -9,21 +8,18 @@
     @update:model-value="$emit('update:model-value', $event)"
     :persistent="loading"
   >
-    <q-card>
+    <q-card class="flex column no-wrap">
       <q-card-section class="row items-center q-pb-1 q-pt-2">
         <div class="text-weight-medium text-subtitle1">Branch manager</div>
         <q-space />
 
-        <q-space />
-        <div>
-          <q-btn icon="mdi-plus" v-ripple flat round dense @click="branch" />
-          <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
-        </div>
+        <q-btn icon="mdi-plus" v-ripple flat round dense @click="branch" />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
 
-      <q-card-section class="q-pb-3">
+      <q-card-section class="fit scroll q-py-0">
         <q-linear-progress
           indeterminate
           color="blue"
@@ -34,7 +30,16 @@
           v-if="loading"
         />
 
-        <q-list padding class="q-mx-n4 q-mt-n4">
+        <q-list
+          padding
+          class="q-mx-n4"
+          v-if="
+            (allBranches.heads?.length || 0) +
+              (allBranches.remotes?.length || 0) +
+              (allBranches.tags?.length || 0) >
+            0
+          "
+        >
           <template v-for="(branches, type) in allBranches" :key="type">
             <q-item
               clickable
@@ -98,6 +103,20 @@
                         v-close-popup
                         v-ripple
                         class="no-min-height"
+                        @click="renameBranch(branch.path)"
+                        v-if="type !== 'tags'"
+                      >
+                        <q-item-section avatar class="min-width-0">
+                          <q-icon name="ti-pencil" />
+                        </q-item-section>
+                        <q-item-section>Rename Branch</q-item-section>
+                      </q-item>
+
+                      <q-item
+                        clickable
+                        v-close-popup
+                        v-ripple
+                        class="no-min-height"
                         @click="merge(branch.path)"
                       >
                         <q-item-section avatar class="min-width-0">
@@ -152,6 +171,9 @@
             </q-item>
           </template>
         </q-list>
+        <div class="text-center q-py-3" v-else>
+          No Branch. Click + to add aremote.
+        </div>
       </q-card-section>
     </q-card>
   </q-dialog>
@@ -164,8 +186,10 @@ import {
   deleteBranch as _deleteBranch,
   deleteTag as _deleteTag,
   merge as _merge,
+  renameBranch as _renameBranch,
 } from "isomorphic-git";
 import fs from "modules/fs";
+import { basename } from "path-cross";
 import { useQuasar } from "quasar";
 import { onError } from "src/helpers/git";
 import { listAllBranches } from "src/shared/git-shared";
@@ -199,69 +223,114 @@ watch(
 );
 
 async function checkout(ref: string) {
-  loading.value = true;
+  if (store.state.editor.project) {
+    loading.value = true;
 
-  try {
-    await _checkout({
-      fs,
-      dir: store.state.editor.project as string,
-      force: true,
-      ref,
-    });
-  } catch (err) {
-    onError(err);
+    try {
+      await _checkout({
+        fs,
+        dir: store.state.editor.project,
+        force: true,
+        ref,
+      });
+    } catch (err) {
+      onError(err);
+    }
+
+    loading.value = false;
   }
+}
+function renameBranch(ref: string) {
+  $q.dialog({
+    title: "Rename branch",
+    message: "Branch's new name:",
+    prompt: {
+      // dense: true,
+      square: true,
+      outlined: true,
+      maxlength: 20,
+      // class: "q-mt-2",
+      model: basename(ref),
+      type: "text", // optional
+    },
+    cancel: true,
+    persistent: true,
+  }).onOk(async (newName: string) => {
+    newName = newName.replace(/\s/g, "-");
 
-  loading.value = false;
+    if (store.state.editor.project) {
+      loading.value = true;
+
+      try {
+        await _renameBranch({
+          fs,
+          dir: store.state.editor.project,
+          ref: basename(newName),
+          oldref: basename(ref),
+        });
+      } catch (err) {
+        onError(err);
+      }
+
+      allBranches.value = await listAllBranches();
+      loading.value = false;
+    }
+  });
 }
 async function merge(ref: string) {
-  loading.value = true;
+  if (store.state.editor.project) {
+    loading.value = true;
 
-  try {
-    await _merge({
-      fs,
-      dir: store.state.editor.project as string,
-      ours: "HEAD",
-      theirs: ref,
-    });
-  } catch (err) {
-    onError(err);
+    try {
+      await _merge({
+        fs,
+        dir: store.state.editor.project,
+        ours: "HEAD",
+        theirs: ref,
+      });
+    } catch (err) {
+      onError(err);
+    }
+
+    allBranches.value = await listAllBranches();
+    loading.value = false;
   }
-
-  allBranches.value = await listAllBranches();
-  loading.value = false;
 }
 async function deleteBranch(ref: string) {
-  loading.value = true;
+  if (store.state.editor.project) {
+    loading.value = true;
 
-  try {
-    await _deleteBranch({
-      fs,
-      dir: store.state.editor.project as string,
-      ref,
-    });
-  } catch (err) {
-    onError(err);
+    try {
+      await _deleteBranch({
+        fs,
+        dir: store.state.editor.project,
+        ref,
+      });
+    } catch (err) {
+      onError(err);
+    }
+
+    allBranches.value = await listAllBranches();
+    loading.value = false;
   }
-
-  allBranches.value = await listAllBranches();
-  loading.value = false;
 }
 async function deleteTag(ref: string) {
-  loading.value = true;
+  if (store.state.editor.project) {
+    loading.value = true;
 
-  try {
-    await _deleteTag({
-      fs,
-      dir: store.state.editor.project as string,
-      ref,
-    });
-  } catch (err) {
-    onError(err);
+    try {
+      await _deleteTag({
+        fs,
+        dir: store.state.editor.project,
+        ref,
+      });
+    } catch (err) {
+      onError(err);
+    }
+
+    allBranches.value = await listAllBranches();
+    loading.value = false;
   }
-
-  allBranches.value = await listAllBranches();
-  loading.value = false;
 }
 function forkBranch(ref: string) {
   $q.dialog({
@@ -274,35 +343,33 @@ function forkBranch(ref: string) {
       maxlength: 20,
       // class: "q-mt-2",
       model: "",
-      isValid(val: string) {
-        return (
-          !/\s/.test(val) ||
-          "Branch name can't only space"
-        );
-      },
       type: "text", // optional
     },
     cancel: true,
     persistent: true,
   }).onOk(async (nameNewRef: string) => {
-    // checkout to ref
-    await _checkout({
-      fs,
-      dir: store.state.editor.project as string,
-      force: true,
-      ref,
-    });
+    nameNewRef = nameNewRef.replace(/\s/g, "-");
 
-    // branch
+    if (store.state.editor.project) {
+      // checkout to ref
+      await _checkout({
+        fs,
+        dir: store.state.editor.project,
+        force: true,
+        ref,
+      });
 
-    await _branch({
-      fs,
-      dir: store.state.editor.project as string,
-      ref: nameNewRef,
-      checkout: true,
-    });
+      // branch
 
-    allBranches.value = await listAllBranches();
+      await _branch({
+        fs,
+        dir: store.state.editor.project,
+        ref: nameNewRef,
+        checkout: true,
+      });
+
+      allBranches.value = await listAllBranches();
+    }
   });
 }
 function branch() {
@@ -316,25 +383,22 @@ function branch() {
       maxlength: 20,
       // class: "q-mt-2",
       model: "",
-      isValid(val: string) {
-        return (
-          !/\s/.test(val) ||
-          "Branch name can't only space"
-        );
-      },
       type: "text", // optional
     },
     cancel: true,
     persistent: true,
   }).onOk(async (nameNewRef: string) => {
-    await _branch({
-      fs,
-      dir: store.state.editor.project as string,
-      ref: nameNewRef,
-      checkout: true,
-    });
+    nameNewRef = nameNewRef.replace(/\s/g, "-");
 
-    allBranches.value = await listAllBranches();
+    if (store.state.editor.project) {
+      await _branch({
+        fs,
+        dir: store.state.editor.project,
+        ref: nameNewRef,
+      });
+
+      allBranches.value = await listAllBranches();
+    }
   });
 }
 </script>

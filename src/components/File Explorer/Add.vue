@@ -15,83 +15,59 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import fs from "modules/fs";
 import { join } from "path-cross";
 import { useStore } from "src/store";
-import { defineComponent, PropType, ref, toRefs, watch } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import FileExplorerRename from "./Rename.vue";
 
-export default defineComponent({
-  emits: ["update:adding", "created"],
-  components: {
-    FileExplorerRename,
-  },
-  props: {
-    adding: {
-      type: Boolean,
-      required: true,
-    },
-    isFolder: {
-      type: Boolean,
-      required: true,
-    },
-    namesExists: {
-      type: Array as PropType<readonly string[]>,
-      required: true,
-    },
-    dirname: {
-      type: String,
-      required: true,
-    },
-    allowOpenEditor: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  setup(props, { emit }) {
-    const store = useStore();
-    const i18n = useI18n();
-    const { adding, dirname, isFolder, allowOpenEditor } = toRefs(props);
-    const filename = ref<string>("");
+const props = defineProps<{
+  adding: boolean;
+  isFolder: boolean;
+  namesExists: readonly string[];
+  dirname: string;
+  allowOpenEditor: boolean;
+}>();
+const emit = defineEmits<{
+  (ev: "update:adding", v: boolean): void;
+}>();
 
-    watch(adding, (newValue) => {
-      if (newValue) {
-        filename.value = "";
-      }
-    });
-    watch(filename, async (newValue) => {
-      if (newValue !== "") {
-        const pathTo = join(dirname.value, filename.value);
-        if (isFolder.value) {
-          await fs.mkdir(pathTo, {
-            recursive: true,
-          });
-        } else {
-          await fs.writeFile(pathTo, "");
-        }
+const store = useStore();
+const i18n = useI18n();
+const filename = ref<string>("");
 
-        void Toast.show({
-          text: i18n.t(`alert.created.${isFolder.value ? "folder" : "file"}`, {
-            name: pathTo,
-          }),
-        });
+watch(() => props.adding, (newValue) => {
+  if (newValue) {
+    filename.value = "";
+  }
+});
+watch(filename, async (newValue) => {
+  if (newValue !== "") {
+    const pathTo = join(props.dirname, filename.value);
+    if (props.isFolder) {
+      await fs.mkdir(pathTo, {
+        recursive: true,
+      });
+    } else {
+      await fs.writeFile(pathTo, "");
+    }
 
-        if (allowOpenEditor.value) {
-          store.commit("editor/pushSession", pathTo);
-        }
-        emit("created");
-        emit("update:adding", false);
-      }
+    void Toast.show({
+      text: i18n.t(`alert.created.${props.isFolder ? "folder" : "file"}`, {
+        name: pathTo,
+      }),
     });
 
-    return {
-      filename,
-    };
-  },
+    if (props.allowOpenEditor) {
+      store.commit("editor/pushSession", pathTo);
+    }
+
+    emit("update:adding", false);
+  }
 });
 </script>
 

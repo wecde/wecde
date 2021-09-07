@@ -53,7 +53,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import fs from "modules/fs";
@@ -61,197 +61,174 @@ import { basename, dirname, extname, join, relative } from "path-cross";
 import { Notify } from "quasar";
 import { createTimeoutBy } from "src/utils";
 import nameFileValidates from "src/validator/nameFileValidates";
-import { defineComponent, ref, toRefs, watch } from "vue";
-import type { PropType } from "vue";
+import { onMounted, ref, toRef, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
-export default defineComponent({
-  emits: ["update:fullpath", "cancel", "update:renaming"],
-  props: {
-    isFolder: {
-      type: Boolean,
-      required: true,
-    },
-    renaming: {
-      type: Boolean,
-      required: true,
-    },
-    namesExists: {
-      type: Array as PropType<readonly string[]>,
-      required: true,
-    },
-    fullpath: {
-      type: String,
-      required: true,
-    },
-    allowRename: {
-      type: Boolean,
-      required: true,
-    },
-    noIcon: {
-      type: Boolean,
-      required: false,
-      default: false,
-    },
-    allowUpdateStore: {
-      type: Boolean,
-      required: true,
-      default: false,
-    },
+const emit = defineEmits<{
+  (ev: "update:fullpath", v: string): void;
+  (ev: "cancel", v: string): void;
+  (ev: "update:renaming", v: boolean): void;
+}>();
+const props = defineProps<{
+  isFolder: boolean;
+  renaming: boolean;
+  namesExists: readonly string[];
+  fullpath: string;
+  allowRename: boolean;
+  noIcon?: boolean;
+  allowUpdateStore: boolean;
+}>();
+
+const i18n = useI18n();
+
+const newFilename = ref<string>("");
+const firstChangedName = ref<boolean>(false);
+
+watch(
+  () => props.fullpath,
+  () => {
+    newFilename.value = basename(props.fullpath);
   },
-  setup(props) {
-    const { fullpath, renaming, namesExists } = toRefs(props);
-    const newFilename = ref<string>("");
-    const firstChangedName = ref<boolean>(false);
+  {
+    immediate: true,
+  }
+);
+watch(
+  () => props.renaming,
+  () => {
+    newFilename.value = basename(props.fullpath);
+    firstChangedName.value = false;
+  }
+);
+watch(newFilename, () => {
+  firstChangedName.value = true;
+});
 
-    watch(
-      fullpath,
-      () => {
-        newFilename.value = basename(fullpath.value);
-      },
-      {
-        immediate: true,
-      }
-    );
-    watch(renaming, () => {
-      newFilename.value = basename(fullpath.value);
-      firstChangedName.value = false;
-    });
-    watch(newFilename, () => {
-      firstChangedName.value = true;
-    });
+const timeClick = ref<number>(0);
+const error = nameFileValidates(
+  newFilename,
+  toRef(props, "fullpath"),
+  toRef(props, "namesExists"),
+  firstChangedName
+);
+const running = ref<boolean>(false);
 
-    return {
-      timeClick: ref<number>(0),
-      newFilename,
-      firstChangedName,
-      error: nameFileValidates(
-        newFilename,
-        fullpath,
-        namesExists,
-        firstChangedName
-      ),
-      running: ref<boolean>(false),
-    };
-  },
-  methods: {
-    getIcon,
-    basename,
-    async blur(): Promise<void> {
-      if (
-        this.newFilename !== basename(this.fullpath) &&
-        this.error === false &&
-        this.running === false
-      ) {
-        this.running = true;
-        if (this.allowRename) {
-          const [to, from] = [
-            join(dirname(this.fullpath), this.newFilename),
-            this.fullpath,
-          ];
+async function blur(): Promise<void> {
+  if (
+    newFilename.value !== basename(props.fullpath) &&
+    error.value === false &&
+    running.value === false
+  ) {
+    running.value = true;
+    if (props.allowRename) {
+      const [to, from] = [
+        join(dirname(props.fullpath), newFilename.value),
+        props.fullpath,
+      ];
 
-          const task = Notify.create({
-            spinner: true,
-            timeout: 9999999999,
-            position: "bottom-right",
-            message: this.$t(
-              `alert.renamed.${this.isFolder ? "folder" : "file"}-from-to`,
-              {
-                old: relative("projects", from),
-                new: relative("projects", to),
-              }
-            ),
-          });
-
-          try {
-            await fs.rename(from, to);
-            void Toast.show({
-              text: this.$t(
-                `alert.renamed.${this.isFolder ? "folder" : "file"}-from-to`,
-                {
-                  old: relative("projects", from),
-                  new: relative("projects", to),
-                }
-              ),
-            });
-            task();
-          } catch {
-            void Toast.show({
-              text: this.$t(
-                `alert.rename.${this.isFolder ? "folder" : "file"}-failed`,
-                {
-                  path: relative("projects", from),
-                }
-              ),
-            });
-            task({
-              timeout: 3000,
-              message: this.$t(
-                `alert.rename.${this.isFolder ? "folder" : "file"}-failed`,
-                {
-                  path: relative("projects", from),
-                }
-              ),
-            });
+      const task = Notify.create({
+        spinner: true,
+        timeout: 9999999999,
+        position: "bottom-right",
+        message: i18n.t(
+          `alert.renamed.${props.isFolder ? "folder" : "file"}-from-to`,
+          {
+            old: relative("projects", from),
+            new: relative("projects", to),
           }
+        ),
+      });
 
-          this.$emit("update:fullpath", to);
-        } else {
-          this.$emit("cancel", this.newFilename);
-        }
-        this.running = false;
-      }
-      this.$emit("update:renaming", false);
-    },
-    blurInput() {
       try {
-        if (document.activeElement === this.$refs.input) {
-          (this.$refs?.input as HTMLInputElement)?.blur();
-        }
+        await fs.rename(from, to);
+        void Toast.show({
+          text: i18n.t(
+            `alert.renamed.${props.isFolder ? "folder" : "file"}-from-to`,
+            {
+              old: relative("projects", from),
+              new: relative("projects", to),
+            }
+          ),
+        });
+        task();
       } catch {
-        void this.blur();
+        void Toast.show({
+          text: i18n.t(
+            `alert.rename.${props.isFolder ? "folder" : "file"}-failed`,
+            {
+              path: relative("projects", from),
+            }
+          ),
+        });
+        task({
+          timeout: 3000,
+          message: i18n.t(
+            `alert.rename.${props.isFolder ? "folder" : "file"}-failed`,
+            {
+              path: relative("projects", from),
+            }
+          ),
+        });
       }
-    },
-    focusInput() {
-      createTimeoutBy(
-        "file explorer.rename.fix-async-dom",
-        () => {
-          const { input } = this.$refs as { input: HTMLInputElement };
-          input.focus();
-          input.click();
 
-          input.select();
-          input.setSelectionRange(
-            0,
-            basename(input.value, extname(input.value)).length
-          );
-        },
-        70
+      emit("update:fullpath", to);
+    } else {
+      emit("cancel", newFilename.value);
+    }
+    running.value = false;
+  }
+  emit("update:renaming", false);
+}
+
+const input = ref<HTMLInputElement | null>(null);
+function blurInput() {
+  try {
+    if (document.activeElement === input.value) {
+      input.value?.blur();
+    }
+  } catch {
+    void blur();
+  }
+}
+function focusInput() {
+  createTimeoutBy(
+    "file explorer.rename.fix-async-dom",
+    () => {
+      input.value?.focus();
+      input.value?.click();
+
+      input.value?.select();
+      input.value?.setSelectionRange(
+        0,
+        basename(input.value.value, extname(input.value.value)).length
       );
     },
-    onClickName(): void {
-      if (Date.now() - this.timeClick < 500) {
-        this.$emit("update:renaming", true);
+    70
+  );
+}
+function onClickName(): void {
+  if (Date.now() - timeClick.value < 500) {
+    emit("update:renaming", true);
 
-        this.timeClick = 0;
-      } else {
-        this.timeClick = Date.now();
-      }
-    },
-  },
-  watch: {
-    renaming: {
-      handler(newValue) {
-        if (newValue) {
-          this.focusInput();
-        }
-      },
-    },
-  },
-  onMounted() {
-    if (this.renaming) {
-      this.focusInput();
+    timeClick.value = 0;
+  } else {
+    timeClick.value = Date.now();
+  }
+}
+
+watch(
+  () => props.renaming,
+  (val) => {
+    if (val) {
+      focusInput();
     }
-  },
+  }
+);
+
+onMounted(() => {
+  if (props.renaming) {
+    focusInput();
+  }
 });
 </script>
 

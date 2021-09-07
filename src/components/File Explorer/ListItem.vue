@@ -44,7 +44,14 @@
           name="mdi-circle-medium"
           v-if="opening"
         />
-        <q-icon size="13px" name="ti-cut" v-if="isBeginCut" />
+        <q-icon
+          size="13px"
+          name="ti-cut"
+          v-if="
+            store.getters['clipboard-fs/cutting'] &&
+            store.getters['clipboard-fs/has'](props.file.fullpath)
+          "
+        />
       </template>
     </FileExplorer-Rename>
 
@@ -60,13 +67,25 @@
           self="top right"
         >
           <q-list>
-            <template v-if="clipboardExists && notAllowPaste === false">
+            <template
+              v-if="
+                store.getters['clipboard-fs/isEmpty'] === false &&
+                fs.isEqual(
+                  store.state['clipboard-fs'].clipboardFile,
+                  file.fullpath
+                ) === false
+              "
+            >
               <q-item
                 clickable
                 v-close-popup
                 v-ripple
                 @click="paste"
-                :disable="notAllowPaste"
+                :disable="
+                  store.getters['clipboard-fs/allowPaste'](
+                    props.file.fullpath
+                  ) === false
+                "
                 class="no-min-height"
               >
                 <q-item-section avatar class="min-width-0">
@@ -110,10 +129,7 @@
                 <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
               </q-item>
 
-              <Action-Import-Files
-                :dirname="file.fullpath"
-                @imported="refreshFolder"
-              >
+              <Action-Import-Files :dirname="file.fullpath">
                 <template v-slot:default="{ on }">
                   <q-item
                     clickable
@@ -191,7 +207,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="exportDirectoryByZip"
+              @click="exportFile"
               class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
@@ -218,319 +234,308 @@
       :dirname="file.fullpath"
       class="flex items-center order-0"
       allow-open-editor
-      @created="refreshFolder"
     />
-    <FileExplorer-List
-      :files-list="files"
-      @remove-children="files.splice($event, 1)"
-      @request:refresh="refreshFolder"
-    />
+    <FileExplorer-List :files-list="files" />
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
-import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
 import { isIgnored } from "isomorphic-git";
 import fs from "modules/fs";
-import { basename } from "path-cross";
-import { Notify } from "quasar";
+import { basename, dirname } from "path-cross";
+import { Notify, useQuasar } from "quasar";
 import exportDirectoryByZip from "src/helpers/exportDirectoryByZip";
-import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs";
-import { useStore } from "src/store";
 import {
-  computed,
-  defineAsyncComponent,
-  defineComponent,
-  PropType,
-  ref,
-  toRefs,
-  watch,
-} from "vue";
+  readdirAndStat,
+  registerWatch,
+  sortTreeFilesystem,
+  StatItem,
+} from "src/helpers/fs";
+import { useStore } from "src/store";
+import { computed, defineAsyncComponent, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRouter, useRoute } from "vue-router";
 
 import FileExplorerAdd from "./Add.vue";
 import FileExplorerRename from "./Rename.vue";
 
-export default defineComponent({
-  emits: ["removed", "request:refresh"],
-  components: {
-    FileExplorerList: defineAsyncComponent({
-      loader: () => import("./List.vue") as never,
-    }),
-    FileExplorerRename,
-    FileExplorerAdd,
-    ActionImportFiles,
+const FileExplorerList = defineAsyncComponent({
+  loader: () => import("./List.vue") as never,
+});
+
+const props = defineProps<{
+  file: StatItem;
+  namesExists: readonly string[];
+}>();
+
+const store = useStore();
+const $q = useQuasar();
+const i18n = useI18n();
+const router = useRouter();
+const route = useRoute();
+
+const collapse = ref<boolean>(false);
+const adding = ref<boolean>(false);
+const loading = ref<boolean>(false);
+const ignored = ref<boolean>(false);
+
+registerWatch(
+  "projects/*/.gitignore",
+  async () => {
+    if (store.state.editor.project) {
+      ignored.value = await isIgnored({
+        fs,
+        dir: store.state.editor.project,
+        filepath: fs.relative(store.state.editor.project, props.file.fullpath),
+      });
+    }
   },
-  props: {
-    file: {
-      type: Object as PropType<StatItem>,
-      required: true,
-    },
-    namesExists: {
-      type: Array as PropType<readonly string[]>,
-      required: true,
-    },
-  },
-  setup(props) {
-    const store = useStore();
-    const { file } = toRefs(props);
-    const collapse = ref<boolean>(false);
-    const adding = ref<boolean>(false);
-    const loading = ref<boolean>(false);
-    const ignored = ref<boolean>(false);
+  {
+    immediate: true,
+    dir: () => store.state.editor.project,
+  }
+);
 
-    registerWatch(
-      "projects/*/.gitignore",
-      async () => {
-        if (store.state.editor.project) {
-          ignored.value = await isIgnored({
-            fs,
-            dir: store.state.editor.project,
-            filepath: fs.relative(
-              store.state.editor.project,
-              file.value.fullpath
-            ),
-          });
-        }
-      },
-      {
-        immediate: true,
-        dir: () => store.state.editor.project,
-      }
-    );
+watch(adding, (newValue) => {
+  if (newValue) {
+    collapse.value = true;
+  }
+});
 
-    watch(adding, (newValue) => {
-      if (newValue) {
-        collapse.value = true;
-      }
-    });
-
-    const files = ref<StatItem[]>([]);
-    const opening = computed<boolean>(() => {
-      if (store.getters["editor/session"]) {
-        if (file.value.stat.isDirectory()) {
-          return fs.isParentDir(
-            file.value.fullpath,
-            store.getters["editor/session"]
-          );
-        }
-
-        return fs.isEqual(store.getters["editor/session"], file.value.fullpath);
-      }
-
-      return false;
-    });
-
-    // eslint-disable-next-line functional/no-let
-    let refresingFolder = false;
-    async function refreshFolder() {
-      if (refresingFolder === false && file.value.stat.isDirectory()) {
-        loading.value = true;
-        refresingFolder = true;
-        files.value.splice(0);
-        files.value.push(...(await readdirAndStat(file.value.fullpath)));
-        loading.value = false;
-        refresingFolder = false;
-      }
+const files = ref<StatItem[]>([]);
+const opening = computed<boolean>(() => {
+  if (collapse.value === false && store.getters["editor/session"]) {
+    if (props.file.stat.isDirectory()) {
+      return fs.isParentDir(
+        props.file.fullpath,
+        store.getters["editor/session"]
+      );
     }
 
-    const watchFirstOpenCollapse = watch(collapse, (newValue) => {
-      if (newValue) {
-        void refreshFolder();
-        watchFirstOpenCollapse();
-      }
+    return fs.isEqual(store.getters["editor/session"], props.file.fullpath);
+  }
+
+  return false;
+});
+
+// eslint-disable-next-line functional/no-let
+let refresingFolder = false;
+async function refreshFolder() {
+  if (refresingFolder === false && props.file.stat.isDirectory()) {
+    loading.value = true;
+    refresingFolder = true;
+    files.value.splice(0);
+    files.value.push(...(await readdirAndStat(props.file.fullpath)));
+    loading.value = false;
+    refresingFolder = false;
+  }
+}
+
+const watchFirstOpenCollapse = watch(collapse, (newValue) => {
+  if (newValue) {
+    void refreshFolder();
+    watchFirstOpenCollapse();
+  }
+});
+
+const renaming = ref<boolean>(false);
+const addingFolder = ref<boolean>(false);
+const status = computed<string | null>(() => {
+  return store.getters["editor/status:filepath"](
+    props.file.fullpath,
+    props.file.stat.isDirectory()
+  );
+});
+
+function remove() {
+  $q.dialog({
+    title: "Confirm",
+    message: `Are you sure want to delete "${basename(props.file.fullpath)}"`,
+    cancel: true,
+    persistent: true,
+  }).onOk(async () => {
+    const task = Notify.create({
+      spinner: true,
+      timeout: 9999999999,
+      position: "bottom-right",
+      message: i18n.t(
+        `alert.removing.${props.file.stat.isDirectory() ? "folder" : "file"}`,
+        {
+          name: `${props.file.fullpath}`,
+        }
+      ),
     });
 
-    return {
-      collapse,
-      renaming: ref<boolean>(false),
-      adding,
-      addingFolder: ref<boolean>(false),
-      files,
-      basename,
-      refreshFolder,
-      opening,
-      loading,
+    try {
+      await fs.unlink(props.file.fullpath, {
+        removeAll: true,
+      });
 
-      ignored,
-
-      status: computed<string | null>(() => {
-        return store.getters["editor/status:filepath"](
-          file.value.fullpath,
-          file.value.stat.isDirectory()
-        );
-      }),
-    };
-  },
-  methods: {
-    getIcon,
-
-    async remove() {
-      const task = Notify.create({
-        spinner: true,
-        timeout: 9999999999,
-        position: "bottom-right",
-        message: this.$t(
-          `alert.removing.${this.file.stat.isDirectory() ? "folder" : "file"}`,
+      void Toast.show({
+        text: i18n.t(
+          `alert.removed.${props.file.stat.isDirectory() ? "folder" : "file"}`,
           {
-            name: `${this.file.fullpath}`,
+            name: `${props.file.fullpath}`,
           }
         ),
       });
 
-      try {
-        await fs.unlink(this.file.fullpath, {
-          removeAll: true,
-        });
+      task();
+    } catch {
+      void Toast.show({
+        text: i18n.t(
+          `alert.remove-failed-${
+            props.file.stat.isDirectory() ? "folder" : "file"
+          }`,
+          {
+            name: `${props.file.fullpath}`,
+          }
+        ),
+      });
 
-        void Toast.show({
-          text: this.$t(
-            `alert.removed.${this.file.stat.isDirectory() ? "folder" : "file"}`,
-            {
-              name: `${this.file.fullpath}`,
-            }
-          ),
-        });
-
-        task();
-        this.$emit("removed");
-      } catch {
-        void Toast.show({
-          text: this.$t(
-            `alert.remove-failed-${
-              this.file.stat.isDirectory() ? "folder" : "file"
-            }`,
-            {
-              name: `${this.file.fullpath}`,
-            }
-          ),
-        });
-
-        task({
-          message: this.$t(
-            `alert.remove-failed.${
-              this.file.stat.isDirectory() ? "folder" : "file"
-            }`,
-            {
-              name: `${this.file.fullpath}`,
-            }
-          ),
-        });
-      }
-    },
-    cut() {
-      this.$store.commit("clipboard-fs/cut", [
+      task({
+        message: i18n.t(
+          `alert.remove-failed.${
+            props.file.stat.isDirectory() ? "folder" : "file"
+          }`,
+          {
+            name: `${props.file.fullpath}`,
+          }
+        ),
+      });
+    }
+  });
+}
+function cut() {
+  store.commit("clipboard-fs/cut", props.file.fullpath);
+}
+function copy() {
+  store.commit("clipboard-fs/copy", props.file.fullpath);
+}
+async function paste() {
+  if (
+    await store.dispatch("clipboard-fs/paste", props.file.fullpath) // if required required refresh this parent
+  ) {
+  } else {
+    collapse.value = true;
+  }
+}
+async function exportFile() {
+  if (props.file.stat.isDirectory()) {
+    try {
+      await exportDirectoryByZip(props.file.fullpath);
+      store.commit("terminal/clear");
+      void Toast.show({
+        text: i18n.t(
+          `alert.exported.${props.file.stat.isDirectory() ? "folder" : "file"}`,
+          {
+            name: props.file.fullpath,
+          }
+        ),
+      });
+    } catch (err) {
+      store.commit("terminal/error", err);
+    }
+  } else {
+    const task = Notify.create({
+      timeout: 9999999999,
+      spinner: true,
+      position: "bottom-right",
+      message: i18n.t(
+        `alert.exported.${props.file.stat.isDirectory() ? "folder" : "file"}`,
         {
-          path: this.file.fullpath,
-          vue: this,
-        },
-      ]);
-    },
-    copy() {
-      this.$store.commit("clipboard-fs/copy", [
-        {
-          path: this.file.fullpath,
-          vue: this,
-        },
-      ]);
-    },
-    async paste() {
-      if (
-        await this.$store.dispatch("clipboard-fs/paste", this.file.fullpath) // if required required refresh this parent
-      ) {
-        this.$emit("request:refresh");
-      } else {
-        this.collapse = true;
-        await this.refreshFolder();
-      }
-    },
-    openEditor() {
-      this.$store.commit("editor/pushSession", this.file.fullpath);
-
-      if (this.$route.name !== "editor") {
-        void this.$router.push("/editor");
-      }
-    },
-
-    async exportDirectoryByZip() {
-      if (this.file.stat.isDirectory()) {
-        try {
-          await exportDirectoryByZip(this.file.fullpath);
-          this.$store.commit("terminal/clear");
-          void Toast.show({
-            text: this.$t(
-              `alert.exported.${
-                this.file.stat.isDirectory() ? "folder" : "file"
-              }`,
-              {
-                name: this.file.fullpath,
-              }
-            ),
-          });
-        } catch (err) {
-          this.$store.commit("terminal/error", err);
+          name: props.file.fullpath,
         }
-      } else {
-        const task = Notify.create({
-          timeout: 9999999999,
-          spinner: true,
-          position: "bottom-right",
-          message: this.$t(
-            `alert.exported.${
-              this.file.stat.isDirectory() ? "folder" : "file"
-            }`,
-            {
-              name: this.file.fullpath,
-            }
-          ),
-        });
+      ),
+    });
 
-        const data = await fs.readFile(this.file.fullpath, "buffer");
+    const data = await fs.readFile(props.file.fullpath, "buffer");
 
-        saveAs(new Blob([data]), basename(this.file.fullpath));
-        task();
+    saveAs(new Blob([data]), basename(props.file.fullpath));
+    task();
 
-        void Toast.show({
-          text: this.$t(
-            `alert.exported.${
-              this.file.stat.isDirectory() ? "folder" : "file"
-            }`,
-            {
-              name: this.file.fullpath,
-            }
-          ),
-        });
-      }
-    },
+    void Toast.show({
+      text: i18n.t(
+        `alert.exported.${props.file.stat.isDirectory() ? "folder" : "file"}`,
+        {
+          name: props.file.fullpath,
+        }
+      ),
+    });
+  }
+}
 
-    clickToFile() {
-      this.collapse = !this.collapse;
+function clickToFile() {
+  collapse.value = !collapse.value;
 
-      if (this.file.stat.isDirectory() === false) {
-        this.openEditor();
-      }
-    },
+  if (props.file.stat.isDirectory() === false) {
+    store.commit("editor/pushSession", props.file.fullpath);
+
+    if (route.name !== "editor") {
+      void router.push("/editor");
+    }
+  }
+}
+
+registerWatch(
+  () => props.file.fullpath,
+  async ({ path }) => {
+    // fork
+    // if not e
+    if (
+      (fs.isEqual(path, props.file.fullpath) ||
+        fs.isEqual(dirname(path), props.file.fullpath)) &&
+      files.value.some(({ fullpath }) => fs.isEqual(fullpath, path)) === false
+    ) {
+      try {
+        const stat = await fs.stat(path);
+
+        if (
+          files.value.some(({ fullpath }) => fs.isEqual(fullpath, path)) ===
+          false
+        ) {
+          const oldFiles = files.value.splice(0);
+          files.value.push(
+            ...sortTreeFilesystem([
+              ...oldFiles,
+              {
+                stat,
+                fullpath: path,
+              },
+            ])
+          );
+        }
+      } catch {}
+    }
   },
-  computed: {
-    isBeginCut(): boolean {
-      return (
-        this.$store.getters["clipboard-fs/cutting"] &&
-        this.$store.getters["clipboard-fs/has"](this.file.fullpath)
+  {
+    exists: true,
+    mode: "abstract",
+    dir: () => store.state.editor.project,
+  }
+);
+registerWatch(
+  () => props.file.fullpath,
+  ({ path }) => {
+    if (
+      (fs.isEqual(path, props.file.fullpath) ||
+        fs.isEqual(dirname(path), props.file.fullpath)) &&
+      files.value.some(({ fullpath }) => fs.isEqual(fullpath, path))
+    ) {
+      files.value = files.value.filter(
+        ({ fullpath }) => fs.isEqual(fullpath, path) === false
       );
-    },
-    clipboardExists(): boolean {
-      return this.$store.getters["clipboard-fs/isEmpty"] === false;
-    },
-    notAllowPaste(): boolean {
-      return (
-        this.$store.getters["clipboard-fs/allowPaste"](this.file.fullpath) ===
-        false
-      );
-    },
+    }
   },
-});
+  {
+    exists: false,
+    mode: "abstract",
+    dir: () => store.state.editor.project,
+  }
+);
 </script>
 
 <style lang="scss" scoped>

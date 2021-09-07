@@ -161,26 +161,30 @@
                 </div>
 
                 <div class="self-end">
-                  <q-btn
-                    color="inherit"
-                    flat
-                    dense
-                    icon="ti-back-left"
-                    padding="none"
-                    size="12.5px"
-                    rounded
-                    @click.prevent.stop="reset(filesStaged)"
-                  />
-                  <q-btn
-                    color="inherit"
-                    flat
-                    dense
-                    icon="mdi-minus"
-                    padding="none"
-                    size="12.5px"
-                    rounded
-                    @click.prevent.stop="resetIndex(filesStaged)"
-                  />
+                  <template
+                    v-if="$store.getters['editor/changes-staged.length'] > 0"
+                  >
+                    <q-btn
+                      color="inherit"
+                      flat
+                      dense
+                      icon="mdi-undo"
+                      padding="none"
+                      size="12.5px"
+                      rounded
+                      @click.prevent.stop="reset(filesStaged)"
+                    />
+                    <q-btn
+                      color="inherit"
+                      flat
+                      dense
+                      icon="mdi-minus"
+                      padding="none"
+                      size="12.5px"
+                      rounded
+                      @click.prevent.stop="resetIndex(filesStaged)"
+                    />
+                  </template>
 
                   <q-badge
                     rounded
@@ -219,26 +223,34 @@
                 </div>
 
                 <div class="self-end">
-                  <q-btn
-                    color="inherit"
-                    flat
-                    dense
-                    icon="ti-back-left"
-                    padding="none"
-                    size="12.5px"
-                    rounded
-                    @click.prevent.stop="reset(filesChanges)"
-                  />
-                  <q-btn
-                    color="inherit"
-                    flat
-                    dense
-                    icon="mdi-plus"
-                    padding="none"
-                    size="12.5px"
-                    rounded
-                    @click.prevent.stop="add(filesChanges)"
-                  />
+                  <template
+                    v-if="
+                      $store.getters['editor/changes.length'] -
+                        $store.getters['editor/changes-staged.length'] >
+                      0
+                    "
+                  >
+                    <q-btn
+                      color="inherit"
+                      flat
+                      dense
+                      icon="mdi-undo"
+                      padding="none"
+                      size="12.5px"
+                      rounded
+                      @click.prevent.stop="reset(filesChanges)"
+                    />
+                    <q-btn
+                      color="inherit"
+                      flat
+                      dense
+                      icon="mdi-plus"
+                      padding="none"
+                      size="12.5px"
+                      rounded
+                      @click.prevent.stop="add(filesChanges)"
+                    />
+                  </template>
 
                   <q-badge
                     rounded
@@ -271,6 +283,7 @@
   <Commit-Manager v-model="commitManager" />
   <Branch-Manager v-model="branchManager" />
   <Remote-Manager v-model="remoteManager" />
+  <Tag-Manager v-model="tagManager" />
 </template>
 
 <script lang="ts" setup>
@@ -280,6 +293,7 @@ import ChangesList from "components/Git/ChangesList.vue";
 import ChangesTree from "components/Git/ChangesTree.vue";
 import CommitManager from "components/Git/CommitManager.vue";
 import RemoteManager from "components/Git/RemoteManager.vue";
+import TagManager from "components/Git/TagManager.vue";
 import git, { checkout as _checkout } from "isomorphic-git";
 import http from "isomorphic-git/http/web";
 import fs from "modules/fs";
@@ -353,7 +367,7 @@ const filesChanges = computed<readonly string[]>(() => {
 async function refreshGit(): Promise<void> {
   gitOfProjectReady.value =
     !!store.state.editor.project &&
-    (await fs.isFile(join(store.state.editor.project, ".git/index")));
+    (await fs.isFile(join(store.state.editor.project, ".git/HEAD")));
 }
 watch(
   () => store.state.editor.project,
@@ -362,12 +376,16 @@ watch(
     immediate: true,
   }
 );
-registerWatch("projects/*/.git/index", () => void refreshGit(), {
-  dir: () => store.state.editor.project,
-  miniOpts: {
-    dot: true,
-  },
-});
+registerWatch(
+   "projects/*/.git/HEAD",
+  () => void refreshGit(),
+  {
+    dir: () => store.state.editor.project,
+    miniOpts: {
+      dot: true,
+    },
+  }
+);
 
 const menu: Menu = [
   {
@@ -431,13 +449,16 @@ const menu: Menu = [
     name: "Push",
     icon: "mdi-source-merge",
     onClick: async () => {
-      if (store.state.system.navTabGit === false) {
+      if (
+        store.state.system.navTabGit === false &&
+        store.state.editor.project
+      ) {
         store.commit("system/set:navTabGit", true);
 
         try {
           onStart("run push");
           await git.push({
-            dir: store.state.editor.project as string,
+            dir: store.state.editor.project,
             fs,
             http,
             ref: "HEAD",
@@ -566,16 +587,18 @@ const menu: Menu = [
       {
         name: "Pull (Rebase)",
         onClick: async () => {
-          await fetch({
-            singleBranch: true,
-          });
-          await pull();
-          await _checkout({
-            fs,
-            dir: store.state.editor.project as string,
-            force: true,
-            ref: "HEAD",
-          });
+          if (store.state.editor.project) {
+            await fetch({
+              singleBranch: true,
+            });
+            await pull();
+            await _checkout({
+              fs,
+              dir: store.state.editor.project,
+              force: true,
+              ref: "HEAD",
+            });
+          }
         },
       },
       {
@@ -664,6 +687,7 @@ async function init(): Promise<void> {
       fs,
       dir: store.state.editor.project,
     });
+    console.log("inited repo");
 
     store.commit("system/set:navTabGit", false);
   }
@@ -710,13 +734,13 @@ async function resetIndex(filepaths: readonly string[]) {
   }
 }
 async function pull() {
-  if (store.state.system.navTabGit === false) {
+  if (store.state.system.navTabGit === false && store.state.editor.project) {
     store.commit("system/set:navTabGit", true);
 
     try {
       onStart("run pull");
       await git.pull({
-        dir: store.state.editor.project as string,
+        dir: store.state.editor.project,
         fs,
         http,
         ref: "HEAD",
@@ -742,13 +766,13 @@ async function fetch({
   singleBranch?: boolean;
   prune?: boolean;
 } = {}): Promise<void> {
-  if (store.state.system.navTabGit === false) {
+  if (store.state.system.navTabGit === false && store.state.editor.project) {
     store.commit("system/set:navTabGit", true);
 
     try {
       onStart("run pull");
       await git.fetch({
-        dir: store.state.editor.project as string,
+        dir: store.state.editor.project,
         fs,
         http,
         ...gitConfigs,

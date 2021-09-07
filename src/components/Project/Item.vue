@@ -63,7 +63,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="exportDirectoryByZip"
+              @click="exportZip"
               class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
@@ -87,7 +87,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="$emit(`click:delete`)"
+              @click="remove"
               class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
@@ -102,64 +102,91 @@
   </q-item>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import fs from "modules/fs";
 import { basename } from "path-cross";
+import { Notify, useQuasar } from "quasar";
 import exportDirectoryByZip from "src/helpers/exportDirectoryByZip";
 import type { StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
-import { computed, defineComponent, PropType, ref } from "vue";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 
 import FileExplorerRename from "../File Explorer/Rename.vue";
 
-export default defineComponent({
-  emits: ["click:delete"],
-  components: {
-    FileExplorerRename,
-  },
-  props: {
-    project: {
-      type: Object as PropType<StatItem>,
-      required: true,
-    },
-    namesExists: {
-      type: Array as PropType<string[]>,
-      required: true,
-    },
-    git: {
-      type: Boolean,
-      required: true,
-    },
-  },
-  setup(props) {
-    const store = useStore();
+const props = defineProps<{
+  project: StatItem;
+  namesExists: string[];
+  git: boolean;
+}>();
 
-    return {
-      renaming: ref<boolean>(false),
-      opened: computed<boolean>(() => {
-        return (
-          !!store.state.editor.project &&
-          fs.isEqual(store.state.editor.project, props.project.fullpath)
-        );
-      }),
-    };
-  },
-  methods: {
-    async exportDirectoryByZip() {
-      try {
-        await exportDirectoryByZip(this.project.fullpath);
-        this.$store.commit("terminal/clear");
+const store = useStore();
+const $q = useQuasar();
+const i18n = useI18n();
 
-        void Toast.show({
-          text: this.$t("alert.exported.project", {
-            name: basename(this.project.fullpath),
-          }),
-        });
-      } catch (err) {
-        this.$store.commit("terminal/error", err);
-      }
-    },
-  },
+const renaming = ref<boolean>(false);
+const opened = computed<boolean>(() => {
+  return (
+    !!store.state.editor.project &&
+    fs.isEqual(store.state.editor.project, props.project.fullpath)
+  );
 });
+
+async function exportZip() {
+  try {
+    await exportDirectoryByZip(props.project.fullpath);
+    store.commit("terminal/clear");
+
+    void Toast.show({
+      text: i18n.t("alert.exported.project", {
+        name: basename(props.project.fullpath),
+      }),
+    });
+  } catch (err) {
+    store.commit("terminal/error", err);
+  }
+}
+function remove() {
+  $q.dialog({
+    title: "Confirm",
+    message: `Are you sure want to delete "${basename(
+      props.project.fullpath
+    )}"`,
+    cancel: true,
+    persistent: true,
+  }).onOk(async () => {
+    const task = Notify.create({
+      spinner: true,
+      timeout: 9999999999,
+      position: "bottom-right",
+      message: i18n.t("alert.removing.project", {
+        name: basename(props.project.fullpath),
+      }),
+    });
+
+    try {
+      await fs.rmdir(props.project.fullpath, {
+        recursive: true,
+      });
+      task();
+      void Toast.show({
+        text: i18n.t("alert.removed.project", {
+          name: basename(props.project.fullpath),
+        }),
+      });
+    } catch {
+      task({
+        message: i18n.t("alert.remove.project-failed", {
+          name: basename(props.project.fullpath),
+        }),
+      });
+      void Toast.show({
+        text: i18n.t("alert.remove.project-failed", {
+          name: basename(props.project.fullpath),
+        }),
+      });
+    }
+  });
+}
 </script>

@@ -2,19 +2,12 @@
   <div v-html="changelog" class="markdown-preview" />
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import marked from "marked";
-import { defineComponent } from "vue";
 
-import changelog from "!raw-loader!assets/changelog.md";
+import rawChangelog from "!raw-loader!assets/changelog.md";
 
-export default defineComponent({
-  setup() {
-    return {
-      changelog: marked(changelog),
-    };
-  },
-});
+const changelog = marked(rawChangelog);
 </script>
 
 <style lang="sass" scoped>

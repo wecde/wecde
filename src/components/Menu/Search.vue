@@ -175,7 +175,7 @@
   </Template-Tab>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import escapeRegExp from "escape-string-regexp";
@@ -184,7 +184,8 @@ import fs from "modules/fs";
 import { basename } from "path-cross";
 import { useStore } from "src/store";
 import { createTimeoutBy, foreachAsync } from "src/utils";
-import { defineComponent, ref, watch } from "vue";
+import { ref, watch } from "vue";
+import { useRouter } from "vue-router";
 
 import TemplateTab from "./template/Tab.vue";
 
@@ -199,204 +200,178 @@ interface Result {
   }[];
 }
 
-export default defineComponent({
-  components: {
-    TemplateTab,
-    AppCollapse,
-  },
-  setup() {
-    const store = useStore();
-    const modeRegexp = ref<boolean>(false);
-    const modeLetterCase = ref<boolean>(false);
-    const modeWordBox = ref<boolean>(false);
+const store = useStore();
+const router = useRouter();
 
-    const loading = ref<boolean>(false);
-    const results = ref<Result[]>([]);
+const modeRegexp = ref<boolean>(false);
+const modeLetterCase = ref<boolean>(false);
+const modeWordBox = ref<boolean>(false);
 
-    const keywordSearch = ref<string>("");
-    const keywordReplace = ref<string>("");
-    const include = ref<string>("");
-    const exclude = ref<string>("");
+const loading = ref<boolean>(false);
+const results = ref<Result[]>([]);
 
-    const OFFSET_RESULT_SEARCH = 15;
-    async function searchInFile(file: string): Promise<Result | void> {
-      if (isBinaryPath(file) === false) {
-        const regexp = new RegExp(
-          `(?:(${
-            modeRegexp.value
-              ? keywordSearch.value
-              : escapeRegExp(keywordSearch.value)
-          })${modeWordBox.value ? "\\s|$" : ""}){1}?`,
-          "g" + (modeLetterCase.value ? "" : "i")
+const keywordSearch = ref<string>("");
+const keywordReplace = ref<string>("");
+const include = ref<string>("");
+const exclude = ref<string>("");
+
+const OFFSET_RESULT_SEARCH = 15;
+async function searchInFile(file: string): Promise<Result | void> {
+  if (isBinaryPath(file) === false) {
+    const regexp = new RegExp(
+      `(?:(${
+        modeRegexp.value
+          ? keywordSearch.value
+          : escapeRegExp(keywordSearch.value)
+      })${modeWordBox.value ? "\\s|$" : ""}){1}?`,
+      "g" + (modeLetterCase.value ? "" : "i")
+    );
+    const textContentFile = await fs.readFile(file, "utf8");
+    const rawMatch = textContentFile.matchAll(regexp);
+
+    if (rawMatch) {
+      const match = [...(rawMatch || [])].map((item) => {
+        const indexSearch = item.index || 0;
+        const indexNewlineBeforeSearch = textContentFile.lastIndexOf(
+          "\n",
+          indexSearch - 1
         );
-        const textContentFile = await fs.readFile(file, "utf8");
-        const rawMatch = textContentFile.matchAll(regexp);
+        const indexNewLineAfterSearch = textContentFile.indexOf(
+          "\n",
+          indexSearch + 1 + item[1].length
+        );
 
-        if (rawMatch) {
-          const match = [...(rawMatch || [])].map((item) => {
-            const indexSearch = item.index || 0;
-            const indexNewlineBeforeSearch = textContentFile.lastIndexOf(
-              "\n",
-              indexSearch - 1
-            );
-            const indexNewLineAfterSearch = textContentFile.indexOf(
-              "\n",
-              indexSearch + 1 + item[1].length
-            );
+        const distIndexNewlineBeforeSearch =
+          indexSearch - indexNewlineBeforeSearch;
+        const distIndexNewlineAfterSearch =
+          indexNewLineAfterSearch - (indexSearch + item[0].length);
 
-            const distIndexNewlineBeforeSearch =
-              indexSearch - indexNewlineBeforeSearch;
-            const distIndexNewlineAfterSearch =
-              indexNewLineAfterSearch - (indexSearch + item[0].length);
+        return {
+          index: indexSearch,
+          firstValue: textContentFile.substring(
+            distIndexNewlineBeforeSearch < OFFSET_RESULT_SEARCH &&
+              indexNewlineBeforeSearch !== -1
+              ? indexNewlineBeforeSearch
+              : indexSearch - OFFSET_RESULT_SEARCH,
+            indexSearch
+          ),
+          value: item[1],
+          lastValue: textContentFile.substring(
+            indexSearch + item[1].length,
+            distIndexNewlineAfterSearch < OFFSET_RESULT_SEARCH &&
+              indexNewLineAfterSearch !== -1
+              ? indexNewLineAfterSearch
+              : indexSearch + item[1].length + OFFSET_RESULT_SEARCH
+          ),
+        };
+      });
 
-            return {
-              index: indexSearch,
-              firstValue: textContentFile.substring(
-                distIndexNewlineBeforeSearch < OFFSET_RESULT_SEARCH &&
-                  indexNewlineBeforeSearch !== -1
-                  ? indexNewlineBeforeSearch
-                  : indexSearch - OFFSET_RESULT_SEARCH,
-                indexSearch
-              ),
-              value: item[1],
-              lastValue: textContentFile.substring(
-                indexSearch + item[1].length,
-                distIndexNewlineAfterSearch < OFFSET_RESULT_SEARCH &&
-                  indexNewLineAfterSearch !== -1
-                  ? indexNewLineAfterSearch
-                  : indexSearch + item[1].length + OFFSET_RESULT_SEARCH
-              ),
-            };
-          });
-
-          if (match.length > 0) {
-            return {
-              file,
-              basename: basename(file),
-              match,
-            };
-          }
-        }
+      if (match.length > 0) {
+        return {
+          file,
+          basename: basename(file),
+          match,
+        };
       }
     }
+  }
+}
 
-    function search(): void {
-      createTimeoutBy(
-        "menu.search.timeout-search",
-        // eslint-disable-next-line @typescript-eslint/require-await
-        async (): Promise<void> => {
-          results.value.splice(0);
+function search(): void {
+  createTimeoutBy(
+    "menu.search.timeout-search",
+    // eslint-disable-next-line @typescript-eslint/require-await
+    async (): Promise<void> => {
+      results.value.splice(0);
 
-          loading.value = true;
-          if (store.state.editor.project && !!keywordSearch.value) {
-            // await foreachFiles(
-            //   store.state.editor.project,
-            //   [
-            //     "^.git",
-            //     ...exclude.value
-            //       .replace(/(?:\s)+,(?:\s)+/g, ",")
-            //       .split(",")
-            //       .filter(Boolean),
-            //   ],
-            //   [
-            //     ...include.value
-            //       .replace(/(?:\s)+,(?:\s)+/g, ",")
-            //       .split(",")
-            //       .filter(Boolean),
-            //   ],
-            //   async (dirname: string, filename: string): Promise<void> => {
-            //     const file = join(dirname, filename);
-            //     const result = await searchInFile(file);
-            //     if (result) {
-            //       results.value.push(result);
-            //     }
-            //   }
-            // );
-          }
-          loading.value = false;
-        },
-        500,
-        {
-          skipme: true,
-        }
-      );
-    }
-
-    watch(modeRegexp, () => void search());
-    watch(modeLetterCase, () => void search());
-    watch(modeWordBox, () => void search());
-    // watch(keywordSearch, () => void search());
-
-    return {
-      modeRegexp,
-      modeLetterCase,
-      modeWordBox,
-
-      search,
-
-      openReplace: ref<boolean>(false),
-      openRules: ref<boolean>(false),
-
-      loading,
-      searchInFile,
-      results,
-
-      keywordSearch,
-      keywordReplace,
-      include,
-      exclude,
-    };
-  },
-  methods: {
-    getIcon,
-
-    async replaceSearch(item: Result, matchIndex: number): Promise<void> {
-      this.loading = true;
-
-      const { file } = item;
-      const context = await fs.readFile(file, "utf8");
-      const { index, value } = item.match[matchIndex];
-
-      // eslint-disable-next-line functional/no-let
-      let newContext =
-        context.slice(0, index) +
-        (this.modeRegexp
-          ? value.replace(new RegExp(this.keywordSearch), this.keywordReplace)
-          : this.keywordReplace) +
-        context.slice(index + value.length);
-
-      await fs.writeFile(file, newContext);
-
-      const newResult = await this.searchInFile(file);
-
-      if (newResult) {
-        const index = this.results.indexOf(item);
-        this.results.splice(index, 1, newResult);
-      } else {
-        this.results.splice(this.results.indexOf(item), 1);
+      loading.value = true;
+      if (store.state.editor.project && !!keywordSearch.value) {
+        // await foreachFiles(
+        //   store.state.editor.project,
+        //   [
+        //     "^.git",
+        //     ...exclude.value
+        //       .replace(/(?:\s)+,(?:\s)+/g, ",")
+        //       .split(",")
+        //       .filter(Boolean),
+        //   ],
+        //   [
+        //     ...include.value
+        //       .replace(/(?:\s)+,(?:\s)+/g, ",")
+        //       .split(",")
+        //       .filter(Boolean),
+        //   ],
+        //   async (dirname: string, filename: string): Promise<void> => {
+        //     const file = join(dirname, filename);
+        //     const result = await searchInFile(file);
+        //     if (result) {
+        //       results.value.push(result);
+        //     }
+        //   }
+        // );
       }
-
-      this.loading = false;
+      loading.value = false;
     },
+    500,
+    {
+      skipme: true,
+    }
+  );
+}
 
-    async replaceAll(): Promise<void> {
-      await foreachAsync(this.results, async (result) => {
-        await foreachAsync(result.match, async (item, index) => {
-          await this.replaceSearch(result, index);
-        });
-      });
-    },
+watch(modeRegexp, () => void search());
+watch(modeLetterCase, () => void search());
+watch(modeWordBox, () => void search());
+// watch(keywordSearch, () => void search());
 
-    gotoEditor(file: string, start: number, stop: number): void {
-      void this.$router.push({
-        name: "editor",
-        query: {
-          selection: `${start}->${stop}`,
-        },
-      });
+const openReplace = ref<boolean>(false);
+const openRules = ref<boolean>(false);
+
+async function replaceSearch(item: Result, matchIndex: number): Promise<void> {
+  loading.value = true;
+
+  const { file } = item;
+  const context = await fs.readFile(file, "utf8");
+  const { index, value } = item.match[matchIndex];
+
+  // eslint-disable-next-line functional/no-let
+  let newContext =
+    context.slice(0, index) +
+    (modeRegexp.value
+      ? value.replace(new RegExp(keywordSearch.value), keywordReplace.value)
+      : keywordReplace.value) +
+    context.slice(index + value.length);
+
+  await fs.writeFile(file, newContext);
+
+  const newResult = await searchInFile(file);
+
+  if (newResult) {
+    const index = results.value.indexOf(item);
+    results.value.splice(index, 1, newResult);
+  } else {
+    results.value.splice(results.value.indexOf(item), 1);
+  }
+
+  loading.value = false;
+}
+
+async function replaceAll(): Promise<void> {
+  await foreachAsync(results.value, async (result) => {
+    await foreachAsync(result.match, async (item, index) => {
+      await replaceSearch(result, index);
+    });
+  });
+}
+
+function gotoEditor(file: string, start: number, stop: number): void {
+  void router.push({
+    name: "editor",
+    query: {
+      selection: `${start}->${stop}`,
     },
-  },
-});
+  });
+}
 </script>
 
 <style lang="scss" scoped>

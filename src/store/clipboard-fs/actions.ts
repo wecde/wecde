@@ -6,7 +6,6 @@ import { ActionTree } from "vuex";
 
 import type { StateInterface } from "../index";
 
-import { storeVm } from "./mutations";
 import { ClipboardFStateInterface } from "./state";
 
 async function resolveName(dirname: string, name: string): Promise<string> {
@@ -36,69 +35,61 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
   /**
    * @description true if required refresh this component parent
    */
-  async paste({ commit, state, getters }, uri: string): Promise<boolean> {
+  async paste({ state, getters, commit }, uri: string): Promise<boolean> {
     // eslint-disable-next-line functional/no-let
     let refreshParent = false;
 
-    if ((await fs.stat(uri)).isDirectory()) {
-      await Promise.all(
-        state.objects.map(async (item) => {
-          if (getters.allowPaste(uri)) {
-            const from = item.path;
-            const to: string = fs.isEqual(uri, item.path)
-              ? join(
-                  dirname(uri),
-                  state.action === "copy"
-                    ? await resolveName(dirname(uri), basename(item.path))
-                    : basename(item.path)
-                )
-              : join(
-                  uri,
-                  state.action === "copy"
-                    ? await resolveName(uri, basename(item.path))
-                    : basename(item.path)
-                );
+    if (state.clipboardFile && await fs.exists(uri)) {
 
-            const task = Notify.create({
-              spinner: true,
-              timeout: 9999999999,
-              position: "bottom-right",
-              message: i18n.global.t(`alert.${state.action}`, {
-                from,
-                to,
-              }),
-            });
+      if ( (await fs.stat(uri)).isFile() ) {
+        uri = dirname(uri)
+      }
 
-            if (state.action === "copy") {
-              await fs.copy(from, to);
-            } else {
-              await fs.rename(from, to);
-            }
-
-            task();
-
-            if (refreshParent === false && fs.isEqual(uri, item.path)) {
-              refreshParent = true;
-            }
-          } else {
-            console.warn(
-              `Cannot copy parent directory to its own subdirectory "${item.path}" -> "${uri}"`
+      if (getters.allowPaste(uri)) {
+        const from = state.clipboardFile;
+        const to: string = fs.isEqual(uri, state.clipboardFile)
+          ? join(
+              dirname(uri),
+              state.action === "copy"
+                ? await resolveName(dirname(uri), basename(state.clipboardFile))
+                : basename(state.clipboardFile)
+            )
+          : join(
+              uri,
+              state.action === "copy"
+                ? await resolveName(uri, basename(state.clipboardFile))
+                : basename(state.clipboardFile)
             );
-          }
-        })
-      );
-    } else {
-      // eslint-disable-next-line functional/no-throw-statement
-      throw new Error("Can only paste in one folder");
-    }
 
-    if (state.action === "cut") {
-      state.objects.forEach((item) => {
-        storeVm.get(item.vue)?.$emit("removed");
-      });
-    }
+        const task = Notify.create({
+          spinner: true,
+          timeout: 9999999999,
+          position: "bottom-right",
+          message: i18n.global.t(`alert.${state.action}`, {
+            from,
+            to,
+          }),
+        });
 
-    commit("reset");
+        if (state.action === "copy") {
+          await fs.copy(from, to);
+        } else {
+          await fs.rename(from, to);
+        }
+
+        task();
+
+        if (refreshParent === false && fs.isEqual(uri, state.clipboardFile)) {
+          refreshParent = true;
+        }
+      } else {
+        console.warn(
+          `Cannot copy parent directory to its own subdirectory "${state.clipboardFile}" -> "${uri}"`
+        );
+      }
+
+      commit("done")
+    }
 
     return refreshParent;
   },

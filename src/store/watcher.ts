@@ -163,6 +163,17 @@ export default (store: Store<StateInterface>): void => {
   );
   // *
 
+   // * watch change ref
+  fs.watch(
+    "projects/*/.git/HEAD",
+    () => void store.dispatch("editor/update:matrix-of-filepath"),
+    {
+      type: "file",
+      dir: () => store.state.editor.project,
+    }
+  );
+  // *
+
   // // * watch status file change by .add(), resetIndex(), pull(), -> .git/index -> update editor.git.statusMatrix
   // fs.watch(
   //   "projects/*/.git/index",

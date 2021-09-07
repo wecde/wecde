@@ -1,5 +1,5 @@
 <template>
-  <App-Hammer :show-hammer="false">
+  <App-Hammer hide-navigation>
     <q-btn flat round dense icon="mdi-arrow-left" @click="$router.back()" />
     <q-toolbar-title>Settings</q-toolbar-title>
   </App-Hammer>

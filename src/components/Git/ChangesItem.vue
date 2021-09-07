@@ -60,7 +60,7 @@
             color="inherit"
             flat
             dense
-            icon="ti-back-left"
+            icon="mdi-undo"
             padding="none"
             size="12.5px"
             rounded

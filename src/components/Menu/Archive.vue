@@ -33,7 +33,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="statePopupGitClone = true"
+              @click="stateClone = true"
               class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
@@ -45,7 +45,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="statePopupGitProvide = true"
+              @click="stateProvide = true"
               class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
@@ -78,7 +78,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="creatingProject = true"
+              @click="stateCreate = true"
               class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
@@ -90,7 +90,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="importProjectFromZip"
+              @click="importZip"
               class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
@@ -136,7 +136,7 @@
           @refresh="(done) => void reloadListProjects().then(() => void done())"
           icon="mdi-refresh"
         >
-          <Project-Item
+          <Item
             v-for="item in projects"
             :key="item.value.fullpath"
             :project="item.value"
@@ -144,108 +144,37 @@
             :names-exists="
               projects.map((item) => basename(item.value.fullpath))
             "
-            @click:delete="projectRemoving = item.value"
           />
         </q-pull-to-refresh>
       </q-list>
     </template>
   </Template-Tab>
 
-  <q-dialog
-    class="max-width-dialog inner-bottom-auto"
-    full-width
-    transition-show="jump-down"
-    transition-hide="jump-up"
-    :model-value="!!projectRemoving"
-    @update:model-value="$event ? null : (projectRemoving = null)"
-  >
-    <q-card class="flex column no-wrap">
-      <q-card-section class="row items-center q-pb-1 q-pt-2">
-        <div class="text-weight-medium text-subtitle1">
-          {{ $t("label.delete-project") }}
-        </div>
-        <q-space />
-        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
-      </q-card-section>
-
-      <q-separator />
-
-      <q-card-section class="fit scroll q-pt-2 q-pb-3">
-        {{ $t("label.type") }}
-        <span class="text-blue">{{
-          `u0/${basename(projectRemoving.fullpath)}`
-        }}</span>
-        {{ $t("label.to-confirm") }}
-        <span class="text-blue">{{
-          projectRemoving && basename(projectRemoving.fullpath)
-        }}</span>
-        {{ $t("label.not-recovery") }}
-        <q-input
-          dense
-          :rules="[
-            () =>
-              code === codeInput
-                ? true
-                : $t('error.match-code', {
-                    code: `u0/${basename(projectRemoving.fullpath)}`,
-                  }),
-          ]"
-          required
-          v-model.trim="codeInput"
-          @keypress.enter="remove"
-          autofocus
-        />
-      </q-card-section>
-
-      <q-card-actions align="between">
-        <q-btn
-          :label="$t('label.cancel')"
-          flat
-          dense
-          color="primary"
-          v-close-popup
-        />
-        <q-btn
-          :label="$t('label.ok')"
-          flat
-          dense
-          color="primary"
-          @click="remove"
-        />
-      </q-card-actions>
-    </q-card>
-  </q-dialog>
-
-  <Git-Clone v-model="statePopupGitClone" @cloned="clonedRepo" />
-  <Git-Provide v-model="statePopupGitProvide" />
-  <Project-Create
-    v-model="creatingProject"
-    @created="reloadListProjects"
+  <Clone v-model="stateClone" />
+  <Provide v-model="stateProvide" />
+  <Create
+    v-model="stateCreate"
     :names-exists="projects.map((item) => basename(item.value.fullpath))"
   />
 </template>
 
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
-import GitClone from "components/Git/ModalGitClone.vue";
-import GitProvide from "components/Git/ModalGitProvide.vue";
-import ProjectCreate from "components/Project/Create.vue";
-import ProjectItem from "components/Project/Item.vue";
+import Create from "components/Project/Create.vue";
+import Item from "components/Project/Item.vue";
 import { sort } from "fast-sort";
 import fs from "modules/fs";
 import { basename, join } from "path-cross";
 import { Notify } from "quasar";
+import Clone from "src/components/Git/Clone.vue";
+import Provide from "src/components/Git/Provide.vue";
 import createProjectFromZip from "src/helpers/createProjectFromZip";
-import { readdirAndStat, StatItem } from "src/helpers/fs";
+import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import TemplateTab from "./template/Tab.vue";
-
-defineEmits<{
-  (event: "open:project"): void;
-}>();
 
 const i18n = useI18n();
 const store = useStore();
@@ -256,13 +185,10 @@ const projects = ref<
     readonly value: StatItem;
   }[]
 >([]);
-const creatingProject = ref<boolean>(false);
-const projectRemoving = ref<null | StatItem>(null);
-const codeInput = ref<string>("");
-const statePopupGitClone = ref<boolean>(false);
-const statePopupGitProvide = ref<boolean>(false);
+const stateCreate = ref<boolean>(false);
+const stateClone = ref<boolean>(false);
+const stateProvide = ref<boolean>(false);
 
-watch(projectRemoving, () => void (codeInput.value = ""));
 void reloadListProjects();
 
 async function reloadListProjects(notification = false): Promise<void> {
@@ -281,7 +207,7 @@ async function reloadListProjects(notification = false): Promise<void> {
             .filter((project) => project.stat.type === "directory")
             .map(async (item) => {
               return {
-                git: await fs.isFile(join(item.fullpath, ".git/index")),
+                git: await fs.isFile(join(item.fullpath, ".git/HEAD")),
                 value: item,
               };
             });
@@ -304,7 +230,7 @@ async function reloadListProjects(notification = false): Promise<void> {
     });
   }
 }
-async function importProjectFromZip(): Promise<void> {
+async function importZip(): Promise<void> {
   try {
     const names = await createProjectFromZip("projects/");
     store.commit("terminal/clear");
@@ -316,51 +242,60 @@ async function importProjectFromZip(): Promise<void> {
   } catch (err) {
     store.commit("terminal/error", err);
   }
-  await reloadListProjects();
 }
-async function remove(): Promise<void> {
-  if (
-    projectRemoving.value &&
-    codeInput.value === `u0/${basename(projectRemoving.value.fullpath)}`
-  ) {
-    const task = Notify.create({
-      spinner: true,
-      timeout: 9999999999,
-      position: "bottom-right",
-      message: i18n.t("alert.removing.project", {
-        name: basename(projectRemoving.value.fullpath),
-      }),
-    });
 
-    try {
-      await fs.rmdir(projectRemoving.value.fullpath, {
-        recursive: true,
-      });
-      task();
-      void Toast.show({
-        text: i18n.t("alert.removed.project", {
-          name: basename(projectRemoving.value.fullpath),
-        }),
-      });
-    } catch {
-      task({
-        message: i18n.t("alert.remove.project-failed", {
-          name: basename(projectRemoving.value.fullpath),
-        }),
-      });
-      void Toast.show({
-        text: i18n.t("alert.remove.project-failed", {
-          name: basename(projectRemoving.value.fullpath),
-        }),
-      });
+registerWatch(
+  "projects/*",
+  async ({ path }) => {
+    // fork
+    // add folder;
+    // is exists
+    if (
+      projects.value.some(({ value: { fullpath } }) =>
+        fs.isEqual(fullpath, path)
+      ) === false
+    ) {
+      try {
+        const value: StatItem = {
+          stat: await fs.stat(path),
+          fullpath: path,
+        };
+        const git: boolean = await fs.isFile(
+          join(value.fullpath, ".git/HEAD")
+        );
+
+        projects.value = sort([
+          ...projects.value,
+          {
+            value,
+            git,
+          },
+        ]).asc((item) => basename(item.value.fullpath));
+        // our -> clone;
+      } catch {}
     }
-
-    await reloadListProjects();
-    projectRemoving.value = null;
+  },
+  {
+    type: "create:dir",
   }
-}
-function clonedRepo(): void {
-  statePopupGitClone.value = false;
-  void reloadListProjects();
-}
+);
+registerWatch(
+  "projects/*",
+  ({ path }) => {
+    if (
+      projects.value.some(({ value: { fullpath } }) =>
+        fs.isEqual(fullpath, path)
+      )
+    ) {
+      projects.value = sort(
+        projects.value.filter(
+          ({ value: { fullpath } }) => fs.isEqual(fullpath, path) === false
+        )
+      ).asc((item) => basename(item.value.fullpath));
+    }
+  },
+  {
+    type: "remove:dir",
+  }
+);
 </script>

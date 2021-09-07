@@ -50,7 +50,7 @@
           {{ $t("label.create-project") }}
         </div>
         <q-space />
-        <div>
+        
           <q-btn
             :label="$t('label.create')"
             flat
@@ -61,7 +61,6 @@
             class="q-mr-xs"
           />
           <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
-        </div>
       </q-card-section>
 
       <q-separator />
@@ -109,7 +108,7 @@ import templates from "assets/templates/Release.json";
 import fs from "modules/fs";
 import { useStore } from "src/store";
 import nameFileValidates from "src/validator/nameFileValidates";
-import { computed, ref, toRefs, watch } from "vue";
+import { computed, ref, toRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { unzip } from "zip2";
 
@@ -125,12 +124,11 @@ const emit = defineEmits<{
 const store = useStore();
 const i18n = useI18n();
 
-const { namesExists } = toRefs(props);
 const templateSelected = ref<Template | null>(null);
 const error = nameFileValidates(
   computed(() => templateSelected.value?.name || ""),
   false,
-  namesExists,
+  toRef(props, "namesExists"),
   true
 );
 
