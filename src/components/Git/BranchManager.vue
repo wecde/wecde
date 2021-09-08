@@ -395,6 +395,7 @@ function branch() {
         fs,
         dir: store.state.editor.project,
         ref: nameNewRef,
+        checkout: true,
       });
 
       allBranches.value = await listAllBranches();

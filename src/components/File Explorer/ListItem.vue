@@ -13,8 +13,8 @@
       'star-modified': status === `121` || status === '12x',
       modified: status === `122` || status === `123`,
 
-      'star-deleted': status === `101` || status === '10x',
-      deleted: status === `100`,
+      'star-deleted': isFolder === false && (status === `101` || status === '10x'),
+      deleted: isFolder === false && status === `100`,
     }"
     v-ripple
     @click="clickToFile"

@@ -114,7 +114,7 @@ import {
 import fs from "modules/fs";
 import { useQuasar } from "quasar";
 import { useStore } from "src/store";
-import { ref, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -126,7 +126,7 @@ const $q = useQuasar();
 const loading = ref<boolean>(false);
 
 type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
-const remotes = ref<ThenArg<ReturnType<typeof listRemotes>>>([]);
+const remotes = reactive<ThenArg<ReturnType<typeof listRemotes>>>([]);
 
 async function listRemotes() {
   if (store.state.editor.project) {
@@ -143,9 +143,13 @@ watch(
   () => props.modelValue,
   async (val) => {
     if (val) {
-      remotes.value = await listRemotes();
+      // eslint-disable-next-line functional/immutable-data
+      remotes.splice(0);
+      // eslint-disable-next-line functional/immutable-data
+      remotes.push(...(await listRemotes()));
     } else {
-      remotes.value = [];
+      // eslint-disable-next-line functional/immutable-data
+      remotes.splice(0);
     }
   },
   {
@@ -192,7 +196,10 @@ function addRemote() {
           url,
         });
 
-        remotes.value = await listRemotes();
+        // eslint-disable-next-line functional/immutable-data
+        remotes.splice(0);
+        // eslint-disable-next-line functional/immutable-data
+        remotes.push(...(await listRemotes()));
       }
     });
   });
