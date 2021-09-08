@@ -6,7 +6,7 @@
       dark: $q.dark.isActive,
     }"
     elevated
-    :model-value="inputValue"
+    v-show="!hideFooter"
   >
     <div
       class="bottom-tools__group justify-between"
@@ -111,7 +111,7 @@
                   @mousedown="fixBlurEditor"
                   @click="findAll"
                 >
-                  <q-icon size="13px" name="ti-search" />
+                  <q-icon size="13px" name="mdi-magnify" />
                   <span>{{ $t("label.find-all") }}</span>
                 </div>
                 <div
@@ -148,20 +148,25 @@
       </div>
     </div>
   </q-footer>
-  <div style="height: calc(100% - 41px)" ref="EditorCode" v-show="show" />
+  <div style="height: calc(100% - 41px)" ref="EditorCode" v-bind="$attrs" />
+
+  <teleport to="[data-id='code.btn-addons']" v-if="isMounted">
+    <q-btn
+      flat
+      round
+      padding="xs"
+      v-if="!hideFooter"
+      icon="mdi-magnify"
+      @click="ace.value?.execCommand('find')"
+    />
+  </teleport>
 </template>
 
 <script lang="ts" setup>
 // eslint-disable-next-line import/order
 import Ace from "ace-builds";
 // eslint-disable-next-line import/order
-import {
-  computed,
-  onMounted,
-  ref,
-  watch,
-  watchEffect,
-} from "vue";
+import { computed, onMounted, ref, watch, watchEffect } from "vue";
 
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
@@ -187,13 +192,12 @@ import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
 import { usePrettierWorker } from "src/worker/prettier";
 
-const emit = defineEmits<{
-  (ev: "change"): void;
-}>();
+const isMounted = ref<boolean>(false);
+onMounted(() => (isMounted.value = true));
+
 const props = defineProps<{
   fullpath: string;
-  inputValue: boolean;
-  show?: boolean;
+  hideFooter?: boolean;
 }>();
 
 const store = useStore();
@@ -237,8 +241,6 @@ function onChange(): void {
     },
     1000
   );
-
-  emit("change");
 }
 
 function onScroll(): void {

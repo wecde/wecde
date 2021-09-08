@@ -1,26 +1,38 @@
 <template>
   <Editor-Code
     :fullpath="fullpath"
-    :showw="!previewing"
-    :input-value="!previewing"
+    :hide-footer="previewing"
+    :style="{
+      display: previewing ? 'none' : undefined,
+    }"
   />
   <div
     class="full-width full-height flex items-center justify-center"
     v-if="previewing"
     v-html="svg"
   />
+
+  <teleport to="[data-id='code.btn-addons']" v-if="isMounted">
+    <q-btn
+      flat
+      round
+      padding="xs"
+      :icon="previewing ? 'ti-pencil-alt' : 'ti-image'"
+      @click="previewing = !previewing"
+    />
+  </teleport>
 </template>
 
 <script lang="ts" setup>
 import fs from "modules/fs";
 import { registerWatch } from "src/helpers/fs";
-import { ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 import EditorCode from "./Code.vue";
 
-defineEmits<{
-  (ev: "change"): void;
-}>();
+const isMounted = ref<boolean>(false);
+onMounted(() => (isMounted.value = true));
+
 const props = defineProps<{
   fullpath: string;
 }>();
