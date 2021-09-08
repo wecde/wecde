@@ -11,9 +11,6 @@ import { useI18n } from "vue-i18n";
 const props = defineProps<{
   dirname: string;
 }>();
-const emit = defineEmits<{
-  (name: "imported"): void;
-}>();
 
 const store = useStore();
 const i18n = useI18n();
@@ -27,6 +24,5 @@ async function importFile(): Promise<void> {
       list: names.map((item) => `"${item}"`).join(", "),
     }),
   });
-  emit("imported");
 }
 </script>
