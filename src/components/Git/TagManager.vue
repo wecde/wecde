@@ -97,7 +97,7 @@ import {
 import fs from "modules/fs";
 import { useQuasar } from "quasar";
 import { useStore } from "src/store";
-import { ref, watch } from "vue";
+import { reactive, ref, watch } from "vue";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -108,7 +108,7 @@ const $q = useQuasar();
 
 const loading = ref<boolean>(false);
 
-const tags = ref<string[]>([]);
+const tags = reactive<string[]>([]);
 
 async function listTags() {
   if (store.state.editor.project) {
@@ -125,9 +125,13 @@ watch(
   () => props.modelValue,
   async (val) => {
     if (val) {
-      tags.value = await listTags();
+      // eslint-disable-next-line functional/immutable-data
+      tags.splice(0);
+      // eslint-disable-next-line functional/immutable-data
+      tags.push(...(await listTags()));
     } else {
-      tags.value = [];
+      // eslint-disable-next-line functional/immutable-data
+      tags.splice(0);
     }
   },
   {
@@ -158,7 +162,10 @@ function addTag() {
         ref: name,
       });
 
-      tags.value = await listTags();
+      // eslint-disable-next-line functional/immutable-data
+      tags.splice(0);
+      // eslint-disable-next-line functional/immutable-data
+      tags.push(...(await listTags()));
     }
   });
 }

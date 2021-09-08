@@ -156,7 +156,7 @@ import {
 } from "src/helpers/fs";
 import fs from "src/modules/fs";
 import { useStore } from "src/store";
-import { computed, ref, watch } from "vue";
+import { computed, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import TemplateTab from "./template/Tab.vue";
@@ -166,7 +166,7 @@ const i18n = useI18n();
 
 const adding = ref<boolean>(false);
 const addingFolder = ref<boolean>(false);
-const files = ref<readonly StatItem[]>([]);
+const files = reactive<StatItem[]>([]);
 const projectName = computed<string | null>(() =>
   store.state.editor.project ? basename(store.state.editor.project) : null
 );
@@ -182,7 +182,8 @@ const notAllowPaste = computed<boolean>(
 watch(
   () => store.state.editor.project,
   async () => {
-    files.value = [];
+    // eslint-disable-next-line functional/immutable-data
+    files.splice(0);
     await reloadListFile();
   },
   {
@@ -204,7 +205,10 @@ async function reloadListFile(notification = false): Promise<void> {
       throw new Error("IS_NOT_DIR");
     }
 
-    files.value = await readdirAndStat(store.state.editor.project);
+    // eslint-disable-next-line functional/immutable-data
+    files.splice(0);
+    // eslint-disable-next-line functional/immutable-data
+    files.push(...(await readdirAndStat(store.state.editor.project)));
 
     task();
 
@@ -214,7 +218,8 @@ async function reloadListFile(notification = false): Promise<void> {
       });
     }
   } catch {
-    files.value.slice(0);
+    // eslint-disable-next-line functional/immutable-data
+    files.splice(0);
     task({
       message: i18n.t("alert.reload-files-failed"),
     });
@@ -232,18 +237,23 @@ registerWatch(
     // if not exists
     if (
       basename(path) !== ".git" &&
-      files.value.some(({ fullpath }) => fs.isEqual(fullpath, path)) === false
+      files.some(({ fullpath }) => fs.isEqual(fullpath, path)) === false
     ) {
       try {
         const stat = await fs.stat(path);
 
-        files.value = sortTreeFilesystem([
-          ...files.value,
-          {
-            stat,
-            fullpath: path,
-          },
-        ]);
+        // eslint-disable-next-line functional/immutable-data
+        files.splice(0);
+        // eslint-disable-next-line functional/immutable-data
+        files.push(
+          ...sortTreeFilesystem([
+            ...files,
+            {
+              stat,
+              fullpath: path,
+            },
+          ])
+        );
       } catch {}
     }
   },
@@ -257,10 +267,13 @@ registerWatch(
   ({ path }) => {
     if (
       basename(path) !== ".git" &&
-      files.value.some(({ fullpath }) => fs.isEqual(fullpath, path))
+      files.some(({ fullpath }) => fs.isEqual(fullpath, path))
     ) {
-      files.value = files.value.filter(
-        ({ fullpath }) => fs.isEqual(fullpath, path) === false
+      // eslint-disable-next-line functional/immutable-data
+      files.splice(0);
+      // eslint-disable-next-line functional/immutable-data
+      files.push(
+        ...files.filter(({ fullpath }) => fs.isEqual(fullpath, path) === false)
       );
     }
   },

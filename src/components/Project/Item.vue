@@ -105,10 +105,10 @@
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import fs from "modules/fs";
-import { basename } from "path-cross";
+import { basename, join } from "path-cross";
 import { Notify, useQuasar } from "quasar";
 import exportDirectoryByZip from "src/helpers/exportDirectoryByZip";
-import type { StatItem } from "src/helpers/fs";
+import { registerWatch, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -118,7 +118,6 @@ import FileExplorerRename from "../File Explorer/Rename.vue";
 const props = defineProps<{
   project: StatItem;
   namesExists: string[];
-  git: boolean;
 }>();
 
 const store = useStore();
@@ -126,12 +125,25 @@ const $q = useQuasar();
 const i18n = useI18n();
 
 const renaming = ref<boolean>(false);
+const git = ref<boolean>(false);
 const opened = computed<boolean>(() => {
   return (
     !!store.state.editor.project &&
     fs.isEqual(store.state.editor.project, props.project.fullpath)
   );
 });
+
+registerWatch(
+  () => join(props.project.fullpath, ".git/HEAD"),
+  async ({ path }) => {
+    git.value = await fs.isFile(path);
+  },
+  {
+    type: "file",
+    mode: "absolute",
+    immediate: true,
+  }
+);
 
 async function exportZip() {
   try {
