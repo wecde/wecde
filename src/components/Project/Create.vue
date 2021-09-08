@@ -5,7 +5,6 @@
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
-    :model-value="modelValue"
     @update:model-value="$emit('update:model-value', $event)"
   >
     <q-card v-if="!templateSelected" class="flex column no-wrap">
@@ -50,17 +49,17 @@
           {{ $t("label.create-project") }}
         </div>
         <q-space />
-        
-          <q-btn
-            :label="$t('label.create')"
-            flat
-            color="primary"
-            padding="xs"
-            @click="create"
-            :disable="!!error"
-            class="q-mr-xs"
-          />
-          <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
+
+        <q-btn
+          :label="$t('label.create')"
+          flat
+          color="primary"
+          padding="xs"
+          @click="create"
+          :disable="!!error"
+          class="q-mr-xs"
+        />
+        <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
       </q-card-section>
 
       <q-separator />
@@ -108,17 +107,15 @@ import templates from "assets/templates/Release.json";
 import fs from "modules/fs";
 import { useStore } from "src/store";
 import nameFileValidates from "src/validator/nameFileValidates";
-import { computed, ref, toRef, watch } from "vue";
+import { computed, ref, toRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { unzip } from "zip2";
 
 const props = defineProps<{
-  modelValue: boolean;
   namesExists: readonly string[];
 }>();
 const emit = defineEmits<{
   (ev: "update:model-value", v: boolean): void;
-  (ev: "created"): void;
 }>();
 
 const store = useStore();
@@ -130,15 +127,6 @@ const error = nameFileValidates(
   false,
   toRef(props, "namesExists"),
   true
-);
-
-watch(
-  () => props.modelValue,
-  (value: boolean) => {
-    if (value === false) {
-      templateSelected.value = null;
-    }
-  }
 );
 
 function selectTemplate(template: Template): void {
@@ -206,7 +194,6 @@ async function create() {
           name: templateSelected.value.name,
         }),
       });
-      emit("created");
     }
 
     emit("update:model-value", false);

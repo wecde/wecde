@@ -4,8 +4,6 @@
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
-    :model-value="modelValue"
-    @update:model-value="$emit('update:model-value', $event)"
     :persistent="loading"
   >
     <q-card class="flex column no-wrap">
@@ -194,11 +192,7 @@ import { useQuasar } from "quasar";
 import { onError } from "src/helpers/git";
 import { listAllBranches } from "src/shared/git-shared";
 import { useStore } from "src/store";
-import { ref, watch } from "vue";
-
-const props = defineProps<{
-  modelValue: boolean;
-}>();
+import { ref } from "vue";
 
 const store = useStore();
 const $q = useQuasar();
@@ -208,19 +202,7 @@ const loading = ref<boolean>(false);
 type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
 const allBranches = ref<ThenArg<ReturnType<typeof listAllBranches>>>({});
 
-watch(
-  () => props.modelValue,
-  async (val) => {
-    if (val) {
-      allBranches.value = await listAllBranches();
-    } else {
-      allBranches.value = {};
-    }
-  },
-  {
-    immediate: true,
-  }
-);
+void listAllBranches().then((val) => void (allBranches.value = val));
 
 async function checkout(ref: string) {
   if (store.state.editor.project) {

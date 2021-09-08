@@ -4,8 +4,6 @@
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
-    :model-value="modelValue"
-    @update:model-value="$emit('update:model-value', $event)"
     :persistent="loading"
   >
     <q-card class="flex column no-wrap">
@@ -114,11 +112,7 @@ import {
 import fs from "modules/fs";
 import { useQuasar } from "quasar";
 import { useStore } from "src/store";
-import { reactive, ref, watch } from "vue";
-
-const props = defineProps<{
-  modelValue: boolean;
-}>();
+import { reactive, ref } from "vue";
 
 const store = useStore();
 const $q = useQuasar();
@@ -126,36 +120,26 @@ const $q = useQuasar();
 const loading = ref<boolean>(false);
 
 type ThenArg<T> = T extends PromiseLike<infer U> ? U : T;
-const remotes = reactive<ThenArg<ReturnType<typeof listRemotes>>>([]);
+const remotes = reactive<ThenArg<ReturnType<typeof _listRemotes>>>([]);
 
-async function listRemotes() {
+void updateListRemotes();
+
+async function updateListRemotes() {
   if (store.state.editor.project) {
-    return await _listRemotes({
-      fs,
-      dir: store.state.editor.project,
-    });
+    // eslint-disable-next-line functional/immutable-data
+    remotes.splice(0);
+    // eslint-disable-next-line functional/immutable-data
+    remotes.push(
+      ...(await _listRemotes({
+        fs,
+        dir: store.state.editor.project,
+      }))
+    );
+  } else {
+    // eslint-disable-next-line functional/immutable-data
+    remotes.splice(0);
   }
-
-  return [];
 }
-
-watch(
-  () => props.modelValue,
-  async (val) => {
-    if (val) {
-      // eslint-disable-next-line functional/immutable-data
-      remotes.splice(0);
-      // eslint-disable-next-line functional/immutable-data
-      remotes.push(...(await listRemotes()));
-    } else {
-      // eslint-disable-next-line functional/immutable-data
-      remotes.splice(0);
-    }
-  },
-  {
-    immediate: true,
-  }
-);
 
 function addRemote() {
   $q.dialog({
@@ -196,10 +180,7 @@ function addRemote() {
           url,
         });
 
-        // eslint-disable-next-line functional/immutable-data
-        remotes.splice(0);
-        // eslint-disable-next-line functional/immutable-data
-        remotes.push(...(await listRemotes()));
+        await updateListRemotes();
       }
     });
   });

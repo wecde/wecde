@@ -4,8 +4,6 @@
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
-    :model-value="modelValue"
-    @update:model-value="$emit('update:model-value', $event)"
     :persistent="loading"
   >
     <q-card class="flex column no-wrap">
@@ -97,11 +95,7 @@ import {
 import fs from "modules/fs";
 import { useQuasar } from "quasar";
 import { useStore } from "src/store";
-import { reactive, ref, watch } from "vue";
-
-const props = defineProps<{
-  modelValue: boolean;
-}>();
+import { reactive, ref } from "vue";
 
 const store = useStore();
 const $q = useQuasar();
@@ -110,34 +104,24 @@ const loading = ref<boolean>(false);
 
 const tags = reactive<string[]>([]);
 
-async function listTags() {
+void updateListTags()
+
+async function updateListTags() {
   if (store.state.editor.project) {
-    return await _listTags({
-      fs,
-      dir: store.state.editor.project,
-    });
+    // eslint-disable-next-line functional/immutable-data
+    tags.splice(0);
+    // eslint-disable-next-line functional/immutable-data
+    tags.push(
+      ...(await _listTags({
+        fs,
+        dir: store.state.editor.project,
+      }))
+    );
+  } else {
+    // eslint-disable-next-line functional/immutable-data
+    tags.splice(0);
   }
-
-  return [];
 }
-
-watch(
-  () => props.modelValue,
-  async (val) => {
-    if (val) {
-      // eslint-disable-next-line functional/immutable-data
-      tags.splice(0);
-      // eslint-disable-next-line functional/immutable-data
-      tags.push(...(await listTags()));
-    } else {
-      // eslint-disable-next-line functional/immutable-data
-      tags.splice(0);
-    }
-  },
-  {
-    immediate: true,
-  }
-);
 
 function addTag() {
   $q.dialog({
@@ -162,10 +146,7 @@ function addTag() {
         ref: name,
       });
 
-      // eslint-disable-next-line functional/immutable-data
-      tags.splice(0);
-      // eslint-disable-next-line functional/immutable-data
-      tags.push(...(await listTags()));
+await updateListTags()
     }
   });
 }

@@ -45,7 +45,6 @@
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
-          style="max-height: 70vh"
         >
           <q-list
             style="min-width: 100px"
@@ -281,15 +280,36 @@
     </template>
   </Template-Tab>
 
-  <Commit-Manager v-model="commitManager" />
-  <Branch-Manager v-model="branchManager" />
-  <Remote-Manager v-model="remoteManager" />
-  <Tag-Manager v-model="tagManager" />
-  <Log v-model="log" />
+  <Free-Component :active="commitManager">
+    <template v-slot="{ on }">
+      <Commit-Manager v-model="commitManager" v-on="on" />
+    </template>
+  </Free-Component>
+  <Free-Component :active="branchManager">
+    <template v-slot="{ on }">
+      <Branch-Manager v-model="branchManager" v-on="on" />
+    </template>
+  </Free-Component>
+  <Free-Component :active="remoteManager">
+    <template v-slot="{ on }">
+      <Remote-Manager v-model="remoteManager" v-on="on" />
+    </template>
+  </Free-Component>
+  <Free-Component :active="tagManager">
+    <template v-slot="{ on }">
+      <Tag-Manager v-model="tagManager" v-on="on" />
+    </template>
+  </Free-Component>
+  <Free-Component :active="log">
+    <template v-slot="{ on }">
+      <Log v-model="log" v-on="on" />
+    </template>
+  </Free-Component>
 </template>
 
 <script lang="ts" setup>
 import AppCollapse from "components/App/Collapse.vue";
+import FreeComponent from "components/FreeComponent.vue";
 import BranchManager from "components/Git/BranchManager.vue";
 import ChangesList from "components/Git/ChangesList.vue";
 import ChangesTree from "components/Git/ChangesTree.vue";
@@ -329,7 +349,7 @@ const commitManager = ref<boolean>(false);
 const branchManager = ref<boolean>(false);
 const remoteManager = ref<boolean>(false);
 const tagManager = ref<boolean>(false);
-const log = ref<boolean>(true);
+const log = ref<boolean>(false);
 // *
 
 type SubItem = {
@@ -729,3 +749,9 @@ async function fetch({
   }
 }
 </script>
+
+<style lang="scss">
+.q-menu {
+  max-height: 70vh;
+}
+</style>

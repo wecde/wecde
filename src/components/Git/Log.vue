@@ -4,8 +4,6 @@
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
-    :model-value="modelValue"
-    @update:model-value="$emit('update:model-value', $event)"
     :persistent="loading"
   >
     <q-card class="flex column no-wrap">
@@ -144,13 +142,6 @@ import { onError } from "src/helpers/git";
 import { useStore } from "src/store";
 import { reactive, ref } from "vue";
 
-defineProps<{
-  modelValue: boolean;
-}>();
-defineEmits<{
-  (ev: "update:model-value", v: boolean): void;
-}>();
-
 const store = useStore();
 
 const logs = reactive<ReadCommitResult[]>([]);
@@ -165,9 +156,9 @@ async function onLoad(index: number, done: (stop?: boolean) => void) {
     });
 
     // eslint-disable-next-line functional/immutable-data
-    logs.push(...pushLogs.slice(logs.length + 1));
+    logs.push(...pushLogs.slice(logs.length));
 
-    done(pushLogs.slice(logs.length + 1).length === 0);
+    done(pushLogs.slice(logs.length).length === 0);
   }
 }
 
