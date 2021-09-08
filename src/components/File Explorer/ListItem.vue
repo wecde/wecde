@@ -13,8 +13,9 @@
       'star-modified': status === `121` || status === '12x',
       modified: status === `122` || status === `123`,
 
-      'star-deleted': status === `101` || status === '10x',
-      deleted: status === `100`,
+      'star-deleted':
+        isFolder === false && (status === `101` || status === '10x'),
+      deleted: isFolder === false && status === `100`,
     }"
     v-ripple
     @click="clickToFile"
@@ -255,7 +256,7 @@ import {
   StatItem,
 } from "src/helpers/fs";
 import { useStore } from "src/store";
-import { computed, defineAsyncComponent, ref, watch } from "vue";
+import { computed, defineAsyncComponent, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -305,7 +306,7 @@ watch(adding, (newValue) => {
   }
 });
 
-const files = ref<StatItem[]>([]);
+const files = reactive<StatItem[]>([]);
 const opening = computed<boolean>(() => {
   if (collapse.value === false && store.getters["editor/session"]) {
     if (props.file.stat.isDirectory()) {
@@ -327,8 +328,10 @@ async function refreshFolder() {
   if (refresingFolder === false && props.file.stat.isDirectory()) {
     loading.value = true;
     refresingFolder = true;
-    files.value.splice(0);
-    files.value.push(...(await readdirAndStat(props.file.fullpath)));
+    // eslint-disable-next-line functional/immutable-data
+    files.splice(0);
+    // eslint-disable-next-line functional/immutable-data
+    files.push(...(await readdirAndStat(props.file.fullpath)));
     loading.value = false;
     refresingFolder = false;
   }
@@ -488,17 +491,18 @@ registerWatch(
     if (
       (fs.isEqual(path, props.file.fullpath) ||
         fs.isEqual(dirname(path), props.file.fullpath)) &&
-      files.value.some(({ fullpath }) => fs.isEqual(fullpath, path)) === false
+      files.some(({ fullpath }) => fs.isEqual(fullpath, path)) === false
     ) {
       try {
         const stat = await fs.stat(path);
 
         if (
-          files.value.some(({ fullpath }) => fs.isEqual(fullpath, path)) ===
-          false
+          files.some(({ fullpath }) => fs.isEqual(fullpath, path)) === false
         ) {
-          const oldFiles = files.value.splice(0);
-          files.value.push(
+          // eslint-disable-next-line functional/immutable-data
+          const oldFiles = files.splice(0);
+          // eslint-disable-next-line functional/immutable-data
+          files.push(
             ...sortTreeFilesystem([
               ...oldFiles,
               {
@@ -523,10 +527,15 @@ registerWatch(
     if (
       (fs.isEqual(path, props.file.fullpath) ||
         fs.isEqual(dirname(path), props.file.fullpath)) &&
-      files.value.some(({ fullpath }) => fs.isEqual(fullpath, path))
+      files.some(({ fullpath }) => fs.isEqual(fullpath, path))
     ) {
-      files.value = files.value.filter(
-        ({ fullpath }) => fs.isEqual(fullpath, path) === false
+      // eslint-disable-next-line functional/immutable-data
+      const oldFiles = files.splice(0);
+      // eslint-disable-next-line functional/immutable-data
+      files.push(
+        ...oldFiles.filter(
+          ({ fullpath }) => fs.isEqual(fullpath, path) === false
+        )
       );
     }
   },

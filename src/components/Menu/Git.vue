@@ -284,6 +284,7 @@
   <Branch-Manager v-model="branchManager" />
   <Remote-Manager v-model="remoteManager" />
   <Tag-Manager v-model="tagManager" />
+  <Log v-model="log" />
 </template>
 
 <script lang="ts" setup>
@@ -326,6 +327,7 @@ const commitManager = ref<boolean>(false);
 const branchManager = ref<boolean>(false);
 const remoteManager = ref<boolean>(false);
 const tagManager = ref<boolean>(false);
+const log = ref<boolean>(true)
 // *
 
 type SubItem = {

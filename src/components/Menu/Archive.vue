@@ -138,12 +138,9 @@
         >
           <Item
             v-for="item in projects"
-            :key="item.value.fullpath"
-            :project="item.value"
-            :git="item.git"
-            :names-exists="
-              projects.map((item) => basename(item.value.fullpath))
-            "
+            :key="item.fullpath"
+            :project="item"
+            :names-exists="projects.map((item) => basename(item.fullpath))"
           />
         </q-pull-to-refresh>
       </q-list>
@@ -164,14 +161,14 @@ import Create from "components/Project/Create.vue";
 import Item from "components/Project/Item.vue";
 import { sort } from "fast-sort";
 import fs from "modules/fs";
-import { basename, join } from "path-cross";
+import { basename } from "path-cross";
 import { Notify } from "quasar";
 import Clone from "src/components/Git/Clone.vue";
 import Provide from "src/components/Git/Provide.vue";
 import createProjectFromZip from "src/helpers/createProjectFromZip";
 import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
-import { ref } from "vue";
+import { reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import TemplateTab from "./template/Tab.vue";
@@ -179,12 +176,7 @@ import TemplateTab from "./template/Tab.vue";
 const i18n = useI18n();
 const store = useStore();
 
-const projects = ref<
-  {
-    readonly git: boolean;
-    readonly value: StatItem;
-  }[]
->([]);
+const projects = reactive<StatItem[]>([]);
 const stateCreate = ref<boolean>(false);
 const stateClone = ref<boolean>(false);
 const stateProvide = ref<boolean>(false);
@@ -200,24 +192,23 @@ async function reloadListProjects(notification = false): Promise<void> {
   });
 
   try {
-    projects.value = sort(
-      await Promise.all(
-        await readdirAndStat("projects").then((item) => {
-          return item
-            .filter((project) => project.stat.type === "directory")
-            .map(async (item) => {
-              return {
-                git: await fs.isFile(join(item.fullpath, ".git/HEAD")),
-                value: item,
-              };
-            });
-        })
-      )
-    ).asc((item) => basename(item.value.fullpath));
+    // eslint-disable-next-line functional/immutable-data
+    projects.splice(0);
+    // eslint-disable-next-line functional/immutable-data
+    projects.push(
+      ...sort(
+        await Promise.all(
+          await readdirAndStat("projects").then((item) => {
+            return item.filter((project) => project.stat.type === "directory");
+          })
+        )
+      ).asc((item) => basename(item.fullpath))
+    );
 
     task();
   } catch {
-    projects.value = [];
+    // eslint-disable-next-line functional/immutable-data
+    projects.splice(0);
     task({
       message: i18n.t("alert.reload-projects-failed"),
       timeout: 3000,
@@ -250,27 +241,19 @@ registerWatch(
     // fork
     // add folder;
     // is exists
-    if (
-      projects.value.some(({ value: { fullpath } }) =>
-        fs.isEqual(fullpath, path)
-      ) === false
-    ) {
+    if (projects.some(({ fullpath }) => fs.isEqual(fullpath, path)) === false) {
       try {
         const value: StatItem = {
           stat: await fs.stat(path),
           fullpath: path,
         };
-        const git: boolean = await fs.isFile(
-          join(value.fullpath, ".git/HEAD")
-        );
 
-        projects.value = sort([
-          ...projects.value,
-          {
-            value,
-            git,
-          },
-        ]).asc((item) => basename(item.value.fullpath));
+        // eslint-disable-next-line functional/immutable-data
+        projects.splice(0);
+        // eslint-disable-next-line functional/immutable-data
+        projects.push(
+          ...sort([...projects, value]).asc((item) => basename(item.fullpath))
+        );
         // our -> clone;
       } catch {}
     }
@@ -282,16 +265,17 @@ registerWatch(
 registerWatch(
   "projects/*",
   ({ path }) => {
-    if (
-      projects.value.some(({ value: { fullpath } }) =>
-        fs.isEqual(fullpath, path)
-      )
-    ) {
-      projects.value = sort(
-        projects.value.filter(
-          ({ value: { fullpath } }) => fs.isEqual(fullpath, path) === false
-        )
-      ).asc((item) => basename(item.value.fullpath));
+    if (projects.some(({ fullpath }) => fs.isEqual(fullpath, path))) {
+      // eslint-disable-next-line functional/immutable-data
+      projects.splice(0);
+      // eslint-disable-next-line functional/immutable-data
+      projects.push(
+        ...sort(
+          projects.filter(
+            ({ fullpath }) => fs.isEqual(fullpath, path) === false
+          )
+        ).asc((item) => basename(item.fullpath))
+      );
     }
   },
   {
