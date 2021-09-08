@@ -107,10 +107,6 @@ const props = defineProps<{
   isFolder?: boolean;
   noFullpath?: boolean;
 }>();
-defineEmits<{
-  (e: "click:undo"): void;
-  (e: "click:add"): void;
-}>();
 
 const status = computed<string | null>(() => {
   if (store.state.editor.project) {

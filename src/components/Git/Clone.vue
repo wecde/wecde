@@ -4,7 +4,6 @@
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
-    :model-value="modelValue"
     @update:model-value="$emit('update:model-value', $event)"
   >
     <q-card>
@@ -70,29 +69,16 @@ import {
   onStart,
 } from "src/helpers/git";
 import { useGitCloneWorker } from "src/worker/git-clone";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-
-const props = defineProps<{
-  modelValue: boolean;
-}>();
-const emit = defineEmits<{
-  (ev: "update:model-value", v: boolean): void;
-  (ev: "cloned"): void;
-}>();
 
 const i18n = useI18n();
 
-const url = ref<string>("");
+const emit = defineEmits<{
+  (ev: "update:model-value", v: boolean): void;
+}>();
 
-watch(
-  () => props.modelValue,
-  (newValue) => {
-    if (newValue === true) {
-      url.value = "";
-    }
-  }
-);
+const url = ref<string>("");
 
 async function cloneRepo() {
   try {
@@ -141,8 +127,6 @@ async function cloneRepo() {
         url: url.value,
       }),
     });
-
-    emit("cloned");
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {

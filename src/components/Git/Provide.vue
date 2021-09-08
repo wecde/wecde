@@ -4,8 +4,6 @@
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
-    :model-value="modelValue"
-    @update:model-value="$emit('update:model-value', $event)"
   >
     <q-card>
       <q-card-section class="row items-center q-pb-1 q-pt-2">
@@ -107,13 +105,6 @@ import { useStore } from "src/store";
 import type { HostType } from "src/store/git-configs/state";
 import { hosts } from "src/store/git-configs/state";
 import { ref, watch } from "vue";
-
-defineProps<{
-  modelValue: boolean;
-}>();
-defineEmits<{
-  (ev: "update:model-value", v: boolean): void;
-}>();
 
 const hostEditing = ref<HostType>("github.com");
 const store = useStore();

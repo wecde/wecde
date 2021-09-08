@@ -4,9 +4,8 @@
     full-width
     transition-show="jump-down"
     transition-hide="jump-up"
-    :model-value="modelValue"
-    @update:model-value="$emit('update:model-value', $event)"
     :persistent="loading"
+    @update:model-value="$emit('update:model-value', $event)"
   >
     <q-card>
       <q-card-section class="row items-center q-pb-1 q-pt-2">
@@ -117,9 +116,6 @@ import { add as _add, commit as _commit } from "src/shared/git-shared";
 import { useStore } from "src/store";
 import { ref } from "vue";
 
-defineProps<{
-  modelValue: boolean;
-}>();
 const emit = defineEmits<{
   (e: "update:model-value", v: boolean): ($event: boolean) => void;
 }>();

@@ -147,12 +147,25 @@
     </template>
   </Template-Tab>
 
-  <Clone v-model="stateClone" />
-  <Provide v-model="stateProvide" />
-  <Create
-    v-model="stateCreate"
-    :names-exists="projects.map((item) => basename(item.fullpath))"
-  />
+  <Free-Component :active="stateClone">
+    <template v-slot="{ on }">
+      <Clone v-model="stateClone" v-on="on" />
+    </template>
+  </Free-Component>
+  <Free-Component :active="stateProvide">
+    <template v-slot="{ on }">
+      <Provide v-model="stateProvide" v-on="on" />
+    </template>
+  </Free-Component>
+  <Free-Component :active="stateCreate">
+    <template v-slot="{ on }">
+      <Create
+        v-model="stateCreate"
+        :names-exists="projects.map((item) => basename(item.fullpath))"
+        v-on="on"
+      />
+    </template>
+  </Free-Component>
 </template>
 
 <script lang="ts" setup>
@@ -166,6 +179,7 @@ import { Notify } from "quasar";
 import Clone from "src/components/Git/Clone.vue";
 import Provide from "src/components/Git/Provide.vue";
 import createProjectFromZip from "src/helpers/createProjectFromZip";
+import FreeComponent from "components/FreeComponent.vue";
 import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import { reactive, ref } from "vue";
