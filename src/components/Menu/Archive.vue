@@ -151,7 +151,7 @@
   <Provide v-model="stateProvide" />
   <Create
     v-model="stateCreate"
-    :names-exists="projects.map((item) => basename(item.value.fullpath))"
+    :names-exists="projects.map((item) => basename(item.fullpath))"
   />
 </template>
 

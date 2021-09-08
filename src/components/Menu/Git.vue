@@ -293,6 +293,7 @@ import BranchManager from "components/Git/BranchManager.vue";
 import ChangesList from "components/Git/ChangesList.vue";
 import ChangesTree from "components/Git/ChangesTree.vue";
 import CommitManager from "components/Git/CommitManager.vue";
+import Log from "components/Git/Log.vue";
 import RemoteManager from "components/Git/RemoteManager.vue";
 import TagManager from "components/Git/TagManager.vue";
 import git, { checkout as _checkout } from "isomorphic-git";
@@ -327,7 +328,7 @@ const commitManager = ref<boolean>(false);
 const branchManager = ref<boolean>(false);
 const remoteManager = ref<boolean>(false);
 const tagManager = ref<boolean>(false);
-const log = ref<boolean>(true)
+const log = ref<boolean>(true);
 // *
 
 type SubItem = {
@@ -378,16 +379,12 @@ watch(
     immediate: true,
   }
 );
-registerWatch(
-   "projects/*/.git/HEAD",
-  () => void refreshGit(),
-  {
-    dir: () => store.state.editor.project,
-    miniOpts: {
-      dot: true,
-    },
-  }
-);
+registerWatch("projects/*/.git/HEAD", () => void refreshGit(), {
+  dir: () => store.state.editor.project,
+  miniOpts: {
+    dot: true,
+  },
+});
 
 const menu: Menu = [
   {
@@ -499,47 +496,6 @@ const menu: Menu = [
     name: "Commit",
     icon: "mdi-source-commit",
     onClick: () => void (commitManager.value = true),
-    /*subs: [
-      {
-        name: "Commit",
-      },
-      {
-        name: "Commit Staged",
-      },
-      {
-        name: "Commit All",
-      },
-      {
-        name: "Undo Last Commit",
-      },
-      {
-        name: "Abort Rebase",
-      },
-      {
-        separator: true,
-      },
-      {
-        name: "Commit Staged (Amend)",
-      },
-      {
-        name: "Commit All (Amend)",
-      },
-      {
-        separator: true,
-      },
-      {
-        name: "Commit Staged (Singed Off)",
-      },
-      {
-        name: "Commit All (Singed Off)",
-      },
-      {
-        separator: true,
-      },
-      {
-        name: "Add Co-authors",
-      },
-    ],*/
   },
   {
     name: "Changes",
@@ -637,47 +593,24 @@ const menu: Menu = [
     name: "Branch",
     icon: "mdi-source-branch",
     onClick: () => void (branchManager.value = true),
-    // subs: [
-    //   {
-    //     name: "Merge Branch...",
-    //   },
-    //   {
-    //     name: "Rebase Branch...",
-    //   },
-    //   {
-    //     name: "Create Branch...",
-    //   },
-    //   {
-    //     name: "Create Branch From...",
-    //   },
-    //   {
-    //     name: "Rename Branch...",
-    //   },
-    //   {
-    //     name: "Delete Branch...",
-    //   },
-    //   {
-    //     name: "Publish Branch...",
-    //   },
-    // ],
   },
   {
     name: "Remote",
     icon: "mdi-remote-desktop",
     onClick: () => void (remoteManager.value = true),
-    // subs: [
-    //   {
-    //     name: "Add Remote...",
-    //   },
-    //   {
-    //     name: "Remove Remote",
-    //   },
-    // ],
   },
   {
     name: "Tags",
     icon: "mdi-tag-outline",
     onClick: () => void (tagManager.value = true),
+  },
+  {
+    separator: true,
+  },
+  {
+    name: "Logs",
+    icon: "mdi-format-list-bulleted",
+    onClick: () => void (log.value = true),
   },
 ];
 

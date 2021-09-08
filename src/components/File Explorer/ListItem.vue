@@ -14,8 +14,8 @@
       modified: status === `122` || status === `123`,
 
       'star-deleted':
-        isFolder === false && (status === `101` || status === '10x'),
-      deleted: isFolder === false && status === `100`,
+        file.stat.isFile() && (status === `101` || status === '10x'),
+      deleted: file.stat.isFile() && status === `100`,
     }"
     v-ripple
     @click="clickToFile"
