@@ -45,6 +45,7 @@
           transition-hide="jump-up"
           anchor="bottom right"
           self="top right"
+          style="max-height: 70vh"
         >
           <q-list
             style="min-width: 100px"
