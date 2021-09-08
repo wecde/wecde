@@ -6,25 +6,12 @@
         :key="item"
         :fullpath="item"
         :index="index"
+        @goto-me="scrollSessionWrapperToSessionActive"
       />
     </div>
 
     <div class="buttons-task-bar">
-      <q-btn
-        flat
-        round
-        padding="xs"
-        v-if="previewing === false"
-        @click="toggleSearchBar"
-        icon="ti-search"
-      />
-
-      <q-btn
-        flat
-        round
-        padding="xs"
-        :icon="previewing ? 'ti-pencil-alt' : 'ti-image'"
-      />
+      <span data-id="code.btn-addons" />
 
       <q-btn
         flat
@@ -32,33 +19,19 @@
         icon="mdi-play"
         padding="xs"
         @click="serverIsRunning = true"
-      >
-        <q-badge color="blue" floating v-if="serverIsRunning" />
-      </q-btn>
+      />
     </div>
   </App-Hammer>
 
-  <div
-    class="absolute fit"
-    style="height: calc(100% - 50px) !important"
-    ref="wrapEditor"
-  >
+  <div class="absolute fit" style="height: calc(100% - 50px) !important">
     <!-- padding-top offset for navbar -->
     <template v-if="fullpath">
       <Editor-SVG :fullpath="fullpath" v-if="isSvg(fullpath)" />
-      <Preview
-        :fullpath="fullpath"
-        v-else-if="
-          isImage(fullpath) ||
-          isVideo(fullpath) ||
-          isAudio(fullpath) ||
-          isFont(fullpath)
-        "
-      />
       <Editor-Markdown :fullpath="fullpath" v-else-if="isMarkdown(fullpath)" />
+      <Preview :fullpath="fullpath" v-else-if="allowPreview(fullpath)" />
       <Editor-Code
         :fullpath="fullpath"
-        v-else-if="fullpath && !isBinaryPath(fullpath.value)"
+        v-else-if="!isBinaryPath(fullpath.value)"
       />
       <div class="q-pt-4 text-caption q-px-6 q-pb-6" v-else>
         This file is not displayed in the text editor because it is either
@@ -78,7 +51,6 @@
 import { Browser } from "@capacitor/browser";
 import { Toast } from "@capacitor/toast";
 import { WebServer } from "@ionic-native/web-server";
-import type { Ace } from "ace-builds";
 import AppHammer from "components/App/Hammer.vue";
 import EditorCode from "components/Editor/Code.vue";
 import EditorMarkdown from "components/Editor/Markdown.vue";
@@ -87,12 +59,9 @@ import SessionItem from "components/Editor/SessionItem.vue";
 import Preview from "components/Preview.vue";
 import isBinaryPath from "is-binary-path-cross";
 import {
-  isAudio,
-  isFont,
-  isImage,
+  allowPreview,
   isMarkdown,
   isSvg,
-  isVideo,
 } from "src/helpers/is-file-type";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
@@ -101,6 +70,7 @@ import { useI18n } from "vue-i18n";
 
 const i18n = useI18n();
 const store = useStore();
+
 const fullpath = computed<string | null>(
   () => store.getters["editor/session"] as string | null
 );
@@ -185,39 +155,6 @@ watch(
     immediate: true,
   }
 );
-
-const wrapEditor = ref<HTMLDivElement | null>(null);
-function toggleSearchBar(): void {
-  (
-    wrapEditor.value?.querySelector("[data-id=editor]") as
-      | null
-      | (HTMLDivElement & {
-          ace?: Ace.Editor;
-        })
-  )?.ace?.execCommand("find");
-}
-
-const previewing = computed<boolean>({
-  get() {
-    return (
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
-      (wrapEditor.value?.querySelector("[data-id=previewer]") as any)
-        ?.__vueParentComponent.ctx.previewing || false
-    );
-  },
-  set(value) {
-    if (
-      wrapEditor.value &&
-      // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion, @typescript-eslint/no-explicit-any
-      (wrapEditor.value?.querySelector("[data-id=previewer]") as any)
-        ?.__vueParentComponent.ctx
-    ) {
-      const el = wrapEditor.value.querySelector("[data-id=previewer]");
-      // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
-      (el as any).__vueParentComponent.ctx.previewing = value;
-    }
-  },
-});
 </script>
 
 <style lang="scss" scoped>
