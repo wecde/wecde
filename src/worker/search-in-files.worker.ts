@@ -20,6 +20,8 @@ export type Result = {
 };
 export type SearchInFileRemoteInterface = ReturnType<typeof methods>;
 
+const REGEXP_MATCH_EXTNAME = /^\.[^\/\\]+$/;
+
 function isParentFolder(parent: string, children: string): boolean {
   parent = resolve(parent);
   children = resolve(children);
@@ -34,20 +36,63 @@ function pathEquals(a: string, b: string): boolean {
   return resolve(a) === resolve(b);
 }
 
-function matchCheck(path: string, pattern: string): boolean {
+function matchCheck(path: string, pattern: string, filterDir = false): boolean {
   if (pathEquals(pattern, path) || isParentFolder(pattern, path)) {
     return true;
+  }
+
+  if (REGEXP_MATCH_EXTNAME.test(pattern)) {
+    if (
+      minimatch(path, `**/*${pattern}`, {
+        dot: true,
+      })
+    ) {
+      return true;
+    }
+  }
+
+  if (filterDir) {
+    const patternSplit = pattern.split("/");
+
+    // eslint-disable-next-line functional/no-loop-statement
+    for (
+      // eslint-disable-next-line functional/no-let
+      let index = 0, len = patternSplit.length;
+      index < len;
+      index++
+    ) {
+      // eslint-disable-next-line functional/no-let
+      let patternChild = patternSplit.slice(0, index + 1).join("/");
+
+      if (
+        minimatch(path, patternChild, {
+          dot: true,
+        })
+      ) {
+        return true;
+      }
+
+      patternChild += index < len - 1 || pattern.endsWith("/") ? "/" : "";
+      if (patternChild.endsWith("/")) {
+        // e.x: src/, src/**/
+        patternChild += "**"; // e.x: src/**, src/**/**
+      }
+
+      if (
+        minimatch(path, patternChild, {
+          dot: true,
+        })
+      ) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   if (pattern.endsWith("/")) {
     // e.x: src/, src/**/
     pattern += "**"; // e.x: src/**, src/**/**
-  }
-
-  if (/^\.[^\/\\]+$/.test(pattern)) {
-    if (matchCheck(path, `**${pattern}`)) {
-      return true;
-    }
   }
 
   return minimatch(path, pattern, {
@@ -178,17 +223,25 @@ function methods() {
                   return;
                 }
 
+                const fullpath = join(dir, file);
                 // is ok
+                const isDir = await fs.isDirectory(fullpath);
                 if (
                   include.length === 0 ||
-                  include.some((test) => matchCheck(file, test))
+                  include.some((test) => {
+                    if (matchCheck(file, test, isDir)) {
+                      return true;
+                    }
+
+                    if (isDir) {
+                      return REGEXP_MATCH_EXTNAME.test(test);
+                    }
+                  })
                 ) {
-                  // cont
-                  const fullpath = join(dir, file);
-                  if (await fs.isFile(fullpath)) {
-                    await cb(fullpath);
-                  } else {
+                  if (isDir) {
                     await globby(file, include, exclude, cb);
+                  } else {
+                    await cb(fullpath);
                   }
                 }
               })
