@@ -108,7 +108,7 @@ import fs from "modules/fs";
 import { basename, join } from "path-cross";
 import { Notify, useQuasar } from "quasar";
 import exportDirectoryByZip from "src/helpers/exportDirectoryByZip";
-import { registerWatch, StatItem } from "src/helpers/fs";
+import { registerWatch, StatItem } from "src/helpers/fs-helper";
 import { useStore } from "src/store";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";

@@ -39,7 +39,7 @@
 <script lang="ts" setup>
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import { basename } from "path-cross";
-import { registerWatch } from "src/helpers/fs";
+import { registerWatch } from "src/helpers/fs-helper";
 import { useStore } from "src/store";
 import { computed } from "vue";
 

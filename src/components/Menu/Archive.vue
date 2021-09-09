@@ -180,7 +180,7 @@ import { Notify } from "quasar";
 import Clone from "src/components/Git/Clone.vue";
 import Provide from "src/components/Git/Provide.vue";
 import createProjectFromZip from "src/helpers/createProjectFromZip";
-import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs";
+import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs-helper";
 import { useStore } from "src/store";
 import { reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";

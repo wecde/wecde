@@ -1,7 +1,7 @@
 import git from "isomorphic-git";
 import fs from "modules/fs";
 import { join } from "path-cross";
-import { configs } from "src/helpers/git";
+import { configs } from "src/helpers/git-helper";
 import { store } from "src/store";
 
 export async function reset(filepaths: readonly string[]): Promise<void> {

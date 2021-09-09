@@ -187,7 +187,7 @@ import fs from "modules/fs";
 import { extname } from "path-cross";
 import { getSupportInfo } from "prettier";
 import type { SupportLanguage } from "prettier";
-import { registerWatch } from "src/helpers/fs";
+import { registerWatch } from "src/helpers/fs-helper";
 import { getScrollBehavior, setScrollBehavior } from "src/helpers/metadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";

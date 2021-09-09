@@ -9,7 +9,7 @@
 
 <script lang="ts" setup>
 import { basename } from "path-cross";
-import type { StatItem } from "src/helpers/fs";
+import type { StatItem } from "src/helpers/fs-helper";
 
 import FileExplorerListItem from "./ListItem.vue";
 

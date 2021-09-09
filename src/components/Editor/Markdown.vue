@@ -22,7 +22,7 @@
 <script lang="ts" setup>
 import marked from "marked";
 import fs from "modules/fs";
-import { registerWatch } from "src/helpers/fs";
+import { registerWatch } from "src/helpers/fs-helper";
 import { onMounted, ref, watch } from "vue";
 
 import EditorCode from "./Code.vue";

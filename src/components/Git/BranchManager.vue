@@ -189,7 +189,7 @@ import {
 import fs from "modules/fs";
 import { basename } from "path-cross";
 import { useQuasar } from "quasar";
-import { onError } from "src/helpers/git";
+import { onError } from "src/helpers/git-helper";
 import { listAllBranches } from "src/shared/git-shared";
 import { useStore } from "src/store";
 import { ref } from "vue";

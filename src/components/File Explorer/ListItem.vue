@@ -254,7 +254,7 @@ import {
   registerWatch,
   sortTreeFilesystem,
   StatItem,
-} from "src/helpers/fs";
+} from "src/helpers/fs-helper";
 import { useStore } from "src/store";
 import { computed, defineAsyncComponent, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
