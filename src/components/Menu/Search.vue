@@ -29,147 +29,174 @@
         padding="xs"
         size="13px"
         class="q-ml-xs"
-        icon="mdi-file-word-xox-outline"
+        icon="mdi-file-word-box-outline"
         :color="modeWordBox ? `blue` : undefined"
         @click="modeWordBox = !modeWordBox"
       />
     </template>
 
     <template v-slot:contents>
-      <div class="flex no-wrap items-center justify-between q-ml-n4">
-        <q-icon
-          size="20px"
-          @click="openReplace = !openReplace"
-          :name="openReplace ? 'mdi-chevron-down' : 'mdi-chevron-right'"
-        />
-        <div class="full-width">
-          <q-input
-            :placeholder="$t('placeholder.search')"
-            rounded
-            dense
-            outlined
-            v-model="keywordSearch"
-            @keypress.enter="search"
+      <div class="flex no-wrap column fit">
+        <div class="flex no-wrap items-center justify-between q-ml-n4">
+          <q-icon
+            size="20px"
+            @click="openReplace = !openReplace"
+            :name="openReplace ? 'mdi-chevron-down' : 'mdi-chevron-right'"
           />
-          <q-input
-            :placeholder="$t('placeholder.replace')"
-            rounded
-            dense
-            outlined
-            class="q-mt-1"
-            v-model="keywordReplace"
-            v-show="openReplace"
-          >
-            <template v-slot:append>
-              <q-icon
-                @click="replaceAll"
-                v-ripple="false"
-                name="mdi-file-replace-outline"
-                size="0.85em"
-              />
-            </template>
-          </q-input>
+          <div class="full-width">
+            <q-input
+              dense
+              square
+              outlined
+              :placeholder="$t('placeholder.search')"
+              v-model="keywordSearch"
+              @keypress.enter="search"
+            />
+            <q-input
+              dense
+              square
+              outlined
+              :placeholder="$t('placeholder.replace')"
+              class="q-mt-1"
+              v-model="keywordReplace"
+              v-show="openReplace"
+            >
+              <template v-slot:append>
+                <q-icon
+                  @click="replaceAll"
+                  v-ripple="false"
+                  name="mdi-file-replace-outline"
+                  size="0.85em"
+                />
+              </template>
+            </q-input>
+          </div>
         </div>
-      </div>
-      <div class="text-right">
-        <q-icon
-          size="20px"
-          @click="openRules = !openRules"
-          name="mdi-dots-horizontal"
-        />
-        <div class="text-left" v-show="openRules">
-          <small class="text-caption">{{ $t("label.files-include") }}</small>
-          <q-input
-            rounded
-            dense
-            outlined
-            v-model="include"
-            placeholder="(e.g *.ts, src/**/include)"
+        <div class="text-right">
+          <q-icon
+            size="20px"
+            @click="openRules = !openRules"
+            name="mdi-dots-horizontal"
           />
+          <div class="text-left" v-show="openRules">
+            <small class="text-caption">{{ $t("label.files-include") }}</small>
+            <q-input
+              dense
+              square
+              outlined
+              v-model="include"
+              placeholder="(e.g *.ts, src/**/include)"
+            />
 
-          <small class="text-caption q-mt-1">{{
-            $t("label.files-exclude")
-          }}</small>
-          <q-input
-            rounded
-            dense
-            outlined
-            v-model="exclude"
-            placeholder="(e.g *.ts, src/**/exclude)"
-          />
-        </div>
-      </div>
-
-      <div style="position: relative">
-        <q-linear-progress
-          indeterminate
-          color="cyan"
-          size="2px"
-          rounded
-          style="position: absolute; top: 0"
-          v-if="loading"
-        />
-
-        <App-Collapse
-          v-for="item in results"
-          :key="item.file"
-          :eager="true"
-          content-class="q-ml-4"
-        >
-          <template v-slot:activator="{ state, on }">
-            <div class="file-object" v-on="on" v-ripple>
-              <q-icon
-                size="20px"
-                :name="state ? 'mdi-chevron-down' : 'mdi-chevron-right'"
-              />
-              <img
-                class="icon-file"
-                :src="
-                  getIcon({
-                    light: false,
-                    isOpen: false,
-                    isFolder: false,
-                    name: item.basename,
-                  })
-                "
-              />
-
-              <div class="full-width text-truncate">
-                {{ item.basename }}
-                <small class="text-caption" style="opacity: 0.8">{{
-                  item.file
-                }}</small>
-                <span class="chip blue">{{ item.match.length }}</span>
-              </div>
-            </div>
-          </template>
-
-          <div
-            class="flex items-center justify-between"
-            v-for="(match, index) in item.match"
-            :key="match.index"
-            v-ripple
-            @click="
-              gotoEditor(
-                item.file,
-                match.index,
-                match.index + match.value.length
-              )
-            "
-          >
-            <div class="text-truncate" style="font-size: 15px">
-              {{ match.firstValue
-              }}<strong class="text-blue">{{ match.value }}</strong
-              >{{ match.lastValue }}
-            </div>
-
-            <q-icon
-              size="13px"
-              @click.prevent.stop="replaceSearch(item, index)"
-              name="mdi-check"
+            <small class="text-caption q-mt-1">{{
+              $t("label.files-exclude")
+            }}</small>
+            <q-input
+              dense
+              square
+              outlined
+              v-model="exclude"
+              placeholder="(e.g *.ts, src/**/exclude)"
             />
           </div>
-        </App-Collapse>
+        </div>
+
+        <div style="position: relative" class="full-height scroll q-ml-n4">
+          <q-linear-progress
+            indeterminate
+            color="cyan"
+            size="2px"
+            rounded
+            style="position: absolute; top: 0"
+            v-if="loading"
+          />
+
+          <App-Collapse
+            v-for="result in results"
+            :key="result.fullpath"
+            :eager="true"
+            content-class="q-ml-4"
+          >
+            <template v-slot:activator="{ state, on }">
+              <div
+                class="file-object"
+                :class="{
+                  dark: $q.dark.isActive,
+                }"
+                v-on="on"
+                v-ripple
+              >
+                <q-icon
+                  size="20px"
+                  :name="state ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+                />
+                <img
+                  class="icon-file"
+                  :src="
+                    getIcon({
+                      light: false,
+                      isOpen: false,
+                      isFolder: false,
+                      name: result.basename,
+                    })
+                  "
+                />
+
+                <div
+                  class="
+                    full-width
+                    flex
+                    no-wrap
+                    justify-between
+                    items-center
+                    text-weight-medium
+                  "
+                >
+                  <div class="text-truncate">
+                    {{ result.basename }}
+                    <small
+                      class="text-caption"
+                      style="opacity: 0.8; min-width: 1.2em"
+                      >{{ result.pathOfProject }}</small
+                    >
+                  </div>
+                  <q-badge rounded color="primary">{{
+                    result.match.length
+                  }}</q-badge>
+                </div>
+              </div>
+            </template>
+
+            <div
+              class="flex items-center justify-between search-highlight"
+              :class="{
+                dark: $q.dark.isActive,
+              }"
+              v-for="(match, index) in result.match"
+              :key="match.index"
+              v-ripple
+              @click="
+                gotoEditor(
+                  result.fullpath,
+                  match.index,
+                  match.index + match.value.length
+                )
+              "
+            >
+              <div class="text-truncate" style="font-size: 15px">
+                {{ match.firstValue
+                }}<strong class="text-blue">{{ match.value }}</strong
+                >{{ match.lastValue }}
+              </div>
+
+              <q-icon
+                size="13px"
+                @click.prevent.stop="replaceSearch(result, index)"
+                name="mdi-check"
+              />
+            </div>
+          </App-Collapse>
+        </div>
       </div>
     </template>
   </Template-Tab>
@@ -178,27 +205,18 @@
 <script lang="ts" setup>
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
-import escapeRegExp from "escape-string-regexp";
-import isBinaryPath from "is-binary-path-cross";
 import fs from "modules/fs";
-import { basename } from "path-cross";
 import { useStore } from "src/store";
-import { createTimeoutBy, foreachAsync } from "src/utils";
-import { ref, watch } from "vue";
+import { foreachAsync } from "src/utils";
+import {
+  refreshSearchInFiles,
+  useSearchInFiles,
+} from "src/worker/search-in-files";
+import type { Result as SearchResult } from "src/worker/search-in-files.worker";
+import { reactive, ref, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import TemplateTab from "./template/Tab.vue";
-
-interface Result {
-  readonly file: string;
-  readonly basename: string;
-  readonly match: readonly {
-    readonly index: number;
-    readonly firstValue: string;
-    readonly value: string;
-    readonly lastValue: string;
-  }[];
-}
 
 const store = useStore();
 const router = useRouter();
@@ -208,130 +226,52 @@ const modeLetterCase = ref<boolean>(false);
 const modeWordBox = ref<boolean>(false);
 
 const loading = ref<boolean>(false);
-const results = ref<Result[]>([]);
+const results = reactive<SearchResult[]>([]);
 
 const keywordSearch = ref<string>("");
 const keywordReplace = ref<string>("");
 const include = ref<string>("");
 const exclude = ref<string>("");
 
-const OFFSET_RESULT_SEARCH = 15;
-async function searchInFile(file: string): Promise<Result | void> {
-  if (isBinaryPath(file) === false) {
-    const regexp = new RegExp(
-      `(?:(${
-        modeRegexp.value
-          ? keywordSearch.value
-          : escapeRegExp(keywordSearch.value)
-      })${modeWordBox.value ? "\\s|$" : ""}){1}?`,
-      "g" + (modeLetterCase.value ? "" : "i")
-    );
-    const textContentFile = await fs.readFile(file, "utf8");
-    const rawMatch = textContentFile.matchAll(regexp);
-
-    if (rawMatch) {
-      const match = [...(rawMatch || [])].map((item) => {
-        const indexSearch = item.index || 0;
-        const indexNewlineBeforeSearch = textContentFile.lastIndexOf(
-          "\n",
-          indexSearch - 1
-        );
-        const indexNewLineAfterSearch = textContentFile.indexOf(
-          "\n",
-          indexSearch + 1 + item[1].length
-        );
-
-        const distIndexNewlineBeforeSearch =
-          indexSearch - indexNewlineBeforeSearch;
-        const distIndexNewlineAfterSearch =
-          indexNewLineAfterSearch - (indexSearch + item[0].length);
-
-        return {
-          index: indexSearch,
-          firstValue: textContentFile.substring(
-            distIndexNewlineBeforeSearch < OFFSET_RESULT_SEARCH &&
-              indexNewlineBeforeSearch !== -1
-              ? indexNewlineBeforeSearch
-              : indexSearch - OFFSET_RESULT_SEARCH,
-            indexSearch
-          ),
-          value: item[1],
-          lastValue: textContentFile.substring(
-            indexSearch + item[1].length,
-            distIndexNewlineAfterSearch < OFFSET_RESULT_SEARCH &&
-              indexNewLineAfterSearch !== -1
-              ? indexNewLineAfterSearch
-              : indexSearch + item[1].length + OFFSET_RESULT_SEARCH
-          ),
-        };
-      });
-
-      if (match.length > 0) {
-        return {
-          file,
-          basename: basename(file),
-          match,
-        };
-      }
-    }
-  }
-}
-
-function search(): void {
-  createTimeoutBy(
-    "menu.search.timeout-search",
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async (): Promise<void> => {
-      results.value.splice(0);
-
-      loading.value = true;
-      if (store.state.editor.project && !!keywordSearch.value) {
-        // await foreachFiles(
-        //   store.state.editor.project,
-        //   [
-        //     "^.git",
-        //     ...exclude.value
-        //       .replace(/(?:\s)+,(?:\s)+/g, ",")
-        //       .split(",")
-        //       .filter(Boolean),
-        //   ],
-        //   [
-        //     ...include.value
-        //       .replace(/(?:\s)+,(?:\s)+/g, ",")
-        //       .split(",")
-        //       .filter(Boolean),
-        //   ],
-        //   async (dirname: string, filename: string): Promise<void> => {
-        //     const file = join(dirname, filename);
-        //     const result = await searchInFile(file);
-        //     if (result) {
-        //       results.value.push(result);
-        //     }
-        //   }
-        // );
-      }
-      loading.value = false;
-    },
-    500,
-    {
-      skipme: true,
-    }
-  );
-}
-
-watch(modeRegexp, () => void search());
-watch(modeLetterCase, () => void search());
-watch(modeWordBox, () => void search());
+watch([modeRegexp, modeLetterCase, modeWordBox], () => void search());
 // watch(keywordSearch, () => void search());
 
 const openReplace = ref<boolean>(false);
 const openRules = ref<boolean>(false);
 
-async function replaceSearch(item: Result, matchIndex: number): Promise<void> {
+async function search(): Promise<void> {
+  if (store.state.editor.project) {
+    loading.value = true;
+
+    void refreshSearchInFiles();
+    // eslint-disable-next-line functional/immutable-data
+    results.splice(0);
+
+    await useSearchInFiles().search({
+      fs,
+      dir: store.state.editor.project,
+      keyword: keywordSearch.value,
+      useRegexp: modeRegexp.value,
+      useWordbox: modeWordBox.value,
+      useLetterCase: modeLetterCase.value,
+      include: include.value,
+      exclude: exclude.value,
+      // eslint-disable-next-line functional/immutable-data
+      onProgress: (rt) => results.push(rt),
+    });
+
+    loading.value = false;
+  }
+}
+
+async function replaceSearch(
+  item: SearchResult,
+  matchIndex: number
+): Promise<void> {
   loading.value = true;
 
-  const { file } = item;
-  const context = await fs.readFile(file, "utf8");
+  const { fullpath } = item;
+  const context = await fs.readFile(fullpath, "utf8");
   const { index, value } = item.match[matchIndex];
 
   // eslint-disable-next-line functional/no-let
@@ -342,22 +282,13 @@ async function replaceSearch(item: Result, matchIndex: number): Promise<void> {
       : keywordReplace.value) +
     context.slice(index + value.length);
 
-  await fs.writeFile(file, newContext);
-
-  const newResult = await searchInFile(file);
-
-  if (newResult) {
-    const index = results.value.indexOf(item);
-    results.value.splice(index, 1, newResult);
-  } else {
-    results.value.splice(results.value.indexOf(item), 1);
-  }
+  await fs.writeFile(fullpath, newContext);
 
   loading.value = false;
 }
 
 async function replaceAll(): Promise<void> {
-  await foreachAsync(results.value, async (result) => {
+  await foreachAsync(results, async (result) => {
     await foreachAsync(result.match, async (item, index) => {
       await replaceSearch(result, index);
     });
@@ -382,11 +313,19 @@ function gotoEditor(file: string, start: number, stop: number): void {
   @include file-object;
 
   padding: {
-    left: 0;
+    left: 3px;
     right: 0;
   }
 }
 .icon-file {
   @include icon-file;
+}
+
+.search-highlight {
+  color: #5e6d82;
+
+  &.dark {
+    color: #b9bbc1;
+  }
 }
 </style>

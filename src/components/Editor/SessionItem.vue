@@ -39,6 +39,7 @@
 <script lang="ts" setup>
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import { basename } from "path-cross";
+import { registerWatch } from "src/helpers/fs-helper";
 import { useStore } from "src/store";
 import { computed } from "vue";
 
@@ -47,10 +48,18 @@ const props = defineProps<{
   fullpath: string;
   index: number;
 }>();
+const emit = defineEmits<{
+  (ev: "goto-me"): void
+}>()
 
 const status = computed<string | null>(() => {
   return store.getters["editor/status:filepath"](props.fullpath, false);
 });
+
+registerWatch(() => props.fullpath, () => void emit("goto-me"), {
+  type: "file",
+  mode: "absolute"
+})
 </script>
 
 <style lang="scss" scoped>

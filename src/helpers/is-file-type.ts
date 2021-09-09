@@ -29,3 +29,7 @@ export function isVideo(path: string): boolean {
 export function isMarkdown(path: string): boolean {
   return getMime(path) === "text/markdown";
 }
+
+export function allowPreview(path: string): boolean {
+  return isImage(path) || isVideo(path) || isAudio(path) || isFont(path);
+}

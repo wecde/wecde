@@ -153,7 +153,7 @@ import {
   registerWatch,
   sortTreeFilesystem,
   StatItem,
-} from "src/helpers/fs";
+} from "src/helpers/fs-helper";
 import fs from "src/modules/fs";
 import { useStore } from "src/store";
 import { computed, reactive, ref, watch } from "vue";

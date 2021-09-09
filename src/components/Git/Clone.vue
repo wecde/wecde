@@ -67,7 +67,7 @@ import {
   onMessage,
   onProgress,
   onStart,
-} from "src/helpers/git";
+} from "src/helpers/git-helper";
 import { useGitCloneWorker } from "src/worker/git-clone";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";

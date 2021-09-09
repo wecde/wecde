@@ -138,7 +138,7 @@ import {
   ReadCommitResult,
 } from "isomorphic-git";
 import fs from "modules/fs";
-import { onError } from "src/helpers/git";
+import { onError } from "src/helpers/git-helper";
 import { useStore } from "src/store";
 import { reactive, ref } from "vue";
 

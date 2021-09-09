@@ -321,7 +321,7 @@ import git, { checkout as _checkout } from "isomorphic-git";
 import http from "isomorphic-git/http/web";
 import fs from "modules/fs";
 import { join } from "path-cross";
-import { registerWatch } from "src/helpers/fs";
+import { registerWatch } from "src/helpers/fs-helper";
 import {
   configs as gitConfigs,
   onAuth,
@@ -332,7 +332,7 @@ import {
   onMessage,
   onProgress,
   onStart,
-} from "src/helpers/git";
+} from "src/helpers/git-helper";
 import {
   add as _add,
   commit as _commit,
