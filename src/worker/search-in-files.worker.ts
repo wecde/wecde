@@ -2,7 +2,7 @@ import type { FS } from "capacitor-fs";
 import escapeRegExp from "escape-string-regexp";
 import isBinaryPath from "is-binary-path-cross";
 import minimatch from "minimatch";
-import { basename, join } from "path-cross";
+import { basename, join, resolve } from "path-cross";
 import { expose } from "workercom";
 
 export type Result = {
@@ -20,6 +20,41 @@ export type SearchInFileRemoteInterface = {
   readonly search: typeof search;
   readonly searchInFile: typeof searchInFile;
 };
+
+function isParentFolder(parent: string, children: string): boolean {
+  parent = resolve(parent);
+  children = resolve(children);
+  const pathsA = parent.split("/");
+  const pathsB = children.split("/");
+  return (
+    pathEquals(parent, children) === false &&
+    pathsA.every((value, index) => value === pathsB[index])
+  );
+}
+function pathEquals(a: string, b: string): boolean {
+  return resolve(a) === resolve(b);
+}
+
+function matchCheck(path: string, pattern: string): boolean {
+  if (pathEquals(pattern, path) || isParentFolder(pattern, path)) {
+    return true;
+  }
+
+  if (pattern.endsWith("/")) {
+    // e.x: src/, src/**/
+    pattern += "**"; // e.x: src/**, src/**/**
+  }
+
+  if (/^\.[^\/\\]+$/.test(pattern)) {
+    if (matchCheck(path, `**${pattern}`)) {
+      return true;
+    }
+  }
+
+  return minimatch(path, pattern, {
+    dot: true,
+  });
+}
 
 const OFFSET_RESULT_SEARCH = 15;
 async function searchInFile({
@@ -130,20 +165,15 @@ async function search({
           files.map(async (file) => {
             file = join(dirname, file);
 
-            // check include
-            const veryInclude = include.every((test) =>
-              minimatch(test, file, {
-                dot: true,
-              })
-            );
-            const veryExclude = exclude.every(
-              (test) =>
-                minimatch(test, file, {
-                  dot: true,
-                }) === false
-            );
+            if (exclude.some((test) => matchCheck(file, test))) {
+              return;
+            }
+
             // is ok
-            if (veryInclude && veryExclude) {
+            if (
+              include.length === 0 ||
+              include.some((test) => matchCheck(file, test))
+            ) {
               // cont
               const fullpath = join(dir, file);
               if (await fs.isFile(fullpath)) {
