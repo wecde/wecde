@@ -10,8 +10,8 @@
         size="13px"
         class="q-ml-xs"
         icon="mdi-regex"
-        :color="modeRegexp ? `blue` : undefined"
-        @click="modeRegexp = !modeRegexp"
+        :color="useRegexp ? `blue` : undefined"
+        @click="useRegexp = !useRegexp"
       />
       <q-btn
         flat
@@ -20,8 +20,8 @@
         size="13px"
         class="q-ml-xs"
         icon="mdi-format-letter-case"
-        :color="modeLetterCase ? `blue` : undefined"
-        @click="modeLetterCase = !modeLetterCase"
+        :color="useLetterCase ? `blue` : undefined"
+        @click="useLetterCase = !useLetterCase"
       />
       <q-btn
         flat
@@ -30,8 +30,8 @@
         size="13px"
         class="q-ml-xs"
         icon="mdi-file-word-box-outline"
-        :color="modeWordBox ? `blue` : undefined"
-        @click="modeWordBox = !modeWordBox"
+        :color="useWordbox ? `blue` : undefined"
+        @click="useWordbox = !useWordbox"
       />
     </template>
 
@@ -40,8 +40,8 @@
         <div class="flex no-wrap items-center justify-between q-ml-n4">
           <q-icon
             size="20px"
-            @click="openReplace = !openReplace"
-            :name="openReplace ? 'mdi-chevron-down' : 'mdi-chevron-right'"
+            @click="replacerOpened = !replacerOpened"
+            :name="replacerOpened ? 'mdi-chevron-down' : 'mdi-chevron-right'"
           />
           <div class="full-width">
             <q-input
@@ -49,7 +49,7 @@
               square
               outlined
               :placeholder="$t('placeholder.search')"
-              v-model="keywordSearch"
+              v-model="searchValue"
               @keypress.enter="search"
             />
             <q-input
@@ -58,8 +58,8 @@
               outlined
               :placeholder="$t('placeholder.replace')"
               class="q-mt-1"
-              v-model="keywordReplace"
-              v-show="openReplace"
+              v-model="replaceValue"
+              v-show="replacerOpened"
             >
               <template v-slot:append>
                 <q-icon
@@ -112,7 +112,7 @@
           />
 
           <App-Collapse
-            v-for="result in results"
+            v-for="result in searchFilesResults"
             :key="result.fullpath"
             :eager="true"
             content-class="q-ml-4"
@@ -160,8 +160,20 @@
                       >{{ result.pathOfProject }}</small
                     >
                   </div>
+
+                  <q-btn
+                    color="inherit"
+                    flat
+                    dense
+                    icon="mdi-check"
+                    padding="none"
+                    size="0.8em"
+                    rounded
+                    @click.prevent.stop="replaceInFile(result)"
+                  />
+
                   <q-badge rounded color="primary">{{
-                    result.match.length
+                    result.matches.length
                   }}</q-badge>
                 </div>
               </div>
@@ -172,16 +184,9 @@
               :class="{
                 dark: $q.dark.isActive,
               }"
-              v-for="(match, index) in result.match"
+              v-for="match in result.matches"
               :key="match.index"
               v-ripple
-              @click="
-                gotoEditor(
-                  result.fullpath,
-                  match.index,
-                  match.index + match.value.length
-                )
-              "
             >
               <div class="text-truncate" style="font-size: 15px">
                 {{ match.firstValue
@@ -189,10 +194,22 @@
                 >{{ match.lastValue }}
               </div>
 
-              <q-icon
-                size="13px"
-                @click.prevent.stop="replaceSearch(result, index)"
-                name="mdi-check"
+              <q-btn
+                color="inherit"
+                flat
+                dense
+                icon="mdi-check"
+                padding="none"
+                size="0.8em"
+                rounded
+                @click.prevent.stop="
+                  replaceByMatch({
+                    fullpath: result.fullpath,
+                    regexp: result.regexp,
+                    flags: result.flags,
+                    match,
+                  })
+                "
               />
             </div>
           </App-Collapse>
@@ -207,36 +224,36 @@ import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import fs from "modules/fs";
 import { useStore } from "src/store";
-import { foreachAsync } from "src/utils";
 import {
   refreshSearchInFiles,
   useSearchInFiles,
 } from "src/worker/search-in-files";
-import type { Result as SearchResult } from "src/worker/search-in-files.worker";
+import type {
+  Result,
+  Result as SearchResult,
+} from "src/worker/search-in-files.worker";
 import { reactive, ref, watch } from "vue";
-import { useRouter } from "vue-router";
 
 import TemplateTab from "./template/Tab.vue";
 
 const store = useStore();
-const router = useRouter();
 
-const modeRegexp = ref<boolean>(false);
-const modeLetterCase = ref<boolean>(false);
-const modeWordBox = ref<boolean>(false);
+const useRegexp = ref<boolean>(false);
+const useLetterCase = ref<boolean>(false);
+const useWordbox = ref<boolean>(false);
 
 const loading = ref<boolean>(false);
-const results = reactive<SearchResult[]>([]);
+const searchFilesResults = reactive<SearchResult[]>([]);
 
-const keywordSearch = ref<string>("");
-const keywordReplace = ref<string>("");
+const searchValue = ref<string>("");
+const replaceValue = ref<string>("");
 const include = ref<string>("");
 const exclude = ref<string>("");
 
-watch([modeRegexp, modeLetterCase, modeWordBox], () => void search());
-// watch(keywordSearch, () => void search());
+watch([useRegexp, useLetterCase, useWordbox], () => void search());
+// watch(searchValue, () => void search());
 
-const openReplace = ref<boolean>(false);
+const replacerOpened = ref<boolean>(false);
 const openRules = ref<boolean>(false);
 
 async function search(): Promise<void> {
@@ -245,63 +262,66 @@ async function search(): Promise<void> {
 
     void refreshSearchInFiles();
     // eslint-disable-next-line functional/immutable-data
-    results.splice(0);
+    searchFilesResults.splice(0);
 
     await useSearchInFiles().search({
       fs,
       dir: store.state.editor.project,
-      keyword: keywordSearch.value,
-      useRegexp: modeRegexp.value,
-      useWordbox: modeWordBox.value,
-      useLetterCase: modeLetterCase.value,
+      keyword: searchValue.value,
+      useRegexp: useRegexp.value,
+      useWordbox: useWordbox.value,
+      useLetterCase: useLetterCase.value,
       include: include.value,
       exclude: exclude.value,
       // eslint-disable-next-line functional/immutable-data
-      onProgress: (rt) => results.push(rt),
+      onProgress: (rt) => searchFilesResults.push(rt),
     });
 
     loading.value = false;
   }
 }
+async function replaceInFile(searchResult: Result): Promise<void> {
+  if (store.state.editor.project) {
+    loading.value = true;
 
-async function replaceSearch(
-  item: SearchResult,
-  matchIndex: number
-): Promise<void> {
-  loading.value = true;
-
-  const { fullpath } = item;
-  const context = await fs.readFile(fullpath, "utf8");
-  const { index, value } = item.match[matchIndex];
-
-  // eslint-disable-next-line functional/no-let
-  let newContext =
-    context.slice(0, index) +
-    (modeRegexp.value
-      ? value.replace(new RegExp(keywordSearch.value), keywordReplace.value)
-      : keywordReplace.value) +
-    context.slice(index + value.length);
-
-  await fs.writeFile(fullpath, newContext);
-
-  loading.value = false;
-}
-
-async function replaceAll(): Promise<void> {
-  await foreachAsync(results, async (result) => {
-    await foreachAsync(result.match, async (item, index) => {
-      await replaceSearch(result, index);
+    await useSearchInFiles().replaceInFile({
+      fs,
+      searchResult,
+      replaceValue: replaceValue.value,
     });
-  });
-}
 
-function gotoEditor(file: string, start: number, stop: number): void {
-  void router.push({
-    name: "editor",
-    query: {
-      selection: `${start}->${stop}`,
-    },
-  });
+    loading.value = false;
+  }
+}
+async function replaceByMatch({
+  fullpath,
+  regexp,
+  flags,
+  match,
+}: {
+  fullpath: string;
+  regexp: string;
+  flags: string;
+  match: Result["matches"][0];
+}) {
+  if (store.state.editor.project) {
+    loading.value = true;
+
+    await useSearchInFiles().replaceByMatch({
+      fs,
+      fullpath,
+      regexp,
+      flags,
+      match,
+      replaceValue: replaceValue.value,
+    });
+
+    loading.value = false;
+  }
+}
+async function replaceAll(): Promise<void> {
+  // don't need use loading
+  await Promise.all(searchFilesResults.map((result) => replaceInFile(result)));
 }
 </script>
 
@@ -323,6 +343,7 @@ function gotoEditor(file: string, start: number, stop: number): void {
 
 .search-highlight {
   color: #5e6d82;
+  position: relative;
 
   &.dark {
     color: #b9bbc1;
