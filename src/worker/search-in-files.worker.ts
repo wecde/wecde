@@ -9,7 +9,6 @@ export type Result = {
   readonly fullpath: string;
   readonly pathOfProject: string;
   readonly regexp: string;
-  readonly flags: string;
   readonly basename: string;
   readonly matches: readonly {
     readonly index: number;
@@ -178,7 +177,6 @@ function methods() {
               fullpath,
               pathOfProject: fullpath.split("/").slice(2).join("/"),
               regexp: regexp.toString(),
-              flags: regexp.flags,
               basename: basename(fullpath),
               matches,
             };
@@ -281,7 +279,7 @@ function methods() {
     },
     async replaceInFile({
       fs,
-      searchResult: { fullpath, regexp, flags },
+      searchResult: { fullpath, regexp },
       replaceValue,
     }: {
       readonly fs: FS;
@@ -291,25 +289,22 @@ function methods() {
       // regexp;
       const context = await fs.readFile(fullpath, "utf8");
 
-      const newContext = context.replace(
-        new RegExp(regexp, flags),
-        replaceValue
-      );
+      const newContext = context.replace(eval(regexp), replaceValue);
 
-      await fs.writeFile(fullpath, newContext, "utf8");
+      if (context !== newContext) {
+        await fs.writeFile(fullpath, newContext, "utf8");
+      }
     },
     async replaceByMatch({
       fs,
       fullpath,
       regexp,
-      flags,
       match: { index, value },
       replaceValue,
     }: {
       readonly fs: FS;
       readonly fullpath: string;
       readonly regexp: string;
-      readonly flags: string;
       readonly match: Result["matches"][0];
       readonly replaceValue: string;
     }): Promise<void> {
@@ -317,10 +312,12 @@ function methods() {
 
       const newContext =
         context.slice(0, index) +
-        value.replaceAll(new RegExp(regexp, flags), replaceValue) +
+        value.replace(eval(regexp), replaceValue) +
         context.slice(index + value.length);
 
-      await fs.writeFile(fullpath, newContext, "utf8");
+      if (context !== newContext) {
+        await fs.writeFile(fullpath, newContext, "utf8");
+      }
     },
   };
 }

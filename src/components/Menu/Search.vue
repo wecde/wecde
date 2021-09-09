@@ -180,7 +180,7 @@
             </template>
 
             <div
-              class="flex items-center justify-between search-highlight"
+              class="flex no-wrap items-center justify-between search-highlight"
               :class="{
                 dark: $q.dark.isActive,
               }"
@@ -206,7 +206,6 @@
                   replaceByMatch({
                     fullpath: result.fullpath,
                     regexp: result.regexp,
-                    flags: result.flags,
                     match,
                   })
                 "
@@ -232,7 +231,7 @@ import type {
   Result,
   Result as SearchResult,
 } from "src/worker/search-in-files.worker";
-import { reactive, ref, watch } from "vue";
+import { onUnmounted, reactive, ref, watch } from "vue";
 
 import TemplateTab from "./template/Tab.vue";
 
@@ -256,6 +255,10 @@ watch([useRegexp, useLetterCase, useWordbox], () => void search());
 const replacerOpened = ref<boolean>(false);
 const openRules = ref<boolean>(false);
 
+const watchersFiles: (() => void)[] = [];
+// eslint-disable-next-line functional/immutable-data
+onUnmounted(() => watchersFiles.splice(0).forEach((watcher) => void watcher()));
+
 async function search(): Promise<void> {
   if (store.state.editor.project) {
     loading.value = true;
@@ -263,6 +266,8 @@ async function search(): Promise<void> {
     void refreshSearchInFiles();
     // eslint-disable-next-line functional/immutable-data
     searchFilesResults.splice(0);
+    // eslint-disable-next-line functional/immutable-data
+    watchersFiles.splice(0).forEach((watcher) => void watcher());
 
     await useSearchInFiles().search({
       fs,
@@ -276,6 +281,63 @@ async function search(): Promise<void> {
       // eslint-disable-next-line functional/immutable-data
       onProgress: (rt) => searchFilesResults.push(rt),
     });
+
+    // eslint-disable-next-line functional/immutable-data
+    watchersFiles.push(
+      ...searchFilesResults.map((result) => {
+        const watcher = fs.watch(
+          result.fullpath,
+          async ({ action }) => {
+            if (action === "write:file") {
+              // update;
+
+              loading.value = true;
+
+              const newRsl = await useSearchInFiles().searchInFile({
+                fs,
+                fullpath: result.fullpath,
+                keyword: searchValue.value,
+                useRegexp: useRegexp.value,
+                useWordbox: useWordbox.value,
+                useLetterCase: useLetterCase.value,
+              });
+
+              if (newRsl) {
+                // eslint-disable-next-line functional/immutable-data
+                searchFilesResults.splice(
+                  searchFilesResults.indexOf(result),
+                  1,
+                  newRsl
+                );
+
+                loading.value = false;
+
+                return void 0;
+              }
+
+              action = "remove:file";
+
+              loading.value = false;
+            }
+            if (action === "remove:file") {
+              // remove;
+              // eslint-disable-next-line functional/immutable-data
+              searchFilesResults.splice(searchFilesResults.indexOf(result), 1);
+              // eslint-disable-next-line functional/immutable-data
+              watchersFiles
+                .splice(watchersFiles.indexOf(watcher), 1)
+                .forEach((watcher) => void watcher());
+            }
+          },
+          {
+            type: "file",
+            mode: "absolute",
+          }
+        );
+
+        return watcher;
+      })
+    );
 
     loading.value = false;
   }
@@ -296,12 +358,10 @@ async function replaceInFile(searchResult: Result): Promise<void> {
 async function replaceByMatch({
   fullpath,
   regexp,
-  flags,
   match,
 }: {
   fullpath: string;
   regexp: string;
-  flags: string;
   match: Result["matches"][0];
 }) {
   if (store.state.editor.project) {
@@ -311,7 +371,6 @@ async function replaceByMatch({
       fs,
       fullpath,
       regexp,
-      flags,
       match,
       replaceValue: replaceValue.value,
     });
