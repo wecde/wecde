@@ -170,6 +170,7 @@
 
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
+import FreeComponent from "components/FreeComponent.vue";
 import Create from "components/Project/Create.vue";
 import Item from "components/Project/Item.vue";
 import { sort } from "fast-sort";
@@ -179,7 +180,6 @@ import { Notify } from "quasar";
 import Clone from "src/components/Git/Clone.vue";
 import Provide from "src/components/Git/Provide.vue";
 import createProjectFromZip from "src/helpers/createProjectFromZip";
-import FreeComponent from "components/FreeComponent.vue";
 import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs";
 import { useStore } from "src/store";
 import { reactive, ref } from "vue";
