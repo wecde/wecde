@@ -101,13 +101,17 @@
           </div>
         </div>
 
-        <div style="position: relative" class="full-height scroll q-ml-n4">
+        <div
+          style="position: relative"
+          class="full-height scroll no-x-scroll q-ml-n4 q-pt-2"
+        >
           <q-linear-progress
             indeterminate
             color="cyan"
             size="2px"
             rounded
             style="position: absolute; top: 0"
+            class="q-mr-n4"
             v-if="loading"
           />
 
@@ -161,20 +165,23 @@
                     >
                   </div>
 
-                  <q-btn
-                    color="inherit"
-                    flat
-                    dense
-                    icon="mdi-check"
-                    padding="none"
-                    size="0.8em"
-                    rounded
-                    @click.prevent.stop="replaceInFile(result)"
-                  />
+                  <div>
+                    <q-btn
+                      color="inherit"
+                      flat
+                      dense
+                      icon="mdi-check"
+                      padding="none"
+                      size="0.75em"
+                      rounded
+                      class="q-mr-1"
+                      @click.prevent.stop="replaceInFile(result)"
+                    />
 
-                  <q-badge rounded color="primary">{{
-                    result.matches.length
-                  }}</q-badge>
+                    <q-badge rounded color="primary">{{
+                      result.matches.length
+                    }}</q-badge>
+                  </div>
                 </div>
               </div>
             </template>
