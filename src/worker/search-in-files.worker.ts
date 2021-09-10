@@ -193,6 +193,7 @@ function methods() {
       useLetterCase,
       include,
       exclude,
+      multipleSearch,
       onProgress,
     }: {
       readonly fs: FS;
@@ -203,6 +204,7 @@ function methods() {
       readonly useLetterCase: boolean;
       readonly include: string;
       readonly exclude: string;
+      readonly multipleSearch: boolean;
       readonly onProgress: (rl: Result) => void;
     }): Promise<void> {
       if (keyword !== "") {
@@ -210,18 +212,19 @@ function methods() {
           dirname: string,
           include: readonly string[],
           exclude: readonly string[],
-          cb: (fullpath: string) => Promise<void>
+          cb: (fullpath: string) => Promise<void | true>
         ): Promise<void> {
-          await fs.readdir(join(dir, dirname)).then((files) => {
-            return Promise.all(
-              files.map(async (file) => {
-                file = join(dirname, file);
+          await fs.readdir(join(dir, dirname)).then(async (files) => {
+            const tasks = files.map((file) => {
+              file = join(dirname, file);
 
-                if (exclude.some((test) => matchCheck(file, test))) {
-                  return;
-                }
+              if (exclude.some((test) => matchCheck(file, test))) {
+                return () => void 0;
+              }
 
-                const fullpath = join(dir, file);
+              const fullpath = join(dir, file);
+
+              return async () => {
                 // is ok
                 const isDir = await fs.isDirectory(fullpath);
                 if (
@@ -239,11 +242,22 @@ function methods() {
                   if (isDir) {
                     await globby(file, include, exclude, cb);
                   } else {
-                    await cb(fullpath);
+                    return (await cb(fullpath)) ?? false;
                   }
                 }
-              })
-            );
+              };
+            });
+
+            if (multipleSearch) {
+              await Promise.all(tasks.map((task) => task()));
+            }
+
+            // eslint-disable-next-line functional/no-loop-statement
+            for (const task of tasks) {
+              if (await task()) {
+                break;
+              }
+            }
           });
         }
 
@@ -261,7 +275,7 @@ function methods() {
               .split(",")
               .filter(Boolean),
           ],
-          async (fullpath: string): Promise<void> => {
+          async (fullpath: string): Promise<true | void> => {
             const result = await this.searchInFile({
               fs,
               fullpath,
@@ -272,6 +286,8 @@ function methods() {
             });
             if (result) {
               onProgress(result);
+
+              return true;
             }
           }
         );
