@@ -128,24 +128,21 @@
         </div>
 
         <small class="text-grey-5 q-mt-n3 q-mb-1 text-caption">
-          <template v-if="searchFilesResults.length > 0">
+          <template v-if="searchFilesResults.size > 0">
             {{
-              searchFilesResults.reduce(
+              Array.from(searchFilesResults.values()).reduce(
                 (a, { matches: { length } }) => a + length,
                 0
               )
             }}
-            results in {{ searchFilesResults.length }} files
+            results in {{ searchFilesResults.size }} files
           </template>
           <template v-else-if="searchValue !== ''">
             No results found in '{{ include }}' excluding '{{ exclude }}'
           </template>
         </small>
 
-        <div
-          style="position: relative"
-          class="full-height q-ml-n4"
-        >
+        <div style="position: relative" class="full-height q-ml-n4">
           <q-linear-progress
             indeterminate
             color="cyan"
@@ -158,7 +155,7 @@
 
           <q-virtual-scroll
             style="max-height: 100%"
-            :items="searchFilesResults"
+            :items="Array.from(searchFilesResults.values())"
             separator
           >
             <template v-slot="{ item: result }">
@@ -309,7 +306,7 @@ const useMultipleSearch = ref<boolean>(true);
 const useExclude = ref<boolean>(true);
 
 const loading = ref<boolean>(false);
-const searchFilesResults = reactive<SearchResult[]>([]);
+const searchFilesResults = reactive<Map<string, SearchResult>>(new Map());
 
 const searchValue = ref<string>("");
 const replaceValue = ref<string>("");
@@ -326,9 +323,11 @@ watch([searchValue, replaceValue, include, exclude], () => void search());
 const replacerOpened = ref<boolean>(false);
 const openRules = ref<boolean>(false);
 
-const watchersFiles: (() => void)[] = [];
-// eslint-disable-next-line functional/immutable-data
-onUnmounted(() => watchersFiles.splice(0).forEach((watcher) => void watcher()));
+const watchersFiles: Map<string, () => void> = new Map();
+onUnmounted(() => {
+  watchersFiles.forEach((watcher) => void watcher());
+  watchersFiles.clear();
+});
 
 function search() {
   createTimeoutBy(
@@ -338,10 +337,10 @@ function search() {
         loading.value = true;
 
         void refreshSearchInFiles();
-        // eslint-disable-next-line functional/immutable-data
-        searchFilesResults.splice(0);
-        // eslint-disable-next-line functional/immutable-data
-        watchersFiles.splice(0).forEach((watcher) => void watcher());
+        searchFilesResults.clear();
+
+        watchersFiles.forEach((watcher) => void watcher());
+        watchersFiles.clear();
 
         await useSearchInFiles().search({
           fs,
@@ -353,68 +352,55 @@ function search() {
           include: include.value,
           exclude: useExclude.value ? exclude.value : "",
           multipleSearch: useMultipleSearch.value,
-          // eslint-disable-next-line functional/immutable-data
-          onProgress: (rt) => searchFilesResults.push(rt),
+          onProgress: (rt) => searchFilesResults.set(rt.fullpath, rt),
         });
 
-        // eslint-disable-next-line functional/immutable-data
-        watchersFiles.push(
-          ...searchFilesResults.map((result) => {
-            const watcher = fs.watch(
-              result.fullpath,
-              async ({ action }) => {
-                if (action === "write:file") {
-                  // update;
-                  loading.value = true;
+        searchFilesResults.forEach((result) => {
+          const watcher = fs.watch(
+            result.fullpath,
+            async ({ action }) => {
+              if (action === "write:file") {
+                // update;
+                loading.value = true;
 
-                  const newRsl = await useSearchInFiles().searchInFile({
-                    fs,
-                    fullpath: result.fullpath,
-                    keyword: searchValue.value,
-                    useRegexp: useRegexp.value,
-                    useWordbox: useWordbox.value,
-                    useLetterCase: useLetterCase.value,
-                  });
+                const newRsl = await useSearchInFiles().searchInFile({
+                  fs,
+                  fullpath: result.fullpath,
+                  keyword: searchValue.value,
+                  useRegexp: useRegexp.value,
+                  useWordbox: useWordbox.value,
+                  useLetterCase: useLetterCase.value,
+                });
 
-                  if (newRsl) {
-                    // eslint-disable-next-line functional/immutable-data
-                    searchFilesResults.splice(
-                      searchFilesResults.indexOf(result),
-                      1,
-                      newRsl
-                    );
-
-                    loading.value = false;
-
-                    return void 0;
-                  }
-
-                  action = "remove:file";
+                if (newRsl) {
+                  searchFilesResults.set(newRsl.fullpath, newRsl);
 
                   loading.value = false;
-                }
-                if (action === "remove:file") {
-                  // remove;
-                  // eslint-disable-next-line functional/immutable-data
-                  searchFilesResults.splice(
-                    searchFilesResults.indexOf(result),
-                    1
-                  );
-                  // eslint-disable-next-line functional/immutable-data
-                  watchersFiles
-                    .splice(watchersFiles.indexOf(watcher), 1)
-                    .forEach((watcher) => void watcher());
-                }
-              },
-              {
-                type: "file",
-                mode: "absolute",
-              }
-            );
 
-            return watcher;
-          })
-        );
+                  return void 0;
+                }
+
+                action = "remove:file";
+
+                loading.value = false;
+              }
+              if (action === "remove:file") {
+                // remove;
+
+                searchFilesResults.delete(result.fullpath);
+                if (watchersFiles.has(result.fullpath)) {
+                  watchersFiles.get(result.fullpath)?.();
+                }
+              }
+            },
+            {
+              type: "file",
+              mode: "absolute",
+            }
+          );
+
+          watchersFiles.set(result.fullpath, watcher);
+        });
 
         loading.value = false;
       }
@@ -460,7 +446,11 @@ async function replaceByMatch({
 }
 async function replaceAll(): Promise<void> {
   // don't need use loading
-  await Promise.all(searchFilesResults.map((result) => replaceInFile(result)));
+  await Promise.all(
+    Array.from(searchFilesResults.values()).map((result) =>
+      replaceInFile(result)
+    )
+  );
 }
 </script>
 
