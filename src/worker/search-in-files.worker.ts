@@ -9,7 +9,6 @@ export type Result = {
   readonly fullpath: string;
   readonly pathOfProject: string;
   readonly regexp: string;
-  readonly flags: string;
   readonly basename: string;
   readonly matches: readonly {
     readonly index: number;
@@ -19,6 +18,8 @@ export type Result = {
   }[];
 };
 export type SearchInFileRemoteInterface = ReturnType<typeof methods>;
+
+const REGEXP_MATCH_EXTNAME = /^\.[^\/\\]+$/;
 
 function isParentFolder(parent: string, children: string): boolean {
   parent = resolve(parent);
@@ -34,20 +35,63 @@ function pathEquals(a: string, b: string): boolean {
   return resolve(a) === resolve(b);
 }
 
-function matchCheck(path: string, pattern: string): boolean {
+function matchCheck(path: string, pattern: string, filterDir = false): boolean {
   if (pathEquals(pattern, path) || isParentFolder(pattern, path)) {
     return true;
+  }
+
+  if (REGEXP_MATCH_EXTNAME.test(pattern)) {
+    if (
+      minimatch(path, `**/*${pattern}`, {
+        dot: true,
+      })
+    ) {
+      return true;
+    }
+  }
+
+  if (filterDir) {
+    const patternSplit = pattern.split("/");
+
+    // eslint-disable-next-line functional/no-loop-statement
+    for (
+      // eslint-disable-next-line functional/no-let
+      let index = 0, len = patternSplit.length;
+      index < len;
+      index++
+    ) {
+      // eslint-disable-next-line functional/no-let
+      let patternChild = patternSplit.slice(0, index + 1).join("/");
+
+      if (
+        minimatch(path, patternChild, {
+          dot: true,
+        })
+      ) {
+        return true;
+      }
+
+      patternChild += index < len - 1 || pattern.endsWith("/") ? "/" : "";
+      if (patternChild.endsWith("/")) {
+        // e.x: src/, src/**/
+        patternChild += "**"; // e.x: src/**, src/**/**
+      }
+
+      if (
+        minimatch(path, patternChild, {
+          dot: true,
+        })
+      ) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   if (pattern.endsWith("/")) {
     // e.x: src/, src/**/
     pattern += "**"; // e.x: src/**, src/**/**
-  }
-
-  if (/^\.[^\/\\]+$/.test(pattern)) {
-    if (matchCheck(path, `**${pattern}`)) {
-      return true;
-    }
   }
 
   return minimatch(path, pattern, {
@@ -133,7 +177,6 @@ function methods() {
               fullpath,
               pathOfProject: fullpath.split("/").slice(2).join("/"),
               regexp: regexp.toString(),
-              flags: regexp.flags,
               basename: basename(fullpath),
               matches,
             };
@@ -150,6 +193,7 @@ function methods() {
       useLetterCase,
       include,
       exclude,
+      multipleSearch,
       onProgress,
     }: {
       readonly fs: FS;
@@ -160,6 +204,7 @@ function methods() {
       readonly useLetterCase: boolean;
       readonly include: string;
       readonly exclude: string;
+      readonly multipleSearch: boolean;
       readonly onProgress: (rl: Result) => void;
     }): Promise<void> {
       if (keyword !== "") {
@@ -167,32 +212,52 @@ function methods() {
           dirname: string,
           include: readonly string[],
           exclude: readonly string[],
-          cb: (fullpath: string) => Promise<void>
+          cb: (fullpath: string) => Promise<void | true>
         ): Promise<void> {
-          await fs.readdir(join(dir, dirname)).then((files) => {
-            return Promise.all(
-              files.map(async (file) => {
-                file = join(dirname, file);
+          await fs.readdir(join(dir, dirname)).then(async (files) => {
+            const tasks = files.map((file) => {
+              file = join(dirname, file);
 
-                if (exclude.some((test) => matchCheck(file, test))) {
-                  return;
-                }
+              if (exclude.some((test) => matchCheck(file, test))) {
+                return () => void 0;
+              }
 
+              const fullpath = join(dir, file);
+
+              return async () => {
                 // is ok
+                const isDir = await fs.isDirectory(fullpath);
                 if (
                   include.length === 0 ||
-                  include.some((test) => matchCheck(file, test))
+                  include.some((test) => {
+                    if (matchCheck(file, test, isDir)) {
+                      return true;
+                    }
+
+                    if (isDir) {
+                      return REGEXP_MATCH_EXTNAME.test(test);
+                    }
+                  })
                 ) {
-                  // cont
-                  const fullpath = join(dir, file);
-                  if (await fs.isFile(fullpath)) {
-                    await cb(fullpath);
-                  } else {
+                  if (isDir) {
                     await globby(file, include, exclude, cb);
+                  } else {
+                    return (await cb(fullpath)) ?? false;
                   }
                 }
-              })
-            );
+              };
+            });
+
+            if (multipleSearch) {
+              await Promise.all(tasks.map((task) => task()));
+            }
+
+            // eslint-disable-next-line functional/no-loop-statement
+            for (const task of tasks) {
+              if (await task()) {
+                break;
+              }
+            }
           });
         }
 
@@ -210,7 +275,7 @@ function methods() {
               .split(",")
               .filter(Boolean),
           ],
-          async (fullpath: string): Promise<void> => {
+          async (fullpath: string): Promise<true | void> => {
             const result = await this.searchInFile({
               fs,
               fullpath,
@@ -221,6 +286,8 @@ function methods() {
             });
             if (result) {
               onProgress(result);
+
+              return true;
             }
           }
         );
@@ -228,7 +295,7 @@ function methods() {
     },
     async replaceInFile({
       fs,
-      searchResult: { fullpath, regexp, flags },
+      searchResult: { fullpath, regexp },
       replaceValue,
     }: {
       readonly fs: FS;
@@ -238,25 +305,22 @@ function methods() {
       // regexp;
       const context = await fs.readFile(fullpath, "utf8");
 
-      const newContext = context.replace(
-        new RegExp(regexp, flags),
-        replaceValue
-      );
+      const newContext = context.replace(eval(regexp), replaceValue);
 
-      await fs.writeFile(fullpath, newContext, "utf8");
+      if (context !== newContext) {
+        await fs.writeFile(fullpath, newContext, "utf8");
+      }
     },
     async replaceByMatch({
       fs,
       fullpath,
       regexp,
-      flags,
       match: { index, value },
       replaceValue,
     }: {
       readonly fs: FS;
       readonly fullpath: string;
       readonly regexp: string;
-      readonly flags: string;
       readonly match: Result["matches"][0];
       readonly replaceValue: string;
     }): Promise<void> {
@@ -264,10 +328,12 @@ function methods() {
 
       const newContext =
         context.slice(0, index) +
-        value.replaceAll(new RegExp(regexp, flags), replaceValue) +
+        value.replace(eval(regexp), replaceValue) +
         context.slice(index + value.length);
 
-      await fs.writeFile(fullpath, newContext, "utf8");
+      if (context !== newContext) {
+        await fs.writeFile(fullpath, newContext, "utf8");
+      }
     },
   };
 }

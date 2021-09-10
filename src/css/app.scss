@@ -56,3 +56,9 @@ pwa-toast {
 .q-item__section--side > .q-icon {
   font-size: 1.3em;
 }
+
+.no-scroll-x {
+  overflow: {
+    x: hidden;
+  }
+}
