@@ -107,7 +107,10 @@ async function fixTemplate(template) {
     Release.isTemplate = true;
 
     Release.MD5 = md5FolderTemplate;
-    if (md5FolderTemplate !== ReleaseJSONFile.MD5) {
+    if (
+      fs.existsSync(uriTemplateZip) === false ||
+      md5FolderTemplate !== ReleaseJSONFile.MD5
+    ) {
       console.info(`${template}: creating template.zip`);
       await zip(uriFolderTemplate, uriTemplateZip);
     }
