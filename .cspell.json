@@ -59,6 +59,7 @@
         "Wordbox",
         "WORKDIR",
         "workercom",
-        "workerlink"
+        "workerlink",
+        "xmlhttprequest"
     ]
 }
