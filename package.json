@@ -13,9 +13,7 @@
     "dev:ios": "quasar dev -m capacitor -T ios",
     "build:android": "quasar build -m capacitor -T android",
     "build:ios": "quasar build -m capacitor -T ios",
-    "generate:labs": "node resources/build.js resources/labs src/assets/labs",
-    "generate:templates": "node resources/build.js resources/templates src/assets/templates",
-    "build:resources": "yarn generate:labs && yarn generate:templates"
+    "build:resources": " yarn --cwd ./resources build"
   },
   "dependencies": {
     "@capacitor/android": "^3.2.2",
