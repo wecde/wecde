@@ -322,8 +322,15 @@ import http from "isomorphic-git/http/web";
 import fs from "modules/fs";
 import { join } from "path-cross";
 import { registerWatch } from "src/helpers/fs-helper";
-import {
-  configs as gitConfigs,
+import { useGitHelper } from "src/helpers/useGitHelper";
+import { useGitShared } from "src/shared/useGitShared";
+import { useStore } from "src/store";
+import { computed, ComputedRef, ref, watch } from "vue";
+
+import TemplateTab from "./template/Tab.vue";
+
+const {
+  configs: gitConfigs,
   onAuth,
   onAuthFailure,
   onAuthSuccess,
@@ -332,17 +339,13 @@ import {
   onMessage,
   onProgress,
   onStart,
-} from "src/helpers/git-helper";
-import {
-  add as _add,
-  commit as _commit,
-  reset as _reset,
-  resetIndex as _resetIndex,
-} from "src/shared/git-shared";
-import { useStore } from "src/store";
-import { computed, ComputedRef, ref, watch } from "vue";
-
-import TemplateTab from "./template/Tab.vue";
+} = useGitHelper();
+const {
+  add: _add,
+  commit: _commit,
+  reset: _reset,
+  resetIndex: _resetIndex,
+} = useGitShared();
 
 // * states
 const commitManager = ref<boolean>(false);

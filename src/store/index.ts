@@ -51,37 +51,37 @@ declare module "@vue/runtime-core" {
 export const storeKey: InjectionKey<VuexStore<StateInterface>> =
   Symbol("vuex-key");
 
-export const store = createStore<StateInterface>({
-  modules: {
-    "clipboard-fs": clipboardFs,
-    editor,
-    settings,
-    system,
-    terminal,
-    "git-configs": gitConfigs,
-  },
-
-  // enable strict mode (adds overhead!)
-  // for dev mode and --debug builds only
-  strict: !!process.env.DEBUGGING,
-  plugins: [
-    createPersistedState({
-      paths: [
-        "settings",
-        "editor.project",
-        "editor.sessions",
-        "editor.session",
-        "editor.historySession",
-        "bookmark-labs",
-        "git-configs",
-      ],
-    }),
-  ],
-});
-
-watcher(store);
-
 export default storeSsr(function (/* { ssrContext } */) {
+  const store = createStore<StateInterface>({
+    modules: {
+      "clipboard-fs": clipboardFs,
+      editor,
+      settings,
+      system,
+      terminal,
+      "git-configs": gitConfigs,
+    },
+
+    // enable strict mode (adds overhead!)
+    // for dev mode and --debug builds only
+    strict: !!process.env.DEBUGGING,
+    plugins: [
+      createPersistedState({
+        paths: [
+          "settings",
+          "editor.project",
+          "editor.sessions",
+          "editor.session",
+          "editor.historySession",
+          "bookmark-labs",
+          "git-configs",
+        ],
+      }),
+    ],
+  });
+
+  watcher(store);
+
   return store;
 });
 

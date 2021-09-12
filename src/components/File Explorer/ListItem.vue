@@ -39,12 +39,7 @@
 
       <template v-slot:append-text>
         <q-spinner-hourglass color="green" v-if="loading" />
-        <q-icon
-          size="13px"
-          color="info"
-          name="ti-pencil-alt"
-          v-if="opening"
-        />
+        <q-icon size="13px" color="info" name="ti-pencil-alt" v-if="opening" />
         <q-icon
           size="13px"
           color="warning"
@@ -250,7 +245,7 @@ import { btoa } from "js-base64";
 import fs from "modules/fs";
 import { basename, dirname } from "path-cross";
 import { Notify, useQuasar } from "quasar";
-import exportDirectoryByZip from "src/helpers/exportDirectoryByZip";
+import { useExportZip } from "src/helpers/useExportZip";
 import {
   readdirAndStat,
   registerWatch,
@@ -279,6 +274,8 @@ const store = useStore();
 const $q = useQuasar();
 const i18n = useI18n();
 const router = useRouter();
+
+const exportZip = useExportZip();
 
 const collapse = ref<boolean>(false);
 const adding = ref<boolean>(false);
@@ -436,15 +433,12 @@ async function paste() {
 async function exportFile() {
   if (props.file.stat.isDirectory()) {
     try {
-      await exportDirectoryByZip(props.file.fullpath);
+      await exportZip(props.file.fullpath);
       store.commit("terminal/clear");
       void Toast.show({
-        text: i18n.t(
-          `alert.exported.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-          {
-            name: props.file.fullpath,
-          }
-        ),
+        text: i18n.t("alert.exported.folder", {
+          name: props.file.fullpath,
+        }),
       });
     } catch (err) {
       store.commit("terminal/error", err);
@@ -454,12 +448,9 @@ async function exportFile() {
       timeout: 9999999999,
       spinner: true,
       position: "bottom-right",
-      message: i18n.t(
-        `alert.exported.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-        {
-          name: props.file.fullpath,
-        }
-      ),
+      message: i18n.t("alert.exported.file", {
+        name: props.file.fullpath,
+      }),
     });
 
     const data = await fs.readFile(props.file.fullpath, "buffer");

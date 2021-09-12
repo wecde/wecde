@@ -57,17 +57,7 @@
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import fs from "modules/fs";
-import {
-  configs as gitConfigs,
-  onAuth,
-  onAuthFailure,
-  onAuthSuccess,
-  onDone,
-  onError,
-  onMessage,
-  onProgress,
-  onStart,
-} from "src/helpers/git-helper";
+import { useGitHelper } from "src/helpers/useGitHelper";
 import { useGitCloneWorker } from "src/worker/git-clone";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -77,6 +67,18 @@ const i18n = useI18n();
 const emit = defineEmits<{
   (ev: "update:model-value", v: boolean): void;
 }>();
+
+const {
+  configs: gitConfigs,
+  onAuth,
+  onAuthFailure,
+  onAuthSuccess,
+  onDone,
+  onError,
+  onMessage,
+  onProgress,
+  onStart,
+} = useGitHelper();
 
 const url = ref<string>("");
 

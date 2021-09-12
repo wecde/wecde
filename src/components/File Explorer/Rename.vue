@@ -60,7 +60,7 @@ import fs from "modules/fs";
 import { basename, dirname, extname, join, relative } from "path-cross";
 import { Notify } from "quasar";
 import { createTimeoutBy } from "src/utils";
-import nameFileValidates from "src/validator/nameFileValidates";
+import { useNameFileValidates } from "src/validator/useNameFileValidates";
 import { onMounted, ref, toRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -105,7 +105,7 @@ watch(newFilename, () => {
 });
 
 const timeClick = ref<number>(0);
-const error = nameFileValidates(
+const error = useNameFileValidates()(
   newFilename,
   toRef(props, "fullpath"),
   toRef(props, "namesExists"),

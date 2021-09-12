@@ -1,9 +1,8 @@
 import { Dark } from "quasar";
 import { boot } from "quasar/wrappers";
-import { store } from "src/store";
 import { isDark } from "src/store/settings/options support/ace-themes";
 
-export default boot(() => {
+export default boot(({ store }) => {
   store.watch(
     () => store.state.settings["appearance**theme"],
     (newValue) => {

@@ -1,7 +1,6 @@
 import fs from "modules/fs";
 import { basename, dirname, join } from "path-cross";
 import { Notify } from "quasar";
-import { i18n } from "src/boot/i18n";
 import { ActionTree } from "vuex";
 
 import type { StateInterface } from "../index";
@@ -39,10 +38,9 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
     // eslint-disable-next-line functional/no-let
     let refreshParent = false;
 
-    if (state.clipboardFile && await fs.exists(uri)) {
-
-      if ( (await fs.stat(uri)).isFile() ) {
-        uri = dirname(uri)
+    if (state.clipboardFile && (await fs.exists(uri))) {
+      if ((await fs.stat(uri)).isFile()) {
+        uri = dirname(uri);
       }
 
       if (getters.allowPaste(uri)) {
@@ -65,10 +63,7 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
           spinner: true,
           timeout: 9999999999,
           position: "bottom-right",
-          message: i18n.global.t(`alert.${state.action}`, {
-            from,
-            to,
-          }),
+          message: `${state.action} "${from}" to "${to}"`,
         });
 
         if (state.action === "copy") {
@@ -88,7 +83,7 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
         );
       }
 
-      commit("done")
+      commit("done");
     }
 
     return refreshParent;

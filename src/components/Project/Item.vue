@@ -63,7 +63,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="exportZip"
+              @click="exportZipThis"
               class="no-min-height"
             >
               <q-item-section avatar class="min-width-0">
@@ -107,7 +107,7 @@ import { Toast } from "@capacitor/toast";
 import fs from "modules/fs";
 import { basename, join } from "path-cross";
 import { Notify, useQuasar } from "quasar";
-import exportDirectoryByZip from "src/helpers/exportDirectoryByZip";
+import { useExportZip } from "src/helpers/useExportZip";
 import { registerWatch, StatItem } from "src/helpers/fs-helper";
 import { useStore } from "src/store";
 import { computed, ref } from "vue";
@@ -123,6 +123,8 @@ const props = defineProps<{
 const store = useStore();
 const $q = useQuasar();
 const i18n = useI18n();
+
+const exportZip = useExportZip();
 
 const renaming = ref<boolean>(false);
 const git = ref<boolean>(false);
@@ -145,9 +147,9 @@ registerWatch(
   }
 );
 
-async function exportZip() {
+async function exportZipThis() {
   try {
-    await exportDirectoryByZip(props.project.fullpath);
+    await exportZip(props.project.fullpath);
     store.commit("terminal/clear");
 
     void Toast.show({

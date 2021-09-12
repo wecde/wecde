@@ -179,7 +179,7 @@ import { basename } from "path-cross";
 import { Notify } from "quasar";
 import Clone from "src/components/Git/Clone.vue";
 import Provide from "src/components/Git/Provide.vue";
-import createProjectFromZip from "src/helpers/createProjectFromZip";
+import { useCreateProjectFromZip } from "src/helpers/useCreateProjectFromZip";
 import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs-helper";
 import { useStore } from "src/store";
 import { reactive, ref } from "vue";
@@ -189,6 +189,8 @@ import TemplateTab from "./template/Tab.vue";
 
 const i18n = useI18n();
 const store = useStore();
+
+const createProjectFromZip = useCreateProjectFromZip();
 
 const projects = reactive<StatItem[]>([]);
 const stateCreate = ref<boolean>(false);

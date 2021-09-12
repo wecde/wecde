@@ -4,7 +4,7 @@
 
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
-import importFiles from "src/helpers/importFiles";
+import { useImportFiles } from "src/helpers/useImportFiles";
 import { useStore } from "src/store";
 import { useI18n } from "vue-i18n";
 
@@ -14,6 +14,8 @@ const props = defineProps<{
 
 const store = useStore();
 const i18n = useI18n();
+
+const importFiles = useImportFiles();
 
 async function importFile(): Promise<void> {
   const names = await importFiles(props.dirname);

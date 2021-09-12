@@ -92,15 +92,13 @@
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
 import AppCollapse from "components/App/Collapse.vue";
 import { basename, join } from "path-cross";
-import {
-  add as _add,
-  reset as _reset,
-  resetIndex as _resetIndex,
-} from "src/shared/git-shared";
+import { useGitShared } from "src/shared/useGitShared";
 import { useStore } from "src/store";
 import { computed } from "vue";
 
 const store = useStore();
+
+const { add: _add, reset: _reset, resetIndex: _resetIndex } = useGitShared();
 
 const props = defineProps<{
   filepath: string;

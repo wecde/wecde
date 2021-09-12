@@ -112,7 +112,7 @@
 <script lang="ts" setup>
 import ChangesList from "components/Git/ChangesList.vue";
 import ChangesTree from "components/Git/ChangesTree.vue";
-import { add as _add, commit as _commit } from "src/shared/git-shared";
+import { useGitShared } from "src/shared/useGitShared";
 import { useStore } from "src/store";
 import { ref } from "vue";
 
@@ -121,6 +121,8 @@ const emit = defineEmits<{
 }>();
 
 const store = useStore();
+
+const { add: _add, commit: _commit } = useGitShared();
 
 const amend = ref<boolean>(false);
 const noEdit = ref<boolean>(true);
