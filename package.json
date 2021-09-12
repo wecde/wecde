@@ -14,7 +14,8 @@
     "build:android": "quasar build -m capacitor -T android",
     "build:ios": "quasar build -m capacitor -T ios",
     "generate:labs": "node resources/build.js resources/labs src/assets/labs",
-    "generate:templates": "node resources/build.js resources/templates src/assets/templates"
+    "generate:templates": "node resources/build.js resources/templates src/assets/templates",
+    "build:resources": "yarn generate:labs && yarn generate:templates"
   },
   "dependencies": {
     "@capacitor/android": "^3.2.2",
@@ -77,7 +78,6 @@
     "eslint-plugin-vue": "^7.0.0",
     "fork-ts-checker-webpack-plugin": "^7.0.0-alpha.6",
     "raw-loader": "^4.0.2",
-    "run-p": "^0.0.0",
     "typescript": "^4.3.5",
     "worker-loader": "^3.0.8"
   },
