@@ -165,24 +165,24 @@
 
 <script lang="ts" setup>
 // eslint-disable-next-line import/order
-import Ace from "ace-builds";
+import Ace from "ace-new";
 // eslint-disable-next-line import/order
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 
-import "ace-builds/webpack-resolver";
-import "ace-builds/src-noconflict/ext-language_tools";
-// import "ace-builds/src-noconflict/ext-emmet";
-import "ace-builds/src-noconflict/ext-linking";
-import "ace-builds/src-noconflict/ext-settings_menu";
-import "ace-builds/src-noconflict/keybinding-emacs";
-import "ace-builds/src-noconflict/keybinding-sublime";
-import "ace-builds/src-noconflict/keybinding-vim";
-import "ace-builds/src-noconflict/keybinding-vscode";
-import "ace-builds/src-noconflict/ext-spellcheck";
-import "ace-builds/src-noconflict/ext-prompt";
+import "ace-new/webpack-resolver";
+import "ace-new/src-noconflict/ext-language_tools";
+// import "ace-new/src-noconflict/ext-emmet";
+import "ace-new/src-noconflict/ext-linking";
+import "ace-new/src-noconflict/ext-settings_menu";
+import "ace-new/src-noconflict/keybinding-emacs";
+import "ace-new/src-noconflict/keybinding-sublime";
+import "ace-new/src-noconflict/keybinding-vim";
+import "ace-new/src-noconflict/keybinding-vscode";
+import "ace-new/src-noconflict/ext-spellcheck";
+import "ace-new/src-noconflict/ext-prompt";
 
 import { Clipboard } from "@capacitor/clipboard";
-import modelist from "ace-builds/src-noconflict/ext-modelist";
+import modelist from "ace-new/src-noconflict/ext-modelist";
 import fs from "modules/fs";
 import { extname } from "path-cross";
 import { getSupportInfo } from "prettier";
