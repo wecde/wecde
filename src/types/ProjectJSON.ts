@@ -1,6 +1,6 @@
 export type ProjectJSON = {
   // eslint-disable-next-line functional/prefer-readonly-type
-  sessions?: readonly string[];
+  sessions?: string[];
   // eslint-disable-next-line functional/prefer-readonly-type
   "session-history"?: number[];
 

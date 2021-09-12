@@ -1954,10 +1954,10 @@ accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
     mime-types "~2.1.24"
     negotiator "0.6.2"
 
-ace-new@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/ace-new/-/ace-new-1.5.0.tgz#6dcaa7637ae9349863ebddadc717bcb6cba98f15"
-  integrity sha512-FTCMsam1gCCo1aQl897TRhifii21ZVs38bPcBP7681vJ94dwzUrYOCcrFCWTUZUIe7yX/v5JXz67F40lXEZrOw==
+ace-new@^1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/ace-new/-/ace-new-1.5.4.tgz#12be2bfc558c101ede66c05ffd8b48e520831be0"
+  integrity sha512-Inaycko6M0og9X9KW3Xef2MoWpfmwp1lX/GA7dYrhNg4vNL/dvdsOjGRTmTyJ0dOxsy7gAdhj7CgF71KJcI8HQ==
 
 acorn-import-assertions@^1.7.6:
   version "1.7.6"

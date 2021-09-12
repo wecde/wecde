@@ -265,10 +265,11 @@ registerWatch(
         };
 
         // eslint-disable-next-line functional/immutable-data
-        projects.splice(0);
-        // eslint-disable-next-line functional/immutable-data
         projects.push(
-          ...sort([...projects, value]).asc((item) => basename(item.fullpath))
+          // eslint-disable-next-line functional/immutable-data
+          ...sort([...projects.splice(0), value]).asc((item) =>
+            basename(item.fullpath)
+          )
         );
         // our -> clone;
       } catch {}
@@ -283,11 +284,10 @@ registerWatch(
   ({ path }) => {
     if (projects.some(({ fullpath }) => fs.isEqual(fullpath, path))) {
       // eslint-disable-next-line functional/immutable-data
-      projects.splice(0);
-      // eslint-disable-next-line functional/immutable-data
       projects.push(
         ...sort(
-          projects.filter(
+      // eslint-disable-next-line functional/immutable-data
+          projects.splice(0).filter(
             ({ fullpath }) => fs.isEqual(fullpath, path) === false
           )
         ).asc((item) => basename(item.fullpath))

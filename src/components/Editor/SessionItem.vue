@@ -39,7 +39,7 @@
     />
     {{ basename(fullpath) }}
     <!-- <template v-if="isPlainText(item) === false">(read only)</template> -->
-    <q-icon class="times" name="mdi-close" />
+    <q-icon class="times" name="mdi-close" @click.prevent.stop="$emit('click:close')" />
   </div>
 </template>
 
@@ -59,6 +59,7 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{
   (ev: "goto-me"): void;
+  (ev: "click:close"): void
 }>();
 
 const status = computed<string | null>(() => {
