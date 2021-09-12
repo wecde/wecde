@@ -39,14 +39,10 @@
 
       <template v-slot:append-text>
         <q-spinner-hourglass color="green" v-if="loading" />
+        <q-icon size="13px" color="info" name="ti-pencil-alt" v-if="opening" />
         <q-icon
           size="13px"
-          color="blue"
-          name="mdi-circle-medium"
-          v-if="opening"
-        />
-        <q-icon
-          size="13px"
+          color="warning"
           name="ti-cut"
           v-if="
             store.getters['clipboard-fs/cutting'] &&
@@ -245,20 +241,22 @@ import { Toast } from "@capacitor/toast";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
 import { isIgnored } from "isomorphic-git";
+import { btoa } from "js-base64";
 import fs from "modules/fs";
 import { basename, dirname } from "path-cross";
 import { Notify, useQuasar } from "quasar";
-import exportDirectoryByZip from "src/helpers/exportDirectoryByZip";
+import { useExportZip } from "src/helpers/useExportZip";
 import {
   readdirAndStat,
   registerWatch,
   sortTreeFilesystem,
   StatItem,
 } from "src/helpers/fs-helper";
+import { useFullpathFromRoute } from "src/helpers/useFullpathFromRoute";
 import { useStore } from "src/store";
 import { computed, defineAsyncComponent, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 import FileExplorerAdd from "./Add.vue";
 import FileExplorerRename from "./Rename.vue";
@@ -276,7 +274,8 @@ const store = useStore();
 const $q = useQuasar();
 const i18n = useI18n();
 const router = useRouter();
-const route = useRoute();
+
+const exportZip = useExportZip();
 
 const collapse = ref<boolean>(false);
 const adding = ref<boolean>(false);
@@ -302,21 +301,24 @@ registerWatch(
 
 watch(adding, (newValue) => {
   if (newValue) {
-    collapse.value = true;
+    if (props.file.stat.isDirectory()) {
+      collapse.value = true;
+    }
   }
 });
 
 const files = reactive<StatItem[]>([]);
+const fullpathFromRoute = useFullpathFromRoute();
 const opening = computed<boolean>(() => {
-  if (collapse.value === false && store.getters["editor/session"]) {
+  if (
+    (props.file.stat.isDirectory() ? collapse.value === false : true) &&
+    fullpathFromRoute.value
+  ) {
     if (props.file.stat.isDirectory()) {
-      return fs.isParentDir(
-        props.file.fullpath,
-        store.getters["editor/session"]
-      );
+      return fs.isParentDir(props.file.fullpath, fullpathFromRoute.value);
     }
 
-    return fs.isEqual(store.getters["editor/session"], props.file.fullpath);
+    return fs.isEqual(fullpathFromRoute.value, props.file.fullpath);
   }
 
   return false;
@@ -360,55 +362,74 @@ function remove() {
     cancel: true,
     persistent: true,
   }).onOk(async () => {
-    const task = Notify.create({
-      spinner: true,
-      timeout: 9999999999,
-      position: "bottom-right",
-      message: i18n.t(
-        `alert.removing.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-        {
-          name: `${props.file.fullpath}`,
-        }
-      ),
-    });
-
-    try {
-      await fs.unlink(props.file.fullpath, {
-        removeAll: true,
+    if (props.file.stat.isDirectory()) {
+      const task = Notify.create({
+        spinner: true,
+        timeout: 9999999999,
+        position: "bottom-right",
+        message: i18n.t("alert.removing.dir", {
+          name: props.file.fullpath,
+        }),
       });
 
-      void Toast.show({
-        text: i18n.t(
-          `alert.removed.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-          {
-            name: `${props.file.fullpath}`,
-          }
-        ),
+      try {
+        await fs.rmdir(props.file.fullpath, {
+          recursive: true,
+        });
+
+        void Toast.show({
+          text: i18n.t("alert.removed.dir", {
+            name: props.file.fullpath,
+          }),
+        });
+
+        task();
+      } catch {
+        void Toast.show({
+          text: i18n.t("alert.failure.remove.dir", {
+            name: props.file.fullpath,
+          }),
+        });
+
+        task({
+          message: i18n.t("alert.failure.remove.file", {
+            name: props.file.fullpath,
+          }),
+        });
+      }
+    } else {
+      const task = Notify.create({
+        spinner: true,
+        timeout: 9999999999,
+        position: "bottom-right",
+        message: i18n.t("alert.removing.file", {
+          name: props.file.fullpath,
+        }),
       });
 
-      task();
-    } catch {
-      void Toast.show({
-        text: i18n.t(
-          `alert.remove-failed-${
-            props.file.stat.isDirectory() ? "folder" : "file"
-          }`,
-          {
-            name: `${props.file.fullpath}`,
-          }
-        ),
-      });
+      try {
+        await fs.unlink(props.file.fullpath);
 
-      task({
-        message: i18n.t(
-          `alert.remove-failed.${
-            props.file.stat.isDirectory() ? "folder" : "file"
-          }`,
-          {
-            name: `${props.file.fullpath}`,
-          }
-        ),
-      });
+        void Toast.show({
+          text: i18n.t("alert.removed.file", {
+            name: props.file.fullpath,
+          }),
+        });
+
+        task();
+      } catch {
+        void Toast.show({
+          text: i18n.t("alert.failure.remove.dir", {
+            name: props.file.fullpath,
+          }),
+        });
+
+        task({
+          message: i18n.t("alert.failure.remove.file", {
+            name: props.file.fullpath,
+          }),
+        });
+      }
     }
   });
 }
@@ -423,21 +444,20 @@ async function paste() {
     await store.dispatch("clipboard-fs/paste", props.file.fullpath) // if required required refresh this parent
   ) {
   } else {
-    collapse.value = true;
+    if (props.file.stat.isDirectory()) {
+      collapse.value = true;
+    }
   }
 }
 async function exportFile() {
   if (props.file.stat.isDirectory()) {
     try {
-      await exportDirectoryByZip(props.file.fullpath);
+      await exportZip(props.file.fullpath);
       store.commit("terminal/clear");
       void Toast.show({
-        text: i18n.t(
-          `alert.exported.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-          {
-            name: props.file.fullpath,
-          }
-        ),
+        text: i18n.t("alert.exported.dir", {
+          name: props.file.fullpath,
+        }),
       });
     } catch (err) {
       store.commit("terminal/error", err);
@@ -447,12 +467,9 @@ async function exportFile() {
       timeout: 9999999999,
       spinner: true,
       position: "bottom-right",
-      message: i18n.t(
-        `alert.exported.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-        {
-          name: props.file.fullpath,
-        }
-      ),
+      message: i18n.t("alert.exported.file", {
+        name: props.file.fullpath,
+      }),
     });
 
     const data = await fs.readFile(props.file.fullpath, "buffer");
@@ -461,25 +478,27 @@ async function exportFile() {
     task();
 
     void Toast.show({
-      text: i18n.t(
-        `alert.exported.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-        {
-          name: props.file.fullpath,
-        }
-      ),
+      text: i18n.t("alert.exported.file", {
+        name: props.file.fullpath,
+      }),
     });
   }
 }
 
 function clickToFile() {
-  collapse.value = !collapse.value;
-
   if (props.file.stat.isDirectory() === false) {
-    store.commit("editor/pushSession", props.file.fullpath);
-
-    if (route.name !== "editor") {
-      void router.push("/editor");
-    }
+    void router.push({
+      name: "editor",
+      query: {
+        data: btoa(
+          JSON.stringify({
+            fullpath: props.file.fullpath,
+          })
+        ),
+      },
+    });
+  } else {
+    collapse.value = !collapse.value;
   }
 }
 

@@ -9,7 +9,9 @@ const mutation: MutationTree<EditorStateInterface> = {
     state.session = -1;
     state.historySession.splice(0);
   },
-  pushSession(state, session: string): void {
+  // !disabled
+
+    pushSession(state, session: string): void {
     if (state.sessions.includes(session) === false) {
       state.sessions.push(session);
     }

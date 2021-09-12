@@ -3,11 +3,10 @@ import { btoa } from "js-base64";
 import fs from "modules/fs";
 import { extname, join } from "path-cross";
 import { boot } from "quasar/wrappers";
-import { store } from "src/store";
 
 import codeEruda from "!raw-loader!eruda2/eruda.js";
 
-boot(() => {
+boot(({ store }) => {
   const base64CodeEruda = [
     "data:application/javascript;base64,",
     btoa(
@@ -67,7 +66,7 @@ boot(() => {
         // }
 
         if (project) {
-          const path = join(`projects/${project}`, data.path.slice(1));
+          const path = join(`projects/${project as string}`, data.path.slice(1));
 
           const thisStat = await fs.stat(path);
 

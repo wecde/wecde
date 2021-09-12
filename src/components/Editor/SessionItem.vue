@@ -2,7 +2,7 @@
   <div
     class="session-item"
     :class="{
-      active: index === $store.state.editor.session,
+      active,
 
       'star-added': status === `020` || status === `022` || status === '02x',
       added: status === `023`,
@@ -14,7 +14,18 @@
       deleted: status === `100`,
     }"
     v-ripple
-    @click="$store.commit(`editor/changeSession`, index)"
+    @click="
+      $router.push({
+        name: 'editor',
+        query: {
+          data: btoa(
+            JSON.stringify({
+              fullpath,
+            })
+          ),
+        },
+      })
+    "
   >
     <img
       :src="
@@ -28,38 +39,59 @@
     />
     {{ basename(fullpath) }}
     <!-- <template v-if="isPlainText(item) === false">(read only)</template> -->
-    <q-icon
-      class="times"
-      name="mdi-close"
-      @click.prevent.stop="$store.commit(`editor/removeSession`, index)"
-    />
+    <q-icon class="times" name="mdi-close" />
   </div>
 </template>
 
 <script lang="ts" setup>
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
+import { btoa } from "js-base64";
 import { basename } from "path-cross";
 import { registerWatch } from "src/helpers/fs-helper";
+import { useFullpathFromRoute } from "src/helpers/useFullpathFromRoute";
+import fs from "src/modules/fs";
 import { useStore } from "src/store";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 
 const store = useStore();
 const props = defineProps<{
   fullpath: string;
-  index: number;
 }>();
 const emit = defineEmits<{
-  (ev: "goto-me"): void
-}>()
+  (ev: "goto-me"): void;
+}>();
 
 const status = computed<string | null>(() => {
   return store.getters["editor/status:filepath"](props.fullpath, false);
 });
+const fullpathFromRoute = useFullpathFromRoute();
+const active = computed<boolean>(() => {
+  return (
+    !!fullpathFromRoute.value &&
+    fs.isEqual(fullpathFromRoute.value, props.fullpath)
+  );
+});
 
-registerWatch(() => props.fullpath, () => void emit("goto-me"), {
-  type: "file",
-  mode: "absolute"
-})
+// eslint-disable-next-line functional/no-let
+let watcherFile: ReturnType<typeof registerWatch>;
+watch(active, (value) => {
+  if (value) {
+    void emit("goto-me");
+
+    if (!watcherFile) {
+      registerWatch(
+        () => props.fullpath,
+        () => void (active.value && void emit("goto-me")),
+        {
+          type: "file",
+          mode: "absolute",
+        }
+      );
+    }
+  } else {
+    watcherFile?.();
+  }
+});
 </script>
 
 <style lang="scss" scoped>

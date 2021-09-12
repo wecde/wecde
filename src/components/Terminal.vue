@@ -13,7 +13,7 @@
     >
       <q-bar>
         <div class="text-weight-medium text-subtitle1">
-          {{ $t("Console") }}
+          {{ $t("label.console") }}
         </div>
         <q-space />
 

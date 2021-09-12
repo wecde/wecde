@@ -179,7 +179,7 @@ import { basename } from "path-cross";
 import { Notify } from "quasar";
 import Clone from "src/components/Git/Clone.vue";
 import Provide from "src/components/Git/Provide.vue";
-import createProjectFromZip from "src/helpers/createProjectFromZip";
+import { useCreateProjectFromZip } from "src/helpers/useCreateProjectFromZip";
 import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs-helper";
 import { useStore } from "src/store";
 import { reactive, ref } from "vue";
@@ -189,6 +189,8 @@ import TemplateTab from "./template/Tab.vue";
 
 const i18n = useI18n();
 const store = useStore();
+
+const createProjectFromZip = useCreateProjectFromZip();
 
 const projects = reactive<StatItem[]>([]);
 const stateCreate = ref<boolean>(false);
@@ -202,7 +204,7 @@ async function reloadListProjects(notification = false): Promise<void> {
     spinner: true,
     timeout: 9999999999,
     position: "bottom-right",
-    message: i18n.t("alert.reload-projects"),
+    message: i18n.t("alert.reload.project"),
   });
 
   try {
@@ -224,14 +226,14 @@ async function reloadListProjects(notification = false): Promise<void> {
     // eslint-disable-next-line functional/immutable-data
     projects.splice(0);
     task({
-      message: i18n.t("alert.reload-projects-failed"),
+      message: i18n.t("alert.failure.reload.project"),
       timeout: 3000,
     });
   }
 
   if (notification) {
     void Toast.show({
-      text: i18n.t("alert.reload-projects"),
+      text: i18n.t("alert.reload.project"),
     });
   }
 }
@@ -240,7 +242,7 @@ async function importZip(): Promise<void> {
     const names = await createProjectFromZip("projects/");
     store.commit("terminal/clear");
     void Toast.show({
-      text: i18n.t("alert.imported-project", {
+      text: i18n.t("alert.imported.project(s)", {
         list: names.map((item) => `"${item}"`).join(", "),
       }),
     });

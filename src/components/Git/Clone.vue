@@ -57,17 +57,7 @@
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import fs from "modules/fs";
-import {
-  configs as gitConfigs,
-  onAuth,
-  onAuthFailure,
-  onAuthSuccess,
-  onDone,
-  onError,
-  onMessage,
-  onProgress,
-  onStart,
-} from "src/helpers/git-helper";
+import { useGitHelper } from "src/helpers/useGitHelper";
 import { useGitCloneWorker } from "src/worker/git-clone";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -77,6 +67,18 @@ const i18n = useI18n();
 const emit = defineEmits<{
   (ev: "update:model-value", v: boolean): void;
 }>();
+
+const {
+  configs: gitConfigs,
+  onAuth,
+  onAuthFailure,
+  onAuthSuccess,
+  onDone,
+  onError,
+  onMessage,
+  onProgress,
+  onStart,
+} = useGitHelper();
 
 const url = ref<string>("");
 
@@ -104,7 +106,7 @@ async function cloneRepo() {
     }
 
     onStart(
-      i18n.t("alert.cloneing", {
+      i18n.t("alert.cloning", {
         url: url.value,
       })
     );
@@ -123,7 +125,7 @@ async function cloneRepo() {
     onDone();
 
     void Toast.show({
-      text: i18n.t("alert.clone-success", {
+      text: i18n.t("alert.successfully.clone", {
         url: url.value,
       }),
     });
@@ -132,9 +134,8 @@ async function cloneRepo() {
   } catch (err: any) {
     onError(err);
     void Toast.show({
-      text: i18n.t("alert.clone-failed", {
+      text: i18n.t("alert.failure.clone", {
         url: url.value,
-        message: err.message,
       }),
     });
   }

@@ -106,7 +106,7 @@ import type { Template } from "assets/labs/Release.json";
 import templates from "assets/templates/Release.json";
 import fs from "modules/fs";
 import { useStore } from "src/store";
-import nameFileValidates from "src/validator/nameFileValidates";
+import { useNameFileValidates } from "src/validator/useNameFileValidates";
 import { computed, ref, toRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { unzip } from "zip2";
@@ -122,7 +122,7 @@ const store = useStore();
 const i18n = useI18n();
 
 const templateSelected = ref<Template | null>(null);
-const error = nameFileValidates(
+const error = useNameFileValidates()(
   computed(() => templateSelected.value?.name || ""),
   false,
   toRef(props, "namesExists"),
@@ -147,8 +147,8 @@ async function create() {
 
         store.commit(
           "terminal/info",
-          i18n.t("alert.extracting-zip", {
-            name: urlFileZip,
+          i18n.t("alert.extracting", {
+            url: urlFileZip,
           })
         );
         await unzip({
@@ -161,14 +161,14 @@ async function create() {
             if (event.isDirectory) {
               store.commit(
                 "terminal/print",
-                i18n.t("alert.extract-folder", {
+                i18n.t("alert.saving.dir", {
                   name: event.filename,
                 })
               );
             } else {
               store.commit(
                 "terminal/print",
-                i18n.t("alert.extract-file", {
+                i18n.t("alert.saving.file", {
                   name: event.filename,
                 })
               );

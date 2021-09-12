@@ -10,7 +10,7 @@
     }"
     padding
   >
-    <template v-for="group in groups" :key="group.name">
+    <template v-for="(group, index) in groups" :key="group.name">
       <q-item-label header>{{ group.name }}</q-item-label>
 
       <q-item
@@ -43,6 +43,7 @@
             <q-input
               dense
               v-else-if="option.type === 'date'"
+              style="min-width: 100px"
               type="date"
               v-model="createRefStore(option.path).value"
             />
@@ -74,7 +75,7 @@
         </q-item-section>
       </q-item>
 
-      <q-separator spaced />
+      <q-separator spaced v-if="index < groups.length - 1"/>
     </template>
   </q-list>
 </template>

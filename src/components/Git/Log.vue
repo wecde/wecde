@@ -138,11 +138,13 @@ import {
   ReadCommitResult,
 } from "isomorphic-git";
 import fs from "modules/fs";
-import { onError } from "src/helpers/git-helper";
+import { useGitHelper } from "src/helpers/useGitHelper";
 import { useStore } from "src/store";
 import { reactive, ref } from "vue";
 
 const store = useStore();
+
+const { onError } = useGitHelper();
 
 const logs = reactive<ReadCommitResult[]>([]);
 const loading = ref<boolean>(false);

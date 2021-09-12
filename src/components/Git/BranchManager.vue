@@ -189,13 +189,16 @@ import {
 import fs from "modules/fs";
 import { basename } from "path-cross";
 import { useQuasar } from "quasar";
-import { onError } from "src/helpers/git-helper";
-import { listAllBranches } from "src/shared/git-shared";
+import { useGitHelper } from "src/helpers/useGitHelper";
+import { useGitShared } from "src/shared/useGitShared";
 import { useStore } from "src/store";
 import { ref } from "vue";
 
 const store = useStore();
 const $q = useQuasar();
+
+const { onError } = useGitHelper();
+const { listAllBranches } = useGitShared();
 
 const loading = ref<boolean>(false);
 
