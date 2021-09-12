@@ -1,0 +1,151 @@
+{
+  "alert": {
+    "adding": {
+      "dir": "Thêm thư mục {name}",
+      "file": "Thêm tệp {name}"
+    },
+    "archiving": "Đang lưu trữ thư mục {name}",
+    "cloning": "Sao chép repo từ {url}",
+    "created": {
+      "dir": "Đã tạo thư mục {name}",
+      "file": "Tệp đã tạo {name}",
+      "project": "Đã tạo dự án {name}"
+    },
+    "exported": {
+      "dir": "Đã xuất thư mục {name}",
+      "file": "Tệp đã xuất {name}",
+      "project": "Dự án đã xuất {name}"
+    },
+    "extracting": "Đang giải nén mã zip từ {url}",
+    "failure": {
+      "clone": "Sao chép repo {url} không thành công",
+      "git": {
+        "login": "Đăng nhập Git không thành công"
+      },
+      "reload": {
+        "file(s)": "Tải lại (các) tệp không thành công",
+        "project": "Tải lại dự án thất bại"
+      },
+      "remove": {
+        "dir": "Xóa thư mục {name} không thành công",
+        "file": "Xóa tệp {name} không thành công",
+        "project": "Xóa dự án {name} không thành công"
+      },
+      "rename": "Đổi tên {from} thành {to} không thành công"
+    },
+    "git": {
+      "403": "Git 403 Thử đăng nhập ...",
+      "config-host-unknown": "Máy chủ cấu hình xác thực {host} không xác định"
+    },
+    "imported": {
+      "file(s)": "(Các) tệp đã nhập {list}",
+      "project(s)": "(Các) dự án đã nhập {list}"
+    },
+    "importing": "Đang nhập ...",
+    "reload": {
+      "file(s)": "Tải lại (các) tệp",
+      "project": "Tải lại dự án"
+    },
+    "removed": {
+      "dir": "Đã xóa thư mục {name}",
+      "file": "Đã xóa tệp {name}",
+      "project": "Đã xóa dự án {name}"
+    },
+    "removing": {
+      "dir": "Đang xóa thư mục {name}",
+      "file": "Đang xóa tệp {name}",
+      "project": "Đang xóa dự án {name}"
+    },
+    "renamed": "Đã đổi tên {from} thành {to}",
+    "renaming": "Đổi tên {from} thành {to}",
+    "saving": {
+      "dir": "Đang lưu thư mục {name}",
+      "file": "Đang lưu tệp {name}"
+    },
+    "successfully": {
+      "clone": "Sao chép repo {url} thành công",
+      "git": {
+        "login": "Đăng nhập Git thành công"
+      }
+    },
+    "webserver": {
+      "start-at": "Máy chủ trang web bắt đầu tại {port}",
+      "stoped": "Máy chủ trang web đã dừng"
+    }
+  },
+  "label": {
+    "cancel": "Hủy bỏ",
+    "change-logs": "Thay đổi nhật ký",
+    "checkout": "Thủ tục thanh toán",
+    "clone-repo": "Sao chép Repo",
+    "console": "Bảng điều khiển",
+    "copy": "Sao chép",
+    "create": "Tạo ra",
+    "create-project": "Tạo dự án",
+    "credentials": "Thông tin xác thực",
+    "cut": "Cắt",
+    "definition": "Sự định nghĩa",
+    "delete": "Xóa bỏ",
+    "delete-project": "Xóa dự án",
+    "done": "Xong",
+    "email": "E-mail",
+    "export-file": "Xuất tệp",
+    "export-folder": "Xuất mã ZIP",
+    "export-zip": "Xuất Zip",
+    "files(s)": "(các) tệp",
+    "files-exclude": "các tập tin để loại trừ",
+    "files-include": "các tập tin để bao gồm",
+    "find": "Tìm thấy",
+    "find-all": "Tìm tất cả",
+    "format": "Sự sắp xếp",
+    "import-files": "Nhập tệp",
+    "import-zip": "Nhập mã ZIP",
+    "modified": "Đã sửa đổi",
+    "name": "Tên",
+    "new-file": "Tập tin mới",
+    "new-folder": "Thư mục mới",
+    "new-project": "Dự án mới",
+    "next-error": "Lỗi tiếp theo",
+    "not-recovery": "sẽ bị xóa vĩnh viễn. \nNó KHÔNG thể được phục hồi!",
+    "ok": "VÂNG",
+    "paste": "Dán",
+    "project": "Dự án",
+    "project-name": "Tên dự án",
+    "project-template": "Mẫu dự án",
+    "provider": "Các nhà cung cấp",
+    "redo": "Làm lại",
+    "rename": "Đổi tên",
+    "set-credentials": "Đặt thông tin xác thực",
+    "settings": "Cài đặt",
+    "show-info": "Hiển thị thông tin",
+    "signature": "Chữ ký",
+    "source-control": "Kiểm soát nguồn",
+    "template": "Bản mẫu",
+    "to-access-private": "để truy cập Kho lưu trữ riêng tư",
+    "to-confirm": "xác nhận.",
+    "type": "Kiểu",
+    "undo": "Hoàn tác",
+    "view-labs": "Xem phòng thí nghiệm"
+  },
+  "placeholder": {
+    "email": "E-mail",
+    "git": "URL (Bắt đầu bằng https: //)",
+    "mail": "Thư",
+    "name": "Tên",
+    "password": "Mật khẩu",
+    "replace": "Thay thế",
+    "search": "Tìm kiếm",
+    "username": "tên tài khoản"
+  },
+  "preload": {
+    "checking-last-session": "Kiểm tra phiên cuối cùng",
+    "checking-permission": "Kiểm tra bộ nhớ cho phép",
+    "loading-resources": "Đang tải tài nguyên"
+  },
+  "validate": {
+    "name": {
+      "invalid": "Tệp hoặc thư mục $$ name đã tồn tại tại vị trí này Vui lòng chọn một tên khác",
+      "not-empty": "Tên tệp hoặc thư mục phải được cung cấp"
+    }
+  }
+}
