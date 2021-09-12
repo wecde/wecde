@@ -51,63 +51,65 @@ export default (store: Store<StateInterface>): void => {
   // *
 
   // * for sessions
-  fs.on("move:file", ({ from, to }) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, from)
-    ) {
-      store.state.editor.sessions.forEach((item: string, index: number) => {
-        if (fs.isEqual(from, item)) {
-          store.commit("editor/updateSession", {
-            index,
-            value: to,
-          });
-        }
-      });
-    }
-  });
+  // !disabled
+  // fs.on("move:file", ({ from, to }) => {
+  //   if (
+  //     store.state.editor.project &&
+  //     fs.isParentDir(store.state.editor.project, from)
+  //   ) {
+  //     store.state.editor.sessions.forEach((item: string, index: number) => {
+  //       if (fs.isEqual(from, item)) {
+  //         store.commit("editor/updateSession", {
+  //           index,
+  //           value: to,
+  //         });
+  //       }
+  //     });
+  //   }
+  // });
 
-  fs.on("move:dir", ({ from, to }) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, from)
-    ) {
-      store.state.editor.sessions.forEach((item: string, index: number) => {
-        if (fs.isParentDir(from, item)) {
-          store.commit("editor/updateSession", {
-            index,
-            value: fs.replaceParentDir(item, from, to),
-          });
-        }
-      });
-    }
-  });
+  // fs.on("move:dir", ({ from, to }) => {
+  //   if (
+  //     store.state.editor.project &&
+  //     fs.isParentDir(store.state.editor.project, from)
+  //   ) {
+  //     store.state.editor.sessions.forEach((item: string, index: number) => {
+  //       if (fs.isParentDir(from, item)) {
+  //         store.commit("editor/updateSession", {
+  //           index,
+  //           value: fs.replaceParentDir(item, from, to),
+  //         });
+  //       }
+  //     });
+  //   }
+  // });
 
-  fs.on("remove:file", (path) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, path)
-    ) {
-      store.state.editor.sessions.forEach((item: string, index: number) => {
-        if (fs.isEqual(path, item)) {
-          store.commit("editor/removeSession", index);
-        }
-      });
-    }
-  });
+  // !disabled
+  // fs.on("remove:file", (path) => {
+  //   if (
+  //     store.state.editor.project &&
+  //     fs.isParentDir(store.state.editor.project, path)
+  //   ) {
+  //     store.state.editor.sessions.forEach((item: string, index: number) => {
+  //       if (fs.isEqual(path, item)) {
+  //         store.commit("editor/removeSession", index);
+  //       }
+  //     });
+  //   }
+  // });
 
-  fs.on("remove:dir", (path) => {
-    if (
-      store.state.editor.project &&
-      fs.isParentDir(store.state.editor.project, path)
-    ) {
-      store.state.editor.sessions.forEach((item: string, index: number) => {
-        if (fs.isParentDir(path, item)) {
-          store.commit("editor/removeSession", index);
-        }
-      });
-    }
-  });
+  // fs.on("remove:dir", (path) => {
+  //   if (
+  //     store.state.editor.project &&
+  //     fs.isParentDir(store.state.editor.project, path)
+  //   ) {
+  //     store.state.editor.sessions.forEach((item: string, index: number) => {
+  //       if (fs.isParentDir(path, item)) {
+  //         store.commit("editor/removeSession", index);
+  //       }
+  //     });
+  //   }
+  // });
   // *
 
   // ------------------------------------------------

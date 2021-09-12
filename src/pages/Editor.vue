@@ -2,10 +2,9 @@
   <App-Hammer>
     <div class="session mr-2" ref="sessionWrapper">
       <Session-Item
-        v-for="(item, index) in $store.state.editor.sessions"
-        :key="item"
-        :fullpath="item"
-        :index="index"
+        v-for="item in meta?.['sessions']"
+        :key="store.state.editor.project + item"
+        :fullpath="join(store.state.editor.project, item)"
         @goto-me="scrollSessionWrapperToSessionActive"
       />
     </div>
@@ -58,27 +57,89 @@ import EditorSVG from "components/Editor/SVG.vue";
 import SessionItem from "components/Editor/SessionItem.vue";
 import Preview from "components/Preview.vue";
 import isBinaryPath from "is-binary-path-cross";
-import {
-  allowPreview,
-  isMarkdown,
-  isSvg,
-} from "src/helpers/is-file-type";
+import { btoa } from "js-base64";
+import fs from "modules/fs";
+import { join } from "path-cross";
+import { createMetadata } from "src/helpers/createMetadata";
+import { allowPreview, isMarkdown, isSvg } from "src/helpers/is-file-type";
+import { useFullpathFromRoute } from "src/helpers/useFullpathFromRoute";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
 const i18n = useI18n();
 const store = useStore();
+const router = useRouter();
 
-const fullpath = computed<string | null>(
-  () => store.getters["editor/session"] as string | null
+const {
+  meta,
+  setupMetadata,
+  fullpathSessionNow: fullpath,
+} = createMetadata(computed<string | null>(() => store.state.editor.project));
+
+watch(
+  fullpath,
+  () => {
+    void router.replace({
+      name: "editor",
+      query: {
+        data: btoa(
+          JSON.stringify({
+            fullpath: fullpath.value,
+          })
+        ),
+      },
+    });
+  },
+  {
+    immediate: true,
+  }
+);
+watch(
+  useFullpathFromRoute(),
+  async (fullpath) => {
+    await setupMetadata;
+
+    if (fullpath && meta.value) {
+      const filepath: string = fs.relative(
+        store.state.editor.project || "",
+        fullpath
+      );
+
+      if (!meta.value["sessions"]) {
+        // eslint-disable-next-line functional/immutable-data
+        meta.value["sessions"] = [];
+      }
+      // eslint-disable-next-line functional/no-let
+      let indexFilepathInSessions = meta.value["sessions"].indexOf(filepath);
+      if (indexFilepathInSessions === -1) {
+        indexFilepathInSessions =
+          // eslint-disable-next-line functional/immutable-data
+          (meta.value["sessions"] as string[]).push(filepath) - 1;
+      }
+
+      if (!meta.value["session-history"]) {
+        // eslint-disable-next-line functional/immutable-data
+        meta.value["session-history"] = [];
+      }
+      if (
+        meta.value["session-history"][
+          meta.value["session-history"].length - 1
+        ] !== indexFilepathInSessions
+      ) {
+        // eslint-disable-next-line functional/immutable-data
+        meta.value["session-history"].push(indexFilepathInSessions);
+      }
+    }
+  },
+  {
+    immediate: true,
+  }
 );
 
 const serverIsRunning = ref<boolean>(false);
-const port = computed<number>(
-  () => store.state.settings["preview**port"] as number
-);
 
 async function startServer(): Promise<void> {
   await WebServer.start(Number(store.state.settings["preview**port"])).catch(
@@ -87,7 +148,7 @@ async function startServer(): Promise<void> {
 
   void Toast.show({
     text: i18n.t("alert.webserver-start-at", {
-      port,
+      port: store.state.settings["preview**port"] as number,
     }),
   });
   await Browser.open({
@@ -115,18 +176,8 @@ watch(serverIsRunning, async (newValue) => {
     console.error(err);
   }
 });
-watch(port, async () => {
-  await stopServer();
-  await startServer();
-});
 
 const sessionWrapper = ref<Element | null>(null);
-
-// eslint-disable-next-line functional/no-let
-let isMounted = false;
-
-onMounted(() => void (isMounted = true));
-
 function scrollSessionWrapperToSessionActive() {
   createTimeoutBy(
     "pages.editor.fix-async-dom-scroll-to-tab-session-active",
@@ -139,22 +190,9 @@ function scrollSessionWrapperToSessionActive() {
     70
   );
 }
-
-watch(
-  fullpath,
-  (newValue) => {
-    if (newValue) {
-      if (isMounted) {
-        scrollSessionWrapperToSessionActive();
-      } else {
-        onMounted(() => void scrollSessionWrapperToSessionActive());
-      }
-    }
-  },
-  {
-    immediate: true,
-  }
-);
+watch(() => meta.value?.["sessions"], () => void scrollSessionWrapperToSessionActive(), {
+  deep: true
+})
 </script>
 
 <style lang="scss" scoped>

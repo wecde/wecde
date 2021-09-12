@@ -8,14 +8,17 @@ const routes: RouteRecordRaw[] = [
     children: [
       {
         path: "",
+        name: "home",
         component: () => import("pages/Home.vue"),
       },
       {
         path: "/editor",
+        name: "editor",
         component: () => import("pages/Editor.vue"),
       },
       {
         path: "/settings",
+        name: "settings",
         component: () => import("src/pages/Settings.vue"),
       },
     ],

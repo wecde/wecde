@@ -17,11 +17,12 @@
 
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
+import { btoa } from "js-base64";
 import fs from "modules/fs";
 import { join } from "path-cross";
-import { useStore } from "src/store";
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 
 import FileExplorerRename from "./Rename.vue";
 
@@ -36,15 +37,18 @@ const emit = defineEmits<{
   (ev: "update:adding", v: boolean): void;
 }>();
 
-const store = useStore();
+const router = useRouter();
 const i18n = useI18n();
 const filename = ref<string>("");
 
-watch(() => props.adding, (newValue) => {
-  if (newValue) {
-    filename.value = "";
+watch(
+  () => props.adding,
+  (newValue) => {
+    if (newValue) {
+      filename.value = "";
+    }
   }
-});
+);
 watch(filename, async (newValue) => {
   if (newValue !== "") {
     const pathTo = join(props.dirname, filename.value);
@@ -63,7 +67,16 @@ watch(filename, async (newValue) => {
     });
 
     if (props.allowOpenEditor) {
-      store.commit("editor/pushSession", pathTo);
+      void router.push({
+        name: "editor",
+        query: {
+          data: btoa(
+            JSON.stringify({
+              fullpath: pathTo,
+            })
+          ),
+        },
+      });
     }
 
     emit("update:adding", false);

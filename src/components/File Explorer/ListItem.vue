@@ -41,12 +41,13 @@
         <q-spinner-hourglass color="green" v-if="loading" />
         <q-icon
           size="13px"
-          color="blue"
-          name="mdi-circle-medium"
+          color="info"
+          name="ti-pencil-alt"
           v-if="opening"
         />
         <q-icon
           size="13px"
+          color="warning"
           name="ti-cut"
           v-if="
             store.getters['clipboard-fs/cutting'] &&
@@ -245,6 +246,7 @@ import { Toast } from "@capacitor/toast";
 import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
 import { isIgnored } from "isomorphic-git";
+import { btoa } from "js-base64";
 import fs from "modules/fs";
 import { basename, dirname } from "path-cross";
 import { Notify, useQuasar } from "quasar";
@@ -255,10 +257,11 @@ import {
   sortTreeFilesystem,
   StatItem,
 } from "src/helpers/fs-helper";
+import { useFullpathFromRoute } from "src/helpers/useFullpathFromRoute";
 import { useStore } from "src/store";
 import { computed, defineAsyncComponent, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 import FileExplorerAdd from "./Add.vue";
 import FileExplorerRename from "./Rename.vue";
@@ -276,7 +279,6 @@ const store = useStore();
 const $q = useQuasar();
 const i18n = useI18n();
 const router = useRouter();
-const route = useRoute();
 
 const collapse = ref<boolean>(false);
 const adding = ref<boolean>(false);
@@ -302,21 +304,24 @@ registerWatch(
 
 watch(adding, (newValue) => {
   if (newValue) {
-    collapse.value = true;
+    if (props.file.stat.isDirectory()) {
+      collapse.value = true;
+    }
   }
 });
 
 const files = reactive<StatItem[]>([]);
+const fullpathFromRoute = useFullpathFromRoute();
 const opening = computed<boolean>(() => {
-  if (collapse.value === false && store.getters["editor/session"]) {
+  if (
+    (props.file.stat.isDirectory() ? collapse.value === false : true) &&
+    fullpathFromRoute.value
+  ) {
     if (props.file.stat.isDirectory()) {
-      return fs.isParentDir(
-        props.file.fullpath,
-        store.getters["editor/session"]
-      );
+      return fs.isParentDir(props.file.fullpath, fullpathFromRoute.value);
     }
 
-    return fs.isEqual(store.getters["editor/session"], props.file.fullpath);
+    return fs.isEqual(fullpathFromRoute.value, props.file.fullpath);
   }
 
   return false;
@@ -423,7 +428,9 @@ async function paste() {
     await store.dispatch("clipboard-fs/paste", props.file.fullpath) // if required required refresh this parent
   ) {
   } else {
-    collapse.value = true;
+    if (props.file.stat.isDirectory()) {
+      collapse.value = true;
+    }
   }
 }
 async function exportFile() {
@@ -472,14 +479,19 @@ async function exportFile() {
 }
 
 function clickToFile() {
-  collapse.value = !collapse.value;
-
   if (props.file.stat.isDirectory() === false) {
-    store.commit("editor/pushSession", props.file.fullpath);
-
-    if (route.name !== "editor") {
-      void router.push("/editor");
-    }
+    void router.push({
+      name: "editor",
+      query: {
+        data: btoa(
+          JSON.stringify({
+            fullpath: props.file.fullpath,
+          })
+        ),
+      },
+    });
+  } else {
+    collapse.value = !collapse.value;
   }
 }
 
