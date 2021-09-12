@@ -154,11 +154,11 @@ async function build() {
   const newSort = [];
 
   sort.forEach((item) => {
-    const exitst = templates.findIndex((template) => template.name === item);
+    const exists = templates.findIndex((template) => template.name === item);
 
-    if (exitst > -1) {
+    if (exists > -1) {
       newSort.push(item);
-      templatesSorted.push(templates.splice(exitst, 1)[0]);
+      templatesSorted.push(templates.splice(exists, 1)[0]);
     }
   });
 
