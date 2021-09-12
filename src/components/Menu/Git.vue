@@ -32,7 +32,11 @@
         round
         padding="xs"
         size="13px"
-        @click="commitAll"
+        @click="
+          $store.getters['editor/changes-staged.length'] > 0
+            ? commit()
+            : commitAll()
+        "
       />
       <q-btn icon="mdi-reload" flat round padding="xs" size="13px" />
 
@@ -656,6 +660,19 @@ async function commitAll(): Promise<void> {
     store.commit("system/set:navTabGit", true);
 
     await _add(Object.keys(store.state.editor.git.statusMatrix.matrix));
+    await _commit({
+      message: commitMessage.value,
+      amend: false,
+      noEdit: false,
+    });
+
+    store.commit("system/set:navTabGit", false);
+  }
+}
+async function commit(): Promise<void> {
+  if (store.state.system.navTabGit === false) {
+    store.commit("system/set:navTabGit", true);
+
     await _commit({
       message: commitMessage.value,
       amend: false,
