@@ -9,10 +9,10 @@
       }"
       :src="
         getIcon({
-          light: false,
+          light: $q.dark.isActive === false,
           isOpen: false,
           isFolder,
-          name: renaming ? newFilename : basename(fullpath),
+          name: renaming ? newFilename : fullpath,
         })
       "
     />

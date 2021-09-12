@@ -263,7 +263,20 @@ function onScroll(): void {
 let watcherFile: () => void;
 
 async function loadFile(fullpath: string): Promise<void> {
-  const { mode } = modelist.getModeForPath(fullpath);
+  // eslint-disable-next-line functional/no-let
+  let { mode } = modelist.getModeForPath(fullpath);
+
+  if (mode === "ace/mode/text") {
+    switch (basename(fullpath)) {
+      case ".prettierignore":
+      case ".eslint":
+        mode = "ace/mode/json";
+        break;
+      case "LICENSE":
+        mode = "ace/mode/markdown";
+        break;
+    }
+  }
 
   try {
     // remove handle change

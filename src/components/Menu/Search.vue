@@ -181,7 +181,7 @@
                       class="icon-file"
                       :src="
                         getIcon({
-                          light: false,
+                          light: $q.dark.isActive === false,
                           isOpen: false,
                           isFolder: false,
                           name: result.basename,
