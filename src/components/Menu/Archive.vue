@@ -204,7 +204,7 @@ async function reloadListProjects(notification = false): Promise<void> {
     spinner: true,
     timeout: 9999999999,
     position: "bottom-right",
-    message: i18n.t("alert.reload-projects"),
+    message: i18n.t("alert.reload.project"),
   });
 
   try {
@@ -226,14 +226,14 @@ async function reloadListProjects(notification = false): Promise<void> {
     // eslint-disable-next-line functional/immutable-data
     projects.splice(0);
     task({
-      message: i18n.t("alert.reload-projects-failed"),
+      message: i18n.t("alert.failure.reload.project"),
       timeout: 3000,
     });
   }
 
   if (notification) {
     void Toast.show({
-      text: i18n.t("alert.reload-projects"),
+      text: i18n.t("alert.reload.project"),
     });
   }
 }
@@ -242,7 +242,7 @@ async function importZip(): Promise<void> {
     const names = await createProjectFromZip("projects/");
     store.commit("terminal/clear");
     void Toast.show({
-      text: i18n.t("alert.imported-project", {
+      text: i18n.t("alert.imported.project(s)", {
         list: names.map((item) => `"${item}"`).join(", "),
       }),
     });

@@ -10,7 +10,7 @@ export function useCreateProjectFromZip() {
   const i18n = useI18n();
 
   return async (folderExtract: string): Promise<readonly string[]> => {
-    store.commit("terminal/print", i18n.t("alert.import-files"));
+    store.commit("terminal/print", i18n.t("alert.importing"));
     const files = Array.from(
       (await selectFiles({
         accept: "*.zip",
@@ -22,7 +22,7 @@ export function useCreateProjectFromZip() {
         files.map(async (file) => {
           store.commit(
             "terminal/info",
-            i18n.t("alert.extracting-zip", {
+            i18n.t("alert.extracting", {
               name: "buffer",
             })
           );
@@ -38,14 +38,14 @@ export function useCreateProjectFromZip() {
               if (event.isDirectory) {
                 store.commit(
                   "terminal/print",
-                  i18n.t("alert.extract-folder", {
+                  i18n.t("alert.extract.dir", {
                     name: event.filename,
                   })
                 );
               } else {
                 store.commit(
                   "terminal/print",
-                  i18n.t("alert.extract-file", {
+                  i18n.t("alert.extract.file", {
                     name: event.filename,
                   })
                 );

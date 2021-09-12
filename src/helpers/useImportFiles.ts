@@ -13,7 +13,7 @@ export function useImportFiles() {
     folderSave: string,
     multiple = true
   ): Promise<readonly string[]> => {
-    store.commit("terminal/print", i18n.t("alert.import-files"));
+    store.commit("terminal/print", i18n.t("alert.importing"));
     const files = Array.from(
       (await selectFiles({
         multiple,
@@ -25,11 +25,9 @@ export function useImportFiles() {
         files.map(async (file, index) => {
           store.commit(
             "terminal/print",
-            i18n.t("alert.saving-file-index", {
+            i18n.t("alert.saving.file", {
               name: file.name,
-              index: index + 1,
-              length: files.length,
-            })
+            }) + `(${index + 1}/${files.length})`
           );
           await fs.writeFile(
             join(folderSave, file.name),

@@ -106,7 +106,7 @@ async function cloneRepo() {
     }
 
     onStart(
-      i18n.t("alert.cloneing", {
+      i18n.t("alert.cloning", {
         url: url.value,
       })
     );
@@ -125,7 +125,7 @@ async function cloneRepo() {
     onDone();
 
     void Toast.show({
-      text: i18n.t("alert.clone-success", {
+      text: i18n.t("alert.successfully.clone", {
         url: url.value,
       }),
     });
@@ -134,9 +134,8 @@ async function cloneRepo() {
   } catch (err: any) {
     onError(err);
     void Toast.show({
-      text: i18n.t("alert.clone-failed", {
+      text: i18n.t("alert.failure.clone", {
         url: url.value,
-        message: err.message,
       }),
     });
   }

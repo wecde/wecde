@@ -191,12 +191,12 @@ function remove() {
       });
     } catch {
       task({
-        message: i18n.t("alert.remove.project-failed", {
+        message: i18n.t("alert.failure.remove.project", {
           name: basename(props.project.fullpath),
         }),
       });
       void Toast.show({
-        text: i18n.t("alert.remove.project-failed", {
+        text: i18n.t("alert.failure.remove.project", {
           name: basename(props.project.fullpath),
         }),
       });

@@ -147,8 +147,8 @@ async function create() {
 
         store.commit(
           "terminal/info",
-          i18n.t("alert.extracting-zip", {
-            name: urlFileZip,
+          i18n.t("alert.extracting", {
+            url: urlFileZip,
           })
         );
         await unzip({
@@ -161,14 +161,14 @@ async function create() {
             if (event.isDirectory) {
               store.commit(
                 "terminal/print",
-                i18n.t("alert.extract-folder", {
+                i18n.t("alert.saving.dir", {
                   name: event.filename,
                 })
               );
             } else {
               store.commit(
                 "terminal/print",
-                i18n.t("alert.extract-file", {
+                i18n.t("alert.saving.file", {
                   name: event.filename,
                 })
               );

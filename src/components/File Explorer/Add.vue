@@ -56,15 +56,19 @@ watch(filename, async (newValue) => {
       await fs.mkdir(pathTo, {
         recursive: true,
       });
+      void Toast.show({
+        text: i18n.t("alert.created.dir", {
+          name: pathTo,
+        }),
+      });
     } else {
       await fs.writeFile(pathTo, "");
+      void Toast.show({
+        text: i18n.t("alert.created.file", {
+          name: pathTo,
+        }),
+      });
     }
-
-    void Toast.show({
-      text: i18n.t(`alert.created.${props.isFolder ? "folder" : "file"}`, {
-        name: pathTo,
-      }),
-    });
 
     if (props.allowOpenEditor) {
       void router.push({

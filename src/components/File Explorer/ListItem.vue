@@ -362,55 +362,74 @@ function remove() {
     cancel: true,
     persistent: true,
   }).onOk(async () => {
-    const task = Notify.create({
-      spinner: true,
-      timeout: 9999999999,
-      position: "bottom-right",
-      message: i18n.t(
-        `alert.removing.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-        {
-          name: `${props.file.fullpath}`,
-        }
-      ),
-    });
-
-    try {
-      await fs.unlink(props.file.fullpath, {
-        removeAll: true,
+    if (props.file.stat.isDirectory()) {
+      const task = Notify.create({
+        spinner: true,
+        timeout: 9999999999,
+        position: "bottom-right",
+        message: i18n.t("alert.removing.dir", {
+          name: props.file.fullpath,
+        }),
       });
 
-      void Toast.show({
-        text: i18n.t(
-          `alert.removed.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-          {
-            name: `${props.file.fullpath}`,
-          }
-        ),
+      try {
+        await fs.rmdir(props.file.fullpath, {
+          recursive: true,
+        });
+
+        void Toast.show({
+          text: i18n.t("alert.removed.dir", {
+            name: props.file.fullpath,
+          }),
+        });
+
+        task();
+      } catch {
+        void Toast.show({
+          text: i18n.t("alert.failure.remove.dir", {
+            name: props.file.fullpath,
+          }),
+        });
+
+        task({
+          message: i18n.t("alert.failure.remove.file", {
+            name: props.file.fullpath,
+          }),
+        });
+      }
+    } else {
+      const task = Notify.create({
+        spinner: true,
+        timeout: 9999999999,
+        position: "bottom-right",
+        message: i18n.t("alert.removing.file", {
+          name: props.file.fullpath,
+        }),
       });
 
-      task();
-    } catch {
-      void Toast.show({
-        text: i18n.t(
-          `alert.remove-failed-${
-            props.file.stat.isDirectory() ? "folder" : "file"
-          }`,
-          {
-            name: `${props.file.fullpath}`,
-          }
-        ),
-      });
+      try {
+        await fs.unlink(props.file.fullpath);
 
-      task({
-        message: i18n.t(
-          `alert.remove-failed.${
-            props.file.stat.isDirectory() ? "folder" : "file"
-          }`,
-          {
-            name: `${props.file.fullpath}`,
-          }
-        ),
-      });
+        void Toast.show({
+          text: i18n.t("alert.removed.file", {
+            name: props.file.fullpath,
+          }),
+        });
+
+        task();
+      } catch {
+        void Toast.show({
+          text: i18n.t("alert.failure.remove.dir", {
+            name: props.file.fullpath,
+          }),
+        });
+
+        task({
+          message: i18n.t("alert.failure.remove.file", {
+            name: props.file.fullpath,
+          }),
+        });
+      }
     }
   });
 }
@@ -436,7 +455,7 @@ async function exportFile() {
       await exportZip(props.file.fullpath);
       store.commit("terminal/clear");
       void Toast.show({
-        text: i18n.t("alert.exported.folder", {
+        text: i18n.t("alert.exported.dir", {
           name: props.file.fullpath,
         }),
       });
@@ -459,12 +478,9 @@ async function exportFile() {
     task();
 
     void Toast.show({
-      text: i18n.t(
-        `alert.exported.${props.file.stat.isDirectory() ? "folder" : "file"}`,
-        {
-          name: props.file.fullpath,
-        }
-      ),
+      text: i18n.t("alert.exported.file", {
+        name: props.file.fullpath,
+      }),
     });
   }
 }

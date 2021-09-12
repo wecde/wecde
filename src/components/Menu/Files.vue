@@ -196,7 +196,7 @@ async function reloadListFile(notification = false): Promise<void> {
     spinner: true,
     timeout: 9999999999,
     position: "bottom-right",
-    message: i18n.t("alert.reload-files"),
+    message: i18n.t("alert.reload.file(s)"),
   });
 
   try {
@@ -214,14 +214,14 @@ async function reloadListFile(notification = false): Promise<void> {
 
     if (notification) {
       void Toast.show({
-        text: i18n.t("alert.reload-files"),
+        text: i18n.t("alert.reload.file(s)"),
       });
     }
   } catch {
     // eslint-disable-next-line functional/immutable-data
     files.splice(0);
     task({
-      message: i18n.t("alert.reload-files-failed"),
+      message: i18n.t("alert.failure.reload.file(s)"),
     });
   }
 }

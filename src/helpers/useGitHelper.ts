@@ -34,7 +34,12 @@ export function useGitHelper() {
     const auth = store.getters["git-configs/getConfig"](url);
 
     if (!auth.username || !auth.password) {
-      store.commit("terminal/warning", i18n.t("error.git.auth-not-ready"));
+      store.commit(
+        "terminal/warning",
+        i18n.t("alert.git.config-host-unknown", {
+          host: new URL("./", "url").hostname,
+        })
+      );
       return {
         cancel: true,
       };
@@ -44,9 +49,9 @@ export function useGitHelper() {
   }
 
   function onAuthFailure(): GitAuth {
-    store.commit("terminal/error", i18n.t("error.login-failed"));
+    store.commit("terminal/error", i18n.t("alert.failure.git.login"));
     void Toast.show({
-      text: i18n.t("error.login-failed"),
+      text: i18n.t("alert.failure.git.login"),
     });
 
     return {
@@ -55,7 +60,7 @@ export function useGitHelper() {
   }
 
   function onAuthSuccess(): void {
-    store.commit("terminal/success", i18n.t("alert.login-success"));
+    store.commit("terminal/success", i18n.t("alert.successfully.git.login"));
   }
 
   const onMessage =

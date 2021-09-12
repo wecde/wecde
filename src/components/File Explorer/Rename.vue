@@ -130,44 +130,34 @@ async function blur(): Promise<void> {
         spinner: true,
         timeout: 9999999999,
         position: "bottom-right",
-        message: i18n.t(
-          `alert.renamed.${props.isFolder ? "folder" : "file"}-from-to`,
-          {
-            old: relative("projects", from),
-            new: relative("projects", to),
-          }
-        ),
+        message: i18n.t("alert.renaming", {
+          from: relative("projects", from),
+          to: relative("projects", to),
+        }),
       });
 
       try {
         await fs.rename(from, to);
         void Toast.show({
-          text: i18n.t(
-            `alert.renamed.${props.isFolder ? "folder" : "file"}-from-to`,
-            {
-              old: relative("projects", from),
-              new: relative("projects", to),
-            }
-          ),
+          text: i18n.t("alert.renamed", {
+            from: relative("projects", from),
+            to: relative("projects", to),
+          }),
         });
         task();
       } catch {
         void Toast.show({
-          text: i18n.t(
-            `alert.rename.${props.isFolder ? "folder" : "file"}-failed`,
-            {
-              path: relative("projects", from),
-            }
-          ),
+          text: i18n.t("alert.failure.rename", {
+            from: relative("projects", from),
+            to: relative("projects", to),
+          }),
         });
         task({
           timeout: 3000,
-          message: i18n.t(
-            `alert.rename.${props.isFolder ? "folder" : "file"}-failed`,
-            {
-              path: relative("projects", from),
-            }
-          ),
+          message: i18n.t("alert.failure.rename", {
+            from: relative("projects", from),
+            to: relative("projects", to),
+          }),
         });
       }
 

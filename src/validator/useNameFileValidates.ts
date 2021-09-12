@@ -17,7 +17,7 @@ export function useNameFileValidates() {
         !nameCheck.value &&
         (checkNameEmpty === true || checkNameEmpty.value)
       ) {
-        return i18n.t("alert.file-name-not-empty");
+        return i18n.t("validate.name.not-empty");
       }
 
       if (
@@ -38,7 +38,7 @@ export function useNameFileValidates() {
         )
       ) {
         return i18n
-          .t("alert.file-name-invalidate")
+          .t("validate.name.invalid")
           .replace("$$name", `<strong>${nameCheck.value}</strong>`);
       }
 

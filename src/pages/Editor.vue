@@ -147,7 +147,7 @@ async function startServer(): Promise<void> {
   );
 
   void Toast.show({
-    text: i18n.t("alert.webserver-start-at", {
+    text: i18n.t("alert.webserver.start-at", {
       port: store.state.settings["preview**port"] as number,
     }),
   });
@@ -161,7 +161,7 @@ async function stopServer() {
   await WebServer.stop();
 
   void Toast.show({
-    text: i18n.t("alert.webserver-stoped"),
+    text: i18n.t("alert.webserver.stoped"),
   });
 }
 

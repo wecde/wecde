@@ -12,7 +12,7 @@ export function useExportZip() {
   return async (path: string): Promise<void> => {
     store.commit(
       "terminal/info",
-      i18n.t("alert.ziping", {
+      i18n.t("alert.archiving", {
         name: path,
       })
     );
@@ -26,7 +26,7 @@ export function useExportZip() {
         if (event.isDirectory) {
           store.commit(
             "terminal/print",
-            i18n.t("alert.adding.directory", {
+            i18n.t("alert.adding.dir", {
               name: path,
             })
           );
@@ -43,7 +43,7 @@ export function useExportZip() {
 
     store.commit(
       "terminal/print",
-      i18n.t("alert.saving-file", {
+      i18n.t("alert.saving.file", {
         name: basename(path) + ".zip",
       })
     );
