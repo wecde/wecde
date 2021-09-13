@@ -47,6 +47,7 @@
         <q-icon name="mdi-chevron-double-right" />
       </div>
     </div>
+
     <div
       class="bottom-tools__group justify-between"
       v-else-if="tabToolsBottom === 1"
@@ -72,6 +73,24 @@
       <div class="item" v-ripple @mousedown="fixBlurEditor" @click="paste">
         <q-icon name="mdi-content-paste" />
       </div>
+      <div class="item" v-ripple @mousedown="fixBlurEditor">
+        <q-icon
+          name="mdi-square"
+          :style="{
+            color: colorPalete,
+          }"
+        />
+        <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
+          transition-show="jump-up"
+          transition-hide="jump-down"
+          max-width="220px"
+        >
+          <q-color format-model="hexa" v-model="colorPalete" no-footer />
+        </q-menu>
+      </div>
 
       <div class="item" v-ripple @mousedown="fixBlurEditor">
         <q-icon name="mdi-plus" />
@@ -82,6 +101,7 @@
           class="menu-addons"
           transition-show="jump-up"
           transition-hide="jump-down"
+          @update:model-value="$event ? insertColor() : void 0"
         >
           <q-card
             flat
@@ -203,6 +223,8 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
+
+const colorPalete = ref<string>("#3d3636ff");
 const EditorCode = ref<HTMLDivElement | null>(null);
 const ace: {
   value: Ace.Ace.Editor | null;
@@ -212,13 +234,62 @@ const ace: {
 const nextErrorer = ref<Ace.Ace.Annotation | null>(null);
 
 // eslint-disable-next-line functional/no-let
+let watcherFilesystem: { (): void; (): void };
+function registerWatchFilesystem(immediate = false) {
+  // register
+  watcherFilesystem?.();
+  watcherFilesystem = registerWatch(
+    () => props.fullpath,
+    async () => {
+      if (ace.value) {
+        const metadata = {
+          left: ace.value.session.getScrollLeft() || 0,
+          top: ace.value.session.getScrollTop() || 0,
+          row: ace.value.getCursorPosition()?.row || 0,
+          column: ace.value.getCursorPosition()?.column || 0,
+        };
+
+        try {
+          const raw = await fs.readFile(props.fullpath, "utf8");
+
+          if (raw !== ace.value.getValue()) {
+            clearTimeout(timeoutOnChange as number);
+            ace.value?.off("change", onChange);
+            ace.value.setValue(raw);
+            ace.value?.on("change", onChange);
+          }
+        } catch (err) {
+          if (err.code === "ENOENT") {
+            clearTimeout(timeoutOnChange as number);
+            ace.value?.off("change", onChange);
+            ace.value.setValue("");
+            ace.value?.on("change", onChange);
+          }
+        }
+
+        ace.value.clearSelection();
+
+        ace.value.session.setScrollLeft(metadata.left);
+        ace.value.session.setScrollTop(metadata.top);
+        ace.value.moveCursorTo(metadata.row, metadata.column);
+      }
+    },
+    {
+      immediate,
+    }
+  );
+}
+
+// eslint-disable-next-line functional/no-let
 let timeoutOnChange: number | NodeJS.Timeout;
 function onChange(): void {
   timeoutOnChange = createTimeoutBy(
     "editor.code.timeout-saving-file",
-    () => {
+    async () => {
       if (ace.value) {
-        void fs.writeFile(props.fullpath, ace.value.getValue());
+        watcherFilesystem?.();
+        await fs.writeFile(props.fullpath, ace.value.getValue());
+        registerWatchFilesystem();
 
         const { row, column } = ace.value.getCursorPosition();
         const annotations = ace.value.session
@@ -264,9 +335,6 @@ function onScroll(): void {
   );
 }
 
-// eslint-disable-next-line functional/no-let
-let watcherFile: () => void;
-
 async function loadFile(fullpath: string): Promise<void> {
   // eslint-disable-next-line functional/no-let
   let { mode } = modelist.getModeForPath(fullpath);
@@ -309,49 +377,6 @@ async function loadFile(fullpath: string): Promise<void> {
     clearTimeout(timeoutOnChange as number);
     ace.value?.off("change", onChange);
 
-    // register
-    watcherFile?.();
-    watcherFile = registerWatch(
-      () => fullpath,
-      async () => {
-        if (ace.value) {
-          const metadata = {
-            left: ace.value.session.getScrollLeft() || 0,
-            top: ace.value.session.getScrollTop() || 0,
-            row: ace.value.getCursorPosition()?.row || 0,
-            column: ace.value.getCursorPosition()?.column || 0,
-          };
-
-          try {
-            const raw = await fs.readFile(fullpath, "utf8");
-
-            if (raw !== ace.value.getValue()) {
-              clearTimeout(timeoutOnChange as number);
-              ace.value?.off("change", onChange);
-              ace.value.setValue(raw);
-              ace.value?.on("change", onChange);
-            }
-          } catch (err) {
-            if (err.code === "ENOENT") {
-              clearTimeout(timeoutOnChange as number);
-              ace.value?.off("change", onChange);
-              ace.value.setValue("");
-              ace.value?.on("change", onChange);
-            }
-          }
-
-          ace.value.clearSelection();
-
-          ace.value.session.setScrollLeft(metadata.left);
-          ace.value.session.setScrollTop(metadata.top);
-          ace.value.moveCursorTo(metadata.row, metadata.column);
-        }
-      },
-      {
-        immediate: true,
-      }
-    );
-
     // ace.value?.setValue(await fs.readFile(fullpath, "utf8"));
     ace.value?.session.setMode(mode);
 
@@ -366,6 +391,8 @@ async function loadFile(fullpath: string): Promise<void> {
     ace.value?.session.off("changeScrollTop", onScroll);
     ace.value?.session.off("changeScrollLeft", onScroll);
     ace.value?.session.selection.off("changeCursor", onScroll);
+
+    registerWatchFilesystem(true);
 
     /// restore scroll behavior
     const { top, left, row, column } = await getScrollBehavior(fullpath);
@@ -410,6 +437,7 @@ onMounted(() => {
     });
 
     Ace.require("ace/ext/emmet");
+    // ace.value.setOption("enableEmmet", true);
     ace.value.setHighlightSelectedWord(true);
 
     ace.value.setOptions({
@@ -485,6 +513,12 @@ const supportFormat = computed<boolean>(() => !!parser.value);
 
 function fixBlurEditor(event: MouseEvent): void {
   event.preventDefault();
+}
+function insertColor(): void {
+  ace.value?.session.insert(
+    ace.value.getCursorPosition(),
+    colorPalete.value.replace(/ff$/, "")
+  );
 }
 function tab(): void {
   ace.value?.insert("\t");
