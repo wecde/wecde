@@ -150,9 +150,7 @@
     </div>
   </q-footer>
 
-  <div class="wrapper">
-    <div class="editor" ref="EditorCode" v-bind="$attrs" />
-  </div>
+  <div style="height: 100%" ref="EditorCode" v-bind="$attrs" />
 
   <teleport to="[data-id='code.btn-addons']" v-if="isMounted">
     <q-btn
@@ -168,24 +166,24 @@
 
 <script lang="ts" setup>
 // eslint-disable-next-line import/order
-import Ace from "ace-new";
+import Ace from "ace-builds";
 // eslint-disable-next-line import/order
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 
-import "ace-new/webpack-resolver";
-import "ace-new/src-noconflict/ext-language_tools";
-// import "ace-new/src-noconflict/ext-emmet";
-import "ace-new/src-noconflict/ext-linking";
-import "ace-new/src-noconflict/ext-settings_menu";
-import "ace-new/src-noconflict/keybinding-emacs";
-import "ace-new/src-noconflict/keybinding-sublime";
-import "ace-new/src-noconflict/keybinding-vim";
-import "ace-new/src-noconflict/keybinding-vscode";
-import "ace-new/src-noconflict/ext-spellcheck";
-import "ace-new/src-noconflict/ext-prompt";
+import "ace-builds/webpack-resolver";
+import "ace-builds/src-noconflict/ext-language_tools";
+// import "ace-builds/src-noconflict/ext-emmet";
+import "ace-builds/src-noconflict/ext-linking";
+import "ace-builds/src-noconflict/ext-settings_menu";
+import "ace-builds/src-noconflict/keybinding-emacs";
+import "ace-builds/src-noconflict/keybinding-sublime";
+import "ace-builds/src-noconflict/keybinding-vim";
+import "ace-builds/src-noconflict/keybinding-vscode";
+import "ace-builds/src-noconflict/ext-spellcheck";
+import "ace-builds/src-noconflict/ext-prompt";
 
 import { Clipboard } from "@capacitor/clipboard";
-import modelist from "ace-new/src-noconflict/ext-modelist";
+import modelist from "ace-builds/src-noconflict/ext-modelist";
 import fs from "modules/fs";
 import { basename, extname } from "path-cross";
 import { getSupportInfo } from "prettier";
@@ -205,7 +203,7 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
-const EditorCode = ref<HTMLElement | null>(null);
+const EditorCode = ref<HTMLDivElement | null>(null);
 const ace: {
   value: Ace.Ace.Editor | null;
 } = {
@@ -283,6 +281,27 @@ async function loadFile(fullpath: string): Promise<void> {
         mode = "ace/mode/markdown";
         break;
     }
+  }
+
+  if (mode === "ace/mode/jsx") {
+    // disable worker
+    ace.value?.setOption("useWorker", false);
+  } else {
+    ace.value?.setOption("useWorker", true);
+  }
+
+  if (mode === "ace/mode/text") {
+    ace.value?.setOptions({
+      enableBasicAutocompletion: false,
+      enableSnippets: false,
+      enableLiveAutocompletion: false,
+    });
+  } else {
+    ace.value?.setOptions({
+      enableBasicAutocompletion: true,
+      enableSnippets: true,
+      enableLiveAutocompletion: true,
+    });
   }
 
   try {
@@ -385,9 +404,23 @@ onMounted(() => {
         store.state.settings["editor**autocomplete / check syntax"],
       enableLiveAutocompletion:
         store.state.settings["editor**autocomplete / check syntax"],
+      useWorker: true,
       // enableEmmet: true,
       // enableCodeLens: true,
     });
+
+    Ace.require("ace/ext/emmet");
+    ace.value.setHighlightSelectedWord(true);
+
+    ace.value.setOptions({
+      animatedScroll: false,
+      tooltipFollowsMouse: false,
+      enableEmmet: true,
+      indentedSoftWrap: false,
+      scrollPastEnd: 0.5,
+    });
+
+    ace.value.resize(true);
 
     watchEffect(() => {
       if (ace.value) {
@@ -681,33 +714,5 @@ function findAll(): void {
 
 .ace_gutter-active-line {
   background-color: transparent;
-}
-
-.wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: calc(100vh - 40px - 50px);
-  width: 100%;
-  &:after {
-    content: "";
-    width: 100%;
-    height: 50vh;
-    display: block;
-  }
-
-  .editor {
-    height: 100%;
-    overflow: visible;
-    &::before {
-      content: "";
-      width: 100vh;
-      height: calc(150vh);
-      background-color: inherit;
-      display: block;
-      /* position: absolute; */
-      top: 0;
-    }
-  }
 }
 </style>

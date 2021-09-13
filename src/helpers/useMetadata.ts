@@ -101,30 +101,36 @@ export function useMetadata() {
   void registerAutoLoad();
   void registerAutoSave();
 
+  const setupDone = ref<boolean>(false);
+  const setupMetadata = loadMetadata().then(() => (setupDone.value = true));
+
   return {
     meta,
     loadMetadata,
     saveMetadata,
-    setupMetadata: loadMetadata(),
+    setupMetadata,
+    setupDone,
 
     fullpathSessionNow: computed<string | null>(() => {
-      if (meta.value?.["sessions"]?.length) {
-        // clear session-history invalidate in .metadata
+      if (setupDone.value) {
+        if (meta.value?.["sessions"]?.length) {
+          // clear session-history invalidate in .metadata
 
-        const sessionHistoryValidate =
-          meta.value["session-history"]?.filter((indexInSessions) => {
-            return (
-              indexInSessions <
-              ((meta.value as ProjectJSON)["sessions"] as readonly string[])
-                .length
-            );
-          }) || [];
+          const sessionHistoryValidate =
+            meta.value["session-history"]?.filter((indexInSessions) => {
+              return (
+                indexInSessions <
+                ((meta.value as ProjectJSON)["sessions"] as readonly string[])
+                  .length
+              );
+            }) || [];
 
-        const sessionIndex =
-          sessionHistoryValidate[sessionHistoryValidate.length - 1] ??
-          meta.value["sessions"].length - 1;
+          const sessionIndex =
+            sessionHistoryValidate[sessionHistoryValidate.length - 1] ??
+            meta.value["sessions"].length - 1;
 
-        return join(dir.value || "", meta.value["sessions"][sessionIndex]);
+          return join(dir.value || "", meta.value["sessions"][sessionIndex]);
+        }
       }
 
       return null;
