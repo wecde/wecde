@@ -16,4 +16,6 @@ const fs = createFilesystem(Filesystem, {
 // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
 (window as any).git = git;
 
+fs.on("write:file", p => console.log(`write ${p}`))
+
 export default fs;

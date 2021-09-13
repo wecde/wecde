@@ -1,9 +1,0 @@
-{
-  "name": "2048",
-  "directory-name": "2048",
-  "isTemplate": true,
-  "MD5": "9797117ba78113211a2f3a62b84faa1a",
-  "mtimeMs": 1626010053222.7244,
-  "images": ["image_2048.png"],
-  "description": "Puzzle Game"
-}

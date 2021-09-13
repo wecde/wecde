@@ -6,9 +6,6 @@ import { StateInterface } from "../index";
 import { EditorStateInterface } from "./state";
 
 const getters: GetterTree<EditorStateInterface, StateInterface> = {
-  session(state): string | null {
-    return state.sessions[state.session] ?? null;
-  },
   "status:filepath"({ git, project }): (fullpath: string) => string | null {
     return (fullpath, isFolder = false) => {
       if (!project) {

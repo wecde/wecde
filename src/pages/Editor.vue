@@ -6,6 +6,7 @@
         :key="store.state.editor.project + item"
         :fullpath="join(store.state.editor.project, item)"
         @goto-me="scrollSessionWrapperToSessionActive"
+        @click:close="closeSession(item)"
       />
     </div>
 
@@ -60,12 +61,12 @@ import isBinaryPath from "is-binary-path-cross";
 import { btoa } from "js-base64";
 import fs from "modules/fs";
 import { join } from "path-cross";
-import { createMetadata } from "src/helpers/createMetadata";
 import { allowPreview, isMarkdown, isSvg } from "src/helpers/is-file-type";
 import { useFullpathFromRoute } from "src/helpers/useFullpathFromRoute";
+import { useMetadata } from "src/helpers/useMetadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
@@ -77,20 +78,22 @@ const {
   meta,
   setupMetadata,
   fullpathSessionNow: fullpath,
-} = createMetadata(computed<string | null>(() => store.state.editor.project));
+} = useMetadata();
 
 watch(
   fullpath,
   () => {
     void router.replace({
       name: "editor",
-      query: {
-        data: btoa(
-          JSON.stringify({
-            fullpath: fullpath.value,
-          })
-        ),
-      },
+      query: fullpath.value
+        ? {
+            data: btoa(
+              JSON.stringify({
+                fullpath: fullpath.value,
+              })
+            ),
+          }
+        : {},
     });
   },
   {
@@ -117,7 +120,7 @@ watch(
       if (indexFilepathInSessions === -1) {
         indexFilepathInSessions =
           // eslint-disable-next-line functional/immutable-data
-          (meta.value["sessions"] as string[]).push(filepath) - 1;
+          meta.value["sessions"].push(filepath) - 1;
       }
 
       if (!meta.value["session-history"]) {
@@ -190,9 +193,28 @@ function scrollSessionWrapperToSessionActive() {
     70
   );
 }
-watch(() => meta.value?.["sessions"], () => void scrollSessionWrapperToSessionActive(), {
-  deep: true
-})
+watch(
+  () => meta.value?.["sessions"],
+  () => void scrollSessionWrapperToSessionActive(),
+  {
+    deep: true,
+  }
+);
+
+function closeSession(filepath: string) {
+  if (store.state.editor.project && meta.value?.["sessions"]) {
+    const index = meta.value["sessions"].indexOf(filepath);
+
+    if (index > -1) {
+      // eslint-disable-next-line functional/immutable-data
+      meta.value["sessions"].splice(index, 1);
+      // eslint-disable-next-line functional/immutable-data
+      meta.value["session-history"] = meta.value["session-history"]?.filter(
+        (item) => item !== index
+      );
+    }
+  }
+}
 </script>
 
 <style lang="scss" scoped>

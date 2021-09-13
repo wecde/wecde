@@ -105,7 +105,7 @@ boot(({ store }) => {
         } catch {
           await WebServer.sendResponse(data.requestId, {
             status: 404,
-            path: require("src/webserver/404.html"),
+            path: require("!raw-loader!src/webserver/404.html"),
             headers: {},
           });
         }

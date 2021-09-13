@@ -241,13 +241,11 @@ registerWatch(
     ) {
       try {
         const stat = await fs.stat(path);
-
-        // eslint-disable-next-line functional/immutable-data
-        files.splice(0);
         // eslint-disable-next-line functional/immutable-data
         files.push(
           ...sortTreeFilesystem([
-            ...files,
+            // eslint-disable-next-line functional/immutable-data
+            ...files.splice(0),
             {
               stat,
               fullpath: path,
@@ -270,10 +268,11 @@ registerWatch(
       files.some(({ fullpath }) => fs.isEqual(fullpath, path))
     ) {
       // eslint-disable-next-line functional/immutable-data
-      files.splice(0);
-      // eslint-disable-next-line functional/immutable-data
       files.push(
-        ...files.filter(({ fullpath }) => fs.isEqual(fullpath, path) === false)
+        // eslint-disable-next-line functional/immutable-data
+        ...files
+          .splice(0)
+          .filter(({ fullpath }) => fs.isEqual(fullpath, path) === false)
       );
     }
   },

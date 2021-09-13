@@ -13,9 +13,7 @@
     "dev:ios": "quasar dev -m capacitor -T ios",
     "build:android": "quasar build -m capacitor -T android",
     "build:ios": "quasar build -m capacitor -T ios",
-    "build:templates": "node resources/build.js",
-    "open:android": "cd src-capacitor && cap open android && cd ..",
-    "run:android": "yarn build:templates && yarn build:android && cd src-capacitor && cap sync android && cap open android && cd .."
+    "build:resources": " yarn --cwd ./resources build"
   },
   "dependencies": {
     "@capacitor/android": "^3.2.2",
@@ -31,7 +29,7 @@
     "@ionic-native/web-server": "^5.36.0",
     "@ionic/pwa-elements": "^3.0.2",
     "@quasar/extras": "^1.10.12",
-    "ace-new": "^1.5.0",
+    "ace-new": "^1.5.4",
     "capacitor-fs": "^0.0.41-b4",
     "cordova-plugin-webserver2": "^0.0.1",
     "core-js": "^3.6.5",

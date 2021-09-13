@@ -33,5 +33,5 @@ yarn-error.log*
 *.sln
 *.vtpw.ts
 
-/resources/**/sort.txt
-/resources/**/Release.json
+src/assets/labs
+src/assets/templates

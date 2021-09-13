@@ -4,12 +4,9 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "node build.js"
+    "build": "sce-generate-repo -ts ./labs -o ../src/assets/labs && sce-generate-repo -ts ./templates -o ../src/assets/templates"
   },
   "dependencies": {
-    "chalk": "^4.1.2",
-    "fs-extra": "^10.0.0",
-    "md5-dir": "^0.2.0",
-    "zip-a-folder": "^1.1.0"
+    "sce-generate-repo": "^1.0.9"
   }
 }
