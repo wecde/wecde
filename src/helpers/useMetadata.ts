@@ -1,20 +1,15 @@
 import { basename, dirname, join } from "path-cross";
 import fs from "src/modules/fs";
+import { useStore } from "src/store";
 import { ProjectJSON } from "src/types/ProjectJSON";
+import { createTimeoutBy } from "src/utils";
 import { parse } from "src/utils/json";
-import {
-  computed,
-  ComputedRef,
-  onBeforeUnmount,
-  Ref,
-  ref,
-  watch,
-  WatchStopHandle,
-} from "vue";
+import { computed, onBeforeUnmount, ref, watch, WatchStopHandle } from "vue";
 
-export function createMetadata(
-  dir: Ref<string | null> | ComputedRef<string | null>
-) {
+export function useMetadata() {
+  const store = useStore();
+  const dir = computed<string | null>(() => store.state.editor.project);
+
   const meta = ref<ProjectJSON | null>(null);
   const pathToMeta = computed<string | null>(() =>
     dir.value ? join(".metadata", basename(dir.value), "project.json") : null
@@ -35,25 +30,31 @@ export function createMetadata(
     }
   }
   // save metadata
-  async function saveMetadata(): Promise<void> {
-    if (pathToMeta.value) {
-      const raw: string = JSON.stringify(meta.value);
+  function saveMetadata() {
+    createTimeoutBy(
+      "save metadata " + pathToMeta.value,
+      async () => {
+        if (pathToMeta.value) {
+          const raw: string = JSON.stringify(meta.value);
 
-      const dirMeta = dirname(pathToMeta.value);
-      if ((await fs.isDirectory(dirMeta)) === false) {
-        if (await fs.exists(dirMeta)) {
-          // remove remove if is file
-          await fs.unlink(dirMeta);
+          const dirMeta = dirname(pathToMeta.value);
+          if ((await fs.isDirectory(dirMeta)) === false) {
+            if (await fs.exists(dirMeta)) {
+              // remove remove if is file
+              await fs.unlink(dirMeta);
+            }
+            await fs.mkdir(dirMeta, {
+              recursive: true,
+            });
+          }
+
+          cancelAutoLoad();
+          await fs.writeFile(pathToMeta.value, raw, "utf8");
+          registerAutoLoad();
         }
-        await fs.mkdir(dirMeta, {
-          recursive: true,
-        });
-      }
-
-      cancelAutoLoad();
-      await fs.writeFile(pathToMeta.value, raw, "utf8");
-      registerAutoLoad();
-    }
+      },
+      1000
+    );
   }
 
   // * watch .metadata/${basename(dir)}/project.json call to load

@@ -149,7 +149,10 @@
       </div>
     </div>
   </q-footer>
-  <div style="height: calc(100% - 41px)" ref="EditorCode" v-bind="$attrs" />
+
+  <div class="wrapper">
+    <div class="editor" ref="EditorCode" v-bind="$attrs" />
+  </div>
 
   <teleport to="[data-id='code.btn-addons']" v-if="isMounted">
     <q-btn
@@ -184,7 +187,7 @@ import "ace-new/src-noconflict/ext-prompt";
 import { Clipboard } from "@capacitor/clipboard";
 import modelist from "ace-new/src-noconflict/ext-modelist";
 import fs from "modules/fs";
-import { extname } from "path-cross";
+import { basename, extname } from "path-cross";
 import { getSupportInfo } from "prettier";
 import type { SupportLanguage } from "prettier";
 import { registerWatch } from "src/helpers/fs-helper";
@@ -210,8 +213,10 @@ const ace: {
 };
 const nextErrorer = ref<Ace.Ace.Annotation | null>(null);
 
+// eslint-disable-next-line functional/no-let
+let timeoutOnChange: number | NodeJS.Timeout;
 function onChange(): void {
-  createTimeoutBy(
+  timeoutOnChange = createTimeoutBy(
     "editor.code.timeout-saving-file",
     () => {
       if (ace.value) {
@@ -244,8 +249,10 @@ function onChange(): void {
   );
 }
 
+// eslint-disable-next-line functional/no-let
+let timeoutOnScroll: number | NodeJS.Timeout;
 function onScroll(): void {
-  createTimeoutBy(
+  timeoutOnScroll = createTimeoutBy(
     "on scroll editor",
     async () => {
       await setScrollBehavior(props.fullpath, {
@@ -280,12 +287,11 @@ async function loadFile(fullpath: string): Promise<void> {
 
   try {
     // remove handle change
+    clearTimeout(timeoutOnChange as number);
     ace.value?.off("change", onChange);
 
     // register
-    if (watcherFile) {
-      watcherFile();
-    }
+    watcherFile?.();
     watcherFile = registerWatch(
       () => fullpath,
       async () => {
@@ -301,12 +307,14 @@ async function loadFile(fullpath: string): Promise<void> {
             const raw = await fs.readFile(fullpath, "utf8");
 
             if (raw !== ace.value.getValue()) {
+              clearTimeout(timeoutOnChange as number);
               ace.value?.off("change", onChange);
               ace.value.setValue(raw);
               ace.value?.on("change", onChange);
             }
           } catch (err) {
             if (err.code === "ENOENT") {
+              clearTimeout(timeoutOnChange as number);
               ace.value?.off("change", onChange);
               ace.value.setValue("");
               ace.value?.on("change", onChange);
@@ -330,6 +338,7 @@ async function loadFile(fullpath: string): Promise<void> {
 
     console.log(`Language mode: ${mode as string}`);
 
+    clearTimeout(timeoutOnScroll as number);
     ace.value?.on("change", onChange);
 
     Ace.require(`ace/snippets/${mode as string}`);
@@ -419,8 +428,9 @@ onMounted(() => {
 
     watch(
       () => props.fullpath,
-      (value) => {
-        void loadFile(value);
+      async (value) => {
+        await loadFile(value);
+        ace.value?.session.getUndoManager().reset();
       },
       {
         immediate: true,
@@ -671,5 +681,33 @@ function findAll(): void {
 
 .ace_gutter-active-line {
   background-color: transparent;
+}
+
+.wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: calc(100vh - 40px - 50px);
+  width: 100%;
+  &:after {
+    content: "";
+    width: 100%;
+    height: 50vh;
+    display: block;
+  }
+
+  .editor {
+    height: 100%;
+    overflow: visible;
+    &::before {
+      content: "";
+      width: 100vh;
+      height: calc(150vh);
+      background-color: inherit;
+      display: block;
+      /* position: absolute; */
+      top: 0;
+    }
+  }
 }
 </style>

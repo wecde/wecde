@@ -61,12 +61,12 @@ import isBinaryPath from "is-binary-path-cross";
 import { btoa } from "js-base64";
 import fs from "modules/fs";
 import { join } from "path-cross";
-import { createMetadata } from "src/helpers/createMetadata";
 import { allowPreview, isMarkdown, isSvg } from "src/helpers/is-file-type";
 import { useFullpathFromRoute } from "src/helpers/useFullpathFromRoute";
+import { useMetadata } from "src/helpers/useMetadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
@@ -78,7 +78,7 @@ const {
   meta,
   setupMetadata,
   fullpathSessionNow: fullpath,
-} = createMetadata(computed<string | null>(() => store.state.editor.project));
+} = useMetadata();
 
 watch(
   fullpath,

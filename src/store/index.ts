@@ -69,10 +69,7 @@ export default storeSsr(function (/* { ssrContext } */) {
       createPersistedState({
         paths: [
           "settings",
-          "editor.project",
-          "editor.sessions",
-          "editor.session",
-          "editor.historySession",
+          "editor",
           "bookmark-labs",
           "git-configs",
         ],
