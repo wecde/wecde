@@ -1,5 +1,5 @@
 <template>
-  <App-Hammer>
+  <teleport to="[data-id='app.navbar']" v-if="isMounted">
     <q-space />
 
     <div class="flex">
@@ -16,7 +16,7 @@
     </div>
 
     <q-space />
-  </App-Hammer>
+  </teleport>
 
   <q-tab-panels v-model="tab" animated keep-alive class="bg-transparent">
     <q-tab-panel name="labs">
@@ -29,14 +29,16 @@
 </template>
 
 <script lang="ts" setup>
-import AppHammer from "components/App/Hammer.vue";
 import HomeChangelog from "components/Home/Changelog.vue";
 import HomeLabs from "components/Home/Labs.vue";
+import { useIsMounted } from "src/helpers/useIsMounted";
 import { ref, watch } from "vue";
 import { useRoute } from "vue-router";
 
 const tab = ref<string>("labs");
 const route = useRoute();
+
+const isMounted = useIsMounted();
 
 watch(
   () => route.query.tab,

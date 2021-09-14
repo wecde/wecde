@@ -1,24 +1,25 @@
 import { basename, dirname, join } from "path-cross";
 import fs from "src/modules/fs";
 import { useStore } from "src/store";
-import { ProjectJSON } from "src/types/ProjectJSON";
-import { createTimeoutBy } from "src/utils";
+import MetaType from "src/types/MetaType";
 import { parse } from "src/utils/json";
 import { computed, onBeforeUnmount, ref, watch, WatchStopHandle } from "vue";
 
-export function useMetadata() {
+export function useMetadata<Type extends keyof MetaType>(type: Type) {
   const store = useStore();
   const dir = computed<string | null>(() => store.state.editor.project);
 
-  const meta = ref<ProjectJSON | null>(null);
+  const meta = ref<MetaType[Type] | null>(null);
   const pathToMeta = computed<string | null>(() =>
-    dir.value ? join(".metadata", basename(dir.value), "project.json") : null
+    dir.value
+      ? join(".metadata", basename(dir.value), `project-${type}.json`)
+      : null
   );
 
   // load metadata
   async function loadMetadata(): Promise<void> {
     if (pathToMeta.value) {
-      const raw: ProjectJSON = parse(
+      const raw = parse(
         await fs.readFile(pathToMeta.value, "utf8").catch(() => "")
       );
 
@@ -30,31 +31,25 @@ export function useMetadata() {
     }
   }
   // save metadata
-  function saveMetadata() {
-    createTimeoutBy(
-      "save metadata " + pathToMeta.value,
-      async () => {
-        if (pathToMeta.value) {
-          const raw: string = JSON.stringify(meta.value);
+  async function saveMetadata() {
+    if (pathToMeta.value) {
+      const raw: string = JSON.stringify(meta.value);
 
-          const dirMeta = dirname(pathToMeta.value);
-          if ((await fs.isDirectory(dirMeta)) === false) {
-            if (await fs.exists(dirMeta)) {
-              // remove remove if is file
-              await fs.unlink(dirMeta);
-            }
-            await fs.mkdir(dirMeta, {
-              recursive: true,
-            });
-          }
-
-          cancelAutoLoad();
-          await fs.writeFile(pathToMeta.value, raw, "utf8");
-          registerAutoLoad();
+      const dirMeta = dirname(pathToMeta.value);
+      if ((await fs.isDirectory(dirMeta)) === false) {
+        if (await fs.exists(dirMeta)) {
+          // remove remove if is file
+          await fs.unlink(dirMeta);
         }
-      },
-      1000
-    );
+        await fs.mkdir(dirMeta, {
+          recursive: true,
+        });
+      }
+
+      cancelAutoLoad();
+      await fs.writeFile(pathToMeta.value, raw, "utf8");
+      registerAutoLoad();
+    }
   }
 
   // * watch .metadata/${basename(dir)}/project.json call to load
@@ -72,7 +67,6 @@ export function useMetadata() {
       {
         type: "file",
         mode: "absolute",
-        immediate: true,
       }
     );
   }
@@ -110,30 +104,5 @@ export function useMetadata() {
     saveMetadata,
     setupMetadata,
     setupDone,
-
-    fullpathSessionNow: computed<string | null>(() => {
-      if (setupDone.value) {
-        if (meta.value?.["sessions"]?.length) {
-          // clear session-history invalidate in .metadata
-
-          const sessionHistoryValidate =
-            meta.value["session-history"]?.filter((indexInSessions) => {
-              return (
-                indexInSessions <
-                ((meta.value as ProjectJSON)["sessions"] as readonly string[])
-                  .length
-              );
-            }) || [];
-
-          const sessionIndex =
-            sessionHistoryValidate[sessionHistoryValidate.length - 1] ??
-            meta.value["sessions"].length - 1;
-
-          return join(dir.value || "", meta.value["sessions"][sessionIndex]);
-        }
-      }
-
-      return null;
-    }),
   };
 }

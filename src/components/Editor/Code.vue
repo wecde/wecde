@@ -194,13 +194,13 @@ import { basename, extname } from "path-cross";
 import { getSupportInfo } from "prettier";
 import type { SupportLanguage } from "prettier";
 import { registerWatch } from "src/helpers/fs-helper";
+import { useIsMounted } from "src/helpers/useIsMounted";
 import { useMetadata } from "src/helpers/useMetadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
 import { usePrettierWorker } from "src/worker/prettier";
 
-const isMounted = ref<boolean>(false);
-onMounted(() => (isMounted.value = true));
+const isMounted = useIsMounted();
 
 const props = defineProps<{
   fullpath: string;
@@ -217,7 +217,7 @@ const filepath = computed<string>(() => {
 
 const store = useStore();
 
-const { meta, setupMetadata } = useMetadata();
+const { meta: metaScroll, setupMetadata } = useMetadata("scroll");
 
 const colorPalete = ref<string>("#3d3636ff");
 const EditorCode = ref<HTMLDivElement | null>(null);
@@ -275,10 +275,9 @@ function restoreBackupScrollBehavior({
 async function saveScrollBehaviorToMeta(): Promise<void> {
   await setupMetadata;
 
-  if (meta.value) {
-    // eslint-disable-next-line functional/immutable-data
-    meta.value["scroll-behavior"] = {
-      ...(meta.value["scroll-behavior"] || {}),
+  if (metaScroll.value) {
+    metaScroll.value = {
+      ...(metaScroll.value || {}),
       [filepath.value]: createBackupScrollBehavior(),
     };
   }
@@ -288,7 +287,7 @@ async function restoreScrollBehaviorInMeta(): Promise<void> {
     await setupMetadata;
 
     restoreBackupScrollBehavior(
-      meta.value?.["scroll-behavior"]?.[filepath.value] || {
+      metaScroll.value?.[filepath.value] || {
         top: 0,
         left: 0,
         row: 0,

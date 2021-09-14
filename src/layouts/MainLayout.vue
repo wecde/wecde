@@ -2,6 +2,24 @@
   <q-layout view="lHh Lpr lFf">
     <App-NavigationDrawer />
 
+    <q-header
+      elevated
+      :class="[$q.dark.isActive ? 'bg-dark text-white' : 'bg-white text-dark']"
+    >
+      <q-toolbar>
+        <q-btn
+          flat
+          round
+          dense
+          icon="mdi-menu"
+          @click="$store.commit(`system/setNavigation`, true)"
+          v-if="!$route.meta.hideNavigation"
+        />
+        
+        <div data-id="app.navbar" class="flex no-wrap full-width justify-between items-center" />
+      </q-toolbar>
+    </q-header>
+
     <q-page-container>
       <Terminal />
       <router-view />
