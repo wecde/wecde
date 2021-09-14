@@ -209,7 +209,7 @@ import { basename, extname } from "path-cross";
 import { getSupportInfo } from "prettier";
 import type { SupportLanguage } from "prettier";
 import { registerWatch } from "src/helpers/fs-helper";
-import { getScrollBehavior, setScrollBehavior } from "src/helpers/metadata";
+import { useMetadata } from "src/helpers/useMetadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
 import { usePrettierWorker } from "src/worker/prettier";
@@ -223,6 +223,8 @@ const props = defineProps<{
 }>();
 
 const store = useStore();
+
+const { meta, setupMetadata } = useMetadata();
 
 const colorPalete = ref<string>("#3d3636ff");
 const EditorCode = ref<HTMLDivElement | null>(null);
@@ -324,12 +326,20 @@ function onScroll(): void {
   timeoutOnScroll = createTimeoutBy(
     "on scroll editor",
     async () => {
-      await setScrollBehavior(props.fullpath, {
-        left: ace.value?.session.getScrollLeft() || 0,
-        top: ace.value?.session.getScrollTop() || 0,
-        row: ace.value?.getCursorPosition()?.row || 0,
-        column: ace.value?.getCursorPosition()?.column || 0,
-      });
+      await setupMetadata;
+
+      if (meta.value && store.state.editor.project) {
+        // eslint-disable-next-line functional/immutable-data
+        meta.value["scroll-behavior"] = {
+          ...(meta.value["scroll-behavior"] || {}),
+          [fs.relative(store.state.editor.project, props.fullpath)]: {
+            left: ace.value?.session.getScrollLeft() || 0,
+            top: ace.value?.session.getScrollTop() || 0,
+            row: ace.value?.getCursorPosition()?.row || 0,
+            column: ace.value?.getCursorPosition()?.column || 0,
+          },
+        };
+      }
     },
     1000
   );
@@ -392,10 +402,36 @@ async function loadFile(fullpath: string): Promise<void> {
     ace.value?.session.off("changeScrollLeft", onScroll);
     ace.value?.session.selection.off("changeCursor", onScroll);
 
-    registerWatchFilesystem(true);
+    try {
+      const raw = await fs.readFile(props.fullpath, "utf8");
+
+      if (raw !== ace.value?.getValue()) {
+        clearTimeout(timeoutOnChange as number);
+        ace.value?.off("change", onChange);
+        ace.value?.setValue(raw);
+        ace.value?.on("change", onChange);
+      }
+    } catch (err) {
+      if (err.code === "ENOENT") {
+        clearTimeout(timeoutOnChange as number);
+        ace.value?.off("change", onChange);
+        ace.value?.setValue("");
+        ace.value?.on("change", onChange);
+      }
+    }
+
+    ace.value?.clearSelection();
 
     /// restore scroll behavior
-    const { top, left, row, column } = await getScrollBehavior(fullpath);
+    await setupMetadata;
+    const {
+      top = 0,
+      left = 0,
+      row = 0,
+      column = 0,
+    } = meta.value?.["scroll-behavior"]?.[
+      fs.relative(store.state.editor.project as string, props.fullpath)
+    ] || {};
 
     ace.value?.session.setScrollLeft(left);
     ace.value?.session.setScrollTop(top);
