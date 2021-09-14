@@ -490,15 +490,12 @@ function registerAutoBackupScrollBehavior(): void {
   ace.value?.session.on("changeScrollTop", saveScrollBehaviorToMeta);
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
   ace.value?.session.on("changeScrollLeft", saveScrollBehaviorToMeta);
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  
   ace.value?.selection.on("changeCursor", saveScrollBehaviorToMeta);
 }
 function cancelAutoBackupScrollBehavior(): void {
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   ace.value?.session.off("changeScrollTop", saveScrollBehaviorToMeta);
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   ace.value?.session.off("changeScrollLeft", saveScrollBehaviorToMeta);
-  // eslint-disable-next-line @typescript-eslint/no-misused-promises
   ace.value?.selection.off("changeCursor", saveScrollBehaviorToMeta);
 }
 onMounted(() => {
