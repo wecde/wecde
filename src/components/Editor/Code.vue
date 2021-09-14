@@ -296,7 +296,7 @@ async function restoreScrollBehaviorInMeta(): Promise<void> {
     );
   }
 }
-async function loadFile(): Promise<void> {
+async function loadFile(isSetup = false): Promise<void> {
   console.log("load file");
   if (ace.value) {
     // eslint-disable-next-line functional/no-let
@@ -338,7 +338,9 @@ async function loadFile(): Promise<void> {
 
     if (raw !== ace.value.getValue()) {
       console.log("set new content file to editor");
-      await saveScrollBehaviorToMeta();
+      if (isSetup === false) {
+        await saveScrollBehaviorToMeta();
+      }
       ace.value.setValue(raw);
       ace.value.clearSelection();
       await restoreScrollBehaviorInMeta();
@@ -430,6 +432,8 @@ function watchFileInEditorAndSystem(): void {
   watch(
     () => props.fullpath,
     async () => {
+      cancelAutoBackupScrollBehavior();
+
       watcherFullpathInSystem?.();
       console.log("regiser");
       watcherFullpathInSystem = registerWatch(
@@ -451,8 +455,11 @@ function watchFileInEditorAndSystem(): void {
         }
       );
 
-      await loadFile();
+      await loadFile(true);
+
       ace.value?.session.getUndoManager().reset();
+
+      registerAutoBackupScrollBehavior();
     },
     {
       immediate: true,
@@ -477,19 +484,21 @@ function setupAutoSave(): void {
     );
   });
 }
-function setupAutoBackupScrollBehavior(): void {
-  ace.value?.session.on(
-    "changeScrollTop",
-    () => void saveScrollBehaviorToMeta()
-  );
-  ace.value?.session.on(
-    "changeScrollLeft",
-    () => void saveScrollBehaviorToMeta()
-  );
-  ace.value?.selection.on(
-    "changeCursor",
-    () => void saveScrollBehaviorToMeta()
-  );
+function registerAutoBackupScrollBehavior(): void {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  ace.value?.session.on("changeScrollTop", saveScrollBehaviorToMeta);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  ace.value?.session.on("changeScrollLeft", saveScrollBehaviorToMeta);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  ace.value?.selection.on("changeCursor", saveScrollBehaviorToMeta);
+}
+function cancelAutoBackupScrollBehavior(): void {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  ace.value?.session.off("changeScrollTop", saveScrollBehaviorToMeta);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  ace.value?.session.off("changeScrollLeft", saveScrollBehaviorToMeta);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  ace.value?.selection.off("changeCursor", saveScrollBehaviorToMeta);
 }
 onMounted(() => {
   if (EditorCode.value) {
@@ -500,7 +509,6 @@ onMounted(() => {
     watchFileInEditorAndSystem();
 
     setupAutoSave();
-    setupAutoBackupScrollBehavior();
     ace.value.on("change", () => updateNextErrorObject());
   }
 });

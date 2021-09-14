@@ -2,6 +2,7 @@ import { basename, dirname, join } from "path-cross";
 import fs from "src/modules/fs";
 import { useStore } from "src/store";
 import MetaType from "src/types/MetaType";
+import { createTimeoutBy } from "src/utils";
 import { parse } from "src/utils/json";
 import { computed, onBeforeUnmount, ref, watch, WatchStopHandle } from "vue";
 
@@ -31,25 +32,31 @@ export function useMetadata<Type extends keyof MetaType>(type: Type) {
     }
   }
   // save metadata
-  async function saveMetadata() {
-    if (pathToMeta.value) {
-      const raw: string = JSON.stringify(meta.value);
+  function saveMetadata() {
+    createTimeoutBy(
+      "delay " + pathToMeta.value,
+      async () => {
+        if (pathToMeta.value) {
+          const raw: string = JSON.stringify(meta.value);
 
-      const dirMeta = dirname(pathToMeta.value);
-      if ((await fs.isDirectory(dirMeta)) === false) {
-        if (await fs.exists(dirMeta)) {
-          // remove remove if is file
-          await fs.unlink(dirMeta);
+          const dirMeta = dirname(pathToMeta.value);
+          if ((await fs.isDirectory(dirMeta)) === false) {
+            if (await fs.exists(dirMeta)) {
+              // remove remove if is file
+              await fs.unlink(dirMeta);
+            }
+            await fs.mkdir(dirMeta, {
+              recursive: true,
+            });
+          }
+
+          cancelAutoLoad();
+          await fs.writeFile(pathToMeta.value, raw, "utf8");
+          registerAutoLoad();
         }
-        await fs.mkdir(dirMeta, {
-          recursive: true,
-        });
-      }
-
-      cancelAutoLoad();
-      await fs.writeFile(pathToMeta.value, raw, "utf8");
-      registerAutoLoad();
-    }
+      },
+      1000
+    );
   }
 
   // * watch .metadata/${basename(dir)}/project.json call to load
