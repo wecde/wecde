@@ -42,8 +42,8 @@ export default (store: Store<StateInterface>): void => {
       })
     ) {
       try {
-        void fs.unlink(join(".metadata", basename(fullpath)), {
-          removeAll: true,
+        void fs.rmdir(join(".metadata", basename(fullpath)), {
+          recursive: true
         });
       } catch {}
     }

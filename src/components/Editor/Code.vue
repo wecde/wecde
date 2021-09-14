@@ -12,38 +12,28 @@
       class="bottom-tools__group justify-between"
       v-if="tabToolsBottom === 0"
     >
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="tab">
+      <div class="item" v-ripple @mousedown.prevent @click="tab">
         <q-icon name="mdi-keyboard-tab" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cursorUp">
+      <div class="item" v-ripple @mousedown.prevent @click="cursorUp">
         <q-icon name="mdi-chevron-up" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cursorDown">
+      <div class="item" v-ripple @mousedown.prevent @click="cursorDown">
         <q-icon name="mdi-chevron-down" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cursorLeft">
+      <div class="item" v-ripple @mousedown.prevent @click="cursorLeft">
         <q-icon name="mdi-chevron-left" />
       </div>
-      <div
-        class="item"
-        v-ripple
-        @mousedown="fixBlurEditor"
-        @click="cursorRight"
-      >
+      <div class="item" v-ripple @mousedown.prevent @click="cursorRight">
         <q-icon name="mdi-chevron-right" />
       </div>
-      <div
-        class="item"
-        v-ripple
-        @mousedown="fixBlurEditor"
-        @click="openCommand"
-      >
+      <div class="item" v-ripple @mousedown.prevent @click="openCommand">
         <q-icon name="mdi-apple-keyboard-command" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="openBot">
+      <div class="item" v-ripple @mousedown.prevent @click="openBot">
         <q-icon name="mdi-robot" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="toolsNext">
+      <div class="item" v-ripple @mousedown.prevent @click="toolsNext">
         <q-icon name="mdi-chevron-double-right" />
       </div>
     </div>
@@ -52,28 +42,28 @@
       class="bottom-tools__group justify-between"
       v-else-if="tabToolsBottom === 1"
     >
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="toolsPrev">
+      <div class="item" v-ripple @mousedown.prevent @click="toolsPrev">
         <q-icon name="mdi-chevron-double-left" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="undo">
+      <div class="item" v-ripple @mousedown.prevent @click="undo">
         <q-icon name="mdi-undo-variant" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="redo">
+      <div class="item" v-ripple @mousedown.prevent @click="redo">
         <q-icon name="mdi-redo-variant" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="selectAll">
+      <div class="item" v-ripple @mousedown.prevent @click="selectAll">
         <q-icon name="mdi-select-all" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="copy">
+      <div class="item" v-ripple @mousedown.prevent @click="copy">
         <q-icon name="mdi-content-copy" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cut">
+      <div class="item" v-ripple @mousedown.prevent @click="cut">
         <q-icon name="mdi-content-cut" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="paste">
+      <div class="item" v-ripple @mousedown.prevent @click="paste">
         <q-icon name="mdi-content-paste" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor">
+      <div class="item" v-ripple @mousedown.prevent>
         <q-icon
           name="mdi-square"
           :style="{
@@ -92,7 +82,7 @@
         </q-menu>
       </div>
 
-      <div class="item" v-ripple @mousedown="fixBlurEditor">
+      <div class="item" v-ripple @mousedown.prevent>
         <q-icon name="mdi-plus" />
         <q-menu
           :class="{
@@ -116,34 +106,29 @@
                   class="item"
                   v-ripple
                   v-close-popup
-                  @mousedown="fixBlurEditor"
+                  @mousedown.prevent
                   @click="formatCode"
                   :style="{
-                    opacity: supportFormat ? 1 : 0.5,
+                    opacity: !!parser ? 1 : 0.5,
                   }"
-                  :disable="supportFormat === false"
+                  :disable="!parser"
                 >
                   <q-icon size="13px" name="mdi-format-align-right" />
                   <span>{{ $t("label.format") }}</span>
                 </div>
-                <div
-                  class="item"
-                  v-ripple
-                  @mousedown="fixBlurEditor"
-                  @click="findAll"
-                >
+                <div class="item" v-ripple @mousedown.prevent @click="findAll">
                   <q-icon size="13px" name="mdi-magnify" />
                   <span>{{ $t("label.find-all") }}</span>
                 </div>
                 <div
                   class="item"
                   v-ripple
-                  @mousedown="fixBlurEditor"
+                  @mousedown.prevent
                   @click="nextError"
                   :style="{
-                    opacity: !!nextErrorer ? 1 : 0.5,
+                    opacity: !!nextErrorObject ? 1 : 0.5,
                   }"
-                  :disable="!!nextErrorer === false"
+                  :disable="!!nextErrorObject === false"
                 >
                   <q-icon size="13px" name="mdi-chevron-down-circle-outline" />
                   <span>{{ $t("label.next-error") }}</span>
@@ -222,6 +207,14 @@ const props = defineProps<{
   hideFooter?: boolean;
 }>();
 
+const filepath = computed<string>(() => {
+  if (store.state.editor.project) {
+    return fs.relative(store.state.editor.project, props.fullpath);
+  }
+
+  return props.fullpath;
+});
+
 const store = useStore();
 
 const { meta, setupMetadata } = useMetadata();
@@ -233,221 +226,129 @@ const ace: {
 } = {
   value: null,
 };
-const nextErrorer = ref<Ace.Ace.Annotation | null>(null);
+const nextErrorObject = ref<Ace.Ace.Annotation | null>(null);
+function updateNextErrorObject() {
+  if (ace.value) {
+    const { row, column } = ace.value.getCursorPosition();
+    const annotations = ace.value.session
+      .getAnnotations()
+      .filter((item) => item.type === "error");
 
-// eslint-disable-next-line functional/no-let
-let watcherFilesystem: { (): void; (): void };
-function registerWatchFilesystem(immediate = false) {
-  // register
-  watcherFilesystem?.();
-  watcherFilesystem = registerWatch(
-    () => props.fullpath,
-    async () => {
-      if (ace.value) {
-        const metadata = {
-          left: ace.value.session.getScrollLeft() || 0,
-          top: ace.value.session.getScrollTop() || 0,
-          row: ace.value.getCursorPosition()?.row || 0,
-          column: ace.value.getCursorPosition()?.column || 0,
-        };
-
-        try {
-          const raw = await fs.readFile(props.fullpath, "utf8");
-
-          if (raw !== ace.value.getValue()) {
-            clearTimeout(timeoutOnChange as number);
-            ace.value?.off("change", onChange);
-            ace.value.setValue(raw);
-            ace.value?.on("change", onChange);
-          }
-        } catch (err) {
-          if (err.code === "ENOENT") {
-            clearTimeout(timeoutOnChange as number);
-            ace.value?.off("change", onChange);
-            ace.value.setValue("");
-            ace.value?.on("change", onChange);
-          }
+    nextErrorObject.value =
+      (annotations.find((error) => {
+        if (error.row !== undefined && error.row > row) {
+          return true;
         }
 
-        ace.value.clearSelection();
+        if (
+          error.row === row &&
+          error.column !== undefined &&
+          error.column > column
+        ) {
+          return true;
+        }
+      }) ||
+        annotations[0]) ??
+      null;
+  }
+}
 
-        ace.value.session.setScrollLeft(metadata.left);
-        ace.value.session.setScrollTop(metadata.top);
-        ace.value.moveCursorTo(metadata.row, metadata.column);
+function createBackupScrollBehavior() {
+  return {
+    left: ace.value?.session.getScrollLeft() || 0,
+    top: ace.value?.session.getScrollTop() || 0,
+    row: ace.value?.getCursorPosition()?.row || 0,
+    column: ace.value?.getCursorPosition()?.column || 0,
+  };
+}
+function restoreBackupScrollBehavior({
+  left,
+  top,
+  row,
+  column,
+}: ReturnType<typeof createBackupScrollBehavior>) {
+  ace.value?.session.setScrollLeft(left);
+  ace.value?.session.setScrollTop(top);
+  ace.value?.moveCursorTo(row, column);
+}
+
+async function saveScrollBehaviorToMeta(): Promise<void> {
+  await setupMetadata;
+
+  if (meta.value) {
+    // eslint-disable-next-line functional/immutable-data
+    meta.value["scroll-behavior"] = {
+      ...(meta.value["scroll-behavior"] || {}),
+      [filepath.value]: createBackupScrollBehavior(),
+    };
+  }
+}
+async function restoreScrollBehaviorInMeta(): Promise<void> {
+  if (ace.value && store.state.editor.project) {
+    await setupMetadata;
+
+    restoreBackupScrollBehavior(
+      meta.value?.["scroll-behavior"]?.[filepath.value] || {
+        top: 0,
+        left: 0,
+        row: 0,
+        column: 0,
       }
-    },
-    {
-      immediate,
+    );
+  }
+}
+async function loadFile(): Promise<void> {
+  console.log("load file");
+  if (ace.value) {
+    // eslint-disable-next-line functional/no-let
+    let { mode } = modelist.getModeForPath(props.fullpath);
+
+    if (mode === "ace/mode/text") {
+      switch (basename(props.fullpath)) {
+        case ".prettierignore":
+        case ".eslint":
+          mode = "ace/mode/json";
+          break;
+        case "LICENSE":
+          mode = "ace/mode/markdown";
+          break;
+      }
     }
-  );
-}
 
-// eslint-disable-next-line functional/no-let
-let timeoutOnChange: number | NodeJS.Timeout;
-function onChange(): void {
-  timeoutOnChange = createTimeoutBy(
-    "editor.code.timeout-saving-file",
-    async () => {
-      if (ace.value) {
-        watcherFilesystem?.();
-        await fs.writeFile(props.fullpath, ace.value.getValue());
-        registerWatchFilesystem();
+    // > mode ready
 
-        const { row, column } = ace.value.getCursorPosition();
-        const annotations = ace.value.session
-          .getAnnotations()
-          .filter((item) => item.type === "error");
-
-        nextErrorer.value =
-          (annotations.find((error) => {
-            if (error.row !== undefined && error.row > row) {
-              return true;
-            }
-
-            if (
-              error.row === row &&
-              error.column !== undefined &&
-              error.column > column
-            ) {
-              return true;
-            }
-          }) ||
-            annotations[0]) ??
-          null;
-      }
-    },
-    1000
-  );
-}
-
-// eslint-disable-next-line functional/no-let
-let timeoutOnScroll: number | NodeJS.Timeout;
-function onScroll(): void {
-  timeoutOnScroll = createTimeoutBy(
-    "on scroll editor",
-    async () => {
-      await setupMetadata;
-
-      if (meta.value && store.state.editor.project) {
-        // eslint-disable-next-line functional/immutable-data
-        meta.value["scroll-behavior"] = {
-          ...(meta.value["scroll-behavior"] || {}),
-          [fs.relative(store.state.editor.project, props.fullpath)]: {
-            left: ace.value?.session.getScrollLeft() || 0,
-            top: ace.value?.session.getScrollTop() || 0,
-            row: ace.value?.getCursorPosition()?.row || 0,
-            column: ace.value?.getCursorPosition()?.column || 0,
-          },
-        };
-      }
-    },
-    1000
-  );
-}
-
-async function loadFile(fullpath: string): Promise<void> {
-  // eslint-disable-next-line functional/no-let
-  let { mode } = modelist.getModeForPath(fullpath);
-
-  if (mode === "ace/mode/text") {
-    switch (basename(fullpath)) {
-      case ".prettierignore":
-      case ".eslint":
-        mode = "ace/mode/json";
-        break;
-      case "LICENSE":
-        mode = "ace/mode/markdown";
-        break;
+    if (mode === "ace/mode/text") {
+      ace.value.setOptions({
+        enableBasicAutocompletion: false,
+        enableSnippets: false,
+        enableLiveAutocompletion: false,
+      });
+    } else {
+      ace.value.setOptions({
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: true,
+      });
     }
-  }
 
-  if (mode === "ace/mode/jsx") {
-    // disable worker
-    ace.value?.setOption("useWorker", false);
-  } else {
-    ace.value?.setOption("useWorker", true);
-  }
-
-  if (mode === "ace/mode/text") {
-    ace.value?.setOptions({
-      enableBasicAutocompletion: false,
-      enableSnippets: false,
-      enableLiveAutocompletion: false,
-    });
-  } else {
-    ace.value?.setOptions({
-      enableBasicAutocompletion: true,
-      enableSnippets: true,
-      enableLiveAutocompletion: true,
-    });
-  }
-
-  try {
-    // remove handle change
-    clearTimeout(timeoutOnChange as number);
-    ace.value?.off("change", onChange);
-
-    // ace.value?.setValue(await fs.readFile(fullpath, "utf8"));
-    ace.value?.session.setMode(mode);
-
-    console.log(`Language mode: ${mode as string}`);
-
-    clearTimeout(timeoutOnScroll as number);
-    ace.value?.on("change", onChange);
-
+    ace.value.setOption("useWorker", mode !== "ace/mode/jsx");
+    ace.value.session.setMode(mode);
     Ace.require(`ace/snippets/${mode as string}`);
 
-    // remove handle scroll if setValue success
-    ace.value?.session.off("changeScrollTop", onScroll);
-    ace.value?.session.off("changeScrollLeft", onScroll);
-    ace.value?.session.selection.off("changeCursor", onScroll);
+    const raw = await fs.readFile(props.fullpath, "utf8").catch(() => "");
 
-    try {
-      const raw = await fs.readFile(props.fullpath, "utf8");
-
-      if (raw !== ace.value?.getValue()) {
-        clearTimeout(timeoutOnChange as number);
-        ace.value?.off("change", onChange);
-        ace.value?.setValue(raw);
-        ace.value?.on("change", onChange);
-      }
-    } catch (err) {
-      if (err.code === "ENOENT") {
-        clearTimeout(timeoutOnChange as number);
-        ace.value?.off("change", onChange);
-        ace.value?.setValue("");
-        ace.value?.on("change", onChange);
-      }
+    if (raw !== ace.value.getValue()) {
+      console.log("set new content file to editor");
+      await saveScrollBehaviorToMeta();
+      ace.value.setValue(raw);
+      ace.value.clearSelection();
+      await restoreScrollBehaviorInMeta();
     }
-
-    ace.value?.clearSelection();
-
-    /// restore scroll behavior
-    await setupMetadata;
-    const {
-      top = 0,
-      left = 0,
-      row = 0,
-      column = 0,
-    } = meta.value?.["scroll-behavior"]?.[
-      fs.relative(store.state.editor.project as string, props.fullpath)
-    ] || {};
-
-    ace.value?.session.setScrollLeft(left);
-    ace.value?.session.setScrollTop(top);
-    ace.value?.moveCursorTo(row, column);
-
-    // add event scroll
-    ace.value?.session.on("changeScrollTop", onScroll);
-    ace.value?.session.on("changeScrollLeft", onScroll);
-    ace.value?.session.selection.on("changeCursor", onScroll);
-  } catch {}
+  }
 }
 
-onMounted(() => {
-  if (EditorCode.value) {
-    ace.value = Ace.edit(EditorCode.value);
-
+function setupConfigAceEditor(): void {
+  if (ace.value) {
     ace.value.commands.addCommand({
       name: "Format Code",
       bindKey: {
@@ -468,6 +369,11 @@ onMounted(() => {
       enableLiveAutocompletion:
         store.state.settings["editor**autocomplete / check syntax"],
       useWorker: true,
+      animatedScroll: false,
+      tooltipFollowsMouse: false,
+      enableEmmet: true,
+      indentedSoftWrap: false,
+      scrollPastEnd: 0.5,
       // enableEmmet: true,
       // enableCodeLens: true,
     });
@@ -476,80 +382,140 @@ onMounted(() => {
     // ace.value.setOption("enableEmmet", true);
     ace.value.setHighlightSelectedWord(true);
 
-    ace.value.setOptions({
-      animatedScroll: false,
-      tooltipFollowsMouse: false,
-      enableEmmet: true,
-      indentedSoftWrap: false,
-      scrollPastEnd: 0.5,
-    });
-
     ace.value.resize(true);
+  }
+}
+function watchEffectSettings(): void {
+  watchEffect(() => {
+    if (ace.value) {
+      ace.value.setTheme(
+        `${store.state.settings["appearance**theme"] as string}`
+      );
+      ace.value.setKeyboardHandler(
+        !!store.state.settings["editor**keybinding"]
+          ? `ace/keyboard/${
+              store.state.settings["editor**keybinding"] as string
+            }`
+          : ""
+      );
+      ace.value.setOption(
+        "showGutter",
+        store.state.settings["editor**line number"] as boolean
+      );
+      ace.value.setShowPrintMargin(
+        +(store.state.settings["editor**print margin"] as number) > 0
+      );
+      ace.value.setPrintMarginColumn(
+        +(store.state.settings["editor**print margin"] as number)
+      );
+      ace.value.setShowInvisibles(
+        store.state.settings["editor**show invisible"] as boolean
+      );
+      ace.value.session.setUseSoftTabs(
+        store.state.settings["editor**use soft tabs"] as boolean
+      );
+      ace.value.session.setTabSize(
+        +(store.state.settings["editor**tab size"] as number)
+      );
+      ace.value.session.setUseWrapMode(
+        store.state.settings["editor**word wrap"] as boolean
+      );
+    }
+  });
+}
+// eslint-disable-next-line functional/no-let
+let changedContent = false;
+function watchFileInEditorAndSystem(): void {
+  // eslint-disable-next-line functional/no-let
+  let watcherFullpathInSystem: ReturnType<typeof registerWatch>;
+  watch(
+    () => props.fullpath,
+    async () => {
+      watcherFullpathInSystem?.();
+      console.log("regiser");
+      watcherFullpathInSystem = registerWatch(
+        props.fullpath,
+        () => {
+          if (changedContent) {
+            changedContent = false;
+            return;
+          }
+          createTimeoutBy(
+            "watch file to load for code",
+            () => loadFile(),
+            1000
+          );
+        },
+        {
+          type: "file",
+          mode: "absolute",
+        }
+      );
 
-    watchEffect(() => {
-      if (ace.value) {
-        ace.value.setTheme(
-          `${store.state.settings["appearance**theme"] as string}`
-        );
-        ace.value.setKeyboardHandler(
-          !!store.state.settings["editor**keybinding"]
-            ? `ace/keyboard/${
-                store.state.settings["editor**keybinding"] as string
-              }`
-            : ""
-        );
-        ace.value.setOption(
-          "showGutter",
-          store.state.settings["editor**line number"] as boolean
-        );
-        ace.value.setShowPrintMargin(
-          +(store.state.settings["editor**print margin"] as number) > 0
-        );
-        ace.value.setPrintMarginColumn(
-          +(store.state.settings["editor**print margin"] as number)
-        );
-        ace.value.setShowInvisibles(
-          store.state.settings["editor**show invisible"] as boolean
-        );
-        ace.value.session.setUseSoftTabs(
-          store.state.settings["editor**use soft tabs"] as boolean
-        );
-        ace.value.session.setTabSize(
-          +(store.state.settings["editor**tab size"] as number)
-        );
-        ace.value.session.setUseWrapMode(
-          store.state.settings["editor**word wrap"] as boolean
-        );
-      }
-    });
+      await loadFile();
+      ace.value?.session.getUndoManager().reset();
+    },
+    {
+      immediate: true,
+    }
+  );
+}
+function setupAutoSave(): void {
+  ace.value?.on("change", () => {
+    createTimeoutBy(
+      "auto save",
+      async () => {
+        if (ace.value) {
+          const raw = await fs.readFile(props.fullpath, "utf8").catch(() => "");
 
-    watch(
-      () => props.fullpath,
-      async (value) => {
-        await loadFile(value);
-        ace.value?.session.getUndoManager().reset();
+          if (raw !== ace.value.getValue()) {
+            changedContent = true;
+            await fs.writeFile(props.fullpath, ace.value.getValue(), "utf8");
+          }
+        }
       },
-      {
-        immediate: true,
-      }
+      1000
     );
+  });
+}
+function setupAutoBackupScrollBehavior(): void {
+  ace.value?.session.on(
+    "changeScrollTop",
+    () => void saveScrollBehaviorToMeta()
+  );
+  ace.value?.session.on(
+    "changeScrollLeft",
+    () => void saveScrollBehaviorToMeta()
+  );
+  ace.value?.selection.on(
+    "changeCursor",
+    () => void saveScrollBehaviorToMeta()
+  );
+}
+onMounted(() => {
+  if (EditorCode.value) {
+    ace.value = Ace.edit(EditorCode.value);
+
+    setupConfigAceEditor();
+    watchEffectSettings();
+    watchFileInEditorAndSystem();
+
+    setupAutoSave();
+    setupAutoBackupScrollBehavior();
+    ace.value.on("change", () => updateNextErrorObject());
   }
 });
 
 const tabToolsBottom = ref<0 | 1>(0);
 
 const parser = computed<SupportLanguage | void>(() => {
-  const ext = extname(props.fullpath || "");
+  const ext = extname(props.fullpath);
   // 私©れ宛d
   return getSupportInfo().languages.find((item: SupportLanguage) => {
     return item.extensions?.some((extTest: string) => ext === extTest);
   });
 });
-const supportFormat = computed<boolean>(() => !!parser.value);
 
-function fixBlurEditor(event: MouseEvent): void {
-  event.preventDefault();
-}
 function insertColor(): void {
   ace.value?.session.insert(
     ace.value.getCursorPosition(),
@@ -666,10 +632,10 @@ async function formatCode(): Promise<void> {
 }
 function nextError(): void {
   if (ace.value) {
-    if (nextErrorer.value) {
+    if (nextErrorObject.value) {
       ace.value.moveCursorTo(
-        nextErrorer.value.row || 0,
-        nextErrorer.value.column || 0
+        nextErrorObject.value.row || 0,
+        nextErrorObject.value.column || 0
       );
     }
   }
