@@ -217,7 +217,7 @@ const filepath = computed<string>(() => {
 
 const store = useStore();
 
-const { meta: metaScroll, setupMetadata } = useMetadata("scroll");
+const { meta: metaScroll, setupMetadata } = useMetadata("scrolling");
 
 const colorPalete = ref<string>("#3d3636ff");
 const EditorCode = ref<HTMLDivElement | null>(null);
@@ -383,7 +383,7 @@ function setupConfigAceEditor(): void {
     // ace.value.setOption("enableEmmet", true);
     ace.value.setHighlightSelectedWord(true);
 
-    ace.value.resize(true);
+    // ace.value.resize(true);
   }
 }
 function watchEffectSettings(): void {

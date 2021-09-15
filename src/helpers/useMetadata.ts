@@ -13,7 +13,7 @@ export function useMetadata<Type extends keyof MetaType>(type: Type) {
   const meta = ref<MetaType[Type] | null>(null);
   const pathToMeta = computed<string | null>(() =>
     dir.value
-      ? join(".metadata", basename(dir.value), `project-${type}.json`)
+      ? join(".metadata", basename(dir.value), `${type}.json`)
       : null
   );
 

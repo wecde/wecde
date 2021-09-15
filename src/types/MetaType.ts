@@ -5,7 +5,7 @@ type typeDef = {
     // eslint-disable-next-line functional/prefer-readonly-type
     "session-history"?: number[];
   };
-  readonly scroll: {
+  readonly scrolling: {
     readonly [filepath: string]: {
       readonly top: number;
       readonly left: number;

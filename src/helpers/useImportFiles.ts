@@ -1,3 +1,4 @@
+import { Toast } from "@capacitor/toast";
 import { join } from "path-cross";
 import selectFiles from "select-files";
 import { useStore } from "src/store";
@@ -12,7 +13,7 @@ export function useImportFiles() {
   return async (
     folderSave: string,
     multiple = true
-  ): Promise<readonly string[]> => {
+  ): Promise<void> => {
     store.commit("terminal/print", i18n.t("alert.importing"));
     const files = Array.from(
       (await selectFiles({
@@ -37,6 +38,11 @@ export function useImportFiles() {
       );
     }
 
-    return files.map((item) => item.name);
+    store.commit("terminal/clear");
+    void Toast.show({
+      text: i18n.t("alert.imported.file(s)", {
+        list: files.map(({ name }) => `"${name}"`).join(", "),
+      }),
+    });
   };
 }

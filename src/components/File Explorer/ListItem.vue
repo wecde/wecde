@@ -126,13 +126,12 @@
                 <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
               </q-item>
 
-              <Action-Import-Files :dirname="file.fullpath">
-                <template v-slot:default="{ on }">
+
                   <q-item
                     clickable
                     v-close-popup
                     v-ripple
-                    @click="on"
+                    @click="importFiles(file.fullpath)"
                     class="no-min-height"
                   >
                     <q-item-section avatar class="min-width-0">
@@ -142,8 +141,6 @@
                       $t("label.import-files")
                     }}</q-item-section>
                   </q-item>
-                </template>
-              </Action-Import-Files>
 
               <q-separator />
             </template>
@@ -238,7 +235,6 @@
 
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
-import ActionImportFiles from "components/Action-ImportFiles.vue";
 import { saveAs } from "file-saver";
 import { isIgnored } from "isomorphic-git";
 import { btoa } from "js-base64";
@@ -253,6 +249,7 @@ import {
 } from "src/helpers/fs-helper";
 import { useExportZip } from "src/helpers/useExportZip";
 import { useFullpathFromRoute } from "src/helpers/useFullpathFromRoute";
+import { useImportFiles } from "src/helpers/useImportFiles"
 import { useStore } from "src/store";
 import { computed, defineAsyncComponent, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -276,6 +273,7 @@ const i18n = useI18n();
 const router = useRouter();
 
 const exportZip = useExportZip();
+const importFiles = useImportFiles()
 
 const collapse = ref<boolean>(false);
 const adding = ref<boolean>(false);
