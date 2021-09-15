@@ -28,6 +28,6 @@
 </template>
 
 <script lang="ts" setup>
-import AppNavigationDrawer from "components/App/NavigationDrawer.vue";
+import AppNavigationDrawer from "components/NavigationDrawer.vue";
 import Terminal from "components/Terminal.vue";
 </script>

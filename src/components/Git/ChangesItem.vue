@@ -1,5 +1,5 @@
 <template>
-  <App-Collapse :disabled="!isFolder" eager>
+  <Collapse :disabled="!isFolder" eager>
     <template v-slot:activator="{ on, state }">
       <div
         class="file-object"
@@ -85,12 +85,12 @@
     </template>
 
     <slot name="default" />
-  </App-Collapse>
+  </Collapse>
 </template>
 
 <script lang="ts" setup>
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
-import AppCollapse from "components/App/Collapse.vue";
+import Collapse from "components/Collapse.vue";
 import { basename, join } from "path-cross";
 import { useGitShared } from "src/shared/useGitShared";
 import { useStore } from "src/store";
