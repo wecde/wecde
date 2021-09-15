@@ -33,6 +33,7 @@
     "capacitor-fs": "^0.0.41-b5",
     "cordova-plugin-webserver2": "^0.0.1",
     "core-js": "^3.6.5",
+    "emmet-core": "^1.0.0",
     "eruda2": "^0.0.2-b8",
     "escape-string-regexp": "^5.0.0",
     "fast-sort": "^3.0.2",

@@ -177,7 +177,7 @@ import { computed, onMounted, ref, watch, watchEffect } from "vue";
 
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
-// import "ace-builds/src-noconflict/ext-emmet";
+import "ace-builds/src-noconflict/ext-emmet";
 import "ace-builds/src-noconflict/ext-linking";
 import "ace-builds/src-noconflict/ext-settings_menu";
 import "ace-builds/src-noconflict/keybinding-emacs";
@@ -186,6 +186,7 @@ import "ace-builds/src-noconflict/keybinding-vim";
 import "ace-builds/src-noconflict/keybinding-vscode";
 import "ace-builds/src-noconflict/ext-spellcheck";
 import "ace-builds/src-noconflict/ext-prompt";
+
 
 import { Clipboard } from "@capacitor/clipboard";
 import modelist from "ace-builds/src-noconflict/ext-modelist";
@@ -199,6 +200,9 @@ import { useMetadata } from "src/helpers/useMetadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
 import { usePrettierWorker } from "src/worker/prettier";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+eval(require("!raw-loader!emmet-core"))
 
 const isMounted = useIsMounted();
 
@@ -375,8 +379,7 @@ function setupConfigAceEditor(): void {
       enableEmmet: true,
       indentedSoftWrap: false,
       scrollPastEnd: 0.5,
-      // enableEmmet: true,
-      // enableCodeLens: true,
+      enableCodeLens: true,
     });
 
     Ace.require("ace/ext/emmet");

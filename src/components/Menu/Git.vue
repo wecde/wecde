@@ -146,7 +146,7 @@
             v-if="store.state.system.navTabGit"
           />
 
-          <App-Collapse
+          <Collapse
             eager
             v-if="$store.getters['editor/changes-staged.length'] !== 0"
           >
@@ -209,9 +209,9 @@
                 :filter="(filepath, matrix) => matrix[2] === 2"
               />
             </div>
-          </App-Collapse>
+          </Collapse>
 
-          <App-Collapse eager>
+          <Collapse eager>
             <template v-slot:activator="{ on, state }">
               <div
                 v-on="on"
@@ -278,7 +278,7 @@
                 :filter="(filepath, matrix) => matrix[2] !== 2"
               />
             </div>
-          </App-Collapse>
+          </Collapse>
         </div>
       </template>
     </template>
@@ -312,7 +312,7 @@
 </template>
 
 <script lang="ts" setup>
-import AppCollapse from "components/App/Collapse.vue";
+import Collapse from "components/Collapse.vue";
 import FreeComponent from "components/FreeComponent.vue";
 import BranchManager from "components/Git/BranchManager.vue";
 import ChangesList from "components/Git/ChangesList.vue";

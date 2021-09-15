@@ -3259,6 +3259,11 @@ elementtree@0.1.7, elementtree@^0.1.7:
   dependencies:
     sax "1.1.4"
 
+emmet-core@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/emmet-core/-/emmet-core-1.0.0.tgz#e36fb45b7307fbb11016e0973efd5e2ed48e76ab"
+  integrity sha512-Rd9rbiV8Z7nqdZZxMs7L6TUFg/WENY9F3elB4shq10hELaf0s5V99ynsnJOarU31Lb2eR4MqgOxHS7OXRGpKDw==
+
 emoji-regex@^8.0.0:
   version "8.0.0"
   resolved "https://registry.npmjs.org/emoji-regex/-/emoji-regex-8.0.0.tgz"

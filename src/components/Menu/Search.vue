@@ -159,7 +159,7 @@
             separator
           >
             <template v-slot="{ item: result }">
-              <App-Collapse
+              <Collapse
                 :key="result.fullpath"
                 :eager="true"
                 content-class="q-ml-4"
@@ -269,7 +269,7 @@
                     v-if="replacerOpened"
                   />
                 </div>
-              </App-Collapse>
+              </Collapse>
             </template>
           </q-virtual-scroll>
         </div>
@@ -280,7 +280,7 @@
 
 <script lang="ts" setup>
 import getIcon from "assets/extensions/material-icon-theme/dist/getIcon";
-import AppCollapse from "components/App/Collapse.vue";
+import Collapse from "components/Collapse.vue";
 import fs from "modules/fs";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";

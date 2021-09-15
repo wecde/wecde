@@ -171,14 +171,14 @@
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
 import FreeComponent from "components/FreeComponent.vue";
+import Clone from "components/Git/Clone.vue";
+import Provide from "components/Git/Provide.vue";
 import Create from "components/Project/Create.vue";
 import Item from "components/Project/Item.vue";
 import { sort } from "fast-sort";
 import fs from "modules/fs";
 import { basename } from "path-cross";
 import { Notify } from "quasar";
-import Clone from "src/components/Git/Clone.vue";
-import Provide from "src/components/Git/Provide.vue";
 import { readdirAndStat, registerWatch, StatItem } from "src/helpers/fs-helper";
 import { useCreateProjectFromZip } from "src/helpers/useCreateProjectFromZip";
 import { useStore } from "src/store";
