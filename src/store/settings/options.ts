@@ -13,7 +13,7 @@ const groups: readonly {
     readonly name: string;
     readonly type: Type;
     readonly default?: ValueType;
-    readonly description?: string;
+    readonly description: string;
     readonly list:
       | false
       | readonly {
@@ -81,12 +81,15 @@ const groups: readonly {
         type: "string",
         default: "en",
         list: [...localesSupportI18n],
+        description: "Change the display language.",
       },
       {
         name: "Theme",
         type: "string",
         default: "ace/theme/dracula",
         list: [...themesAce],
+        description:
+          "Change the editor theme which changes the colors of syntax highlighting.",
       },
     ],
   },
@@ -98,6 +101,8 @@ const groups: readonly {
         type: "boolean",
         default: true,
         list: false,
+        description:
+          "Enables advanced autocompletion and syntax checking when available for supported languages. Disabling this can help improve performance.",
       },
       {
         name: "Font Size",
@@ -113,6 +118,7 @@ const groups: readonly {
             value: "12",
           },
         ],
+        description: "Chages the font size of the editor.",
       },
       {
         name: "Keybinding",
@@ -140,12 +146,14 @@ const groups: readonly {
             value: "vscode",
           },
         ],
+        description: "Changes some of the editor keyboard shortcuts.",
       },
       {
         name: "Line number",
         type: "boolean",
         default: true,
         list: false,
+        description: "Toggles the line numbers in the editor.",
       },
       {
         name: "Print margin",
@@ -165,6 +173,8 @@ const groups: readonly {
             value: "120",
           },
         ],
+        description:
+          "Add a print margin to indicate the cutoff at (80/120) column.",
       },
       {
         name: "Show invisible",
@@ -172,12 +182,16 @@ const groups: readonly {
         type: "boolean",
         default: false,
         list: false,
+        description:
+          "Show invisible characters such as new lines, return carriage, spaces, and tabs. Used ti visually differentiate spaces from tabs.",
       },
       {
         name: "Use soft tabs",
         type: "boolean",
         default: true,
         list: false,
+        description:
+          "Toggles whether to use software tabs (spaces) or reak tabs. Turn this off to switch to using real tabs.",
       },
       {
         name: "Tab size",
@@ -205,6 +219,7 @@ const groups: readonly {
             value: "8",
           },
         ],
+        description: "Change the number of spaces a tab visually takes up.",
       },
       {
         name: "Word wrap",
@@ -212,6 +227,7 @@ const groups: readonly {
         type: "boolean",
         default: true,
         list: false,
+        description: "Toggles soft line wraps in the editor.",
       },
     ],
   },
@@ -223,53 +239,66 @@ const groups: readonly {
         type: "int",
         default: 8080,
         list: false,
+        description: "Port start for Nano HTTPD Server.",
       },
     ],
   },
   {
-    name: "Touch",
+    name: "Help",
     options: [
       {
-        name: "Tablet",
+        name: "Developer Tools",
         type: "boolean",
         default: false,
         list: false,
-      },
-      {
-        name: "Haptic keypress",
-        type: "boolean",
-        default: false,
-        list: false,
-      },
-      {
-        name: "Keyboard position",
-        type: "string",
-        default: "bottom",
-        list: [
-          {
-            label: "Top",
-            value: "top",
-          },
-          {
-            label: "Bottom",
-            value: "bottom",
-          },
-        ],
-      },
-      {
-        name: "Extra keyboard",
-        type: "boolean",
-        default: true,
-        list: false,
-      },
-      {
-        name: "Touch keyboard",
-        type: "boolean",
-        default: true,
-        list: false,
+        description: "Do you enable dev tools for the editor?",
       },
     ],
   },
+  // {
+  //   name: "Touch",
+  //   options: [
+  //     {
+  //       name: "Tablet",
+  //       type: "boolean",
+  //       default: false,
+  //       list: false,
+  //     },
+  //     {
+  //       name: "Haptic keypress",
+  //       type: "boolean",
+  //       default: false,
+  //       list: false,
+  //     },
+  //     {
+  //       name: "Keyboard position",
+  //       type: "string",
+  //       default: "bottom",
+  //       list: [
+  //         {
+  //           label: "Top",
+  //           value: "top",
+  //         },
+  //         {
+  //           label: "Bottom",
+  //           value: "bottom",
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       name: "Extra keyboard",
+  //       type: "boolean",
+  //       default: true,
+  //       list: false,
+  //     },
+  //     {
+  //       name: "Touch keyboard",
+  //       type: "boolean",
+  //       default: true,
+  //       list: false,
+  //     },
+  //   ],
+  // },
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

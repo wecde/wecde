@@ -29,7 +29,7 @@
     "@ionic-native/web-server": "^5.36.0",
     "@ionic/pwa-elements": "^3.0.2",
     "@quasar/extras": "^1.10.12",
-    "ace-builds": "^1.4.12",
+    "ace-builds": "1.4.6",
     "capacitor-fs": "^0.0.41-b5",
     "cordova-plugin-webserver2": "^0.0.1",
     "core-js": "^3.6.5",
