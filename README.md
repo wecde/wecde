@@ -1,6 +1,8 @@
-# Shin Code Editor (shin-code-editor)
+# Source code: Shin Code Editor (git.shin.code_editor)
 
-A Quasar Framework app
+Application use Vue 3, Quasar Framework...
+
+[Preview](https://shin-code-editor.github.io) app.
 
 ## Install the dependencies
 ```bash
@@ -14,13 +16,10 @@ quasar dev
 
 ### Lint the files
 ```bash
-yarn run lint
+yarn lint
 ```
 
 ### Build the app for production
 ```bash
 quasar build
 ```
-
-### Customize the configuration
-See [Configuring quasar.conf.js](https://v2.quasar.dev/quasar-cli/quasar-conf-js).
