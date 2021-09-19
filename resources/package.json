@@ -4,7 +4,7 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "sce-generate-repo -ts ./labs -o ../src/assets/labs && sce-generate-repo -ts ./templates -o ../src/assets/templates"
+    "build": "npx sce-generate-repo -ts ./labs -o ../src/assets/labs && npx sce-generate-repo -ts ./templates -o ../src/assets/templates"
   },
   "dependencies": {
     "sce-generate-repo": "^1.0.9"
