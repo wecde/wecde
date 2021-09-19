@@ -12,7 +12,8 @@ jobs:
           yarn setup
           yarn install
           yarn build:pwa
-
+        with:
+          node-version: '16'
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@4.1.5
         with:
