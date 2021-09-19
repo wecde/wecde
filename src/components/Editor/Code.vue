@@ -166,14 +166,14 @@
       padding="xs"
       v-if="!hideFooter"
       icon="mdi-magnify"
-      @click="ace.value?.execCommand('find')"
+      @click="ace.execCommand('find')"
     />
   </teleport>
 </template>
 
 <script lang="ts" setup>
 // eslint-disable-next-line import/order
-import Ace from "ace-builds";
+import ace from "ace-builds";
 // eslint-disable-next-line import/order
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 
@@ -189,7 +189,6 @@ import "ace-builds/src-noconflict/keybinding-vscode";
 import "ace-builds/src-noconflict/ext-spellcheck";
 import "ace-builds/src-noconflict/ext-prompt";
 
-
 import { Clipboard } from "@capacitor/clipboard";
 import modelist from "ace-builds/src-noconflict/ext-modelist";
 import fs from "modules/fs";
@@ -204,7 +203,7 @@ import { createTimeoutBy } from "src/utils";
 import { usePrettierWorker } from "src/worker/prettier";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-eval(require("!raw-loader!emmet-core"))
+eval(require("!raw-loader!emmet-core"));
 
 const isMounted = useIsMounted();
 
@@ -227,44 +226,39 @@ const { meta: metaScroll, setupMetadata } = useMetadata("scrolling");
 
 const colorPalete = ref<string>("#3d3636ff");
 const EditorCode = ref<HTMLDivElement | null>(null);
-const ace: {
-  value: Ace.Ace.Editor | null;
-} = {
-  value: null,
-};
-const nextErrorObject = ref<Ace.Ace.Annotation | null>(null);
+// eslint-disable-next-line functional/no-let
+let editor: ace.Ace.Editor;
+const nextErrorObject = ref<ace.Ace.Annotation | null>(null);
 function updateNextErrorObject() {
-  if (ace.value) {
-    const { row, column } = ace.value.getCursorPosition();
-    const annotations = ace.value.session
-      .getAnnotations()
-      .filter((item) => item.type === "error");
+  const { row, column } = editor.getCursorPosition();
+  const annotations = editor.session
+    .getAnnotations()
+    .filter((item) => item.type === "error");
 
-    nextErrorObject.value =
-      (annotations.find((error) => {
-        if (error.row !== undefined && error.row > row) {
-          return true;
-        }
+  nextErrorObject.value =
+    (annotations.find((error) => {
+      if (error.row !== undefined && error.row > row) {
+        return true;
+      }
 
-        if (
-          error.row === row &&
-          error.column !== undefined &&
-          error.column > column
-        ) {
-          return true;
-        }
-      }) ||
-        annotations[0]) ??
-      null;
-  }
+      if (
+        error.row === row &&
+        error.column !== undefined &&
+        error.column > column
+      ) {
+        return true;
+      }
+    }) ||
+      annotations[0]) ??
+    null;
 }
 
 function createBackupScrollBehavior() {
   return {
-    left: ace.value?.session.getScrollLeft() || 0,
-    top: ace.value?.session.getScrollTop() || 0,
-    row: ace.value?.getCursorPosition()?.row || 0,
-    column: ace.value?.getCursorPosition()?.column || 0,
+    left: editor.session.getScrollLeft() || 0,
+    top: editor.session.getScrollTop() || 0,
+    row: editor.getCursorPosition()?.row || 0,
+    column: editor.getCursorPosition()?.column || 0,
   };
 }
 function restoreBackupScrollBehavior({
@@ -273,9 +267,9 @@ function restoreBackupScrollBehavior({
   row,
   column,
 }: ReturnType<typeof createBackupScrollBehavior>) {
-  ace.value?.session.setScrollLeft(left);
-  ace.value?.session.setScrollTop(top);
-  ace.value?.moveCursorTo(row, column);
+  editor.session.setScrollLeft(left);
+  editor.session.setScrollTop(top);
+  editor.moveCursorTo(row, column);
 }
 
 async function saveScrollBehaviorToMeta(): Promise<void> {
@@ -289,7 +283,7 @@ async function saveScrollBehaviorToMeta(): Promise<void> {
   }
 }
 async function restoreScrollBehaviorInMeta(): Promise<void> {
-  if (ace.value && store.state.editor.project) {
+  if (store.state.editor.project) {
     await setupMetadata;
 
     restoreBackupScrollBehavior(
@@ -304,129 +298,120 @@ async function restoreScrollBehaviorInMeta(): Promise<void> {
 }
 async function loadFile(isSetup = false): Promise<void> {
   console.log("load file");
-  if (ace.value) {
-    // eslint-disable-next-line functional/no-let
-    let { mode } = modelist.getModeForPath(props.fullpath);
 
-    if (mode === "ace/mode/text") {
-      switch (basename(props.fullpath)) {
-        case ".prettierignore":
-        case ".eslint":
-          mode = "ace/mode/json";
-          break;
-        case "LICENSE":
-          mode = "ace/mode/markdown";
-          break;
-      }
+  // eslint-disable-next-line functional/no-let
+  let { mode } = modelist.getModeForPath(props.fullpath);
+
+  if (mode === "ace/mode/text") {
+    switch (basename(props.fullpath)) {
+      case ".prettierignore":
+      case ".eslint":
+        mode = "ace/mode/json";
+        break;
+      case "LICENSE":
+        mode = "ace/mode/markdown";
+        break;
     }
+  }
 
-    // > mode ready
+  // > mode ready
 
-    if (mode === "ace/mode/text") {
-      ace.value.setOptions({
-        enableBasicAutocompletion: false,
-        enableSnippets: false,
-        enableLiveAutocompletion: false,
-      });
-    } else {
-      ace.value.setOptions({
-        enableBasicAutocompletion: true,
-        enableSnippets: true,
-        enableLiveAutocompletion: true,
-      });
+  if (mode === "ace/mode/text") {
+    editor.setOptions({
+      enableBasicAutocompletion: false,
+      enableSnippets: false,
+      enableLiveAutocompletion: false,
+    });
+  } else {
+    editor.setOptions({
+      enableBasicAutocompletion: true,
+      enableSnippets: true,
+      enableLiveAutocompletion: true,
+    });
+  }
+
+  editor.setOption("useWorker", mode !== "ace/mode/jsx");
+  editor.session.setMode(mode);
+  ace.require(`ace/snippets/${mode as string}`);
+
+  const raw = await fs.readFile(props.fullpath, "utf8").catch(() => "");
+
+  if (raw !== editor.getValue()) {
+    console.log("set new content file to editor");
+    if (isSetup === false) {
+      await saveScrollBehaviorToMeta();
     }
-
-    ace.value.setOption("useWorker", mode !== "ace/mode/jsx");
-    ace.value.session.setMode(mode);
-    Ace.require(`ace/snippets/${mode as string}`);
-
-    const raw = await fs.readFile(props.fullpath, "utf8").catch(() => "");
-
-    if (raw !== ace.value.getValue()) {
-      console.log("set new content file to editor");
-      if (isSetup === false) {
-        await saveScrollBehaviorToMeta();
-      }
-      ace.value.setValue(raw);
-      ace.value.clearSelection();
-      await restoreScrollBehaviorInMeta();
-    }
+    editor.setValue(raw);
+    editor.clearSelection();
+    await restoreScrollBehaviorInMeta();
   }
 }
 
-function setupConfigAceEditor(): void {
-  if (ace.value) {
-    ace.value.commands.addCommand({
-      name: "Format Code",
-      bindKey: {
-        win: "Shift-Alt-f",
-        mac: "Shift-Alt-f",
-      },
-      exec() {
-        void formatCode();
-      },
-    });
+function setupConfigaceEditor(): void {
+  editor.commands.addCommand({
+    name: "Format Code",
+    bindKey: {
+      win: "Shift-Alt-f",
+      mac: "Shift-Alt-f",
+    },
+    exec() {
+      void formatCode();
+    },
+  });
 
-    ace.value.setOptions({
-      enableLinking: true,
-      autoScrollEditorIntoView: true,
-      enableSnippets: true,
-      enableBasicAutocompletion:
-        store.state.settings["editor**autocomplete / check syntax"],
-      enableLiveAutocompletion:
-        store.state.settings["editor**autocomplete / check syntax"],
-      useWorker: true,
-      animatedScroll: false,
-      tooltipFollowsMouse: false,
-      enableEmmet: true,
-      indentedSoftWrap: false,
-      scrollPastEnd: 0.5,
-      enableCodeLens: true,
-    });
+  editor.setOptions({
+    enableLinking: true,
+    autoScrollEditorIntoView: true,
+    enableSnippets: true,
+    enableBasicAutocompletion:
+      store.state.settings["editor**autocomplete / check syntax"],
+    enableLiveAutocompletion:
+      store.state.settings["editor**autocomplete / check syntax"],
+    useWorker: true,
+    animatedScroll: false,
+    tooltipFollowsMouse: false,
+    enableEmmet: true,
+    indentedSoftWrap: false,
+    scrollPastEnd: 0.5,
+    enableCodeLens: true,
+  });
 
-    Ace.require("ace/ext/emmet");
-    // ace.value.setOption("enableEmmet", true);
-    ace.value.setHighlightSelectedWord(true);
+  ace.require("ace/ext/emmet");
+  // ace.setOption("enableEmmet", true);
+  editor.setHighlightSelectedWord(true);
 
-    // ace.value.resize(true);
-  }
+  // ace.resize(true);
 }
 function watchEffectSettings(): void {
   watchEffect(() => {
-    if (ace.value) {
-      ace.value.setTheme(
-        `${store.state.settings["appearance**theme"] as string}`
-      );
-      ace.value.setKeyboardHandler(
-        !!store.state.settings["editor**keybinding"]
-          ? `ace/keyboard/${
-              store.state.settings["editor**keybinding"] as string
-            }`
-          : ""
-      );
-      ace.value.setOption(
-        "showGutter",
-        store.state.settings["editor**line number"] as boolean
-      );
-      ace.value.setShowPrintMargin(
-        +(store.state.settings["editor**print margin"] as number) > 0
-      );
-      ace.value.setPrintMarginColumn(
-        +(store.state.settings["editor**print margin"] as number)
-      );
-      ace.value.setShowInvisibles(
-        store.state.settings["editor**show invisible"] as boolean
-      );
-      ace.value.session.setUseSoftTabs(
-        store.state.settings["editor**use soft tabs"] as boolean
-      );
-      ace.value.session.setTabSize(
-        +(store.state.settings["editor**tab size"] as number)
-      );
-      ace.value.session.setUseWrapMode(
-        store.state.settings["editor**word wrap"] as boolean
-      );
-    }
+    editor.setTheme(`${store.state.settings["appearance**theme"] as string}`);
+    editor.setKeyboardHandler(
+      !!store.state.settings["editor**keybinding"]
+        ? `ace/keyboard/${store.state.settings["editor**keybinding"] as string}`
+        : ""
+    );
+    editor.setOption(
+      "showGutter",
+      store.state.settings["editor**line number"] as boolean
+    );
+    editor.setShowPrintMargin(
+      +(store.state.settings["editor**print margin"] as number) > 0
+    );
+    editor.setPrintMarginColumn(
+      +(store.state.settings["editor**print margin"] as number)
+    );
+    editor.setShowInvisibles(
+      store.state.settings["editor**show invisible"] as boolean
+    );
+    editor.session.setUseSoftTabs(
+      store.state.settings["editor**use soft tabs"] as boolean
+    );
+    editor.session.setTabSize(
+      +(store.state.settings["editor**tab size"] as number)
+    );
+    editor.session.setUseWrapMode(
+      store.state.settings["editor**word wrap"] as boolean
+    );
   });
 }
 // eslint-disable-next-line functional/no-let
@@ -437,7 +422,7 @@ function watchFileInEditorAndSystem(): void {
   watch(
     () => props.fullpath,
     async () => {
-      ace.value?.blur();
+      editor.blur();
       cancelAutoBackupScrollBehavior();
 
       watcherFullpathInSystem?.();
@@ -463,7 +448,7 @@ function watchFileInEditorAndSystem(): void {
 
       await loadFile(true);
 
-      ace.value?.session.getUndoManager().reset();
+      editor.session.getUndoManager().reset();
 
       registerAutoBackupScrollBehavior();
     },
@@ -473,17 +458,15 @@ function watchFileInEditorAndSystem(): void {
   );
 }
 function setupAutoSave(): void {
-  ace.value?.on("change", () => {
+  editor.on("change", () => {
     createTimeoutBy(
       "auto save",
       async () => {
-        if (ace.value) {
-          const raw = await fs.readFile(props.fullpath, "utf8").catch(() => "");
+        const raw = await fs.readFile(props.fullpath, "utf8").catch(() => "");
 
-          if (raw !== ace.value.getValue()) {
-            changedContent = true;
-            await fs.writeFile(props.fullpath, ace.value.getValue(), "utf8");
-          }
+        if (raw !== editor.getValue()) {
+          changedContent = true;
+          await fs.writeFile(props.fullpath, editor.getValue(), "utf8");
         }
       },
       1000
@@ -492,27 +475,27 @@ function setupAutoSave(): void {
 }
 function registerAutoBackupScrollBehavior(): void {
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  ace.value?.session.on("changeScrollTop", saveScrollBehaviorToMeta);
+  editor.session.on("changeScrollTop", saveScrollBehaviorToMeta);
   // eslint-disable-next-line @typescript-eslint/no-misused-promises
-  ace.value?.session.on("changeScrollLeft", saveScrollBehaviorToMeta);
-  
-  ace.value?.selection.on("changeCursor", saveScrollBehaviorToMeta);
+  editor.session.on("changeScrollLeft", saveScrollBehaviorToMeta);
+
+  editor.selection.on("changeCursor", saveScrollBehaviorToMeta);
 }
 function cancelAutoBackupScrollBehavior(): void {
-  ace.value?.session.off("changeScrollTop", saveScrollBehaviorToMeta);
-  ace.value?.session.off("changeScrollLeft", saveScrollBehaviorToMeta);
-  ace.value?.selection.off("changeCursor", saveScrollBehaviorToMeta);
+  editor.session.off("changeScrollTop", saveScrollBehaviorToMeta);
+  editor.session.off("changeScrollLeft", saveScrollBehaviorToMeta);
+  editor.selection.off("changeCursor", saveScrollBehaviorToMeta);
 }
 onMounted(() => {
   if (EditorCode.value) {
-    ace.value = Ace.edit(EditorCode.value);
+    editor = ace.edit(EditorCode.value);
 
-    setupConfigAceEditor();
+    setupConfigaceEditor();
     watchEffectSettings();
     watchFileInEditorAndSystem();
 
     setupAutoSave();
-    ace.value.on("change", () => updateNextErrorObject());
+    editor.on("change", () => updateNextErrorObject());
   }
 });
 
@@ -527,57 +510,57 @@ const parser = computed<SupportLanguage | void>(() => {
 });
 
 function insertColor(): void {
-  ace.value?.session.insert(
-    ace.value.getCursorPosition(),
+  editor.session.insert(
+    editor.getCursorPosition(),
     colorPalete.value.replace(/ff$/, "")
   );
 }
 function tab(): void {
-  ace.value?.insert("\t");
+  editor.insert("\t");
 }
 function cursorUp(): void {
-  const isEmpty = ace.value?.selection.isEmpty();
+  const isEmpty = editor.selection.isEmpty();
 
   if (isEmpty) {
-    ace.value?.session.selection.moveCursorUp();
+    editor.session.selection.moveCursorUp();
 
-    ace.value?.clearSelection();
+    editor.clearSelection();
   } else {
-    ace.value?.session.selection.moveCursorUp();
+    editor.session.selection.moveCursorUp();
   }
 }
 function cursorDown(): void {
-  const isEmpty = ace.value?.selection.isEmpty();
+  const isEmpty = editor.selection.isEmpty();
 
   if (isEmpty) {
-    ace.value?.session.selection.moveCursorDown();
-    ace.value?.clearSelection();
+    editor.session.selection.moveCursorDown();
+    editor.clearSelection();
   } else {
-    ace.value?.session.selection.moveCursorDown();
+    editor.session.selection.moveCursorDown();
   }
 }
 function cursorLeft(): void {
-  const isEmpty = ace.value?.selection.isEmpty();
+  const isEmpty = editor.selection.isEmpty();
 
   if (isEmpty) {
-    ace.value?.session.selection.moveCursorLeft();
-    ace.value?.clearSelection();
+    editor.session.selection.moveCursorLeft();
+    editor.clearSelection();
   } else {
-    ace.value?.session.selection.moveCursorLeft();
+    editor.session.selection.moveCursorLeft();
   }
 }
 function cursorRight(): void {
-  const isEmpty = ace.value?.selection.isEmpty();
+  const isEmpty = editor.selection.isEmpty();
 
   if (isEmpty) {
-    ace.value?.session.selection.moveCursorRight();
-    ace.value?.clearSelection();
+    editor.session.selection.moveCursorRight();
+    editor.clearSelection();
   } else {
-    ace.value?.session.selection.moveCursorRight();
+    editor.session.selection.moveCursorRight();
   }
 }
 function openCommand(): void {
-  ace.value?.execCommand("openCommandPallete");
+  editor.execCommand("openCommandPallete");
 }
 function openBot(): void {
   console.log("open bot");
@@ -589,17 +572,17 @@ function toolsPrev(): void {
   tabToolsBottom.value = 0;
 }
 function undo(): void {
-  ace.value?.undo();
+  editor.undo();
 }
 function redo(): void {
-  ace.value?.redo();
+  editor.redo();
 }
 function selectAll(): void {
-  ace.value?.selectAll();
+  editor.selectAll();
 }
 async function copy(): Promise<void> {
-  const string = ace.value?.getCopyText();
-  ace.value?.execCommand("copy");
+  const string = editor.getCopyText();
+  editor.execCommand("copy");
 
   if (string) {
     await Clipboard.write({
@@ -608,8 +591,8 @@ async function copy(): Promise<void> {
   }
 }
 async function cut(): Promise<void> {
-  const string = ace.value?.getCopyText();
-  ace.value?.execCommand("cut");
+  const string = editor.getCopyText();
+  editor.execCommand("cut");
 
   if (string) {
     await Clipboard.write({
@@ -621,15 +604,15 @@ async function paste(): Promise<void> {
   const { type, value } = await Clipboard.read();
 
   if (type === "text/plain") {
-    ace.value?.execCommand("paste", value);
+    editor.execCommand("paste", value);
   }
 }
 
 async function formatCode(): Promise<void> {
-  if (ace.value && parser.value) {
-    const code = ace.value.getValue();
+  if (parser.value) {
+    const code = editor.getValue();
 
-    ace.value.setValue(
+    editor.setValue(
       await usePrettierWorker().format(code, {
         parser:
           parser.value.parsers[0] === "babel"
@@ -637,24 +620,20 @@ async function formatCode(): Promise<void> {
             : parser.value.parsers[0],
       })
     );
-    ace.value.clearSelection();
+    editor.clearSelection();
   }
 }
 function nextError(): void {
-  if (ace.value) {
-    if (nextErrorObject.value) {
-      ace.value.moveCursorTo(
-        nextErrorObject.value.row || 0,
-        nextErrorObject.value.column || 0
-      );
-    }
+  if (nextErrorObject.value) {
+    editor.moveCursorTo(
+      nextErrorObject.value.row || 0,
+      nextErrorObject.value.column || 0
+    );
   }
 }
 function findAll(): void {
-  if (ace.value) {
-    const keyword = ace.value.getCopyText();
-    console.log(`find all "${keyword}`);
-  }
+  const keyword = editor.getCopyText();
+  console.log(`find all "${keyword}`);
 }
 </script>
 
