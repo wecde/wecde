@@ -8,12 +8,12 @@
   "scripts": {
     "lint": "eslint --ext .js,.ts,.vue ./",
     "dev": "quasar dev",
-    "setup": "./setup",
+    "setup": "sh ./setup.sh",
     "dev:android": "quasar dev -m capacitor -T android",
     "dev:ios": "quasar dev -m capacitor -T ios",
     "build:android": "quasar build -m capacitor -T android",
     "build:ios": "quasar build -m capacitor -T ios",
-    "build:resources": " yarn --cwd ./resources build",
+    "build:resources": "yarn --cwd ./resources build",
     "build:pwa": "yarn build:resources && quasar build"
   },
   "dependencies": {
