@@ -52,7 +52,7 @@ const groups: readonly {
       {
         name: "Depth",
         type: "int",
-        default: 10,
+        default: 1,
         list: false,
         description:
           "Integer. Determines how much of the git repository's history to retrieve",
