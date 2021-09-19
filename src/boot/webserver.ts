@@ -58,10 +58,7 @@ boot(({ store }) => {
             throw new Error("NOT_FOUND");
           }
 
-          const path = join(
-            `projects/${project as string}`,
-            data.path.slice(1)
-          );
+          const path = join(project as string, data.path.slice(1));
 
           const thisStat = await fs.stat(path);
 

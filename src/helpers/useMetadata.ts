@@ -1,24 +1,26 @@
 import { basename, dirname, join } from "path-cross";
 import fs from "src/modules/fs";
 import { useStore } from "src/store";
-import { ProjectJSON } from "src/types/ProjectJSON";
+import MetaType from "src/types/MetaType";
 import { createTimeoutBy } from "src/utils";
 import { parse } from "src/utils/json";
 import { computed, onBeforeUnmount, ref, watch, WatchStopHandle } from "vue";
 
-export function useMetadata() {
+export function useMetadata<Type extends keyof MetaType>(type: Type) {
   const store = useStore();
   const dir = computed<string | null>(() => store.state.editor.project);
 
-  const meta = ref<ProjectJSON | null>(null);
+  const meta = ref<MetaType[Type] | null>(null);
   const pathToMeta = computed<string | null>(() =>
-    dir.value ? join(".metadata", basename(dir.value), "project.json") : null
+    dir.value
+      ? join(".metadata", basename(dir.value), `${type}.json`)
+      : null
   );
 
   // load metadata
   async function loadMetadata(): Promise<void> {
     if (pathToMeta.value) {
-      const raw: ProjectJSON = parse(
+      const raw = parse(
         await fs.readFile(pathToMeta.value, "utf8").catch(() => "")
       );
 
@@ -32,7 +34,7 @@ export function useMetadata() {
   // save metadata
   function saveMetadata() {
     createTimeoutBy(
-      "save metadata " + pathToMeta.value,
+      "delay " + pathToMeta.value,
       async () => {
         if (pathToMeta.value) {
           const raw: string = JSON.stringify(meta.value);
@@ -72,7 +74,6 @@ export function useMetadata() {
       {
         type: "file",
         mode: "absolute",
-        immediate: true,
       }
     );
   }
@@ -101,33 +102,14 @@ export function useMetadata() {
   void registerAutoLoad();
   void registerAutoSave();
 
+  const setupDone = ref<boolean>(false);
+  const setupMetadata = loadMetadata().then(() => (setupDone.value = true));
+
   return {
     meta,
     loadMetadata,
     saveMetadata,
-    setupMetadata: loadMetadata(),
-
-    fullpathSessionNow: computed<string | null>(() => {
-      if (meta.value?.["sessions"]?.length) {
-        // clear session-history invalidate in .metadata
-
-        const sessionHistoryValidate =
-          meta.value["session-history"]?.filter((indexInSessions) => {
-            return (
-              indexInSessions <
-              ((meta.value as ProjectJSON)["sessions"] as readonly string[])
-                .length
-            );
-          }) || [];
-
-        const sessionIndex =
-          sessionHistoryValidate[sessionHistoryValidate.length - 1] ??
-          meta.value["sessions"].length - 1;
-
-        return join(dir.value || "", meta.value["sessions"][sessionIndex]);
-      }
-
-      return null;
-    }),
+    setupMetadata,
+    setupDone,
   };
 }

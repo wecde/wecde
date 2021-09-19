@@ -1,5 +1,5 @@
 <template>
-  <App-Hammer>
+  <teleport to="[data-id='app.navbar']" v-if="isMounted">
     <div class="session mr-2" ref="sessionWrapper">
       <Session-Item
         v-for="item in meta?.['sessions']"
@@ -21,7 +21,7 @@
         @click="serverIsRunning = true"
       />
     </div>
-  </App-Hammer>
+  </teleport>
 
   <div class="absolute fit" style="height: calc(100% - 50px) !important">
     <!-- padding-top offset for navbar -->
@@ -51,7 +51,6 @@
 import { Browser } from "@capacitor/browser";
 import { Toast } from "@capacitor/toast";
 import { WebServer } from "@ionic-native/web-server";
-import AppHammer from "components/App/Hammer.vue";
 import EditorCode from "components/Editor/Code.vue";
 import EditorMarkdown from "components/Editor/Markdown.vue";
 import EditorSVG from "components/Editor/SVG.vue";
@@ -63,10 +62,11 @@ import fs from "modules/fs";
 import { join } from "path-cross";
 import { allowPreview, isMarkdown, isSvg } from "src/helpers/is-file-type";
 import { useFullpathFromRoute } from "src/helpers/useFullpathFromRoute";
+import { useIsMounted } from "src/helpers/useIsMounted";
 import { useMetadata } from "src/helpers/useMetadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
@@ -74,12 +74,34 @@ const i18n = useI18n();
 const store = useStore();
 const router = useRouter();
 
-const {
-  meta,
-  setupMetadata,
-  fullpathSessionNow: fullpath,
-} = useMetadata();
+const { meta, setupDone, setupMetadata } = useMetadata("session");
+const fullpath = computed<string | null>(() => {
+  if (setupDone.value) {
+    if (meta.value?.["sessions"]?.length) {
+      // clear session-history invalidate in .metadata
 
+      const sessionHistoryValidate =
+        meta.value["session-history"]?.filter((indexInSessions) => {
+          return (
+            indexInSessions <
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            ((meta.value as any)["sessions"] as readonly string[]).length
+          );
+        }) || [];
+
+      const sessionIndex =
+        sessionHistoryValidate[sessionHistoryValidate.length - 1] ??
+        meta.value["sessions"].length - 1;
+
+      return join(
+        store.state.editor.project || "",
+        meta.value["sessions"][sessionIndex]
+      );
+    }
+  }
+
+  return null;
+});
 watch(
   fullpath,
   () => {
@@ -143,6 +165,8 @@ watch(
 );
 
 const serverIsRunning = ref<boolean>(false);
+
+const isMounted = useIsMounted();
 
 async function startServer(): Promise<void> {
   await WebServer.start(Number(store.state.settings["preview**port"])).catch(

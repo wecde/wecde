@@ -149,7 +149,7 @@ function addRemote() {
       // dense: true,
       square: true,
       outlined: true,
-      maxlength: 20,
+      maxlength: 256,
       // class: "q-mt-2",
       model: "",
       type: "url", // optional
@@ -164,7 +164,7 @@ function addRemote() {
         // dense: true,
         square: true,
         outlined: true,
-        maxlength: 20,
+        maxlength: 50,
         // class: "q-mt-2",
         model: "",
         type: "url", // optional

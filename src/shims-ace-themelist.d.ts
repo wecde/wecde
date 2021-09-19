@@ -1,4 +1,4 @@
-declare module "ace-new/src-noconflict/ext-themelist" {
+declare module "ace-builds/src-noconflict/ext-themelist" {
   const themesByName: unknown;
 
   export { themesByName };

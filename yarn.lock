@@ -1954,10 +1954,10 @@ accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
     mime-types "~2.1.24"
     negotiator "0.6.2"
 
-ace-new@^1.5.4:
-  version "1.5.4"
-  resolved "https://registry.yarnpkg.com/ace-new/-/ace-new-1.5.4.tgz#12be2bfc558c101ede66c05ffd8b48e520831be0"
-  integrity sha512-Inaycko6M0og9X9KW3Xef2MoWpfmwp1lX/GA7dYrhNg4vNL/dvdsOjGRTmTyJ0dOxsy7gAdhj7CgF71KJcI8HQ==
+ace-builds@^1.4.12:
+  version "1.4.12"
+  resolved "https://registry.yarnpkg.com/ace-builds/-/ace-builds-1.4.12.tgz#888efa386e36f4345f40b5233fcc4fe4c588fae7"
+  integrity sha512-G+chJctFPiiLGvs3+/Mly3apXTcfgE45dT5yp12BcWZ1kUs+gm0qd3/fv4gsz6fVag4mM0moHVpjHDIgph6Psg==
 
 acorn-import-assertions@^1.7.6:
   version "1.7.6"
@@ -2487,10 +2487,10 @@ caniuse-lite@^1.0.30001219:
   resolved "https://registry.npmjs.org/caniuse-lite/-/caniuse-lite-1.0.30001248.tgz"
   integrity sha512-NwlQbJkxUFJ8nMErnGtT0QTM2TJ33xgz4KXJSMIrjXIbDVdaYueGyjOrLKRtJC+rTiWfi6j5cnZN1NBiSBJGNw==
 
-capacitor-fs@^0.0.41-b4:
-  version "0.0.41-b4"
-  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.41-b4.tgz#f4f1f6399d1283716b3de6d5833749646cbc7ead"
-  integrity sha512-MIeVwL9CVQTDOTGrxg9gCstqmOjc1n3ImwRa5vVAbExUagI/NA1+2uEORpWxMbzGQAvogn89vI0fCgBSmLguGA==
+capacitor-fs@^0.0.41-b5:
+  version "0.0.41-b5"
+  resolved "https://registry.yarnpkg.com/capacitor-fs/-/capacitor-fs-0.0.41-b5.tgz#aaecfd8e3404164108acf5664af0ae7393a072f1"
+  integrity sha512-jsm5VcHKUH6EEtbiflwvjmT+Zj6BiOJUyLzNtP+2Vdc6nAcfluJQ+6ESF+fjDpZ+TChibiYloQ5aQGqFqg66jw==
   dependencies:
     js-base64 "^3.6.1"
     minimatch "^3.0.4"
@@ -3258,6 +3258,11 @@ elementtree@0.1.7, elementtree@^0.1.7:
   integrity sha1-mskb5uUvtuYkTE5UpKw+2K6OKcA=
   dependencies:
     sax "1.1.4"
+
+emmet-core@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/emmet-core/-/emmet-core-1.0.0.tgz#e36fb45b7307fbb11016e0973efd5e2ed48e76ab"
+  integrity sha512-Rd9rbiV8Z7nqdZZxMs7L6TUFg/WENY9F3elB4shq10hELaf0s5V99ynsnJOarU31Lb2eR4MqgOxHS7OXRGpKDw==
 
 emoji-regex@^8.0.0:
   version "8.0.0"
@@ -4232,6 +4237,11 @@ html-minifier@4.0.0:
     param-case "^2.1.1"
     relateurl "^0.2.7"
     uglify-js "^3.5.1"
+
+html-tag-js@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/html-tag-js/-/html-tag-js-1.0.2.tgz#758f389268cc6ab9f0c8b0f199602528c7cf9d6f"
+  integrity sha512-dslY3HBoHz0rp4UC4kWuN/BcBs1/GFg1AooRhM8lvtaHPeeVJrSl4JyT+/smpDGFBUBWIgP++f8Nwah53kCmXQ==
 
 html-webpack-plugin@5.3.2:
   version "5.3.2"

@@ -10,3 +10,4 @@ babel.config.js
 /resources
 /src/fs
 /src/git.js
+/src/ace-support

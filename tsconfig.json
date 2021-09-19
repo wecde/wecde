@@ -74,6 +74,7 @@
     "resources",
     "src-capacitor",
     "src/fs",
-    "src/git.js"
+    "src/git.js",
+    "src/ace-support"
   ]
 }

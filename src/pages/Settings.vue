@@ -1,8 +1,8 @@
 <template>
-  <App-Hammer hide-navigation>
+  <teleport to="[data-id='app.navbar']" v-if="isMounted">
     <q-btn flat round dense icon="mdi-arrow-left" @click="$router.back()" />
     <q-toolbar-title>Settings</q-toolbar-title>
-  </App-Hammer>
+  </teleport>
 
   <q-list
     :class="{
@@ -75,13 +75,13 @@
         </q-item-section>
       </q-item>
 
-      <q-separator spaced v-if="index < groups.length - 1"/>
+      <q-separator spaced v-if="index < groups.length - 1" />
     </template>
   </q-list>
 </template>
 
 <script lang="ts" setup>
-import AppHammer from "components/App/Hammer.vue";
+import { useIsMounted } from "src/helpers/useIsMounted";
 import { useStore } from "src/store";
 import { groups } from "src/store/settings/options";
 import type { ValueType } from "src/store/settings/options";
@@ -89,6 +89,8 @@ import { computed } from "vue";
 import type { ComputedRef } from "vue";
 
 const store = useStore();
+
+const isMounted = useIsMounted();
 
 function createRefStore(path?: string): ComputedRef<ValueType | void> {
   if (!path) {

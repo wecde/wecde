@@ -78,27 +78,19 @@
               <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
             </q-item>
 
-            <Action-Import-Files
-              :dirname="$store.state.editor.project"
+            <q-item
+              clickable
+              v-close-popup
+              v-ripple
+              @click="importFiles($store.state.editor.project)"
+              class="no-min-height"
               v-if="$store.state.editor.project"
             >
-              <template v-slot:default="{ on }">
-                <q-item
-                  clickable
-                  v-close-popup
-                  v-ripple
-                  @click="on"
-                  class="no-min-height"
-                >
-                  <q-item-section avatar class="min-width-0">
-                    <q-icon name="ti-import" />
-                  </q-item-section>
-                  <q-item-section>{{
-                    $t("label.import-files")
-                  }}</q-item-section>
-                </q-item>
-              </template>
-            </Action-Import-Files>
+              <q-item-section avatar class="min-width-0">
+                <q-icon name="ti-import" />
+              </q-item-section>
+              <q-item-section>{{ $t("label.import-files") }}</q-item-section>
+            </q-item>
 
             <q-separator />
 
@@ -143,7 +135,6 @@
 
 <script lang="ts" setup>
 import { Toast } from "@capacitor/toast";
-import ActionImportFiles from "components/Action-ImportFiles.vue";
 import FileExplorerAdd from "components/File Explorer/Add.vue";
 import FileExplorerList from "components/File Explorer/List.vue";
 import { basename } from "path-cross";
@@ -154,6 +145,7 @@ import {
   sortTreeFilesystem,
   StatItem,
 } from "src/helpers/fs-helper";
+import { useImportFiles } from "src/helpers/useImportFiles";
 import fs from "src/modules/fs";
 import { useStore } from "src/store";
 import { computed, reactive, ref, watch } from "vue";
@@ -163,6 +155,8 @@ import TemplateTab from "./template/Tab.vue";
 
 const store = useStore();
 const i18n = useI18n();
+
+const importFiles = useImportFiles();
 
 const adding = ref<boolean>(false);
 const addingFolder = ref<boolean>(false);

@@ -12,68 +12,78 @@
       class="bottom-tools__group justify-between"
       v-if="tabToolsBottom === 0"
     >
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="tab">
+      <div class="item" v-ripple @mousedown.prevent @click="tab">
         <q-icon name="mdi-keyboard-tab" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cursorUp">
+      <div class="item" v-ripple @mousedown.prevent @click="cursorUp">
         <q-icon name="mdi-chevron-up" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cursorDown">
+      <div class="item" v-ripple @mousedown.prevent @click="cursorDown">
         <q-icon name="mdi-chevron-down" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cursorLeft">
+      <div class="item" v-ripple @mousedown.prevent @click="cursorLeft">
         <q-icon name="mdi-chevron-left" />
       </div>
-      <div
-        class="item"
-        v-ripple
-        @mousedown="fixBlurEditor"
-        @click="cursorRight"
-      >
+      <div class="item" v-ripple @mousedown.prevent @click="cursorRight">
         <q-icon name="mdi-chevron-right" />
       </div>
-      <div
-        class="item"
-        v-ripple
-        @mousedown="fixBlurEditor"
-        @click="openCommand"
-      >
+      <div class="item" v-ripple @mousedown.prevent @click="openCommand">
         <q-icon name="mdi-apple-keyboard-command" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="openBot">
+      <div class="item" v-ripple @mousedown.prevent @click="openBot">
         <q-icon name="mdi-robot" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="toolsNext">
+      <div class="item" v-ripple @mousedown.prevent @click="toolsNext">
         <q-icon name="mdi-chevron-double-right" />
       </div>
     </div>
+
     <div
       class="bottom-tools__group justify-between"
       v-else-if="tabToolsBottom === 1"
     >
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="toolsPrev">
+      <div class="item" v-ripple @mousedown.prevent @click="toolsPrev">
         <q-icon name="mdi-chevron-double-left" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="undo">
+      <div class="item" v-ripple @mousedown.prevent @click="undo">
         <q-icon name="mdi-undo-variant" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="redo">
+      <div class="item" v-ripple @mousedown.prevent @click="redo">
         <q-icon name="mdi-redo-variant" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="selectAll">
+      <div class="item" v-ripple @mousedown.prevent @click="selectAll">
         <q-icon name="mdi-select-all" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="copy">
+      <div class="item" v-ripple @mousedown.prevent @click="copy">
         <q-icon name="mdi-content-copy" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="cut">
+      <div class="item" v-ripple @mousedown.prevent @click="cut">
         <q-icon name="mdi-content-cut" />
       </div>
-      <div class="item" v-ripple @mousedown="fixBlurEditor" @click="paste">
+      <div class="item" v-ripple @mousedown.prevent @click="paste">
         <q-icon name="mdi-content-paste" />
       </div>
+      <div class="item" v-ripple @mousedown.prevent>
+        <q-icon
+          name="mdi-square"
+          :style="{
+            color: colorPalete,
+          }"
+        />
+        <q-menu
+          :class="{
+            'bg-grey-9': $q.dark.isActive,
+          }"
+          transition-show="jump-up"
+          transition-hide="jump-down"
+          max-width="220px"
+          @update:model-value="$event ? void 0 : insertColor()"
+        >
+          <q-color format-model="hexa" v-model="colorPalete" no-footer />
+        </q-menu>
+      </div>
 
-      <div class="item" v-ripple @mousedown="fixBlurEditor">
+      <div class="item" v-ripple @mousedown.prevent>
         <q-icon name="mdi-plus" />
         <q-menu
           :class="{
@@ -96,34 +106,29 @@
                   class="item"
                   v-ripple
                   v-close-popup
-                  @mousedown="fixBlurEditor"
+                  @mousedown.prevent
                   @click="formatCode"
                   :style="{
-                    opacity: supportFormat ? 1 : 0.5,
+                    opacity: !!parser ? 1 : 0.5,
                   }"
-                  :disable="supportFormat === false"
+                  :disable="!parser"
                 >
                   <q-icon size="13px" name="mdi-format-align-right" />
                   <span>{{ $t("label.format") }}</span>
                 </div>
-                <div
-                  class="item"
-                  v-ripple
-                  @mousedown="fixBlurEditor"
-                  @click="findAll"
-                >
+                <div class="item" v-ripple @mousedown.prevent @click="findAll">
                   <q-icon size="13px" name="mdi-magnify" />
                   <span>{{ $t("label.find-all") }}</span>
                 </div>
                 <div
                   class="item"
                   v-ripple
-                  @mousedown="fixBlurEditor"
+                  @mousedown.prevent
                   @click="nextError"
                   :style="{
-                    opacity: !!nextErrorer ? 1 : 0.5,
+                    opacity: !!nextErrorObject ? 1 : 0.5,
                   }"
-                  :disable="!!nextErrorer === false"
+                  :disable="!!nextErrorObject === false"
                 >
                   <q-icon size="13px" name="mdi-chevron-down-circle-outline" />
                   <span>{{ $t("label.next-error") }}</span>
@@ -150,9 +155,7 @@
     </div>
   </q-footer>
 
-  <div class="wrapper">
-    <div class="editor" ref="EditorCode" v-bind="$attrs" />
-  </div>
+  <div style="height: 100%" ref="EditorCode" v-bind="$attrs" />
 
   <teleport to="[data-id='code.btn-addons']" v-if="isMounted">
     <q-btn
@@ -168,204 +171,189 @@
 
 <script lang="ts" setup>
 // eslint-disable-next-line import/order
-import Ace from "ace-new";
+import Ace from "ace-builds";
 // eslint-disable-next-line import/order
 import { computed, onMounted, ref, watch, watchEffect } from "vue";
 
-import "ace-new/webpack-resolver";
-import "ace-new/src-noconflict/ext-language_tools";
-// import "ace-new/src-noconflict/ext-emmet";
-import "ace-new/src-noconflict/ext-linking";
-import "ace-new/src-noconflict/ext-settings_menu";
-import "ace-new/src-noconflict/keybinding-emacs";
-import "ace-new/src-noconflict/keybinding-sublime";
-import "ace-new/src-noconflict/keybinding-vim";
-import "ace-new/src-noconflict/keybinding-vscode";
-import "ace-new/src-noconflict/ext-spellcheck";
-import "ace-new/src-noconflict/ext-prompt";
+import "ace-builds/webpack-resolver";
+import "ace-builds/src-noconflict/ext-language_tools";
+import "ace-builds/src-noconflict/ext-emmet";
+import "ace-builds/src-noconflict/ext-linking";
+import "ace-builds/src-noconflict/ext-settings_menu";
+import "ace-builds/src-noconflict/keybinding-emacs";
+import "ace-builds/src-noconflict/keybinding-sublime";
+import "ace-builds/src-noconflict/keybinding-vim";
+import "ace-builds/src-noconflict/keybinding-vscode";
+import "ace-builds/src-noconflict/ext-spellcheck";
+import "ace-builds/src-noconflict/ext-prompt";
+
 
 import { Clipboard } from "@capacitor/clipboard";
-import modelist from "ace-new/src-noconflict/ext-modelist";
+import modelist from "ace-builds/src-noconflict/ext-modelist";
 import fs from "modules/fs";
 import { basename, extname } from "path-cross";
 import { getSupportInfo } from "prettier";
 import type { SupportLanguage } from "prettier";
 import { registerWatch } from "src/helpers/fs-helper";
-import { getScrollBehavior, setScrollBehavior } from "src/helpers/metadata";
+import { useIsMounted } from "src/helpers/useIsMounted";
+import { useMetadata } from "src/helpers/useMetadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
 import { usePrettierWorker } from "src/worker/prettier";
 
-const isMounted = ref<boolean>(false);
-onMounted(() => (isMounted.value = true));
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+eval(require("!raw-loader!emmet-core"))
+
+const isMounted = useIsMounted();
 
 const props = defineProps<{
   fullpath: string;
   hideFooter?: boolean;
 }>();
 
+const filepath = computed<string>(() => {
+  if (store.state.editor.project) {
+    return fs.relative(store.state.editor.project, props.fullpath);
+  }
+
+  return props.fullpath;
+});
+
 const store = useStore();
-const EditorCode = ref<HTMLElement | null>(null);
+
+const { meta: metaScroll, setupMetadata } = useMetadata("scrolling");
+
+const colorPalete = ref<string>("#3d3636ff");
+const EditorCode = ref<HTMLDivElement | null>(null);
 const ace: {
   value: Ace.Ace.Editor | null;
 } = {
   value: null,
 };
-const nextErrorer = ref<Ace.Ace.Annotation | null>(null);
+const nextErrorObject = ref<Ace.Ace.Annotation | null>(null);
+function updateNextErrorObject() {
+  if (ace.value) {
+    const { row, column } = ace.value.getCursorPosition();
+    const annotations = ace.value.session
+      .getAnnotations()
+      .filter((item) => item.type === "error");
 
-// eslint-disable-next-line functional/no-let
-let timeoutOnChange: number | NodeJS.Timeout;
-function onChange(): void {
-  timeoutOnChange = createTimeoutBy(
-    "editor.code.timeout-saving-file",
-    () => {
-      if (ace.value) {
-        void fs.writeFile(props.fullpath, ace.value.getValue());
-
-        const { row, column } = ace.value.getCursorPosition();
-        const annotations = ace.value.session
-          .getAnnotations()
-          .filter((item) => item.type === "error");
-
-        nextErrorer.value =
-          (annotations.find((error) => {
-            if (error.row !== undefined && error.row > row) {
-              return true;
-            }
-
-            if (
-              error.row === row &&
-              error.column !== undefined &&
-              error.column > column
-            ) {
-              return true;
-            }
-          }) ||
-            annotations[0]) ??
-          null;
-      }
-    },
-    1000
-  );
-}
-
-// eslint-disable-next-line functional/no-let
-let timeoutOnScroll: number | NodeJS.Timeout;
-function onScroll(): void {
-  timeoutOnScroll = createTimeoutBy(
-    "on scroll editor",
-    async () => {
-      await setScrollBehavior(props.fullpath, {
-        left: ace.value?.session.getScrollLeft() || 0,
-        top: ace.value?.session.getScrollTop() || 0,
-        row: ace.value?.getCursorPosition()?.row || 0,
-        column: ace.value?.getCursorPosition()?.column || 0,
-      });
-    },
-    1000
-  );
-}
-
-// eslint-disable-next-line functional/no-let
-let watcherFile: () => void;
-
-async function loadFile(fullpath: string): Promise<void> {
-  // eslint-disable-next-line functional/no-let
-  let { mode } = modelist.getModeForPath(fullpath);
-
-  if (mode === "ace/mode/text") {
-    switch (basename(fullpath)) {
-      case ".prettierignore":
-      case ".eslint":
-        mode = "ace/mode/json";
-        break;
-      case "LICENSE":
-        mode = "ace/mode/markdown";
-        break;
-    }
-  }
-
-  try {
-    // remove handle change
-    clearTimeout(timeoutOnChange as number);
-    ace.value?.off("change", onChange);
-
-    // register
-    watcherFile?.();
-    watcherFile = registerWatch(
-      () => fullpath,
-      async () => {
-        if (ace.value) {
-          const metadata = {
-            left: ace.value.session.getScrollLeft() || 0,
-            top: ace.value.session.getScrollTop() || 0,
-            row: ace.value.getCursorPosition()?.row || 0,
-            column: ace.value.getCursorPosition()?.column || 0,
-          };
-
-          try {
-            const raw = await fs.readFile(fullpath, "utf8");
-
-            if (raw !== ace.value.getValue()) {
-              clearTimeout(timeoutOnChange as number);
-              ace.value?.off("change", onChange);
-              ace.value.setValue(raw);
-              ace.value?.on("change", onChange);
-            }
-          } catch (err) {
-            if (err.code === "ENOENT") {
-              clearTimeout(timeoutOnChange as number);
-              ace.value?.off("change", onChange);
-              ace.value.setValue("");
-              ace.value?.on("change", onChange);
-            }
-          }
-
-          ace.value.clearSelection();
-
-          ace.value.session.setScrollLeft(metadata.left);
-          ace.value.session.setScrollTop(metadata.top);
-          ace.value.moveCursorTo(metadata.row, metadata.column);
+    nextErrorObject.value =
+      (annotations.find((error) => {
+        if (error.row !== undefined && error.row > row) {
+          return true;
         }
-      },
-      {
-        immediate: true,
+
+        if (
+          error.row === row &&
+          error.column !== undefined &&
+          error.column > column
+        ) {
+          return true;
+        }
+      }) ||
+        annotations[0]) ??
+      null;
+  }
+}
+
+function createBackupScrollBehavior() {
+  return {
+    left: ace.value?.session.getScrollLeft() || 0,
+    top: ace.value?.session.getScrollTop() || 0,
+    row: ace.value?.getCursorPosition()?.row || 0,
+    column: ace.value?.getCursorPosition()?.column || 0,
+  };
+}
+function restoreBackupScrollBehavior({
+  left,
+  top,
+  row,
+  column,
+}: ReturnType<typeof createBackupScrollBehavior>) {
+  ace.value?.session.setScrollLeft(left);
+  ace.value?.session.setScrollTop(top);
+  ace.value?.moveCursorTo(row, column);
+}
+
+async function saveScrollBehaviorToMeta(): Promise<void> {
+  await setupMetadata;
+
+  if (metaScroll.value) {
+    metaScroll.value = {
+      ...(metaScroll.value || {}),
+      [filepath.value]: createBackupScrollBehavior(),
+    };
+  }
+}
+async function restoreScrollBehaviorInMeta(): Promise<void> {
+  if (ace.value && store.state.editor.project) {
+    await setupMetadata;
+
+    restoreBackupScrollBehavior(
+      metaScroll.value?.[filepath.value] || {
+        top: 0,
+        left: 0,
+        row: 0,
+        column: 0,
       }
     );
+  }
+}
+async function loadFile(isSetup = false): Promise<void> {
+  console.log("load file");
+  if (ace.value) {
+    // eslint-disable-next-line functional/no-let
+    let { mode } = modelist.getModeForPath(props.fullpath);
 
-    // ace.value?.setValue(await fs.readFile(fullpath, "utf8"));
-    ace.value?.session.setMode(mode);
+    if (mode === "ace/mode/text") {
+      switch (basename(props.fullpath)) {
+        case ".prettierignore":
+        case ".eslint":
+          mode = "ace/mode/json";
+          break;
+        case "LICENSE":
+          mode = "ace/mode/markdown";
+          break;
+      }
+    }
 
-    console.log(`Language mode: ${mode as string}`);
+    // > mode ready
 
-    clearTimeout(timeoutOnScroll as number);
-    ace.value?.on("change", onChange);
+    if (mode === "ace/mode/text") {
+      ace.value.setOptions({
+        enableBasicAutocompletion: false,
+        enableSnippets: false,
+        enableLiveAutocompletion: false,
+      });
+    } else {
+      ace.value.setOptions({
+        enableBasicAutocompletion: true,
+        enableSnippets: true,
+        enableLiveAutocompletion: true,
+      });
+    }
 
+    ace.value.setOption("useWorker", mode !== "ace/mode/jsx");
+    ace.value.session.setMode(mode);
     Ace.require(`ace/snippets/${mode as string}`);
 
-    // remove handle scroll if setValue success
-    ace.value?.session.off("changeScrollTop", onScroll);
-    ace.value?.session.off("changeScrollLeft", onScroll);
-    ace.value?.session.selection.off("changeCursor", onScroll);
+    const raw = await fs.readFile(props.fullpath, "utf8").catch(() => "");
 
-    /// restore scroll behavior
-    const { top, left, row, column } = await getScrollBehavior(fullpath);
-
-    ace.value?.session.setScrollLeft(left);
-    ace.value?.session.setScrollTop(top);
-    ace.value?.moveCursorTo(row, column);
-
-    // add event scroll
-    ace.value?.session.on("changeScrollTop", onScroll);
-    ace.value?.session.on("changeScrollLeft", onScroll);
-    ace.value?.session.selection.on("changeCursor", onScroll);
-  } catch {}
+    if (raw !== ace.value.getValue()) {
+      console.log("set new content file to editor");
+      if (isSetup === false) {
+        await saveScrollBehaviorToMeta();
+      }
+      ace.value.setValue(raw);
+      ace.value.clearSelection();
+      await restoreScrollBehaviorInMeta();
+    }
+  }
 }
 
-onMounted(() => {
-  if (EditorCode.value) {
-    ace.value = Ace.edit(EditorCode.value);
-
+function setupConfigAceEditor(): void {
+  if (ace.value) {
     ace.value.commands.addCommand({
       name: "Format Code",
       bindKey: {
@@ -385,73 +373,162 @@ onMounted(() => {
         store.state.settings["editor**autocomplete / check syntax"],
       enableLiveAutocompletion:
         store.state.settings["editor**autocomplete / check syntax"],
-      // enableEmmet: true,
-      // enableCodeLens: true,
+      useWorker: true,
+      animatedScroll: false,
+      tooltipFollowsMouse: false,
+      enableEmmet: true,
+      indentedSoftWrap: false,
+      scrollPastEnd: 0.5,
+      enableCodeLens: true,
     });
 
-    watchEffect(() => {
-      if (ace.value) {
-        ace.value.setTheme(
-          `${store.state.settings["appearance**theme"] as string}`
-        );
-        ace.value.setKeyboardHandler(
-          !!store.state.settings["editor**keybinding"]
-            ? `ace/keyboard/${
-                store.state.settings["editor**keybinding"] as string
-              }`
-            : ""
-        );
-        ace.value.setOption(
-          "showGutter",
-          store.state.settings["editor**line number"] as boolean
-        );
-        ace.value.setShowPrintMargin(
-          +(store.state.settings["editor**print margin"] as number) > 0
-        );
-        ace.value.setPrintMarginColumn(
-          +(store.state.settings["editor**print margin"] as number)
-        );
-        ace.value.setShowInvisibles(
-          store.state.settings["editor**show invisible"] as boolean
-        );
-        ace.value.session.setUseSoftTabs(
-          store.state.settings["editor**use soft tabs"] as boolean
-        );
-        ace.value.session.setTabSize(
-          +(store.state.settings["editor**tab size"] as number)
-        );
-        ace.value.session.setUseWrapMode(
-          store.state.settings["editor**word wrap"] as boolean
-        );
-      }
-    });
+    Ace.require("ace/ext/emmet");
+    // ace.value.setOption("enableEmmet", true);
+    ace.value.setHighlightSelectedWord(true);
 
-    watch(
-      () => props.fullpath,
-      async (value) => {
-        await loadFile(value);
-        ace.value?.session.getUndoManager().reset();
+    // ace.value.resize(true);
+  }
+}
+function watchEffectSettings(): void {
+  watchEffect(() => {
+    if (ace.value) {
+      ace.value.setTheme(
+        `${store.state.settings["appearance**theme"] as string}`
+      );
+      ace.value.setKeyboardHandler(
+        !!store.state.settings["editor**keybinding"]
+          ? `ace/keyboard/${
+              store.state.settings["editor**keybinding"] as string
+            }`
+          : ""
+      );
+      ace.value.setOption(
+        "showGutter",
+        store.state.settings["editor**line number"] as boolean
+      );
+      ace.value.setShowPrintMargin(
+        +(store.state.settings["editor**print margin"] as number) > 0
+      );
+      ace.value.setPrintMarginColumn(
+        +(store.state.settings["editor**print margin"] as number)
+      );
+      ace.value.setShowInvisibles(
+        store.state.settings["editor**show invisible"] as boolean
+      );
+      ace.value.session.setUseSoftTabs(
+        store.state.settings["editor**use soft tabs"] as boolean
+      );
+      ace.value.session.setTabSize(
+        +(store.state.settings["editor**tab size"] as number)
+      );
+      ace.value.session.setUseWrapMode(
+        store.state.settings["editor**word wrap"] as boolean
+      );
+    }
+  });
+}
+// eslint-disable-next-line functional/no-let
+let changedContent = false;
+function watchFileInEditorAndSystem(): void {
+  // eslint-disable-next-line functional/no-let
+  let watcherFullpathInSystem: ReturnType<typeof registerWatch>;
+  watch(
+    () => props.fullpath,
+    async () => {
+      ace.value?.blur();
+      cancelAutoBackupScrollBehavior();
+
+      watcherFullpathInSystem?.();
+      console.log("regiser");
+      watcherFullpathInSystem = registerWatch(
+        props.fullpath,
+        () => {
+          if (changedContent) {
+            changedContent = false;
+            return;
+          }
+          createTimeoutBy(
+            "watch file to load for code",
+            () => loadFile(),
+            1000
+          );
+        },
+        {
+          type: "file",
+          mode: "absolute",
+        }
+      );
+
+      await loadFile(true);
+
+      ace.value?.session.getUndoManager().reset();
+
+      registerAutoBackupScrollBehavior();
+    },
+    {
+      immediate: true,
+    }
+  );
+}
+function setupAutoSave(): void {
+  ace.value?.on("change", () => {
+    createTimeoutBy(
+      "auto save",
+      async () => {
+        if (ace.value) {
+          const raw = await fs.readFile(props.fullpath, "utf8").catch(() => "");
+
+          if (raw !== ace.value.getValue()) {
+            changedContent = true;
+            await fs.writeFile(props.fullpath, ace.value.getValue(), "utf8");
+          }
+        }
       },
-      {
-        immediate: true,
-      }
+      1000
     );
+  });
+}
+function registerAutoBackupScrollBehavior(): void {
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  ace.value?.session.on("changeScrollTop", saveScrollBehaviorToMeta);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  ace.value?.session.on("changeScrollLeft", saveScrollBehaviorToMeta);
+  
+  ace.value?.selection.on("changeCursor", saveScrollBehaviorToMeta);
+}
+function cancelAutoBackupScrollBehavior(): void {
+  ace.value?.session.off("changeScrollTop", saveScrollBehaviorToMeta);
+  ace.value?.session.off("changeScrollLeft", saveScrollBehaviorToMeta);
+  ace.value?.selection.off("changeCursor", saveScrollBehaviorToMeta);
+}
+onMounted(() => {
+  if (EditorCode.value) {
+    ace.value = Ace.edit(EditorCode.value);
+
+    setupConfigAceEditor();
+    watchEffectSettings();
+    watchFileInEditorAndSystem();
+
+    setupAutoSave();
+    ace.value.on("change", () => updateNextErrorObject());
   }
 });
 
 const tabToolsBottom = ref<0 | 1>(0);
 
 const parser = computed<SupportLanguage | void>(() => {
-  const ext = extname(props.fullpath || "");
+  const ext = extname(props.fullpath);
   // 私©れ宛d
   return getSupportInfo().languages.find((item: SupportLanguage) => {
     return item.extensions?.some((extTest: string) => ext === extTest);
   });
 });
-const supportFormat = computed<boolean>(() => !!parser.value);
 
-function fixBlurEditor(event: MouseEvent): void {
-  event.preventDefault();
+function insertColor(): void {
+  ace.value?.session.insert(
+    ace.value.getCursorPosition(),
+    colorPalete.value.replace(/ff$/, "")
+  );
 }
 function tab(): void {
   ace.value?.insert("\t");
@@ -563,10 +640,10 @@ async function formatCode(): Promise<void> {
 }
 function nextError(): void {
   if (ace.value) {
-    if (nextErrorer.value) {
+    if (nextErrorObject.value) {
       ace.value.moveCursorTo(
-        nextErrorer.value.row || 0,
-        nextErrorer.value.column || 0
+        nextErrorObject.value.row || 0,
+        nextErrorObject.value.column || 0
       );
     }
   }
@@ -681,33 +758,5 @@ function findAll(): void {
 
 .ace_gutter-active-line {
   background-color: transparent;
-}
-
-.wrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: calc(100vh - 40px - 50px);
-  width: 100%;
-  &:after {
-    content: "";
-    width: 100%;
-    height: 50vh;
-    display: block;
-  }
-
-  .editor {
-    height: 100%;
-    overflow: visible;
-    &::before {
-      content: "";
-      width: 100vh;
-      height: calc(150vh);
-      background-color: inherit;
-      display: block;
-      /* position: absolute; */
-      top: 0;
-    }
-  }
 }
 </style>

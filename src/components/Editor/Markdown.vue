@@ -23,12 +23,12 @@
 import marked from "marked";
 import fs from "modules/fs";
 import { registerWatch } from "src/helpers/fs-helper";
-import { onMounted, ref, watch } from "vue";
+import { useIsMounted } from "src/helpers/useIsMounted";
+import { ref, watch } from "vue";
 
 import EditorCode from "./Code.vue";
 
-const isMounted = ref<boolean>(false);
-onMounted(() => (isMounted.value = true));
+const isMounted = useIsMounted();
 
 const props = defineProps<{
   fullpath: string;
