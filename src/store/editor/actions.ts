@@ -1,6 +1,9 @@
-import { statusMatrix } from "isomorphic-git";
 import { join } from "path-cross";
 import fs from "src/modules/fs";
+import {
+  refreshGitStatusMatrixWorker,
+  useGitStatusMatrix,
+} from "src/worker/git-statusMatrix";
 import { ActionTree } from "vuex";
 
 import { StateInterface } from "..";
@@ -16,9 +19,19 @@ const actions: ActionTree<EditorStateInterface, StateInterface> = {
     if (state.project && (await fs.isFile(join(state.project, ".git/HEAD")))) {
       commit("set:git.statusMatrix.loading", true);
 
+      commit(
+        "filter:git.statusMatrix.matrix",
+        (filepath: string) =>
+          !filepathsFree.some(
+            (base) =>
+              fs.isParentDir(base, filepath) || fs.isEqual(filepath, base)
+          )
+      );
+
+      void refreshGitStatusMatrixWorker();
       const matrix =
         (
-          await statusMatrix({
+          await useGitStatusMatrix()({
             fs,
             dir: state.project,
             filepaths,
@@ -34,15 +47,6 @@ const actions: ActionTree<EditorStateInterface, StateInterface> = {
           (base) => fs.isParentDir(base, filepath) || fs.isEqual(filepath, base)
         );
       });
-
-      commit(
-        "filter:git.statusMatrix.matrix",
-        (filepath: string) =>
-          !filepathsFree.some(
-            (base) =>
-              fs.isParentDir(base, filepath) || fs.isEqual(filepath, base)
-          )
-      );
 
       commit("assign:git.statusMatrix.matrix", matrix);
 
