@@ -84,7 +84,6 @@
 import { useIsMounted } from "src/helpers/useIsMounted";
 import { useStore } from "src/store";
 import { groups } from "src/store/settings/options";
-import type { ValueType } from "src/store/settings/options";
 import { computed } from "vue";
 import type { ComputedRef } from "vue";
 
@@ -92,12 +91,12 @@ const store = useStore();
 
 const isMounted = useIsMounted();
 
-function createRefStore(path?: string): ComputedRef<ValueType | void> {
+function createRefStore(path?: string): ComputedRef<unknown> {
   if (!path) {
     // eslint-disable-next-line functional/no-throw-statement
     throw new Error("Empty path");
   }
-  return computed<ValueType | void>({
+  return computed<unknown>({
     get() {
       return store.state.settings[path];
     },

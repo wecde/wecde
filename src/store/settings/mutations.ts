@@ -1,6 +1,5 @@
 import { MutationTree } from "vuex";
 
-import type { ValueType } from "./options";
 import { SettingsStateInterface } from "./state";
 
 const mutation: MutationTree<SettingsStateInterface> = {
@@ -11,7 +10,7 @@ const mutation: MutationTree<SettingsStateInterface> = {
       value,
     }: {
       readonly path: string;
-      readonly value: ValueType | void;
+      readonly value: unknown
     }
   ): void {
     const breadcrumbs = path.split("->");

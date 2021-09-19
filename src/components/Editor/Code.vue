@@ -77,6 +77,7 @@
           transition-show="jump-up"
           transition-hide="jump-down"
           max-width="220px"
+          no-focus
           @update:model-value="$event ? void 0 : insertColor()"
         >
           <q-color format-model="hexa" v-model="colorPalete" no-footer />
@@ -92,6 +93,7 @@
           class="menu-addons"
           transition-show="jump-up"
           transition-hide="jump-down"
+          no-focus
         >
           <q-card
             flat
