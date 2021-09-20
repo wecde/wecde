@@ -180,8 +180,8 @@ module.exports = configure(function (ctx) {
       },
 
       manifest: {
-        name: "Shin Code Editor",
-        short_name: "Shin Code Editor",
+        name: "Wecde",
+        short_name: "Wecde",
         description: "A Quasar Framework app",
         display: "standalone",
         orientation: "portrait",
@@ -246,7 +246,7 @@ module.exports = configure(function (ctx) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: "shin-code-editor",
+        appId: "wecde",
       },
 
       // "chain" is a webpack-chain object https://github.com/neutrinojs/webpack-chain

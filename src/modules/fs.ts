@@ -2,7 +2,7 @@ import { Directory, Filesystem } from "@capacitor/filesystem";
 import { createFilesystem } from "capacitor-fs";
 
 const fs = createFilesystem(Filesystem, {
-  rootDir: "Shin Code Editor",
+  rootDir: "Wecde",
   directory: Directory.Documents,
   base64Alway: true,
 });

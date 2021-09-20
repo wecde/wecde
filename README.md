@@ -1,8 +1,8 @@
-# Source code: Shin Code Editor (git.shin.code_editor)
+# Source code: Wecde (git.shin.wecde)
 
 Application use Vue 3, Quasar Framework...
 
-[Preview](https://shin-code-editor.github.io) app.
+[Preview](https://wecde.github.io) app.
 
 ## Install the dependencies
 ```bash

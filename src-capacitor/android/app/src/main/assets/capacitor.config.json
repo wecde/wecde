@@ -1,6 +1,6 @@
 {
-	"appId": "git.shin.code_editor",
-	"appName": "Shin Code Editor",
+	"appId": "git.shin.wecde",
+	"appName": "Wecde",
 	"bundledWebRuntime": false,
 	"webDir": "www"
 }

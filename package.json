@@ -1,8 +1,8 @@
 {
-  "name": "shin-code-editor",
+  "name": "wecde",
   "version": "0.0.1",
   "description": "A Quasar Framework app",
-  "productName": "Shin Code Editor",
+  "productName": "Wecde",
   "author": "Shin Tachibana <thanhnguyennguyen1995@gmail.com>",
   "private": true,
   "scripts": {

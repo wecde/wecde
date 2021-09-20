@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Shin Code Editor</string>
-    <string name="title_activity_main">Shin Code Editor</string>
-    <string name="package_name">git.shin.code_editor</string>
-    <string name="custom_url_scheme">git.shin.code_editor</string>
+    <string name="app_name">Wecde</string>
+    <string name="title_activity_main">Wecde</string>
+    <string name="package_name">git.shin.wecde</string>
+    <string name="custom_url_scheme">git.shin.wecde</string>
 </resources>

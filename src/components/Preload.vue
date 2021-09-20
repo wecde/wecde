@@ -5,7 +5,7 @@
         <img :src="require('assets/favicon.svg')" />
       </div>
       <div>
-        <h1 class="app--name">Shin Code Editor</h1>
+        <h1 class="app--name">Wecde</h1>
 
         <div
           class="preload-progress mt-3"
