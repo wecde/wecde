@@ -124,13 +124,13 @@ watch(
 );
 watch(
   useFullpathFromRoute(),
-  async (fullpath) => {
+  async (data) => {
     await setupMetadata;
 
-    if (fullpath && meta.value) {
+    if (data && meta.value) {
       const filepath: string = fs.relative(
         store.state.editor.project || "",
-        fullpath
+        data.fullpath
       );
 
       if (!meta.value["sessions"]) {

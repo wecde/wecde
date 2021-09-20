@@ -313,7 +313,7 @@ const opening = computed<boolean>(() => {
     fullpathFromRoute.value
   ) {
     if (props.file.stat.isDirectory()) {
-      return fs.isParentDir(props.file.fullpath, fullpathFromRoute.value);
+      return fs.isParentDir(props.file.fullpath, fullpathFromRoute.value.fullpath);
     }
 
     return fs.isEqual(fullpathFromRoute.value, props.file.fullpath);

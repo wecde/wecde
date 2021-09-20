@@ -73,7 +73,7 @@ const fullpathFromRoute = useFullpathFromRoute();
 const active = computed<boolean>(() => {
   return (
     !!fullpathFromRoute.value &&
-    fs.isEqual(fullpathFromRoute.value, props.fullpath)
+    fs.isEqual(fullpathFromRoute.value.fullpath, props.fullpath)
   );
 });
 
