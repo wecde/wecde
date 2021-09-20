@@ -66,6 +66,20 @@
   resolved "https://registry.yarnpkg.com/@capacitor/toast/-/toast-1.0.3.tgz#726c208eca364fdc51e6ff3bca77202fecba74f6"
   integrity sha512-wqayrEy0kyR3cFbg0Law5bbLeIMKUE+Drpaa1/MbDM0cIYkLeVXdQzFhwAF+tytssgwKxFjxHK44svzWF6DdUQ==
 
+"@ionic-native/core@^5.36.0":
+  version "5.36.0"
+  resolved "https://registry.yarnpkg.com/@ionic-native/core/-/core-5.36.0.tgz#712c40a530b119b0039e8d16cb577899f50541d4"
+  integrity sha512-lOrkktadlKYbYf1LrDyAtsu1JnQ0oCCdkOU7iHQ8oXnNOkMwobFfD2m62F1CoOr0u9LIkpYnZSPjng8lZbmbNw==
+  dependencies:
+    "@types/cordova" latest
+
+"@ionic-native/web-server@^5.36.0":
+  version "5.36.0"
+  resolved "https://registry.yarnpkg.com/@ionic-native/web-server/-/web-server-5.36.0.tgz#6ab6247cd613bde71f21012c629939763faf8697"
+  integrity sha512-ZE420Y9dwWBNBkiua2Y7hbRwkRHBoYmA9uCHIUJlH5Ys7nDBiK9O6MPibRZ1Tgt9KrW8sIsFyu7E7TkKn3Aeyg==
+  dependencies:
+    "@types/cordova" latest
+
 "@ionic/cli-framework-output@^2.2.1":
   version "2.2.2"
   resolved "https://registry.yarnpkg.com/@ionic/cli-framework-output/-/cli-framework-output-2.2.2.tgz#d03367e2b767a32fa7046c455843555b4971cd4a"
@@ -148,6 +162,11 @@
     untildify "^4.0.0"
     wrap-ansi "^7.0.0"
 
+"@types/cordova@latest":
+  version "0.0.34"
+  resolved "https://registry.yarnpkg.com/@types/cordova/-/cordova-0.0.34.tgz#ea7addf74ecec3d7629827a0c39e2c9addc73d04"
+  integrity sha1-6nrd907Ow9dimCegw54smt3HPQQ=
+
 ansi-regex@^5.0.0:
   version "5.0.0"
   resolved "https://registry.yarnpkg.com/ansi-regex/-/ansi-regex-5.0.0.tgz#388539f55179bf39339c81af30a654d69f87cb75"
@@ -213,6 +232,13 @@ commander@^6.0.0:
   version "6.2.1"
   resolved "https://registry.yarnpkg.com/commander/-/commander-6.2.1.tgz#0792eb682dfbc325999bb2b84fddddba110ac73c"
   integrity sha512-U7VdrJFnJgo4xjrHpTzu0yrHPGImdsmD95ZlgYSEajAn2JKzDhDTPG9kBTefmObL2w/ngeZnilk+OV9CG3d7UA==
+
+cordova-plugin-webserver2@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/cordova-plugin-webserver2/-/cordova-plugin-webserver2-0.0.1.tgz#ce6a8cc6503aef90651d52c819fa095e253678ed"
+  integrity sha512-VdVPAar6i63cIYJ+Jv9pQYjBIMq3uuWu+ubs/K65reQGKQVMKsRz/MnTszH836k4tOGVtff/+DnTiXLa6l4PeA==
+  dependencies:
+    universal-router "^5.1.0"
 
 cross-spawn@^7.0.0:
   version "7.0.3"
@@ -389,6 +415,11 @@ path-key@^3.1.0:
   resolved "https://registry.yarnpkg.com/path-key/-/path-key-3.1.1.tgz#581f6ade658cbba65a0d3380de7753295054f375"
   integrity sha512-ojmeN0qd+y0jszEtoY48r0Peq5dwMEkIlCOu6Q5f41lfkswXuKtYrhgoTpLnyIcHm24Uhqx+5Tqm2InSwLhE6Q==
 
+path-to-regexp@^2.1.0:
+  version "2.4.0"
+  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-2.4.0.tgz#35ce7f333d5616f1c1e1bfe266c3aba2e5b2e704"
+  integrity sha512-G6zHoVqC6GGTQkZwF4lkuEyMbVOjoBKAEybQUypI1WTkqinCOrq2x6U2+phkJ1XsEMTy4LjtwPI7HW+NVrRR2w==
+
 pend@~1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/pend/-/pend-1.2.0.tgz#7a57eb550a6783f9115331fcf4663d5c8e007a50"
@@ -530,6 +561,13 @@ tslib@^2.0.1, tslib@^2.1.0:
   version "2.3.1"
   resolved "https://registry.yarnpkg.com/tslib/-/tslib-2.3.1.tgz#e8a335add5ceae51aa261d32a490158ef042ef01"
   integrity sha512-77EbyPPpMz+FRFRuAFlWMtmgUWGe9UOG2Z25NqCwiIjRhOf5iKGuzSe5P2w1laq+FkRy4p+PCuVkJSGkzTEKVw==
+
+universal-router@^5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/universal-router/-/universal-router-5.1.0.tgz#a0e7500fb3b484790521083c155324776e1b6c73"
+  integrity sha512-Es8QWjX6CAqoWJ8oD3KgGHYfLkqvhzJr01J9tMgD8TN5ixyOHmopZTem7s439fYsDVZ1pFbcnplab9/w4+vbYQ==
+  dependencies:
+    path-to-regexp "^2.1.0"
 
 universalify@^2.0.0:
   version "2.0.0"

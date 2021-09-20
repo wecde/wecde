@@ -35,23 +35,6 @@ boot(({ store }) => {
 
         const { project } = store.state.editor;
 
-        // const webserverConfig = join(`projects/${project}`, "webserver.config");
-
-        // let webserverConfigJSON;
-
-        // if (await stat(webserverConfig + ".js")) {
-        //   webserverConfigJSON = new Function(
-        //     rawText(await readFile(webserverConfig + ".js")).replace(
-        //       /export default/,
-        //       "return"
-        //     )
-        //   )();
-        // } else if (await stat(webserverConfig + ".json")) {
-        //   webserverConfigJSON = JSON.parse(await readFile(webserverConfig + ".json"));
-        // } else {
-        //   webserverConfigJSON = {};
-        // }
-
         try {
           if (!project) {
             // eslint-disable-next-line functional/no-throw-statement
