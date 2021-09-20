@@ -24,6 +24,7 @@ type ItemOption<
     ? Values
     : Types[Type];
   readonly description: string;
+  readonly placeholder?: string;
   readonly list?: List;
 };
 

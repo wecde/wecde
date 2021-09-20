@@ -38,6 +38,7 @@
               v-else-if="option.type === 'int'"
               style="max-width: 50px"
               type="tel"
+              :placeholder="option.placeholder ?? option.default"
               v-model="createRefStore(option.path).value"
             />
             <q-input
@@ -45,6 +46,7 @@
               v-else-if="option.type === 'date'"
               style="min-width: 100px"
               type="date"
+              :placeholder="option.placeholder ?? option.default"
               v-model="createRefStore(option.path).value"
             />
             <q-input
@@ -52,13 +54,7 @@
               v-else-if="option.type === 'string'"
               style="max-width: 100px"
               type="text"
-              v-model="createRefStore(option.path).value"
-            />
-            <q-input
-              dense
-              v-else-if="option.type === 'tel'"
-              style="max-width: 50px"
-              type="tel"
+              :placeholder="option.placeholder ?? option.default"
               v-model="createRefStore(option.path).value"
             />
           </template>
@@ -69,6 +65,7 @@
               v-model="createRefStore(option.path).value"
               :options="option.list"
               emit-value
+              :placeholder="option.placeholder ?? option.default"
               map-options
             />
           </template>
