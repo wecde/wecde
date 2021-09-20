@@ -88,18 +88,18 @@ const store = useStore();
 
 const isMounted = useIsMounted();
 
-function createRefStore(path?: string): ComputedRef<unknown> {
-  if (!path) {
+function createRefStore(propName?: string): ComputedRef<unknown> {
+  if (!propName) {
     // eslint-disable-next-line functional/no-throw-statement
     throw new Error("Empty path");
   }
   return computed<unknown>({
     get() {
-      return store.state.settings[path];
+      return store.state.settings[propName];
     },
     set(value) {
-      store.commit("settings/set", {
-        path,
+      store.commit("settings/set:<T>", {
+        propName,
         value,
       });
     },
