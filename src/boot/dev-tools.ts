@@ -7,7 +7,15 @@ export default boot(({ store }) => {
     (val) => {
       try {
         if (val) {
-          eruda.init();
+          eruda.init({
+            useShadowDom: true,
+            autoScale: true,
+            defaults: {
+              displaySize: 50,
+              transparency: 0.9,
+              theme: "Monokai Pro",
+            },
+          });
         } else {
           eruda.destroy();
         }
