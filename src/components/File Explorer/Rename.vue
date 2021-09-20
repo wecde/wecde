@@ -29,7 +29,7 @@
         <div class="name-changer__backboardd" />
 
         <div class="name-changer__input-group">
-          <div class="name-changer__error" v-if="error" v-html="error" />
+          <div class="name-changer__error" v-if="validate !== true" v-html="validate" />
           <input
             type="text"
             v-model.trim="newFilename"
@@ -60,8 +60,8 @@ import fs from "modules/fs";
 import { basename, dirname, extname, join, relative } from "path-cross";
 import { Notify } from "quasar";
 import { createTimeoutBy } from "src/utils";
-import { useNameFileValidates } from "src/validator/useNameFileValidates";
-import { onMounted, ref, toRef, watch } from "vue";
+import { useFilenameValidate } from "src/validator/useFilenameValidate";
+import { computed, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 const emit = defineEmits<{
@@ -105,18 +105,21 @@ watch(newFilename, () => {
 });
 
 const timeClick = ref<number>(0);
-const error = useNameFileValidates()(
-  newFilename,
-  toRef(props, "fullpath"),
-  toRef(props, "namesExists"),
-  firstChangedName
-);
+const filenameValidate = useFilenameValidate();
+const validate = computed<ReturnType<typeof filenameValidate>>(() => {
+  return filenameValidate(
+    newFilename.value,
+    props.fullpath,
+    props.namesExists,
+    firstChangedName.value
+  );
+});
 const running = ref<boolean>(false);
 
 async function blur(): Promise<void> {
   if (
     newFilename.value !== basename(props.fullpath) &&
-    error.value === false &&
+    validate.value === true &&
     running.value === false
   ) {
     running.value = true;

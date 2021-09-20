@@ -56,7 +56,7 @@
           color="primary"
           padding="xs"
           @click="create"
-          :disable="!!error"
+          :disable="validate !== true"
           class="q-mr-xs"
         />
         <q-btn icon="mdi-close" v-ripple flat round dense v-close-popup />
@@ -71,7 +71,7 @@
         <q-input
           dense
           v-model.trim="templateSelected.name"
-          :rules="[() => (error === false ? true : error)]"
+          :rules="[() => validate]"
           required
           @keypress.enter="create"
           autofocus
@@ -106,8 +106,8 @@ import type { Template } from "assets/labs/Release.json";
 import templates from "assets/templates/Release.json";
 import fs from "modules/fs";
 import { useStore } from "src/store";
-import { useNameFileValidates } from "src/validator/useNameFileValidates";
-import { computed, ref, toRef } from "vue";
+import { useFilenameValidate } from "src/validator/useFilenameValidate";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { unzip } from "zip2";
 
@@ -122,12 +122,14 @@ const store = useStore();
 const i18n = useI18n();
 
 const templateSelected = ref<Template | null>(null);
-const error = useNameFileValidates()(
-  computed(() => templateSelected.value?.name || ""),
-  false,
-  toRef(props, "namesExists"),
-  true
-);
+const filenameValidate = useFilenameValidate();
+const validate = computed<ReturnType<typeof filenameValidate>>(() => {
+  return filenameValidate(
+    templateSelected.value?.name || "",
+    false,
+    props.namesExists
+  );
+});
 
 function selectTemplate(template: Template): void {
   templateSelected.value = {
