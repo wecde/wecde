@@ -12,7 +12,7 @@
           round
           dense
           icon="mdi-menu"
-          @click="$store.commit(`system/setNavigation`, true)"
+          @click="$store.commit(`system/set:navigation`, true)"
           v-if="!$route.meta.hideNavigation"
         />
         

@@ -54,7 +54,7 @@ const navigation = computed<boolean>({
     return store.state.system.navigation;
   },
   set(value): void {
-    store.commit("system/setNavigation", value);
+    store.commit("system/set:navigation", value);
   },
 });
 

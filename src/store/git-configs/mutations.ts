@@ -3,10 +3,10 @@ import { MutationTree } from "vuex";
 import { GitConfigsStateInterface, GitRcItem, HostType } from "./state";
 
 const mutation: MutationTree<GitConfigsStateInterface> = {
-  setViewAs(state, value: GitConfigsStateInterface["viewAs"]): void {
+  "set:viewAs"(state, value: GitConfigsStateInterface["viewAs"]): void {
     state.viewAs = value;
   },
-  setSortBy(state, value: GitConfigsStateInterface["sortBy"]): void {
+  "set:sortBy"(state, value: GitConfigsStateInterface["sortBy"]): void {
     state.sortBy = value;
   },
 

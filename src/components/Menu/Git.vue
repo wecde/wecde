@@ -17,7 +17,7 @@
         "
         @click="
           $store.commit(
-            'git-configs/setViewAs',
+            'git-configs/set:viewAs',
             $store.state['git-configs'].viewAs === 'list' ? 'tree' : 'list'
           )
         "
@@ -424,14 +424,14 @@ const menu: Menu = [
         active: computed<boolean>(
           () => store.state["git-configs"].viewAs === "list"
         ),
-        onClick: () => store.commit("git-configs/setViewAs", "list"),
+        onClick: () => store.commit("git-configs/set:viewAs", "list"),
       },
       {
         name: "View as Tree",
         active: computed<boolean>(
           () => store.state["git-configs"].viewAs === "tree"
         ),
-        onClick: () => store.commit("git-configs/setViewAs", "tree"),
+        onClick: () => store.commit("git-configs/set:viewAs", "tree"),
       },
       {
         separator: true,
@@ -441,21 +441,21 @@ const menu: Menu = [
         active: computed<boolean>(
           () => store.state["git-configs"].sortBy === "name"
         ),
-        onClick: () => store.commit("git-configs/setSortBy", "name"),
+        onClick: () => store.commit("git-configs/set:sortBy", "name"),
       },
       {
         name: "Sort by Path",
         active: computed<boolean>(
           () => store.state["git-configs"].sortBy === "path"
         ),
-        onClick: () => store.commit("git-configs/setSortBy", "path"),
+        onClick: () => store.commit("git-configs/set:sortBy", "path"),
       },
       {
         name: "Sort by Status",
         active: computed<boolean>(
           () => store.state["git-configs"].sortBy === "status"
         ),
-        onClick: () => store.commit("git-configs/setSortBy", "status"),
+        onClick: () => store.commit("git-configs/set:sortBy", "status"),
       },
     ],
   },

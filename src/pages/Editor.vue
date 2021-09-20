@@ -82,11 +82,8 @@ const fullpath = computed<string | null>(() => {
 
       const sessionHistoryValidate =
         meta.value["session-history"]?.filter((indexInSessions) => {
-          return (
-            indexInSessions <
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            ((meta.value as any)["sessions"] as readonly string[]).length
-          );
+          const newLocal = meta.value?.["sessions"]?.length || 0;
+          return indexInSessions < newLocal;
         }) || [];
 
       const sessionIndex =
