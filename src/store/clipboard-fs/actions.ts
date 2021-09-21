@@ -65,7 +65,8 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
           type: "ongoing",
           timeout: 0,
           position: "bottom-right",
-          message: `${state.action} "${from}" to "${to}"`,
+          message: `${state.action}ing`,
+          caption: `${from} -> ${to}`
         });
 
         try {
@@ -78,7 +79,8 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
           task();
         } catch {
           task({
-            message: `${state.action} "${from}" to "${to}" failed`,
+            message: `${state.action} failed`,
+            caption: `${from} -> ${to}`,
             type: "negative",
             timeout: 1000,
             spinner: false,

@@ -193,6 +193,7 @@ async function reloadListFile(notification = false): Promise<void> {
     timeout: 0,
     position: "bottom-right",
     message: i18n.t("alert.reload.file(s)"),
+    caption: store.state.editor.project ?? void 0,
   });
 
   try {
@@ -218,6 +219,7 @@ async function reloadListFile(notification = false): Promise<void> {
     files.splice(0);
     task({
       message: i18n.t("alert.failure.reload.file(s)"),
+      caption: store.state.editor.project ?? void 0,
       type: "negative",
       timeout: 1000,
       spinner: false,

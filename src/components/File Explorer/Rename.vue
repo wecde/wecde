@@ -139,10 +139,8 @@ async function blur(): Promise<void> {
         type: "ongoing",
         timeout: 0,
         position: "bottom-right",
-        message: i18n.t("alert.renaming", {
-          from: relative("projects", from),
-          to: relative("projects", to),
-        }),
+        message: i18n.t("alert.renaming"),
+        caption: `${relative("projects", from)} -> ${relative("projects", to)}`,
       });
 
       try {
@@ -165,10 +163,11 @@ async function blur(): Promise<void> {
           type: "negative",
           timeout: 1000,
           spinner: false,
-          message: i18n.t("alert.failure.rename", {
-            from: relative("projects", from),
-            to: relative("projects", to),
-          }),
+          message: i18n.t("alert.failure.rename"),
+          caption: `${relative("projects", from)} -> ${relative(
+            "projects",
+            to
+          )}`,
         });
       }
 

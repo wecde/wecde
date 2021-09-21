@@ -367,9 +367,8 @@ function remove() {
         type: "ongoing",
         timeout: 0,
         position: "bottom-right",
-        message: i18n.t("alert.removing.dir", {
-          name: props.file.fullpath,
-        }),
+        message: i18n.t("alert.removing.dir"),
+        caption: props.file.fullpath,
       });
 
       try {
@@ -392,9 +391,8 @@ function remove() {
         });
 
         task({
-          message: i18n.t("alert.failure.remove.file", {
-            name: props.file.fullpath,
-          }),
+          message: i18n.t("alert.failure.remove.file"),
+          caption: props.file.fullpath,
           type: "negative",
           timeout: 1000,
           spinner: false,
@@ -407,9 +405,8 @@ function remove() {
         type: "ongoing",
         timeout: 0,
         position: "bottom-right",
-        message: i18n.t("alert.removing.file", {
-          name: props.file.fullpath,
-        }),
+        message: i18n.t("alert.removing.file"),
+        caption: props.file.fullpath,
       });
 
       try {
@@ -430,9 +427,8 @@ function remove() {
         });
 
         task({
-          message: i18n.t("alert.failure.remove.file", {
-            name: props.file.fullpath,
-          }),
+          message: i18n.t("alert.failure.remove.file"),
+          caption: props.file.fullpath,
           type: "negative",
           timeout: 1000,
           spinner: false,
@@ -477,9 +473,8 @@ async function exportFile() {
       spinner: true,
       timeout: 0,
       position: "bottom-right",
-      message: i18n.t("alert.exported.file", {
-        name: props.file.fullpath,
-      }),
+      message: i18n.t("alert.exported.file"),
+      caption: props.file.fullpath,
     });
 
     try {
@@ -495,9 +490,8 @@ async function exportFile() {
       });
     } catch {
       task({
-        message: i18n.t("alert.failure.export.file", {
-          name: props.file.fullpath,
-        }),
+        message: i18n.t("alert.failure.export.file"),
+        caption: props.file.fullpath,
         type: "negative",
         timeout: 1000,
         spinner: false,

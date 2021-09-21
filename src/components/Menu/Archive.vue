@@ -207,6 +207,7 @@ async function reloadListProjects(notification = false): Promise<void> {
     timeout: 0,
     position: "bottom-right",
     message: i18n.t("alert.reload.project"),
+    caption: "/projects/*",
   });
 
   try {
@@ -231,11 +232,13 @@ async function reloadListProjects(notification = false): Promise<void> {
       projects.splice(0);
       task({
         message: i18n.t("alert.failure.reload.project"),
-
         type: "negative",
         timeout: 1000,
         spinner: false,
+        caption: "/projects/*",
       });
+    } else {
+      task();
     }
   }
 

@@ -176,9 +176,8 @@ function remove() {
       type: "ongoing",
       timeout: 0,
       position: "bottom-right",
-      message: i18n.t("alert.removing.project", {
-        name: basename(props.project.fullpath),
-      }),
+      message: i18n.t("alert.removing.project"),
+      caption: props.project.fullpath,
     });
 
     try {
@@ -193,9 +192,8 @@ function remove() {
       });
     } catch {
       task({
-        message: i18n.t("alert.failure.remove.project", {
-          name: basename(props.project.fullpath),
-        }),
+        message: i18n.t("alert.failure.remove.project"),
+        caption: props.project.fullpath,
         type: "negative",
         timeout: 1000,
         spinner: false,
