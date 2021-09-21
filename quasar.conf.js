@@ -18,6 +18,9 @@ const webpack = require("webpack");
 // eslint-disable-next-line functional/immutable-data
 module.exports = configure(function (ctx) {
   return {
+    htmlVariables: {
+      productName: "Wecde"
+    },
     // https://v2.quasar.dev/quasar-cli/supporting-ts
     supportTS: {
       tsCheckerConfig: {

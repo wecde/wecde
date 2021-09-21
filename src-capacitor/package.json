@@ -13,7 +13,7 @@
     "@capacitor/filesystem": "^1.0.3",
     "@capacitor/splash-screen": "^1.1.2",
     "@capacitor/toast": "^1.0.3",
-    "@ionic-native/core": "^5.36.0",
+    "@ionic-native/core": "5.34.0",
     "@ionic-native/web-server": "^5.36.0",
     "cordova-plugin-webserver2": "^0.0.1"
   },

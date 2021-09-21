@@ -49,9 +49,6 @@ export function useMetadata<Type extends keyof MetaType>(type: Type) {
           }
 
           cancelAutoLoad();
-          await fs.mkdir(dirname(pathToMeta.value), {
-            recursive: true,
-          });
           await fs.writeFile(pathToMeta.value, raw, "utf8");
           registerAutoLoad();
         }
