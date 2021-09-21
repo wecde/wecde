@@ -307,7 +307,7 @@ const fullpathFromRoute = useFullpathFromRoute();
 const opening = computed<boolean>(() => {
   if (
     (props.file.stat.isDirectory() ? collapse.value === false : true) &&
-    fullpathFromRoute.value
+    fullpathFromRoute.value?.fullpath
   ) {
     if (props.file.stat.isDirectory()) {
       return fs.isParentDir(
@@ -316,7 +316,7 @@ const opening = computed<boolean>(() => {
       );
     }
 
-    return fs.isEqual(fullpathFromRoute.value, props.file.fullpath);
+    return fs.isEqual(fullpathFromRoute.value.fullpath, props.file.fullpath);
   }
 
   return false;
