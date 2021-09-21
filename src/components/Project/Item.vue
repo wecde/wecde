@@ -171,8 +171,10 @@ function remove() {
     persistent: true,
   }).onOk(async () => {
     const task = Notify.create({
+      group: false,
       spinner: true,
-      timeout: 9999999999,
+      type: "ongoing",
+      timeout: 0,
       position: "bottom-right",
       message: i18n.t("alert.removing.project", {
         name: basename(props.project.fullpath),
@@ -194,6 +196,9 @@ function remove() {
         message: i18n.t("alert.failure.remove.project", {
           name: basename(props.project.fullpath),
         }),
+        type: "negative",
+        timeout: 1000,
+        spinner: false,
       });
       void Toast.show({
         text: i18n.t("alert.failure.remove.project", {

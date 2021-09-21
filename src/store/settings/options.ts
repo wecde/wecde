@@ -75,5 +75,3 @@ export function refreshState(): void {
     });
   });
 }
-
-import "./register-options-default";

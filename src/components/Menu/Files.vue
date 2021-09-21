@@ -187,8 +187,10 @@ watch(
 
 async function reloadListFile(notification = false): Promise<void> {
   const task = Notify.create({
+    group: false,
     spinner: true,
-    timeout: 9999999999,
+    type: "ongoing",
+    timeout: 0,
     position: "bottom-right",
     message: i18n.t("alert.reload.file(s)"),
   });
@@ -216,6 +218,9 @@ async function reloadListFile(notification = false): Promise<void> {
     files.splice(0);
     task({
       message: i18n.t("alert.failure.reload.file(s)"),
+      type: "negative",
+      timeout: 1000,
+      spinner: false,
     });
   }
 }

@@ -29,7 +29,11 @@
         <div class="name-changer__backboardd" />
 
         <div class="name-changer__input-group">
-          <div class="name-changer__error" v-if="validate !== true" v-html="validate" />
+          <div
+            class="name-changer__error"
+            v-if="validate !== true"
+            v-html="validate"
+          />
           <input
             type="text"
             v-model.trim="newFilename"
@@ -130,8 +134,10 @@ async function blur(): Promise<void> {
       ];
 
       const task = Notify.create({
+        group: false,
         spinner: true,
-        timeout: 9999999999,
+        type: "ongoing",
+        timeout: 0,
         position: "bottom-right",
         message: i18n.t("alert.renaming", {
           from: relative("projects", from),
@@ -156,7 +162,9 @@ async function blur(): Promise<void> {
           }),
         });
         task({
-          timeout: 3000,
+          type: "negative",
+          timeout: 1000,
+          spinner: false,
           message: i18n.t("alert.failure.rename", {
             from: relative("projects", from),
             to: relative("projects", to),

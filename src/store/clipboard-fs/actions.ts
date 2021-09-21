@@ -60,19 +60,30 @@ const actions: ActionTree<ClipboardFStateInterface, StateInterface> = {
             );
 
         const task = Notify.create({
+          group: false,
           spinner: true,
-          timeout: 9999999999,
+          type: "ongoing",
+          timeout: 0,
           position: "bottom-right",
           message: `${state.action} "${from}" to "${to}"`,
         });
 
-        if (state.action === "copy") {
-          await fs.copy(from, to);
-        } else {
-          await fs.rename(from, to);
-        }
+        try {
+          if (state.action === "copy") {
+            await fs.copy(from, to);
+          } else {
+            await fs.rename(from, to);
+          }
 
-        task();
+          task();
+        } catch {
+          task({
+            message: `${state.action} "${from}" to "${to}" failed`,
+            type: "negative",
+            timeout: 1000,
+            spinner: false,
+          });
+        }
 
         if (refreshParent === false && fs.isEqual(uri, state.clipboardFile)) {
           refreshParent = true;

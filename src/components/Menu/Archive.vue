@@ -201,8 +201,10 @@ void reloadListProjects();
 
 async function reloadListProjects(notification = false): Promise<void> {
   const task = Notify.create({
+    group: false,
     spinner: true,
-    timeout: 9999999999,
+    type: "ongoing",
+    timeout: 0,
     position: "bottom-right",
     message: i18n.t("alert.reload.project"),
   });
@@ -222,13 +224,19 @@ async function reloadListProjects(notification = false): Promise<void> {
     );
 
     task();
-  } catch {
-    // eslint-disable-next-line functional/immutable-data
-    projects.splice(0);
-    task({
-      message: i18n.t("alert.failure.reload.project"),
-      timeout: 3000,
-    });
+  } catch (e) {
+    if (e?.code !== "ENOENT") {
+      console.log(e);
+      // eslint-disable-next-line functional/immutable-data
+      projects.splice(0);
+      task({
+        message: i18n.t("alert.failure.reload.project"),
+
+        type: "negative",
+        timeout: 1000,
+        spinner: false,
+      });
+    }
   }
 
   if (notification) {
@@ -286,10 +294,10 @@ registerWatch(
       // eslint-disable-next-line functional/immutable-data
       projects.push(
         ...sort(
-      // eslint-disable-next-line functional/immutable-data
-          projects.splice(0).filter(
-            ({ fullpath }) => fs.isEqual(fullpath, path) === false
-          )
+          // eslint-disable-next-line functional/immutable-data
+          projects
+            .splice(0)
+            .filter(({ fullpath }) => fs.isEqual(fullpath, path) === false)
         ).asc((item) => basename(item.fullpath))
       );
     }

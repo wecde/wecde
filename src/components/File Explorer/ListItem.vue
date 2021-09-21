@@ -126,21 +126,18 @@
                 <q-item-section>{{ $t("label.new-folder") }}</q-item-section>
               </q-item>
 
-
-                  <q-item
-                    clickable
-                    v-close-popup
-                    v-ripple
-                    @click="importFiles(file.fullpath)"
-                    class="no-min-height"
-                  >
-                    <q-item-section avatar class="min-width-0">
-                      <q-icon name="ti-import" />
-                    </q-item-section>
-                    <q-item-section>{{
-                      $t("label.import-files")
-                    }}</q-item-section>
-                  </q-item>
+              <q-item
+                clickable
+                v-close-popup
+                v-ripple
+                @click="importFiles(file.fullpath)"
+                class="no-min-height"
+              >
+                <q-item-section avatar class="min-width-0">
+                  <q-icon name="ti-import" />
+                </q-item-section>
+                <q-item-section>{{ $t("label.import-files") }}</q-item-section>
+              </q-item>
 
               <q-separator />
             </template>
@@ -249,7 +246,7 @@ import {
 } from "src/helpers/fs-helper";
 import { useExportZip } from "src/helpers/useExportZip";
 import { useFullpathFromRoute } from "src/helpers/useFullpathFromRoute";
-import { useImportFiles } from "src/helpers/useImportFiles"
+import { useImportFiles } from "src/helpers/useImportFiles";
 import { useStore } from "src/store";
 import { computed, defineAsyncComponent, reactive, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
@@ -273,7 +270,7 @@ const i18n = useI18n();
 const router = useRouter();
 
 const exportZip = useExportZip();
-const importFiles = useImportFiles()
+const importFiles = useImportFiles();
 
 const collapse = ref<boolean>(false);
 const adding = ref<boolean>(false);
@@ -313,7 +310,10 @@ const opening = computed<boolean>(() => {
     fullpathFromRoute.value
   ) {
     if (props.file.stat.isDirectory()) {
-      return fs.isParentDir(props.file.fullpath, fullpathFromRoute.value.fullpath);
+      return fs.isParentDir(
+        props.file.fullpath,
+        fullpathFromRoute.value.fullpath
+      );
     }
 
     return fs.isEqual(fullpathFromRoute.value, props.file.fullpath);
@@ -362,8 +362,10 @@ function remove() {
   }).onOk(async () => {
     if (props.file.stat.isDirectory()) {
       const task = Notify.create({
+        group: false,
         spinner: true,
-        timeout: 9999999999,
+        type: "ongoing",
+        timeout: 0,
         position: "bottom-right",
         message: i18n.t("alert.removing.dir", {
           name: props.file.fullpath,
@@ -393,12 +395,17 @@ function remove() {
           message: i18n.t("alert.failure.remove.file", {
             name: props.file.fullpath,
           }),
+          type: "negative",
+          timeout: 1000,
+          spinner: false,
         });
       }
     } else {
       const task = Notify.create({
+        group: false,
         spinner: true,
-        timeout: 9999999999,
+        type: "ongoing",
+        timeout: 0,
         position: "bottom-right",
         message: i18n.t("alert.removing.file", {
           name: props.file.fullpath,
@@ -426,6 +433,9 @@ function remove() {
           message: i18n.t("alert.failure.remove.file", {
             name: props.file.fullpath,
           }),
+          type: "negative",
+          timeout: 1000,
+          spinner: false,
         });
       }
     }
@@ -462,24 +472,37 @@ async function exportFile() {
     }
   } else {
     const task = Notify.create({
-      timeout: 9999999999,
+      group: false,
+      type: "ongoing",
       spinner: true,
+      timeout: 0,
       position: "bottom-right",
       message: i18n.t("alert.exported.file", {
         name: props.file.fullpath,
       }),
     });
 
-    const data = await fs.readFile(props.file.fullpath, "buffer");
+    try {
+      const data = await fs.readFile(props.file.fullpath, "buffer");
 
-    saveAs(new Blob([data]), basename(props.file.fullpath));
-    task();
+      saveAs(new Blob([data]), basename(props.file.fullpath));
+      task();
 
-    void Toast.show({
-      text: i18n.t("alert.exported.file", {
-        name: props.file.fullpath,
-      }),
-    });
+      void Toast.show({
+        text: i18n.t("alert.exported.file", {
+          name: props.file.fullpath,
+        }),
+      });
+    } catch {
+      task({
+        message: i18n.t("alert.failure.export.file", {
+          name: props.file.fullpath,
+        }),
+        type: "negative",
+        timeout: 1000,
+        spinner: false,
+      });
+    }
   }
 }
 

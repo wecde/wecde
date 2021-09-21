@@ -65,6 +65,9 @@
       },
       "git": {
         "login": "Git login failure"
+      },
+      "export": {
+        "file": "Export file {name} failure"
       }
     },
     "successfully": {
