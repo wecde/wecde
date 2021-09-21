@@ -12,9 +12,7 @@ export function useMetadata<Type extends keyof MetaType>(type: Type) {
 
   const meta = ref<MetaType[Type] | null>(null);
   const pathToMeta = computed<string | null>(() =>
-    dir.value
-      ? join(".metadata", basename(dir.value), `${type}.json`)
-      : null
+    dir.value ? join(".metadata", basename(dir.value), `${type}.json`) : null
   );
 
   // load metadata
@@ -51,6 +49,9 @@ export function useMetadata<Type extends keyof MetaType>(type: Type) {
           }
 
           cancelAutoLoad();
+          await fs.mkdir(dirname(pathToMeta.value), {
+            recursive: true,
+          });
           await fs.writeFile(pathToMeta.value, raw, "utf8");
           registerAutoLoad();
         }
