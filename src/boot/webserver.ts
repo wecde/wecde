@@ -27,71 +27,67 @@ boot(({ store }) => {
     return virualDOM.documentElement.outerHTML;
   }
 
-  try {
-    WebServer.onRequest().subscribe(
-      // eslint-disable-next-line @typescript-eslint/no-misused-promises
-      async (data) => {
-        /// get project
+  WebServer.onRequest().subscribe(
+    // eslint-disable-next-line @typescript-eslint/no-misused-promises
+    async (data) => {
+      /// get project
 
-        const { project } = store.state.editor;
+      const { project } = store.state.editor;
 
-        try {
-          if (!project) {
-            // eslint-disable-next-line functional/no-throw-statement
-            throw new Error("NOT_FOUND");
+      try {
+        if (!project) {
+          // eslint-disable-next-line functional/no-throw-statement
+          throw new Error("NOT_FOUND");
+        }
+
+        const path = join(project, data.path.slice(1));
+
+        const thisStat = await fs.stat(path);
+
+        if (thisStat) {
+          // eslint-disable-next-line functional/no-let
+          let pathToFile = path;
+
+          if (thisStat.isDirectory()) {
+            pathToFile = join(path, "index.html");
           }
 
-          const path = join(project as string, data.path.slice(1));
-
-          const thisStat = await fs.stat(path);
-
-          if (thisStat) {
-            // eslint-disable-next-line functional/no-let
-            let pathToFile = path;
-
-            if (thisStat.isDirectory()) {
-              pathToFile = join(path, "index.html");
-            }
-
-            if (await fs.stat(pathToFile)) {
-              if (/^\.html?$/.test(extname(pathToFile))) {
-                await WebServer.sendResponse(data.requestId, {
-                  status: 200,
-                  body: data.headers
-                    .split("\n")
-                    .find((item) => item.startsWith("HTTP_X_REQUESTED_WITH: "))
-                    ?.includes("xmlhttprequest")
-                    ? await fs.readFile(pathToFile, "utf8")
-                    : addEruda(await fs.readFile(pathToFile, "utf8")),
-                  headers: {
-                    "Content-Type": "text/html",
-                  },
-                });
-              } else {
-                await WebServer.sendResponse(data.requestId, {
-                  status: 201,
-                  path: await fs.getUri(pathToFile),
-                  headers: {},
-                });
-              }
+          if (await fs.stat(pathToFile)) {
+            if (/^\.html?$/.test(extname(pathToFile))) {
+              await WebServer.sendResponse(data.requestId, {
+                status: 200,
+                body: data.headers
+                  .split("\n")
+                  .find((item) => item.startsWith("HTTP_X_REQUESTED_WITH: "))
+                  ?.includes("xmlhttprequest")
+                  ? await fs.readFile(pathToFile, "utf8")
+                  : addEruda(await fs.readFile(pathToFile, "utf8")),
+                headers: {
+                  "Content-Type": "text/html",
+                },
+              });
             } else {
-              // eslint-disable-next-line functional/no-throw-statement
-              throw new Error("NOT_FOUND");
+              await WebServer.sendResponse(data.requestId, {
+                status: 201,
+                path: await fs.getUri(pathToFile),
+                headers: {},
+              });
             }
           } else {
             // eslint-disable-next-line functional/no-throw-statement
             throw new Error("NOT_FOUND");
           }
-        } catch {
-          await WebServer.sendResponse(data.requestId, {
-            status: 404,
-            path: require("!raw-loader!src/webserver/404.html"),
-            headers: {},
-          });
+        } else {
+          // eslint-disable-next-line functional/no-throw-statement
+          throw new Error("NOT_FOUND");
         }
+      } catch {
+        await WebServer.sendResponse(data.requestId, {
+          status: 404,
+          path: require("!raw-loader!src/webserver/404.html"),
+          headers: {},
+        });
       }
-    );
-  } catch {
-    console.warn("WebServer not available.");
-  }
+    }
+  );
 });

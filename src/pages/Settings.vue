@@ -27,7 +27,7 @@
         </q-item-section>
 
         <q-item-section side>
-          <template v-if="option.list === false">
+          <template v-if="!option.list">
             <q-toggle
               color="blue"
               v-if="option.type === 'boolean'"
