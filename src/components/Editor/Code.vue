@@ -202,9 +202,6 @@ import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
 import { usePrettierWorker } from "src/worker/prettier";
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-eval(require("!raw-loader!emmet-core").default);
-
 const isMounted = useIsMounted();
 
 const props = defineProps<{
@@ -488,6 +485,9 @@ function cancelAutoBackupScrollBehavior(): void {
 }
 onMounted(() => {
   if (EditorCode.value) {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-implied-eval
+    new Function(require("!raw-loader!emmet-core").default)(self);
+
     editor = ace.edit(EditorCode.value);
 
     setupConfigaceEditor();

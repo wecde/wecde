@@ -8,6 +8,8 @@ const fs = createFilesystem(Filesystem, {
 });
 
 if (process.env.NODE_ENV === "development") {
+  // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
+  (window as any).fs = fs;
   fs.on("write:file", (p) => console.log(`write ${p}`));
 }
 

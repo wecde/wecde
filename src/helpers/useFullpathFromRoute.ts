@@ -8,9 +8,10 @@ export function useFullpathFromRoute(): ComputedRef<any | null> {
 
   return computed<string | null>(() => {
     const raw = route.query.data;
+
     if (typeof raw === "string") {
       try {
-        const data = JSON.parse(atob(raw)).fullpath ?? null;
+        const data = JSON.parse(atob(raw)) ?? null;
 
         if (data?.fullpath) {
           return data;
