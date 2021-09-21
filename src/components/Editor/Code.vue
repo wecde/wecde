@@ -166,7 +166,7 @@
       padding="xs"
       v-if="!hideFooter"
       icon="mdi-magnify"
-      @click="ace.execCommand('find')"
+      @click="editor.execCommand('find')"
     />
   </teleport>
 </template>
