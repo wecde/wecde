@@ -8,7 +8,6 @@
     "@capacitor/android": "^3.2.2",
     "@capacitor/app": "^1.0.3",
     "@capacitor/browser": "^1.0.3",
-    "@capacitor/cli": "^3.2.2",
     "@capacitor/clipboard": "^1.0.3",
     "@capacitor/core": "^3.2.2",
     "@capacitor/filesystem": "^1.0.3",
@@ -17,5 +16,8 @@
     "@ionic-native/core": "^5.36.0",
     "@ionic-native/web-server": "^5.36.0",
     "cordova-plugin-webserver2": "^0.0.1"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^3.2.3"
   }
 }
