@@ -166,7 +166,7 @@
       padding="xs"
       v-if="!hideFooter"
       icon="mdi-magnify"
-      @click="editor.execCommand('find')"
+      @click="find"
     />
   </teleport>
 </template>
@@ -179,7 +179,6 @@ import { computed, onMounted, ref, watch, watchEffect } from "vue";
 
 import "ace-builds/webpack-resolver";
 import "ace-builds/src-noconflict/ext-language_tools";
-import "ace-builds/src-noconflict/ext-emmet";
 import "ace-builds/src-noconflict/ext-linking";
 import "ace-builds/src-noconflict/ext-settings_menu";
 import "ace-builds/src-noconflict/keybinding-emacs";
@@ -190,6 +189,7 @@ import "ace-builds/src-noconflict/ext-spellcheck";
 import "ace-builds/src-noconflict/ext-prompt";
 
 import { Clipboard } from "@capacitor/clipboard";
+import emmet from "ace-builds/src-noconflict/ext-emmet";
 import modelist from "ace-builds/src-noconflict/ext-modelist";
 import fs from "modules/fs";
 import { basename, extname } from "path-cross";
@@ -201,6 +201,9 @@ import { useMetadata } from "src/helpers/useMetadata";
 import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
 import { usePrettierWorker } from "src/worker/prettier";
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+emmet.setCore(require("file-loader?esModule=emmet-core").default);
 
 const isMounted = useIsMounted();
 
@@ -356,6 +359,7 @@ function setupConfigaceEditor(): void {
     },
   });
 
+  ace.require("ace/ext/emmet");
   editor.setOptions({
     enableLinking: true,
     autoScrollEditorIntoView: true,
@@ -370,10 +374,8 @@ function setupConfigaceEditor(): void {
     enableEmmet: true,
     indentedSoftWrap: false,
     scrollPastEnd: 0.5,
-    enableCodeLens: true,
   });
 
-  ace.require("ace/ext/emmet");
   // ace.setOption("enableEmmet", true);
   editor.setHighlightSelectedWord(true);
 
@@ -485,9 +487,6 @@ function cancelAutoBackupScrollBehavior(): void {
 }
 onMounted(() => {
   if (EditorCode.value) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires, @typescript-eslint/no-implied-eval
-    new Function(require("!raw-loader!emmet-core").default)(self);
-
     editor = ace.edit(EditorCode.value);
 
     setupConfigaceEditor();
@@ -634,6 +633,9 @@ function nextError(): void {
 function findAll(): void {
   const keyword = editor.getCopyText();
   console.log(`find all "${keyword}`);
+}
+function find(): void {
+  editor.execCommand("find");
 }
 </script>
 

@@ -72,7 +72,7 @@ const status = computed<string | null>(() => {
 const fullpathFromRoute = useFullpathFromRoute();
 const active = computed<boolean>(() => {
   return (
-    !!fullpathFromRoute.value &&
+    !!fullpathFromRoute.value?.fullpath &&
     fs.isEqual(fullpathFromRoute.value.fullpath, props.fullpath)
   );
 });
