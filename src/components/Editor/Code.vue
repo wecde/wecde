@@ -202,6 +202,9 @@ import { useStore } from "src/store";
 import { createTimeoutBy } from "src/utils";
 import { usePrettierWorker } from "src/worker/prettier";
 
+import { Completer } from "./autojs/autojs_completer";
+import { AUTOJS_INDICES } from "./autojs/autojs_indices";
+
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 emmet.setCore(require("file-loader?esModule=emmet-core").default);
 
@@ -378,6 +381,9 @@ function setupConfigaceEditor(): void {
 
   // ace.setOption("enableEmmet", true);
   editor.setHighlightSelectedWord(true);
+
+  // eslint-disable-next-line functional/immutable-data
+  editor.completers.push(new Completer(AUTOJS_INDICES as any));
 
   // ace.resize(true);
 }
@@ -731,6 +737,8 @@ function find(): void {
 </style>
 
 <style lang="scss">
+@import "./autojs/autojs.scss";
+
 .menu-addons {
   width: 100% !important;
   max-width: 100% !important;
