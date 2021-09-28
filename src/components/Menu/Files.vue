@@ -82,7 +82,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="importFiles($store.state.editor.project as string)"
+              @click="$store.state.editor.project && importFiles($store.state.editor.project)"
               class="no-min-height"
               v-if="$store.state.editor.project"
             >
