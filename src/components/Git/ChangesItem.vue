@@ -70,12 +70,13 @@
             color="inherit"
             flat
             dense
+            v-if="status?.[2]"
             :icon="status[2] === '2' ? 'mdi-minus' : 'mdi-plus'"
             padding="none"
             size="12.5px"
             rounded
             @click="
-              status[2] === '2'
+              status?.[2] === '2'
                 ? void resetIndex(filesOfFolder)
                 : void add(filesOfFolder)
             "

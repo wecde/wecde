@@ -67,6 +67,7 @@
             <template
               v-if="
                 store.getters['clipboard-fs/isEmpty'] === false &&
+                store.state['clipboard-fs'].clipboardFile &&
                 fs.isEqual(
                   store.state['clipboard-fs'].clipboardFile,
                   file.fullpath

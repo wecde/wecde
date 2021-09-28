@@ -133,7 +133,7 @@
     <template v-slot:contents>
       <q-list>
         <q-pull-to-refresh
-          @refresh="(done) => void reloadListProjects().then(() => void done())"
+          @refresh="(done: () => void) => void reloadListProjects().then(() => void done())"
           icon="mdi-refresh"
         >
           <Item
@@ -225,7 +225,8 @@ async function reloadListProjects(notification = false): Promise<void> {
     );
 
     task();
-  } catch (e) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (e: any) {
     if (e?.code !== "ENOENT") {
       console.log(e);
       // eslint-disable-next-line functional/immutable-data

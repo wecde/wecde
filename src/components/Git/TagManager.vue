@@ -33,13 +33,13 @@
             clickable
             v-ripple
             v-for="tag in tags"
-            :key="tag.remote"
+            :key="tag"
             class="no-min-height"
           >
             <q-item-section>
               <q-item-label>
-                {{ remote.remote }}
-                <small class="text-info"> refs/tags/{{ tag.remote }} </small>
+                {{ tag }}
+                <small class="text-info"> refs/tags/{{ tag }} </small>
               </q-item-label>
             </q-item-section>
             <q-item-section side top>
@@ -65,7 +65,7 @@
                       v-close-popup
                       v-ripple
                       class="no-min-height"
-                      @click="deleteTag(remote.remote)"
+                      @click="deleteTag(tag)"
                     >
                       <q-item-section avatar class="min-width-0">
                         <q-icon name="ti-trash" />

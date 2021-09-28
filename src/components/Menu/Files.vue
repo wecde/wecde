@@ -82,7 +82,7 @@
               clickable
               v-close-popup
               v-ripple
-              @click="importFiles($store.state.editor.project)"
+              @click="importFiles($store.state.editor.project as string)"
               class="no-min-height"
               v-if="$store.state.editor.project"
             >
@@ -115,7 +115,7 @@
     <template v-slot:contents v-if="$store.state.editor.project">
       <div>
         <q-pull-to-refresh
-          @refresh="(done) => void reloadListFile().then(() => void done())"
+          @refresh="(done: () => void) => void reloadListFile().then(() => void done())"
           icon="mdi-refresh"
         >
           <FileExplorer-Add

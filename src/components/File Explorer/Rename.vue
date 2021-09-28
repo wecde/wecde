@@ -39,8 +39,8 @@
             v-model.trim="newFilename"
             ref="input"
             @keydown.enter="blurInput"
-            @keydown="newFilename = $event.target.value.trim()"
-            @keyup="newFilename = $event.target.value.trim()"
+            @keydown="newFilename = input?.value.trim() || ''"
+            @keyup="newFilename = input?.value.trim() || ''"
             @blur="blur"
             @click.prevent.stop
           />

@@ -218,7 +218,8 @@ async function checkout(ref: string) {
         force: true,
         ref,
       });
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       onError(err);
     }
 
@@ -253,7 +254,8 @@ function renameBranch(ref: string) {
           ref: basename(newName),
           oldref: basename(ref),
         });
-      } catch (err) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
         onError(err);
       }
 
@@ -273,7 +275,8 @@ async function merge(ref: string) {
         ours: "HEAD",
         theirs: ref,
       });
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       onError(err);
     }
 
@@ -291,7 +294,8 @@ async function deleteBranch(ref: string) {
         dir: store.state.editor.project,
         ref,
       });
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       onError(err);
     }
 
@@ -309,7 +313,8 @@ async function deleteTag(ref: string) {
         dir: store.state.editor.project,
         ref,
       });
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       onError(err);
     }
 

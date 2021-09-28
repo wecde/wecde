@@ -175,7 +175,8 @@ async function checkout(ref: string) {
         force: true,
         ref,
       });
-    } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       onError(err);
     }
 
@@ -193,7 +194,8 @@ async function checkoutNoForce(ref: string) {
         force: false,
         ref,
       });
-    } catch (err) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       onError(err);
     }
 

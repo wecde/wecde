@@ -382,7 +382,7 @@ function setupConfigaceEditor(): void {
   // ace.setOption("enableEmmet", true);
   editor.setHighlightSelectedWord(true);
 
-  // eslint-disable-next-line functional/immutable-data
+  // eslint-disable-next-line functional/immutable-data, @typescript-eslint/no-explicit-any
   editor.completers.push(new Completer(AUTOJS_INDICES as any));
 
   // ace.resize(true);

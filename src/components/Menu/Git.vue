@@ -55,7 +55,12 @@
             v-for="(item, index) in menu"
             :key="index"
           >
-            <q-item clickable v-ripple v-if="item.subs" class="no-min-height">
+            <q-item
+              clickable
+              v-ripple
+              v-if="existsSubs(item)"
+              class="no-min-height"
+            >
               <q-item-section side class="q-mr-0">
                 <q-icon :name="item.icon" />
               </q-item-section>
@@ -72,8 +77,8 @@
                 self="top start"
               >
                 <template v-for="(item, index) in item.subs" :key="index">
-                  <q-separator v-if="item.separator" />
-                  <q-list v-else>
+                  <q-separator v-if="isSeparator(item)" />
+                  <q-list v-else-if="isSubItem(item)">
                     <q-item
                       clickable
                       v-close-popup
@@ -89,19 +94,19 @@
                 </template>
               </q-menu>
             </q-item>
-            <q-separator v-else-if="item.separator" />
+            <q-separator v-else-if="isSeparator(item)" />
             <q-item
               clickable
               v-close-popup
               v-ripple
-              @click="item.onClick"
+              @click="(item as any).onClick"
               class="no-min-height"
               v-else
             >
               <q-item-section side class="q-mr-0">
-                <q-icon :name="item.icon" />
+                <q-icon :name="(item as any).icon" />
               </q-item-section>
-              <q-item-section>{{ item.name }}</q-item-section>
+              <q-item-section>{{ (item as any).name }}</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -202,11 +207,11 @@
             <div class="q-ml-n4">
               <Changes-List
                 v-if="$store.state['git-configs'].viewAs === 'list'"
-                :filter="(filepath, matrix) => matrix[2] === 2"
+                :filter="(filepath: string, matrix: any) => matrix[2] === 2"
               />
               <Changes-Tree
                 v-else
-                :filter="(filepath, matrix) => matrix[2] === 2"
+                :filter="(filepath: string, matrix: any) => matrix[2] === 2"
               />
             </div>
           </Collapse>
@@ -271,11 +276,11 @@
             <div class="q-ml-n4">
               <Changes-List
                 v-if="$store.state['git-configs'].viewAs === 'list'"
-                :filter="(filepath, matrix) => matrix[2] !== 2"
+                :filter="(filepath: string, matrix: any) => matrix[2] !== 2"
               />
               <Changes-Tree
                 v-else
-                :filter="(filepath, matrix) => matrix[2] !== 2"
+                :filter="(filepath: string, matrix: any) => matrix[2] !== 2"
               />
             </div>
           </Collapse>
@@ -372,6 +377,7 @@ type MenuItem = {
   readonly name: string;
   readonly icon: string;
   readonly subs: readonly (SubItem | SeparatorItem)[];
+  readonly onClick?: () => void;
 };
 type Menu = readonly (MenuItem | SubItem | SeparatorItem)[];
 
@@ -394,6 +400,18 @@ const filesChanges = computed<readonly string[]>(() => {
     }
   );
 });
+
+function existsSubs(menuItem: Menu[0]): menuItem is MenuItem {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return "subs" in (menuItem as any);
+}
+function isSeparator(menuItem: Menu[0]): menuItem is SeparatorItem {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return !!(menuItem as any).separator;
+}
+function isSubItem(menuItem: Menu[0]): menuItem is SubItem {
+  return isSeparator(menuItem) === false;
+}
 
 async function refreshGit(): Promise<void> {
   gitOfProjectReady.value =
@@ -498,7 +516,8 @@ const menu: Menu = [
             remote: "origin",
           });
           onDone();
-        } catch (err) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        } catch (err: any) {
           onError(err);
         }
 
@@ -728,7 +747,8 @@ async function pull() {
         onMessage,
       });
       onDone();
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       onError(err);
     }
 
@@ -761,7 +781,8 @@ async function fetch({
         prune,
       });
       onDone();
-    } catch (err) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
       onError(err);
     }
 

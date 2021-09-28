@@ -78,11 +78,11 @@
         <div class="q-ml-n4">
           <Changes-List
             v-if="$store.state['git-configs'].viewAs === 'list'"
-            :filter="(filepath, matrix) => isCommitAll || matrix[2] === 2"
+            :filter="(filepath: string, matrix: any) => isCommitAll || matrix[2] === 2"
           />
           <Changes-Tree
             v-else
-            :filter="(filepath, matrix) => isCommitAll || matrix[2] === 2"
+            :filter="(filepath: string, matrix: any) => isCommitAll || matrix[2] === 2"
           />
         </div>
       </q-card-section>

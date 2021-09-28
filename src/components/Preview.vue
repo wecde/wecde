@@ -42,7 +42,6 @@ import { computed, ref, watch } from "vue";
 
 const props = defineProps<{
   fullpath: string;
-  mime: string;
 }>();
 
 const base64 = ref<string | null>(null);

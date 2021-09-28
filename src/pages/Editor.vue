@@ -1,6 +1,6 @@
 <template>
   <teleport to="[data-id='app.navbar']" v-if="isMounted">
-    <div class="session mr-2" ref="sessionWrapper">
+    <div class="session mr-2" ref="sessionWrapper" v-if="store.state.editor.project">
       <Session-Item
         v-for="item in meta?.['sessions']"
         :key="store.state.editor.project + item"
@@ -31,7 +31,7 @@
       <Preview :fullpath="fullpath" v-else-if="allowPreview(fullpath)" />
       <Editor-Code
         :fullpath="fullpath"
-        v-else-if="!isBinaryPath(fullpath.value)"
+        v-else-if="!isBinaryPath(fullpath)"
       />
       <Unsupport v-else />
     </template>
