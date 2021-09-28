@@ -54,10 +54,10 @@ const getters: GetterTree<EditorStateInterface, StateInterface> = {
 
         return null;
       } else {
-        return project
-          ? git.statusMatrix.matrix[fs.relative(project, fullpath)]?.join("") ??
-              null
-          : null;
+        return (
+          git.statusMatrix.matrix[fs.relative(project, fullpath)]?.join("") ??
+          null
+        );
       }
     };
   },

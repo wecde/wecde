@@ -6,15 +6,17 @@
   "author": "Shin Tachibana <thanhnguyennguyen1995@gmail.com>",
   "private": true,
   "scripts": {
+    "setup:main": "yarn",
+    "setup:resources": "yarn --cwd ./resources",
+    "setup": "yarn setup:main && yarn setup:resources",
     "lint": "eslint --ext .js,.ts,.vue ./",
     "dev": "quasar dev",
-    "setup": "sh ./setup.sh",
     "dev:android": "quasar dev -m capacitor -T android",
     "dev:ios": "quasar dev -m capacitor -T ios",
     "build:android": "quasar build -m capacitor -T android",
     "build:ios": "quasar build -m capacitor -T ios",
     "build:resources": "yarn --cwd ./resources build",
-    "build:pwa": "yarn build:resources && quasar build"
+    "build:pwa": "yarn build:resources && yarn build"
   },
   "dependencies": {
     "@capacitor/android": "^3.2.2",
@@ -71,6 +73,7 @@
     "@types/webpack-env": "^1.16.2",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
+    "crypto": "^1.0.1",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
