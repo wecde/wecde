@@ -132,10 +132,7 @@
 
     <template v-slot:contents>
       <q-list>
-        <q-pull-to-refresh
-          @refresh="(done: () => void) => void reloadListProjects().then(() => void done())"
-          icon="mdi-refresh"
-        >
+        <q-pull-to-refresh @refresh="pullToRefresh" icon="mdi-refresh">
           <Item
             v-for="item in projects"
             :key="item.fullpath"
@@ -199,6 +196,8 @@ const stateProvide = ref<boolean>(false);
 
 void reloadListProjects();
 
+const pullToRefresh = (done: () => void) =>
+  void reloadListProjects().then(() => void done());
 async function reloadListProjects(notification = false): Promise<void> {
   const task = Notify.create({
     group: false,
@@ -225,7 +224,7 @@ async function reloadListProjects(notification = false): Promise<void> {
     );
 
     task();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     if (e?.code !== "ENOENT") {
       console.log(e);

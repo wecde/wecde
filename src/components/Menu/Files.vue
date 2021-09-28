@@ -114,10 +114,7 @@
 
     <template v-slot:contents v-if="$store.state.editor.project">
       <div>
-        <q-pull-to-refresh
-          @refresh="(done: () => void) => void reloadListFile().then(() => void done())"
-          icon="mdi-refresh"
-        >
+        <q-pull-to-refresh @refresh="pullToRefresh" icon="mdi-refresh">
           <FileExplorer-Add
             v-model:adding="adding"
             :is-folder="addingFolder"
@@ -185,6 +182,8 @@ watch(
   }
 );
 
+const pullToRefresh = (done: () => void) =>
+  void reloadListFile().then(() => void done());
 async function reloadListFile(notification = false): Promise<void> {
   const task = Notify.create({
     group: false,

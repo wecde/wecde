@@ -78,12 +78,9 @@
         <div class="q-ml-n4">
           <Changes-List
             v-if="$store.state['git-configs'].viewAs === 'list'"
-            :filter="(filepath: string, matrix: any) => isCommitAll || matrix[2] === 2"
+            :filter="filterChanges"
           />
-          <Changes-Tree
-            v-else
-            :filter="(filepath: string, matrix: any) => isCommitAll || matrix[2] === 2"
-          />
+          <Changes-Tree v-else :filter="filterChanges" />
         </div>
       </q-card-section>
 
@@ -129,6 +126,13 @@ const noEdit = ref<boolean>(true);
 const commitMessage = ref<string>("");
 const isCommitAll = ref<boolean>(true);
 const loading = ref<boolean>(false);
+
+function filterChanges(
+  filepath: string,
+  matrix: [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3]
+): boolean {
+  return isCommitAll.value || matrix[2] === 2;
+}
 
 async function commit(): Promise<void> {
   if (loading.value === false) {

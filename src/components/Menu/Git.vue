@@ -99,14 +99,14 @@
               clickable
               v-close-popup
               v-ripple
-              @click="(item as any).onClick"
+              @click="item.onClick;"
               class="no-min-height"
               v-else
             >
               <q-item-section side class="q-mr-0">
-                <q-icon :name="(item as any).icon" />
+                <q-icon :name="item.icon" />
               </q-item-section>
-              <q-item-section>{{ (item as any).name }}</q-item-section>
+              <q-item-section>{{ item.name }}</q-item-section>
             </q-item>
           </q-list>
         </q-menu>
@@ -207,12 +207,9 @@
             <div class="q-ml-n4">
               <Changes-List
                 v-if="$store.state['git-configs'].viewAs === 'list'"
-                :filter="(filepath: string, matrix: any) => matrix[2] === 2"
+                :filter="filterStages"
               />
-              <Changes-Tree
-                v-else
-                :filter="(filepath: string, matrix: any) => matrix[2] === 2"
-              />
+              <Changes-Tree v-else :filter="filterStages" />
             </div>
           </Collapse>
 
@@ -276,12 +273,9 @@
             <div class="q-ml-n4">
               <Changes-List
                 v-if="$store.state['git-configs'].viewAs === 'list'"
-                :filter="(filepath: string, matrix: any) => matrix[2] !== 2"
+                :filter="filterUnstages"
               />
-              <Changes-Tree
-                v-else
-                :filter="(filepath: string, matrix: any) => matrix[2] !== 2"
-              />
+              <Changes-Tree v-else :filter="filterUnstages" />
             </div>
           </Collapse>
         </div>
@@ -376,10 +370,16 @@ type SeparatorItem = {
 type MenuItem = {
   readonly name: string;
   readonly icon: string;
-  readonly subs: readonly (SubItem | SeparatorItem)[];
-  readonly onClick?: () => void;
-};
-type Menu = readonly (MenuItem | SubItem | SeparatorItem)[];
+  readonly disabled?: boolean;
+} & (
+  | {
+      readonly subs: readonly (SubItem | SeparatorItem)[];
+    }
+  | {
+      readonly onClick: () => void;
+    }
+);
+type Menu = readonly (MenuItem | SeparatorItem)[];
 
 const store = useStore();
 
@@ -401,15 +401,32 @@ const filesChanges = computed<readonly string[]>(() => {
   );
 });
 
-function existsSubs(menuItem: Menu[0]): menuItem is MenuItem {
+function filterStages(
+  filepath: string,
+  matrix: [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3]
+): boolean {
+  return matrix[2] === 2;
+}
+function filterUnstages(
+  filepath: string,
+  matrix: [0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3]
+): boolean {
+  return matrix[2] !== 2;
+}
+
+function existsSubs(menuItem: Menu[0]): menuItem is MenuItem & {
+  readonly subs: readonly (SubItem | SeparatorItem)[];
+} {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return "subs" in (menuItem as any);
 }
-function isSeparator(menuItem: Menu[0]): menuItem is SeparatorItem {
+function isSeparator(
+  menuItem: SubItem | SeparatorItem
+): menuItem is SeparatorItem {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return !!(menuItem as any).separator;
 }
-function isSubItem(menuItem: Menu[0]): menuItem is SubItem {
+function isSubItem(menuItem: SubItem | SeparatorItem): menuItem is SubItem {
   return isSeparator(menuItem) === false;
 }
 
