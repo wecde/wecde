@@ -4,11 +4,11 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build:labs": "sce-generate-repo -ts ./labs -o ../src/assets/labs",
-    "build:templates": "sce-generate-repo -ts ./templates -o ../src/assets/templates",
+    "build:labs": "sce-generate-repo -s ./labs -o ../src/assets/labs",
+    "build:templates": "sce-generate-repo -s ./templates -o ../src/assets/templates",
     "build": "yarn build:labs && yarn build:templates"
   },
   "dependencies": {
-    "sce-generate-repo": "^1.0.9"
+    "sce-generate-repo": "^1.0.14"
   }
 }

@@ -1,10 +1,26 @@
 import { basename, dirname, join } from "path-cross";
 import fs from "src/modules/fs";
 import { useStore } from "src/store";
-import MetaType from "src/types/MetaType";
 import { createTimeoutBy } from "src/utils";
 import { parse } from "src/utils/json";
 import { computed, onBeforeUnmount, ref, watch, WatchStopHandle } from "vue";
+
+type MetaType = {
+  readonly session: {
+    // eslint-disable-next-line functional/prefer-readonly-type
+    sessions?: string[];
+    // eslint-disable-next-line functional/prefer-readonly-type
+    "session-history"?: number[];
+  };
+  readonly scrolling: {
+    readonly [filepath: string]: {
+      readonly top: number;
+      readonly left: number;
+      readonly row: number;
+      readonly column: number;
+    };
+  };
+};
 
 export function useMetadata<Type extends keyof MetaType>(type: Type) {
   const store = useStore();

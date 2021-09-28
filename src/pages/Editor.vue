@@ -33,17 +33,9 @@
         :fullpath="fullpath"
         v-else-if="!isBinaryPath(fullpath.value)"
       />
-      <div class="q-pt-4 text-caption q-px-6 q-pb-6" v-else>
-        This file is not displayed in the text editor because it is either
-        binary or uses an unsupported text encoding.
-      </div>
+      <Unsupport v-else />
     </template>
-    <template v-else>
-      <img
-        class="image-shallow q-mt-n9 q-px-n6"
-        :src="require('assets/favicon.svg')"
-      />
-    </template>
+    <Shallow v-else />
   </div>
 </template>
 
@@ -55,6 +47,8 @@ import EditorCode from "components/Editor/Code.vue";
 import EditorMarkdown from "components/Editor/Markdown.vue";
 import EditorSVG from "components/Editor/SVG.vue";
 import SessionItem from "components/Editor/SessionItem.vue";
+import Shallow from "components/Editor/Shallow";
+import Unsupport from "components/Editor/Unsupport";
 import Preview from "components/Preview.vue";
 import isBinaryPath from "is-binary-path-cross";
 import { btoa } from "js-base64";
@@ -263,14 +257,5 @@ function closeSession(filepath: string) {
       margin-left: 0;
     }
   }
-}
-
-.image-shallow {
-  filter: grayscale(100%);
-  position: relative;
-  transform: translate(-50%, -50%);
-  top: 50%;
-  left: 50%;
-  max-width: 230px;
 }
 </style>
