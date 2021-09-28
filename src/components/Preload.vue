@@ -104,7 +104,7 @@ void init();
 </script>
 
 <style lang="scss" scoped>
-@import "scss/font-Orbitron.scss";
+@import "src/sass/font-Orbitron.scss";
 
 .app--name {
   font-family: Orbitron;
