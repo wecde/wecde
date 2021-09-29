@@ -1,0 +1,1 @@
+ace.define("ace/snippets/makefile",["require","exports","module"],(function(e,t,n){"use strict";t.snippetText="snippet ifeq\n\tifeq (${1:cond0},${2:cond1})\n\t\t${3:code}\n\tendif\n",t.scope="makefile"})),function(){ace.require(["ace/snippets/makefile"],(function(e){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=e)}))}();
