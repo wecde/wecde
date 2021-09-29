@@ -16,6 +16,12 @@ const actions: ActionTree<EditorStateInterface, StateInterface> = {
     if (state.project && (await fs.isFile(join(state.project, ".git/HEAD")))) {
       commit("set:git.statusMatrix.loading", true);
 
+      const filepathsFree = filepaths.filter((filepath) => {
+        return !filepaths.some(
+          (base) => fs.isParentDir(base, filepath) || fs.isEqual(filepath, base)
+        );
+      });
+
       commit(
         "filter:git.statusMatrix.matrix",
         (filepath: string) =>
@@ -37,12 +43,6 @@ const actions: ActionTree<EditorStateInterface, StateInterface> = {
           obj[filepath] = value;
           return obj;
         }, {} as EditorStateInterface["git"]["statusMatrix"]["matrix"]) || {};
-
-      const filepathsFree = filepaths.filter((filepath) => {
-        return !filepaths.some(
-          (base) => fs.isParentDir(base, filepath) || fs.isEqual(filepath, base)
-        );
-      });
 
       commit("assign:git.statusMatrix.matrix", matrix);
 
