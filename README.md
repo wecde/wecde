@@ -31,3 +31,19 @@ yarn lint
 ```bash
 yarn build
 ```
+
+
+## Screenshot
+
+![image](https://user-images.githubusercontent.com/45375496/135207137-2a040f70-5fa2-4f32-9bc5-3a5443a3dcb0.png)
+
+![image](https://user-images.githubusercontent.com/45375496/135207183-f828c638-5c92-44cd-9b73-14c0b7e1a14a.png)
+
+![image](https://user-images.githubusercontent.com/45375496/135207214-11ee25d6-b7f8-4372-ab79-497bf990b785.png)
+
+![image](https://user-images.githubusercontent.com/45375496/135207252-fac9cfd9-9bb0-4bd0-98e2-6a8a553fb245.png)
+
+![image](https://user-images.githubusercontent.com/45375496/135207405-2b5eb43e-1342-4c56-8957-1820f768e645.png)
+
+
+
