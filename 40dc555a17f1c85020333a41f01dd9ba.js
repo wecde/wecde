@@ -1,1 +1,93 @@
-ace.define("ace/snippets/tcl",["require","exports","module"],(function(n,t,e){"use strict";t.snippetText="# #!/usr/bin/env tclsh\nsnippet #!\n\t#!/usr/bin/env tclsh\n\t\n# Process\nsnippet pro\n\tproc ${1:function_name} {${2:args}} {\n\t\t${3:#body ...}\n\t}\n#xif\nsnippet xif\n\t${1:expr}? ${2:true} : ${3:false}\n# Conditional\nsnippet if\n\tif {${1}} {\n\t\t${2:# body...}\n\t}\n# Conditional if..else\nsnippet ife\n\tif {${1}} {\n\t\t${2:# body...}\n\t} else {\n\t\t${3:# else...}\n\t}\n# Conditional if..elsif..else\nsnippet ifee\n\tif {${1}} {\n\t\t${2:# body...}\n\t} elseif {${3}} {\n\t\t${4:# elsif...}\n\t} else {\n\t\t${5:# else...}\n\t}\n# If catch then\nsnippet ifc\n\tif { [catch {${1:#do something...}} ${2:err}] } {\n\t\t${3:# handle failure...}\n\t}\n# Catch\nsnippet catch\n\tcatch {${1}} ${2:err} ${3:options}\n# While Loop\nsnippet wh\n\twhile {${1}} {\n\t\t${2:# body...}\n\t}\n# For Loop\nsnippet for\n\tfor {set ${2:var} 0} {$$2 < ${1:count}} {${3:incr} $2} {\n\t\t${4:# body...}\n\t}\n# Foreach Loop\nsnippet fore\n\tforeach ${1:x} {${2:#list}} {\n\t\t${3:# body...}\n\t}\n# after ms script...\nsnippet af\n\tafter ${1:ms} ${2:#do something}\n# after cancel id\nsnippet afc\n\tafter cancel ${1:id or script}\n# after idle\nsnippet afi\n\tafter idle ${1:script}\n# after info id\nsnippet afin\n\tafter info ${1:id}\n# Expr\nsnippet exp\n\texpr {${1:#expression here}}\n# Switch\nsnippet sw\n\tswitch ${1:var} {\n\t\t${3:pattern 1} {\n\t\t\t${4:#do something}\n\t\t}\n\t\tdefault {\n\t\t\t${2:#do something}\n\t\t}\n\t}\n# Case\nsnippet ca\n\t${1:pattern} {\n\t\t${2:#do something}\n\t}${3}\n# Namespace eval\nsnippet ns\n\tnamespace eval ${1:path} {${2:#script...}}\n# Namespace current\nsnippet nsc\n\tnamespace current\n",t.scope="tcl"})),function(){ace.require(["ace/snippets/tcl"],(function(n){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=n)}))}();
+ace.define("ace/snippets/tcl",["require","exports","module"],function(n,e,i){"use strict";e.snippetText=`# #!/usr/bin/env tclsh
+snippet #!
+	#!/usr/bin/env tclsh
+	
+# Process
+snippet pro
+	proc \${1:function_name} {\${2:args}} {
+		\${3:#body ...}
+	}
+#xif
+snippet xif
+	\${1:expr}? \${2:true} : \${3:false}
+# Conditional
+snippet if
+	if {\${1}} {
+		\${2:# body...}
+	}
+# Conditional if..else
+snippet ife
+	if {\${1}} {
+		\${2:# body...}
+	} else {
+		\${3:# else...}
+	}
+# Conditional if..elsif..else
+snippet ifee
+	if {\${1}} {
+		\${2:# body...}
+	} elseif {\${3}} {
+		\${4:# elsif...}
+	} else {
+		\${5:# else...}
+	}
+# If catch then
+snippet ifc
+	if { [catch {\${1:#do something...}} \${2:err}] } {
+		\${3:# handle failure...}
+	}
+# Catch
+snippet catch
+	catch {\${1}} \${2:err} \${3:options}
+# While Loop
+snippet wh
+	while {\${1}} {
+		\${2:# body...}
+	}
+# For Loop
+snippet for
+	for {set \${2:var} 0} {$$2 < \${1:count}} {\${3:incr} $2} {
+		\${4:# body...}
+	}
+# Foreach Loop
+snippet fore
+	foreach \${1:x} {\${2:#list}} {
+		\${3:# body...}
+	}
+# after ms script...
+snippet af
+	after \${1:ms} \${2:#do something}
+# after cancel id
+snippet afc
+	after cancel \${1:id or script}
+# after idle
+snippet afi
+	after idle \${1:script}
+# after info id
+snippet afin
+	after info \${1:id}
+# Expr
+snippet exp
+	expr {\${1:#expression here}}
+# Switch
+snippet sw
+	switch \${1:var} {
+		\${3:pattern 1} {
+			\${4:#do something}
+		}
+		default {
+			\${2:#do something}
+		}
+	}
+# Case
+snippet ca
+	\${1:pattern} {
+		\${2:#do something}
+	}\${3}
+# Namespace eval
+snippet ns
+	namespace eval \${1:path} {\${2:#script...}}
+# Namespace current
+snippet nsc
+	namespace current
+`,e.scope="tcl"}),function(){ace.require(["ace/snippets/tcl"],function(n){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=n)})}();

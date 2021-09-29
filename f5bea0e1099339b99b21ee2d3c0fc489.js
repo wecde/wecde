@@ -1,1 +1,10 @@
-ace.define("ace/snippets/maze",["require","exports","module"],(function(e,n,t){"use strict";n.snippetText="snippet >\ndescription assignment\nscope maze\n\t-> ${1}= ${2}\n\nsnippet >\ndescription if\nscope maze\n\t-> IF ${2:**} THEN %${3:L} ELSE %${4:R}\n",n.scope="maze"})),function(){ace.require(["ace/snippets/maze"],(function(e){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=e)}))}();
+ace.define("ace/snippets/maze",["require","exports","module"],function(e,n,i){"use strict";n.snippetText=`snippet >
+description assignment
+scope maze
+	-> \${1}= \${2}
+
+snippet >
+description if
+scope maze
+	-> IF \${2:**} THEN %\${3:L} ELSE %\${4:R}
+`,n.scope="maze"}),function(){ace.require(["ace/snippets/maze"],function(e){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=e)})}();

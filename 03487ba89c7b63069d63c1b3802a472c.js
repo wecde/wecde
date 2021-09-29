@@ -1,1 +1,11 @@
-ace.define("ace/snippets/csound_document",["require","exports","module"],(function(e,n,t){"use strict";n.snippetText="# <CsoundSynthesizer>\nsnippet synth\n\t<CsoundSynthesizer>\n\t<CsInstruments>\n\t${1}\n\t</CsInstruments>\n\t<CsScore>\n\te\n\t</CsScore>\n\t</CsoundSynthesizer>\n",n.scope="csound_document"})),function(){ace.require(["ace/snippets/csound_document"],(function(e){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=e)}))}();
+ace.define("ace/snippets/csound_document",["require","exports","module"],function(e,n,s){"use strict";n.snippetText=`# <CsoundSynthesizer>
+snippet synth
+	<CsoundSynthesizer>
+	<CsInstruments>
+	\${1}
+	</CsInstruments>
+	<CsScore>
+	e
+	</CsScore>
+	</CsoundSynthesizer>
+`,n.scope="csound_document"}),function(){ace.require(["ace/snippets/csound_document"],function(e){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=e)})}();

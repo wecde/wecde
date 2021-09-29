@@ -1,1 +1,96 @@
-ace.define("ace/snippets/coffee",["require","exports","module"],(function(n,t,e){"use strict";t.snippetText="# Closure loop\nsnippet forindo\n\tfor ${1:name} in ${2:array}\n\t\tdo ($1) ->\n\t\t\t${3:// body}\n# Array comprehension\nsnippet fora\n\tfor ${1:name} in ${2:array}\n\t\t${3:// body...}\n# Object comprehension\nsnippet foro\n\tfor ${1:key}, ${2:value} of ${3:object}\n\t\t${4:// body...}\n# Range comprehension (inclusive)\nsnippet forr\n\tfor ${1:name} in [${2:start}..${3:finish}]\n\t\t${4:// body...}\nsnippet forrb\n\tfor ${1:name} in [${2:start}..${3:finish}] by ${4:step}\n\t\t${5:// body...}\n# Range comprehension (exclusive)\nsnippet forrex\n\tfor ${1:name} in [${2:start}...${3:finish}]\n\t\t${4:// body...}\nsnippet forrexb\n\tfor ${1:name} in [${2:start}...${3:finish}] by ${4:step}\n\t\t${5:// body...}\n# Function\nsnippet fun\n\t(${1:args}) ->\n\t\t${2:// body...}\n# Function (bound)\nsnippet bfun\n\t(${1:args}) =>\n\t\t${2:// body...}\n# Class\nsnippet cla class ..\n\tclass ${1:`substitute(Filename(), '\\(_\\|^\\)\\(.\\)', '\\u\\2', 'g')`}\n\t\t${2}\nsnippet cla class .. constructor: ..\n\tclass ${1:`substitute(Filename(), '\\(_\\|^\\)\\(.\\)', '\\u\\2', 'g')`}\n\t\tconstructor: (${2:args}) ->\n\t\t\t${3}\n\n\t\t${4}\nsnippet cla class .. extends ..\n\tclass ${1:`substitute(Filename(), '\\(_\\|^\\)\\(.\\)', '\\u\\2', 'g')`} extends ${2:ParentClass}\n\t\t${3}\nsnippet cla class .. extends .. constructor: ..\n\tclass ${1:`substitute(Filename(), '\\(_\\|^\\)\\(.\\)', '\\u\\2', 'g')`} extends ${2:ParentClass}\n\t\tconstructor: (${3:args}) ->\n\t\t\t${4}\n\n\t\t${5}\n# If\nsnippet if\n\tif ${1:condition}\n\t\t${2:// body...}\n# If __ Else\nsnippet ife\n\tif ${1:condition}\n\t\t${2:// body...}\n\telse\n\t\t${3:// body...}\n# Else if\nsnippet elif\n\telse if ${1:condition}\n\t\t${2:// body...}\n# Ternary If\nsnippet ifte\n\tif ${1:condition} then ${2:value} else ${3:other}\n# Unless\nsnippet unl\n\t${1:action} unless ${2:condition}\n# Switch\nsnippet swi\n\tswitch ${1:object}\n\t\twhen ${2:value}\n\t\t\t${3:// body...}\n\n# Log\nsnippet log\n\tconsole.log ${1}\n# Try __ Catch\nsnippet try\n\ttry\n\t\t${1}\n\tcatch ${2:error}\n\t\t${3}\n# Require\nsnippet req\n\t${2:$1} = require '${1:sys}'${3}\n# Export\nsnippet exp\n\t${1:root} = exports ? this\n",t.scope="coffee"})),function(){ace.require(["ace/snippets/coffee"],(function(n){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=n)}))}();
+ace.define("ace/snippets/coffee",["require","exports","module"],function(n,e,s){"use strict";e.snippetText=`# Closure loop
+snippet forindo
+	for \${1:name} in \${2:array}
+		do ($1) ->
+			\${3:// body}
+# Array comprehension
+snippet fora
+	for \${1:name} in \${2:array}
+		\${3:// body...}
+# Object comprehension
+snippet foro
+	for \${1:key}, \${2:value} of \${3:object}
+		\${4:// body...}
+# Range comprehension (inclusive)
+snippet forr
+	for \${1:name} in [\${2:start}..\${3:finish}]
+		\${4:// body...}
+snippet forrb
+	for \${1:name} in [\${2:start}..\${3:finish}] by \${4:step}
+		\${5:// body...}
+# Range comprehension (exclusive)
+snippet forrex
+	for \${1:name} in [\${2:start}...\${3:finish}]
+		\${4:// body...}
+snippet forrexb
+	for \${1:name} in [\${2:start}...\${3:finish}] by \${4:step}
+		\${5:// body...}
+# Function
+snippet fun
+	(\${1:args}) ->
+		\${2:// body...}
+# Function (bound)
+snippet bfun
+	(\${1:args}) =>
+		\${2:// body...}
+# Class
+snippet cla class ..
+	class \${1:\`substitute(Filename(), '\\(_\\|^\\)\\(.\\)', '\\u\\2', 'g')\`}
+		\${2}
+snippet cla class .. constructor: ..
+	class \${1:\`substitute(Filename(), '\\(_\\|^\\)\\(.\\)', '\\u\\2', 'g')\`}
+		constructor: (\${2:args}) ->
+			\${3}
+
+		\${4}
+snippet cla class .. extends ..
+	class \${1:\`substitute(Filename(), '\\(_\\|^\\)\\(.\\)', '\\u\\2', 'g')\`} extends \${2:ParentClass}
+		\${3}
+snippet cla class .. extends .. constructor: ..
+	class \${1:\`substitute(Filename(), '\\(_\\|^\\)\\(.\\)', '\\u\\2', 'g')\`} extends \${2:ParentClass}
+		constructor: (\${3:args}) ->
+			\${4}
+
+		\${5}
+# If
+snippet if
+	if \${1:condition}
+		\${2:// body...}
+# If __ Else
+snippet ife
+	if \${1:condition}
+		\${2:// body...}
+	else
+		\${3:// body...}
+# Else if
+snippet elif
+	else if \${1:condition}
+		\${2:// body...}
+# Ternary If
+snippet ifte
+	if \${1:condition} then \${2:value} else \${3:other}
+# Unless
+snippet unl
+	\${1:action} unless \${2:condition}
+# Switch
+snippet swi
+	switch \${1:object}
+		when \${2:value}
+			\${3:// body...}
+
+# Log
+snippet log
+	console.log \${1}
+# Try __ Catch
+snippet try
+	try
+		\${1}
+	catch \${2:error}
+		\${3}
+# Require
+snippet req
+	\${2:$1} = require '\${1:sys}'\${3}
+# Export
+snippet exp
+	\${1:root} = exports ? this
+`,e.scope="coffee"}),function(){ace.require(["ace/snippets/coffee"],function(n){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=n)})}();

@@ -1,1 +1,31 @@
-ace.define("ace/snippets/textile",["require","exports","module"],(function(n,e,t){"use strict";e.snippetText='# Jekyll post header\nsnippet header\n\t---\n\ttitle: ${1:title}\n\tlayout: post\n\tdate: ${2:date} ${3:hour:minute:second} -05:00\n\t---\n\n# Image\nsnippet img\n\t!${1:url}(${2:title}):${3:link}!\n\n# Table\nsnippet |\n\t|${1}|${2}\n\n# Link\nsnippet link\n\t"${1:link text}":${2:url}\n\n# Acronym\nsnippet (\n\t(${1:Expand acronym})${2}\n\n# Footnote\nsnippet fn\n\t[${1:ref number}] ${3}\n\n\tfn$1. ${2:footnote}\n\t\n',e.scope="textile"})),function(){ace.require(["ace/snippets/textile"],(function(n){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=n)}))}();
+ace.define("ace/snippets/textile",["require","exports","module"],function(e,n,t){"use strict";n.snippetText=`# Jekyll post header
+snippet header
+	---
+	title: \${1:title}
+	layout: post
+	date: \${2:date} \${3:hour:minute:second} -05:00
+	---
+
+# Image
+snippet img
+	!\${1:url}(\${2:title}):\${3:link}!
+
+# Table
+snippet |
+	|\${1}|\${2}
+
+# Link
+snippet link
+	"\${1:link text}":\${2:url}
+
+# Acronym
+snippet (
+	(\${1:Expand acronym})\${2}
+
+# Footnote
+snippet fn
+	[\${1:ref number}] \${3}
+
+	fn$1. \${2:footnote}
+	
+`,n.scope="textile"}),function(){ace.require(["ace/snippets/textile"],function(e){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=e)})}();

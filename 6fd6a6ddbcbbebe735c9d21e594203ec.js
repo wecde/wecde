@@ -1,1 +1,132 @@
-ace.define("ace/snippets/c_cpp",["require","exports","module"],(function(t,n,e){"use strict";n.snippetText="## STL Collections\n# std::array\nsnippet array\n\tstd::array<${1:T}, ${2:N}> ${3};${4}\n# std::vector\nsnippet vector\n\tstd::vector<${1:T}> ${2};${3}\n# std::deque\nsnippet deque\n\tstd::deque<${1:T}> ${2};${3}\n# std::forward_list\nsnippet flist\n\tstd::forward_list<${1:T}> ${2};${3}\n# std::list\nsnippet list\n\tstd::list<${1:T}> ${2};${3}\n# std::set\nsnippet set\n\tstd::set<${1:T}> ${2};${3}\n# std::map\nsnippet map\n\tstd::map<${1:Key}, ${2:T}> ${3};${4}\n# std::multiset\nsnippet mset\n\tstd::multiset<${1:T}> ${2};${3}\n# std::multimap\nsnippet mmap\n\tstd::multimap<${1:Key}, ${2:T}> ${3};${4}\n# std::unordered_set\nsnippet uset\n\tstd::unordered_set<${1:T}> ${2};${3}\n# std::unordered_map\nsnippet umap\n\tstd::unordered_map<${1:Key}, ${2:T}> ${3};${4}\n# std::unordered_multiset\nsnippet umset\n\tstd::unordered_multiset<${1:T}> ${2};${3}\n# std::unordered_multimap\nsnippet ummap\n\tstd::unordered_multimap<${1:Key}, ${2:T}> ${3};${4}\n# std::stack\nsnippet stack\n\tstd::stack<${1:T}> ${2};${3}\n# std::queue\nsnippet queue\n\tstd::queue<${1:T}> ${2};${3}\n# std::priority_queue\nsnippet pqueue\n\tstd::priority_queue<${1:T}> ${2};${3}\n##\n## Access Modifiers\n# private\nsnippet pri\n\tprivate\n# protected\nsnippet pro\n\tprotected\n# public\nsnippet pub\n\tpublic\n# friend\nsnippet fr\n\tfriend\n# mutable\nsnippet mu\n\tmutable\n## \n## Class\n# class\nsnippet cl\n\tclass ${1:`Filename('$1', 'name')`} \n\t{\n\tpublic:\n\t\t$1(${2});\n\t\t~$1();\n\n\tprivate:\n\t\t${3:/* data */}\n\t};\n# member function implementation\nsnippet mfun\n\t${4:void} ${1:`Filename('$1', 'ClassName')`}::${2:memberFunction}(${3}) {\n\t\t${5:/* code */}\n\t}\n# namespace\nsnippet ns\n\tnamespace ${1:`Filename('', 'my')`} {\n\t\t${2}\n\t} /* namespace $1 */\n##\n## Input/Output\n# std::cout\nsnippet cout\n\tstd::cout << ${1} << std::endl;${2}\n# std::cin\nsnippet cin\n\tstd::cin >> ${1};${2}\n##\n## Iteration\n# for i \nsnippet fori\n\tfor (int ${2:i} = 0; $2 < ${1:count}; $2${3:++}) {\n\t\t${4:/* code */}\n\t}${5}\n\n# foreach\nsnippet fore\n\tfor (${1:auto} ${2:i} : ${3:container}) {\n\t\t${4:/* code */}\n\t}${5}\n# iterator\nsnippet iter\n\tfor (${1:std::vector}<${2:type}>::${3:const_iterator} ${4:i} = ${5:container}.begin(); $4 != $5.end(); ++$4) {\n\t\t${6}\n\t}${7}\n\n# auto iterator\nsnippet itera\n\tfor (auto ${1:i} = $1.begin(); $1 != $1.end(); ++$1) {\n\t\t${2:std::cout << *$1 << std::endl;}\n\t}${3}\n##\n## Lambdas\n# lamda (one line)\nsnippet ld\n\t[${1}](${2}){${3:/* code */}}${4}\n# lambda (multi-line)\nsnippet lld\n\t[${1}](${2}){\n\t\t${3:/* code */}\n\t}${4}\n",n.scope="c_cpp"})),function(){ace.require(["ace/snippets/c_cpp"],(function(t){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=t)}))}();
+ace.define("ace/snippets/c_cpp",["require","exports","module"],function(n,e,t){"use strict";e.snippetText=`## STL Collections
+# std::array
+snippet array
+	std::array<\${1:T}, \${2:N}> \${3};\${4}
+# std::vector
+snippet vector
+	std::vector<\${1:T}> \${2};\${3}
+# std::deque
+snippet deque
+	std::deque<\${1:T}> \${2};\${3}
+# std::forward_list
+snippet flist
+	std::forward_list<\${1:T}> \${2};\${3}
+# std::list
+snippet list
+	std::list<\${1:T}> \${2};\${3}
+# std::set
+snippet set
+	std::set<\${1:T}> \${2};\${3}
+# std::map
+snippet map
+	std::map<\${1:Key}, \${2:T}> \${3};\${4}
+# std::multiset
+snippet mset
+	std::multiset<\${1:T}> \${2};\${3}
+# std::multimap
+snippet mmap
+	std::multimap<\${1:Key}, \${2:T}> \${3};\${4}
+# std::unordered_set
+snippet uset
+	std::unordered_set<\${1:T}> \${2};\${3}
+# std::unordered_map
+snippet umap
+	std::unordered_map<\${1:Key}, \${2:T}> \${3};\${4}
+# std::unordered_multiset
+snippet umset
+	std::unordered_multiset<\${1:T}> \${2};\${3}
+# std::unordered_multimap
+snippet ummap
+	std::unordered_multimap<\${1:Key}, \${2:T}> \${3};\${4}
+# std::stack
+snippet stack
+	std::stack<\${1:T}> \${2};\${3}
+# std::queue
+snippet queue
+	std::queue<\${1:T}> \${2};\${3}
+# std::priority_queue
+snippet pqueue
+	std::priority_queue<\${1:T}> \${2};\${3}
+##
+## Access Modifiers
+# private
+snippet pri
+	private
+# protected
+snippet pro
+	protected
+# public
+snippet pub
+	public
+# friend
+snippet fr
+	friend
+# mutable
+snippet mu
+	mutable
+## 
+## Class
+# class
+snippet cl
+	class \${1:\`Filename('$1', 'name')\`} 
+	{
+	public:
+		$1(\${2});
+		~$1();
+
+	private:
+		\${3:/* data */}
+	};
+# member function implementation
+snippet mfun
+	\${4:void} \${1:\`Filename('$1', 'ClassName')\`}::\${2:memberFunction}(\${3}) {
+		\${5:/* code */}
+	}
+# namespace
+snippet ns
+	namespace \${1:\`Filename('', 'my')\`} {
+		\${2}
+	} /* namespace $1 */
+##
+## Input/Output
+# std::cout
+snippet cout
+	std::cout << \${1} << std::endl;\${2}
+# std::cin
+snippet cin
+	std::cin >> \${1};\${2}
+##
+## Iteration
+# for i 
+snippet fori
+	for (int \${2:i} = 0; $2 < \${1:count}; $2\${3:++}) {
+		\${4:/* code */}
+	}\${5}
+
+# foreach
+snippet fore
+	for (\${1:auto} \${2:i} : \${3:container}) {
+		\${4:/* code */}
+	}\${5}
+# iterator
+snippet iter
+	for (\${1:std::vector}<\${2:type}>::\${3:const_iterator} \${4:i} = \${5:container}.begin(); $4 != $5.end(); ++$4) {
+		\${6}
+	}\${7}
+
+# auto iterator
+snippet itera
+	for (auto \${1:i} = $1.begin(); $1 != $1.end(); ++$1) {
+		\${2:std::cout << *$1 << std::endl;}
+	}\${3}
+##
+## Lambdas
+# lamda (one line)
+snippet ld
+	[\${1}](\${2}){\${3:/* code */}}\${4}
+# lambda (multi-line)
+snippet lld
+	[\${1}](\${2}){
+		\${3:/* code */}
+	}\${4}
+`,e.scope="c_cpp"}),function(){ace.require(["ace/snippets/c_cpp"],function(n){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=n)})}();

@@ -1,1 +1,122 @@
-ace.define("ace/snippets/r",["require","exports","module"],(function(n,t,p){"use strict";t.snippetText='snippet #!\n\t#!/usr/bin/env Rscript\n\n# includes\nsnippet lib\n\tlibrary(${1:package})\nsnippet req\n\trequire(${1:package})\nsnippet source\n\tsource(\'${1:file}\')\n\n# conditionals\nsnippet if\n\tif (${1:condition}) {\n\t\t${2:code}\n\t}\nsnippet el\n\telse {\n\t\t${1:code}\n\t}\nsnippet ei\n\telse if (${1:condition}) {\n\t\t${2:code}\n\t}\n\n# functions\nsnippet fun\n\t${1:name} = function (${2:variables}) {\n\t\t${3:code}\n\t}\nsnippet ret\n\treturn(${1:code})\n\n# dataframes, lists, etc\nsnippet df\n\t${1:name}[${2:rows}, ${3:cols}]\nsnippet c\n\tc(${1:items})\nsnippet li\n\tlist(${1:items})\nsnippet mat\n\tmatrix(${1:data}, nrow=${2:rows}, ncol=${3:cols})\n\n# apply functions\nsnippet apply\n\tapply(${1:array}, ${2:margin}, ${3:function})\nsnippet lapply\n\tlapply(${1:list}, ${2:function})\nsnippet sapply\n\tsapply(${1:list}, ${2:function})\nsnippet vapply\n\tvapply(${1:list}, ${2:function}, ${3:type})\nsnippet mapply\n\tmapply(${1:function}, ${2:...})\nsnippet tapply\n\ttapply(${1:vector}, ${2:index}, ${3:function})\nsnippet rapply\n\trapply(${1:list}, ${2:function})\n\n# plyr functions\nsnippet dd\n\tddply(${1:frame}, ${2:variables}, ${3:function})\nsnippet dl\n\tdlply(${1:frame}, ${2:variables}, ${3:function})\nsnippet da\n\tdaply(${1:frame}, ${2:variables}, ${3:function})\nsnippet d_\n\td_ply(${1:frame}, ${2:variables}, ${3:function})\n\nsnippet ad\n\tadply(${1:array}, ${2:margin}, ${3:function})\nsnippet al\n\talply(${1:array}, ${2:margin}, ${3:function})\nsnippet aa\n\taaply(${1:array}, ${2:margin}, ${3:function})\nsnippet a_\n\ta_ply(${1:array}, ${2:margin}, ${3:function})\n\nsnippet ld\n\tldply(${1:list}, ${2:function})\nsnippet ll\n\tllply(${1:list}, ${2:function})\nsnippet la\n\tlaply(${1:list}, ${2:function})\nsnippet l_\n\tl_ply(${1:list}, ${2:function})\n\nsnippet md\n\tmdply(${1:matrix}, ${2:function})\nsnippet ml\n\tmlply(${1:matrix}, ${2:function})\nsnippet ma\n\tmaply(${1:matrix}, ${2:function})\nsnippet m_\n\tm_ply(${1:matrix}, ${2:function})\n\n# plot functions\nsnippet pl\n\tplot(${1:x}, ${2:y})\nsnippet ggp\n\tggplot(${1:data}, aes(${2:aesthetics}))\nsnippet img\n\t${1:(jpeg,bmp,png,tiff)}(filename="${2:filename}", width=${3}, height=${4}, unit="${5}")\n\t${6:plot}\n\tdev.off()\n\n# statistical test functions\nsnippet fis\n\tfisher.test(${1:x}, ${2:y})\nsnippet chi\n\tchisq.test(${1:x}, ${2:y})\nsnippet tt\n\tt.test(${1:x}, ${2:y})\nsnippet wil\n\twilcox.test(${1:x}, ${2:y})\nsnippet cor\n\tcor.test(${1:x}, ${2:y})\nsnippet fte\n\tvar.test(${1:x}, ${2:y})\nsnippet kvt \n\tkv.test(${1:x}, ${2:y})\n',t.scope="r"})),function(){ace.require(["ace/snippets/r"],(function(n){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=n)}))}();
+ace.define("ace/snippets/r",["require","exports","module"],function(n,p,t){"use strict";p.snippetText=`snippet #!
+	#!/usr/bin/env Rscript
+
+# includes
+snippet lib
+	library(\${1:package})
+snippet req
+	require(\${1:package})
+snippet source
+	source('\${1:file}')
+
+# conditionals
+snippet if
+	if (\${1:condition}) {
+		\${2:code}
+	}
+snippet el
+	else {
+		\${1:code}
+	}
+snippet ei
+	else if (\${1:condition}) {
+		\${2:code}
+	}
+
+# functions
+snippet fun
+	\${1:name} = function (\${2:variables}) {
+		\${3:code}
+	}
+snippet ret
+	return(\${1:code})
+
+# dataframes, lists, etc
+snippet df
+	\${1:name}[\${2:rows}, \${3:cols}]
+snippet c
+	c(\${1:items})
+snippet li
+	list(\${1:items})
+snippet mat
+	matrix(\${1:data}, nrow=\${2:rows}, ncol=\${3:cols})
+
+# apply functions
+snippet apply
+	apply(\${1:array}, \${2:margin}, \${3:function})
+snippet lapply
+	lapply(\${1:list}, \${2:function})
+snippet sapply
+	sapply(\${1:list}, \${2:function})
+snippet vapply
+	vapply(\${1:list}, \${2:function}, \${3:type})
+snippet mapply
+	mapply(\${1:function}, \${2:...})
+snippet tapply
+	tapply(\${1:vector}, \${2:index}, \${3:function})
+snippet rapply
+	rapply(\${1:list}, \${2:function})
+
+# plyr functions
+snippet dd
+	ddply(\${1:frame}, \${2:variables}, \${3:function})
+snippet dl
+	dlply(\${1:frame}, \${2:variables}, \${3:function})
+snippet da
+	daply(\${1:frame}, \${2:variables}, \${3:function})
+snippet d_
+	d_ply(\${1:frame}, \${2:variables}, \${3:function})
+
+snippet ad
+	adply(\${1:array}, \${2:margin}, \${3:function})
+snippet al
+	alply(\${1:array}, \${2:margin}, \${3:function})
+snippet aa
+	aaply(\${1:array}, \${2:margin}, \${3:function})
+snippet a_
+	a_ply(\${1:array}, \${2:margin}, \${3:function})
+
+snippet ld
+	ldply(\${1:list}, \${2:function})
+snippet ll
+	llply(\${1:list}, \${2:function})
+snippet la
+	laply(\${1:list}, \${2:function})
+snippet l_
+	l_ply(\${1:list}, \${2:function})
+
+snippet md
+	mdply(\${1:matrix}, \${2:function})
+snippet ml
+	mlply(\${1:matrix}, \${2:function})
+snippet ma
+	maply(\${1:matrix}, \${2:function})
+snippet m_
+	m_ply(\${1:matrix}, \${2:function})
+
+# plot functions
+snippet pl
+	plot(\${1:x}, \${2:y})
+snippet ggp
+	ggplot(\${1:data}, aes(\${2:aesthetics}))
+snippet img
+	\${1:(jpeg,bmp,png,tiff)}(filename="\${2:filename}", width=\${3}, height=\${4}, unit="\${5}")
+	\${6:plot}
+	dev.off()
+
+# statistical test functions
+snippet fis
+	fisher.test(\${1:x}, \${2:y})
+snippet chi
+	chisq.test(\${1:x}, \${2:y})
+snippet tt
+	t.test(\${1:x}, \${2:y})
+snippet wil
+	wilcox.test(\${1:x}, \${2:y})
+snippet cor
+	cor.test(\${1:x}, \${2:y})
+snippet fte
+	var.test(\${1:x}, \${2:y})
+snippet kvt 
+	kv.test(\${1:x}, \${2:y})
+`,p.scope="r"}),function(){ace.require(["ace/snippets/r"],function(n){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=n)})}();

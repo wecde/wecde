@@ -1,1 +1,196 @@
-ace.define("ace/snippets/javascript",["require","exports","module"],(function(n,t,e){"use strict";t.snippetText='# Prototype\nsnippet proto\n\t${1:class_name}.prototype.${2:method_name} = function(${3:first_argument}) {\n\t\t${4:// body...}\n\t};\n# Function\nsnippet fun\n\tfunction ${1?:function_name}(${2:argument}) {\n\t\t${3:// body...}\n\t}\n# Anonymous Function\nregex /((=)\\s*|(:)\\s*|(\\()|\\b)/f/(\\))?/\nsnippet f\n\tfunction${M1?: ${1:functionName}}($2) {\n\t\t${0:$TM_SELECTED_TEXT}\n\t}${M2?;}${M3?,}${M4?)}\n# Immediate function\ntrigger \\(?f\\(\nendTrigger \\)?\nsnippet f(\n\t(function(${1}) {\n\t\t${0:${TM_SELECTED_TEXT:/* code */}}\n\t}(${1}));\n# if\nsnippet if\n\tif (${1:true}) {\n\t\t${0}\n\t}\n# if ... else\nsnippet ife\n\tif (${1:true}) {\n\t\t${2}\n\t} else {\n\t\t${0}\n\t}\n# tertiary conditional\nsnippet ter\n\t${1:/* condition */} ? ${2:a} : ${3:b}\n# switch\nsnippet switch\n\tswitch (${1:expression}) {\n\t\tcase \'${3:case}\':\n\t\t\t${4:// code}\n\t\t\tbreak;\n\t\t${5}\n\t\tdefault:\n\t\t\t${2:// code}\n\t}\n# case\nsnippet case\n\tcase \'${1:case}\':\n\t\t${2:// code}\n\t\tbreak;\n\t${3}\n\n# while (...) {...}\nsnippet wh\n\twhile (${1:/* condition */}) {\n\t\t${0:/* code */}\n\t}\n# try\nsnippet try\n\ttry {\n\t\t${0:/* code */}\n\t} catch (e) {}\n# do...while\nsnippet do\n\tdo {\n\t\t${2:/* code */}\n\t} while (${1:/* condition */});\n# Object Method\nsnippet :f\nregex /([,{[])|^\\s*/:f/\n\t${1:method_name}: function(${2:attribute}) {\n\t\t${0}\n\t}${3:,}\n# setTimeout function\nsnippet setTimeout\nregex /\\b/st|timeout|setTimeo?u?t?/\n\tsetTimeout(function() {${3:$TM_SELECTED_TEXT}}, ${1:10});\n# Get Elements\nsnippet gett\n\tgetElementsBy${1:TagName}(\'${2}\')${3}\n# Get Element\nsnippet get\n\tgetElementBy${1:Id}(\'${2}\')${3}\n# console.log (Firebug)\nsnippet cl\n\tconsole.log(${1});\n# return\nsnippet ret\n\treturn ${1:result}\n# for (property in object ) { ... }\nsnippet fori\n\tfor (var ${1:prop} in ${2:Things}) {\n\t\t${0:$2[$1]}\n\t}\n# hasOwnProperty\nsnippet has\n\thasOwnProperty(${1})\n# docstring\nsnippet /**\n\t/**\n\t * ${1:description}\n\t *\n\t */\nsnippet @par\nregex /^\\s*\\*\\s*/@(para?m?)?/\n\t@param {${1:type}} ${2:name} ${3:description}\nsnippet @ret\n\t@return {${1:type}} ${2:description}\n# JSON.parse\nsnippet jsonp\n\tJSON.parse(${1:jstr});\n# JSON.stringify\nsnippet jsons\n\tJSON.stringify(${1:object});\n# self-defining function\nsnippet sdf\n\tvar ${1:function_name} = function(${2:argument}) {\n\t\t${3:// initial code ...}\n\n\t\t$1 = function($2) {\n\t\t\t${4:// main code}\n\t\t};\n\t}\n# singleton\nsnippet sing\n\tfunction ${1:Singleton} (${2:argument}) {\n\t\t// the cached instance\n\t\tvar instance;\n\n\t\t// rewrite the constructor\n\t\t$1 = function $1($2) {\n\t\t\treturn instance;\n\t\t};\n\t\t\n\t\t// carry over the prototype properties\n\t\t$1.prototype = this;\n\n\t\t// the instance\n\t\tinstance = new $1();\n\n\t\t// reset the constructor pointer\n\t\tinstance.constructor = $1;\n\n\t\t${3:// code ...}\n\n\t\treturn instance;\n\t}\n# class\nsnippet class\nregex /^\\s*/clas{0,2}/\n\tvar ${1:class} = function(${20}) {\n\t\t$40$0\n\t};\n\t\n\t(function() {\n\t\t${60:this.prop = ""}\n\t}).call(${1:class}.prototype);\n\t\n\texports.${1:class} = ${1:class};\n# \nsnippet for-\n\tfor (var ${1:i} = ${2:Things}.length; ${1:i}--; ) {\n\t\t${0:${2:Things}[${1:i}];}\n\t}\n# for (...) {...}\nsnippet for\n\tfor (var ${1:i} = 0; $1 < ${2:Things}.length; $1++) {\n\t\t${3:$2[$1]}$0\n\t}\n# for (...) {...} (Improved Native For-Loop)\nsnippet forr\n\tfor (var ${1:i} = ${2:Things}.length - 1; $1 >= 0; $1--) {\n\t\t${3:$2[$1]}$0\n\t}\n\n\n#modules\nsnippet def\n\tdefine(function(require, exports, module) {\n\t"use strict";\n\tvar ${1/.*\\///} = require("${1}");\n\t\n\t$TM_SELECTED_TEXT\n\t});\nsnippet req\nguard ^\\s*\n\tvar ${1/.*\\///} = require("${1}");\n\t$0\nsnippet requ\nguard ^\\s*\n\tvar ${1/.*\\/(.)/\\u$1/} = require("${1}").${1/.*\\/(.)/\\u$1/};\n\t$0\n',t.scope="javascript"})),function(){ace.require(["ace/snippets/javascript"],(function(n){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=n)}))}();
+ace.define("ace/snippets/javascript",["require","exports","module"],function(n,e,t){"use strict";e.snippetText=`# Prototype
+snippet proto
+	\${1:class_name}.prototype.\${2:method_name} = function(\${3:first_argument}) {
+		\${4:// body...}
+	};
+# Function
+snippet fun
+	function \${1?:function_name}(\${2:argument}) {
+		\${3:// body...}
+	}
+# Anonymous Function
+regex /((=)\\s*|(:)\\s*|(\\()|\\b)/f/(\\))?/
+snippet f
+	function\${M1?: \${1:functionName}}($2) {
+		\${0:$TM_SELECTED_TEXT}
+	}\${M2?;}\${M3?,}\${M4?)}
+# Immediate function
+trigger \\(?f\\(
+endTrigger \\)?
+snippet f(
+	(function(\${1}) {
+		\${0:\${TM_SELECTED_TEXT:/* code */}}
+	}(\${1}));
+# if
+snippet if
+	if (\${1:true}) {
+		\${0}
+	}
+# if ... else
+snippet ife
+	if (\${1:true}) {
+		\${2}
+	} else {
+		\${0}
+	}
+# tertiary conditional
+snippet ter
+	\${1:/* condition */} ? \${2:a} : \${3:b}
+# switch
+snippet switch
+	switch (\${1:expression}) {
+		case '\${3:case}':
+			\${4:// code}
+			break;
+		\${5}
+		default:
+			\${2:// code}
+	}
+# case
+snippet case
+	case '\${1:case}':
+		\${2:// code}
+		break;
+	\${3}
+
+# while (...) {...}
+snippet wh
+	while (\${1:/* condition */}) {
+		\${0:/* code */}
+	}
+# try
+snippet try
+	try {
+		\${0:/* code */}
+	} catch (e) {}
+# do...while
+snippet do
+	do {
+		\${2:/* code */}
+	} while (\${1:/* condition */});
+# Object Method
+snippet :f
+regex /([,{[])|^\\s*/:f/
+	\${1:method_name}: function(\${2:attribute}) {
+		\${0}
+	}\${3:,}
+# setTimeout function
+snippet setTimeout
+regex /\\b/st|timeout|setTimeo?u?t?/
+	setTimeout(function() {\${3:$TM_SELECTED_TEXT}}, \${1:10});
+# Get Elements
+snippet gett
+	getElementsBy\${1:TagName}('\${2}')\${3}
+# Get Element
+snippet get
+	getElementBy\${1:Id}('\${2}')\${3}
+# console.log (Firebug)
+snippet cl
+	console.log(\${1});
+# return
+snippet ret
+	return \${1:result}
+# for (property in object ) { ... }
+snippet fori
+	for (var \${1:prop} in \${2:Things}) {
+		\${0:$2[$1]}
+	}
+# hasOwnProperty
+snippet has
+	hasOwnProperty(\${1})
+# docstring
+snippet /**
+	/**
+	 * \${1:description}
+	 *
+	 */
+snippet @par
+regex /^\\s*\\*\\s*/@(para?m?)?/
+	@param {\${1:type}} \${2:name} \${3:description}
+snippet @ret
+	@return {\${1:type}} \${2:description}
+# JSON.parse
+snippet jsonp
+	JSON.parse(\${1:jstr});
+# JSON.stringify
+snippet jsons
+	JSON.stringify(\${1:object});
+# self-defining function
+snippet sdf
+	var \${1:function_name} = function(\${2:argument}) {
+		\${3:// initial code ...}
+
+		$1 = function($2) {
+			\${4:// main code}
+		};
+	}
+# singleton
+snippet sing
+	function \${1:Singleton} (\${2:argument}) {
+		// the cached instance
+		var instance;
+
+		// rewrite the constructor
+		$1 = function $1($2) {
+			return instance;
+		};
+		
+		// carry over the prototype properties
+		$1.prototype = this;
+
+		// the instance
+		instance = new $1();
+
+		// reset the constructor pointer
+		instance.constructor = $1;
+
+		\${3:// code ...}
+
+		return instance;
+	}
+# class
+snippet class
+regex /^\\s*/clas{0,2}/
+	var \${1:class} = function(\${20}) {
+		$40$0
+	};
+	
+	(function() {
+		\${60:this.prop = ""}
+	}).call(\${1:class}.prototype);
+	
+	exports.\${1:class} = \${1:class};
+# 
+snippet for-
+	for (var \${1:i} = \${2:Things}.length; \${1:i}--; ) {
+		\${0:\${2:Things}[\${1:i}];}
+	}
+# for (...) {...}
+snippet for
+	for (var \${1:i} = 0; $1 < \${2:Things}.length; $1++) {
+		\${3:$2[$1]}$0
+	}
+# for (...) {...} (Improved Native For-Loop)
+snippet forr
+	for (var \${1:i} = \${2:Things}.length - 1; $1 >= 0; $1--) {
+		\${3:$2[$1]}$0
+	}
+
+
+#modules
+snippet def
+	define(function(require, exports, module) {
+	"use strict";
+	var \${1/.*\\///} = require("\${1}");
+	
+	$TM_SELECTED_TEXT
+	});
+snippet req
+guard ^\\s*
+	var \${1/.*\\///} = require("\${1}");
+	$0
+snippet requ
+guard ^\\s*
+	var \${1/.*\\/(.)/\\u$1/} = require("\${1}").\${1/.*\\/(.)/\\u$1/};
+	$0
+`,e.scope="javascript"}),function(){ace.require(["ace/snippets/javascript"],function(n){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=n)})}();

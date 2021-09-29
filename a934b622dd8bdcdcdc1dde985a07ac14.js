@@ -1,1 +1,23 @@
-ace.define("ace/snippets/rst",["require","exports","module"],(function(n,t,e){"use strict";t.snippetText="# rst\n\nsnippet :\n\t:${1:field name}: ${2:field body}\nsnippet *\n\t*${1:Emphasis}*\nsnippet **\n\t**${1:Strong emphasis}**\nsnippet _\n\t\\`${1:hyperlink-name}\\`_\n\t.. _\\`$1\\`: ${2:link-block}\nsnippet =\n\t${1:Title}\n\t=====${2:=}\n\t${3}\nsnippet -\n\t${1:Title}\n\t-----${2:-}\n\t${3}\nsnippet cont:\n\t.. contents::\n\t\n",t.scope="rst"})),function(){ace.require(["ace/snippets/rst"],(function(n){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=n)}))}();
+ace.define("ace/snippets/rst",["require","exports","module"],function(n,e,t){"use strict";e.snippetText=`# rst
+
+snippet :
+	:\${1:field name}: \${2:field body}
+snippet *
+	*\${1:Emphasis}*
+snippet **
+	**\${1:Strong emphasis}**
+snippet _
+	\\\`\${1:hyperlink-name}\\\`_
+	.. _\\\`$1\\\`: \${2:link-block}
+snippet =
+	\${1:Title}
+	=====\${2:=}
+	\${3}
+snippet -
+	\${1:Title}
+	-----\${2:-}
+	\${3}
+snippet cont:
+	.. contents::
+	
+`,e.scope="rst"}),function(){ace.require(["ace/snippets/rst"],function(n){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=n)})}();

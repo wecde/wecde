@@ -1,1 +1,191 @@
-ace.define("ace/snippets/tex",["require","exports","module"],(function(n,t,e){"use strict";t.snippetText="#PREAMBLE\n#newcommand\nsnippet nc\n\t\\newcommand{\\${1:cmd}}[${2:opt}]{${3:realcmd}}${4}\n#usepackage\nsnippet up\n\t\\usepackage[${1:[options}]{${2:package}}\n#newunicodechar\nsnippet nuc\n\t\\newunicodechar{${1}}{${2:\\ensuremath}${3:tex-substitute}}}\n#DeclareMathOperator\nsnippet dmo\n\t\\DeclareMathOperator{${1}}{${2}}\n\n#DOCUMENT\n# \\begin{}...\\end{}\nsnippet begin\n\t\\begin{${1:env}}\n\t\t${2}\n\t\\end{$1}\n# Tabular\nsnippet tab\n\t\\begin{${1:tabular}}{${2:c}}\n\t${3}\n\t\\end{$1}\nsnippet thm\n\t\\begin[${1:author}]{${2:thm}}\n\t${3}\n\t\\end{$1}\nsnippet center\n\t\\begin{center}\n\t\t${1}\n\t\\end{center}\n# Align(ed)\nsnippet ali\n\t\\begin{align${1:ed}}\n\t\t${2}\n\t\\end{align$1}\n# Gather(ed)\nsnippet gat\n\t\\begin{gather${1:ed}}\n\t\t${2}\n\t\\end{gather$1}\n# Equation\nsnippet eq\n\t\\begin{equation}\n\t\t${1}\n\t\\end{equation}\n# Equation\nsnippet eq*\n\t\\begin{equation*}\n\t\t${1}\n\t\\end{equation*}\n# Unnumbered Equation\nsnippet \\\n\t\\[\n\t\t${1}\n\t\\]\n# Enumerate\nsnippet enum\n\t\\begin{enumerate}\n\t\t\\item ${1}\n\t\\end{enumerate}\n# Itemize\nsnippet itemize\n\t\\begin{itemize}\n\t\t\\item ${1}\n\t\\end{itemize}\n# Description\nsnippet desc\n\t\\begin{description}\n\t\t\\item[${1}] ${2}\n\t\\end{description}\n# Matrix\nsnippet mat\n\t\\begin{${1:p/b/v/V/B/small}matrix}\n\t\t${2}\n\t\\end{$1matrix}\n# Cases\nsnippet cas\n\t\\begin{cases}\n\t\t${1:equation}, &\\text{ if }${2:case}\\\\\n\t\t${3}\n\t\\end{cases}\n# Split\nsnippet spl\n\t\\begin{split}\n\t\t${1}\n\t\\end{split}\n# Part\nsnippet part\n\t\\part{${1:part name}} % (fold)\n\t\\label{prt:${2:$1}}\n\t${3}\n\t% part $2 (end)\n# Chapter\nsnippet cha\n\t\\chapter{${1:chapter name}}\n\t\\label{cha:${2:$1}}\n\t${3}\n# Section\nsnippet sec\n\t\\section{${1:section name}}\n\t\\label{sec:${2:$1}}\n\t${3}\n# Sub Section\nsnippet sub\n\t\\subsection{${1:subsection name}}\n\t\\label{sub:${2:$1}}\n\t${3}\n# Sub Sub Section\nsnippet subs\n\t\\subsubsection{${1:subsubsection name}}\n\t\\label{ssub:${2:$1}}\n\t${3}\n# Paragraph\nsnippet par\n\t\\paragraph{${1:paragraph name}}\n\t\\label{par:${2:$1}}\n\t${3}\n# Sub Paragraph\nsnippet subp\n\t\\subparagraph{${1:subparagraph name}}\n\t\\label{subp:${2:$1}}\n\t${3}\n#References\nsnippet itd\n\t\\item[${1:description}] ${2:item}\nsnippet figure\n\t${1:Figure}~\\ref{${2:fig:}}${3}\nsnippet table\n\t${1:Table}~\\ref{${2:tab:}}${3}\nsnippet listing\n\t${1:Listing}~\\ref{${2:list}}${3}\nsnippet section\n\t${1:Section}~\\ref{${2:sec:}}${3}\nsnippet page\n\t${1:page}~\\pageref{${2}}${3}\nsnippet index\n\t\\index{${1:index}}${2}\n#Citations\nsnippet cite\n\t\\cite[${1}]{${2}}${3}\nsnippet fcite\n\t\\footcite[${1}]{${2}}${3}\n#Formating text: italic, bold, underline, small capital, emphase ..\nsnippet it\n\t\\textit{${1:text}}\nsnippet bf\n\t\\textbf{${1:text}}\nsnippet under\n\t\\underline{${1:text}}\nsnippet emp\n\t\\emph{${1:text}}\nsnippet sc\n\t\\textsc{${1:text}}\n#Choosing font\nsnippet sf\n\t\\textsf{${1:text}}\nsnippet rm\n\t\\textrm{${1:text}}\nsnippet tt\n\t\\texttt{${1:text}}\n#misc\nsnippet ft\n\t\\footnote{${1:text}}\nsnippet fig\n\t\\begin{figure}\n\t\\begin{center}\n\t    \\includegraphics[scale=${1}]{Figures/${2}}\n\t\\end{center}\n\t\\caption{${3}}\n\t\\label{fig:${4}}\n\t\\end{figure}\nsnippet tikz\n\t\\begin{figure}\n\t\\begin{center}\n\t\\begin{tikzpicture}[scale=${1:1}]\n\t\t${2}\n\t\\end{tikzpicture}\n\t\\end{center}\n\t\\caption{${3}}\n\t\\label{fig:${4}}\n\t\\end{figure}\n#math\nsnippet stackrel\n\t\\stackrel{${1:above}}{${2:below}} ${3}\nsnippet frac\n\t\\frac{${1:num}}{${2:denom}}\nsnippet sum\n\t\\sum^{${1:n}}_{${2:i=1}}{${3}}",t.scope="tex"})),function(){ace.require(["ace/snippets/tex"],(function(n){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=n)}))}();
+ace.define("ace/snippets/tex",["require","exports","module"],function(n,e,t){"use strict";e.snippetText=`#PREAMBLE
+#newcommand
+snippet nc
+	\\newcommand{\\\${1:cmd}}[\${2:opt}]{\${3:realcmd}}\${4}
+#usepackage
+snippet up
+	\\usepackage[\${1:[options}]{\${2:package}}
+#newunicodechar
+snippet nuc
+	\\newunicodechar{\${1}}{\${2:\\ensuremath}\${3:tex-substitute}}}
+#DeclareMathOperator
+snippet dmo
+	\\DeclareMathOperator{\${1}}{\${2}}
+
+#DOCUMENT
+# \\begin{}...\\end{}
+snippet begin
+	\\begin{\${1:env}}
+		\${2}
+	\\end{$1}
+# Tabular
+snippet tab
+	\\begin{\${1:tabular}}{\${2:c}}
+	\${3}
+	\\end{$1}
+snippet thm
+	\\begin[\${1:author}]{\${2:thm}}
+	\${3}
+	\\end{$1}
+snippet center
+	\\begin{center}
+		\${1}
+	\\end{center}
+# Align(ed)
+snippet ali
+	\\begin{align\${1:ed}}
+		\${2}
+	\\end{align$1}
+# Gather(ed)
+snippet gat
+	\\begin{gather\${1:ed}}
+		\${2}
+	\\end{gather$1}
+# Equation
+snippet eq
+	\\begin{equation}
+		\${1}
+	\\end{equation}
+# Equation
+snippet eq*
+	\\begin{equation*}
+		\${1}
+	\\end{equation*}
+# Unnumbered Equation
+snippet \\
+	\\[
+		\${1}
+	\\]
+# Enumerate
+snippet enum
+	\\begin{enumerate}
+		\\item \${1}
+	\\end{enumerate}
+# Itemize
+snippet itemize
+	\\begin{itemize}
+		\\item \${1}
+	\\end{itemize}
+# Description
+snippet desc
+	\\begin{description}
+		\\item[\${1}] \${2}
+	\\end{description}
+# Matrix
+snippet mat
+	\\begin{\${1:p/b/v/V/B/small}matrix}
+		\${2}
+	\\end{$1matrix}
+# Cases
+snippet cas
+	\\begin{cases}
+		\${1:equation}, &\\text{ if }\${2:case}\\\\
+		\${3}
+	\\end{cases}
+# Split
+snippet spl
+	\\begin{split}
+		\${1}
+	\\end{split}
+# Part
+snippet part
+	\\part{\${1:part name}} % (fold)
+	\\label{prt:\${2:$1}}
+	\${3}
+	% part $2 (end)
+# Chapter
+snippet cha
+	\\chapter{\${1:chapter name}}
+	\\label{cha:\${2:$1}}
+	\${3}
+# Section
+snippet sec
+	\\section{\${1:section name}}
+	\\label{sec:\${2:$1}}
+	\${3}
+# Sub Section
+snippet sub
+	\\subsection{\${1:subsection name}}
+	\\label{sub:\${2:$1}}
+	\${3}
+# Sub Sub Section
+snippet subs
+	\\subsubsection{\${1:subsubsection name}}
+	\\label{ssub:\${2:$1}}
+	\${3}
+# Paragraph
+snippet par
+	\\paragraph{\${1:paragraph name}}
+	\\label{par:\${2:$1}}
+	\${3}
+# Sub Paragraph
+snippet subp
+	\\subparagraph{\${1:subparagraph name}}
+	\\label{subp:\${2:$1}}
+	\${3}
+#References
+snippet itd
+	\\item[\${1:description}] \${2:item}
+snippet figure
+	\${1:Figure}~\\ref{\${2:fig:}}\${3}
+snippet table
+	\${1:Table}~\\ref{\${2:tab:}}\${3}
+snippet listing
+	\${1:Listing}~\\ref{\${2:list}}\${3}
+snippet section
+	\${1:Section}~\\ref{\${2:sec:}}\${3}
+snippet page
+	\${1:page}~\\pageref{\${2}}\${3}
+snippet index
+	\\index{\${1:index}}\${2}
+#Citations
+snippet cite
+	\\cite[\${1}]{\${2}}\${3}
+snippet fcite
+	\\footcite[\${1}]{\${2}}\${3}
+#Formating text: italic, bold, underline, small capital, emphase ..
+snippet it
+	\\textit{\${1:text}}
+snippet bf
+	\\textbf{\${1:text}}
+snippet under
+	\\underline{\${1:text}}
+snippet emp
+	\\emph{\${1:text}}
+snippet sc
+	\\textsc{\${1:text}}
+#Choosing font
+snippet sf
+	\\textsf{\${1:text}}
+snippet rm
+	\\textrm{\${1:text}}
+snippet tt
+	\\texttt{\${1:text}}
+#misc
+snippet ft
+	\\footnote{\${1:text}}
+snippet fig
+	\\begin{figure}
+	\\begin{center}
+	    \\includegraphics[scale=\${1}]{Figures/\${2}}
+	\\end{center}
+	\\caption{\${3}}
+	\\label{fig:\${4}}
+	\\end{figure}
+snippet tikz
+	\\begin{figure}
+	\\begin{center}
+	\\begin{tikzpicture}[scale=\${1:1}]
+		\${2}
+	\\end{tikzpicture}
+	\\end{center}
+	\\caption{\${3}}
+	\\label{fig:\${4}}
+	\\end{figure}
+#math
+snippet stackrel
+	\\stackrel{\${1:above}}{\${2:below}} \${3}
+snippet frac
+	\\frac{\${1:num}}{\${2:denom}}
+snippet sum
+	\\sum^{\${1:n}}_{\${2:i=1}}{\${3}}`,e.scope="tex"}),function(){ace.require(["ace/snippets/tex"],function(n){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=n)})}();

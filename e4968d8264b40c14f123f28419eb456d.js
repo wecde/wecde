@@ -1,1 +1,10 @@
-ace.define("ace/snippets/snippets",["require","exports","module"],(function(e,t,p){"use strict";t.snippetText="# snippets for making snippets :)\nsnippet snip\n\tsnippet ${1:trigger}\n\t\t${2}\nsnippet msnip\n\tsnippet ${1:trigger} ${2:description}\n\t\t${3}\nsnippet v\n\t{VISUAL}\n",t.scope="snippets"})),function(){ace.require(["ace/snippets/snippets"],(function(e){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=e)}))}();
+ace.define("ace/snippets/snippets",["require","exports","module"],function(e,p,n){"use strict";p.snippetText=`# snippets for making snippets :)
+snippet snip
+	snippet \${1:trigger}
+		\${2}
+snippet msnip
+	snippet \${1:trigger} \${2:description}
+		\${3}
+snippet v
+	{VISUAL}
+`,p.scope="snippets"}),function(){ace.require(["ace/snippets/snippets"],function(e){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=e)})}();

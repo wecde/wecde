@@ -1,1 +1,968 @@
-ace.define("ace/snippets/css",["require","exports","module"],(function(n,t,e){"use strict";t.snippetText="snippet .\n\t${1} {\n\t\t${2}\n\t}\nsnippet !\n\t !important\nsnippet bdi:m+\n\t-moz-border-image: url(${1}) ${2:0} ${3:0} ${4:0} ${5:0} ${6:stretch} ${7:stretch};\nsnippet bdi:m\n\t-moz-border-image: ${1};\nsnippet bdrz:m\n\t-moz-border-radius: ${1};\nsnippet bxsh:m+\n\t-moz-box-shadow: ${1:0} ${2:0} ${3:0} #${4:000};\nsnippet bxsh:m\n\t-moz-box-shadow: ${1};\nsnippet bdi:w+\n\t-webkit-border-image: url(${1}) ${2:0} ${3:0} ${4:0} ${5:0} ${6:stretch} ${7:stretch};\nsnippet bdi:w\n\t-webkit-border-image: ${1};\nsnippet bdrz:w\n\t-webkit-border-radius: ${1};\nsnippet bxsh:w+\n\t-webkit-box-shadow: ${1:0} ${2:0} ${3:0} #${4:000};\nsnippet bxsh:w\n\t-webkit-box-shadow: ${1};\nsnippet @f\n\t@font-face {\n\t\tfont-family: ${1};\n\t\tsrc: url(${2});\n\t}\nsnippet @i\n\t@import url(${1});\nsnippet @m\n\t@media ${1:print} {\n\t\t${2}\n\t}\nsnippet bg+\n\tbackground: #${1:FFF} url(${2}) ${3:0} ${4:0} ${5:no-repeat};\nsnippet bga\n\tbackground-attachment: ${1};\nsnippet bga:f\n\tbackground-attachment: fixed;\nsnippet bga:s\n\tbackground-attachment: scroll;\nsnippet bgbk\n\tbackground-break: ${1};\nsnippet bgbk:bb\n\tbackground-break: bounding-box;\nsnippet bgbk:c\n\tbackground-break: continuous;\nsnippet bgbk:eb\n\tbackground-break: each-box;\nsnippet bgcp\n\tbackground-clip: ${1};\nsnippet bgcp:bb\n\tbackground-clip: border-box;\nsnippet bgcp:cb\n\tbackground-clip: content-box;\nsnippet bgcp:nc\n\tbackground-clip: no-clip;\nsnippet bgcp:pb\n\tbackground-clip: padding-box;\nsnippet bgc\n\tbackground-color: #${1:FFF};\nsnippet bgc:t\n\tbackground-color: transparent;\nsnippet bgi\n\tbackground-image: url(${1});\nsnippet bgi:n\n\tbackground-image: none;\nsnippet bgo\n\tbackground-origin: ${1};\nsnippet bgo:bb\n\tbackground-origin: border-box;\nsnippet bgo:cb\n\tbackground-origin: content-box;\nsnippet bgo:pb\n\tbackground-origin: padding-box;\nsnippet bgpx\n\tbackground-position-x: ${1};\nsnippet bgpy\n\tbackground-position-y: ${1};\nsnippet bgp\n\tbackground-position: ${1:0} ${2:0};\nsnippet bgr\n\tbackground-repeat: ${1};\nsnippet bgr:n\n\tbackground-repeat: no-repeat;\nsnippet bgr:x\n\tbackground-repeat: repeat-x;\nsnippet bgr:y\n\tbackground-repeat: repeat-y;\nsnippet bgr:r\n\tbackground-repeat: repeat;\nsnippet bgz\n\tbackground-size: ${1};\nsnippet bgz:a\n\tbackground-size: auto;\nsnippet bgz:ct\n\tbackground-size: contain;\nsnippet bgz:cv\n\tbackground-size: cover;\nsnippet bg\n\tbackground: ${1};\nsnippet bg:ie\n\tfilter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='${1}',sizingMethod='${2:crop}');\nsnippet bg:n\n\tbackground: none;\nsnippet bd+\n\tborder: ${1:1px} ${2:solid} #${3:000};\nsnippet bdb+\n\tborder-bottom: ${1:1px} ${2:solid} #${3:000};\nsnippet bdbc\n\tborder-bottom-color: #${1:000};\nsnippet bdbi\n\tborder-bottom-image: url(${1});\nsnippet bdbi:n\n\tborder-bottom-image: none;\nsnippet bdbli\n\tborder-bottom-left-image: url(${1});\nsnippet bdbli:c\n\tborder-bottom-left-image: continue;\nsnippet bdbli:n\n\tborder-bottom-left-image: none;\nsnippet bdblrz\n\tborder-bottom-left-radius: ${1};\nsnippet bdbri\n\tborder-bottom-right-image: url(${1});\nsnippet bdbri:c\n\tborder-bottom-right-image: continue;\nsnippet bdbri:n\n\tborder-bottom-right-image: none;\nsnippet bdbrrz\n\tborder-bottom-right-radius: ${1};\nsnippet bdbs\n\tborder-bottom-style: ${1};\nsnippet bdbs:n\n\tborder-bottom-style: none;\nsnippet bdbw\n\tborder-bottom-width: ${1};\nsnippet bdb\n\tborder-bottom: ${1};\nsnippet bdb:n\n\tborder-bottom: none;\nsnippet bdbk\n\tborder-break: ${1};\nsnippet bdbk:c\n\tborder-break: close;\nsnippet bdcl\n\tborder-collapse: ${1};\nsnippet bdcl:c\n\tborder-collapse: collapse;\nsnippet bdcl:s\n\tborder-collapse: separate;\nsnippet bdc\n\tborder-color: #${1:000};\nsnippet bdci\n\tborder-corner-image: url(${1});\nsnippet bdci:c\n\tborder-corner-image: continue;\nsnippet bdci:n\n\tborder-corner-image: none;\nsnippet bdf\n\tborder-fit: ${1};\nsnippet bdf:c\n\tborder-fit: clip;\nsnippet bdf:of\n\tborder-fit: overwrite;\nsnippet bdf:ow\n\tborder-fit: overwrite;\nsnippet bdf:r\n\tborder-fit: repeat;\nsnippet bdf:sc\n\tborder-fit: scale;\nsnippet bdf:sp\n\tborder-fit: space;\nsnippet bdf:st\n\tborder-fit: stretch;\nsnippet bdi\n\tborder-image: url(${1}) ${2:0} ${3:0} ${4:0} ${5:0} ${6:stretch} ${7:stretch};\nsnippet bdi:n\n\tborder-image: none;\nsnippet bdl+\n\tborder-left: ${1:1px} ${2:solid} #${3:000};\nsnippet bdlc\n\tborder-left-color: #${1:000};\nsnippet bdli\n\tborder-left-image: url(${1});\nsnippet bdli:n\n\tborder-left-image: none;\nsnippet bdls\n\tborder-left-style: ${1};\nsnippet bdls:n\n\tborder-left-style: none;\nsnippet bdlw\n\tborder-left-width: ${1};\nsnippet bdl\n\tborder-left: ${1};\nsnippet bdl:n\n\tborder-left: none;\nsnippet bdlt\n\tborder-length: ${1};\nsnippet bdlt:a\n\tborder-length: auto;\nsnippet bdrz\n\tborder-radius: ${1};\nsnippet bdr+\n\tborder-right: ${1:1px} ${2:solid} #${3:000};\nsnippet bdrc\n\tborder-right-color: #${1:000};\nsnippet bdri\n\tborder-right-image: url(${1});\nsnippet bdri:n\n\tborder-right-image: none;\nsnippet bdrs\n\tborder-right-style: ${1};\nsnippet bdrs:n\n\tborder-right-style: none;\nsnippet bdrw\n\tborder-right-width: ${1};\nsnippet bdr\n\tborder-right: ${1};\nsnippet bdr:n\n\tborder-right: none;\nsnippet bdsp\n\tborder-spacing: ${1};\nsnippet bds\n\tborder-style: ${1};\nsnippet bds:ds\n\tborder-style: dashed;\nsnippet bds:dtds\n\tborder-style: dot-dash;\nsnippet bds:dtdtds\n\tborder-style: dot-dot-dash;\nsnippet bds:dt\n\tborder-style: dotted;\nsnippet bds:db\n\tborder-style: double;\nsnippet bds:g\n\tborder-style: groove;\nsnippet bds:h\n\tborder-style: hidden;\nsnippet bds:i\n\tborder-style: inset;\nsnippet bds:n\n\tborder-style: none;\nsnippet bds:o\n\tborder-style: outset;\nsnippet bds:r\n\tborder-style: ridge;\nsnippet bds:s\n\tborder-style: solid;\nsnippet bds:w\n\tborder-style: wave;\nsnippet bdt+\n\tborder-top: ${1:1px} ${2:solid} #${3:000};\nsnippet bdtc\n\tborder-top-color: #${1:000};\nsnippet bdti\n\tborder-top-image: url(${1});\nsnippet bdti:n\n\tborder-top-image: none;\nsnippet bdtli\n\tborder-top-left-image: url(${1});\nsnippet bdtli:c\n\tborder-corner-image: continue;\nsnippet bdtli:n\n\tborder-corner-image: none;\nsnippet bdtlrz\n\tborder-top-left-radius: ${1};\nsnippet bdtri\n\tborder-top-right-image: url(${1});\nsnippet bdtri:c\n\tborder-top-right-image: continue;\nsnippet bdtri:n\n\tborder-top-right-image: none;\nsnippet bdtrrz\n\tborder-top-right-radius: ${1};\nsnippet bdts\n\tborder-top-style: ${1};\nsnippet bdts:n\n\tborder-top-style: none;\nsnippet bdtw\n\tborder-top-width: ${1};\nsnippet bdt\n\tborder-top: ${1};\nsnippet bdt:n\n\tborder-top: none;\nsnippet bdw\n\tborder-width: ${1};\nsnippet bd\n\tborder: ${1};\nsnippet bd:n\n\tborder: none;\nsnippet b\n\tbottom: ${1};\nsnippet b:a\n\tbottom: auto;\nsnippet bxsh+\n\tbox-shadow: ${1:0} ${2:0} ${3:0} #${4:000};\nsnippet bxsh\n\tbox-shadow: ${1};\nsnippet bxsh:n\n\tbox-shadow: none;\nsnippet bxz\n\tbox-sizing: ${1};\nsnippet bxz:bb\n\tbox-sizing: border-box;\nsnippet bxz:cb\n\tbox-sizing: content-box;\nsnippet cps\n\tcaption-side: ${1};\nsnippet cps:b\n\tcaption-side: bottom;\nsnippet cps:t\n\tcaption-side: top;\nsnippet cl\n\tclear: ${1};\nsnippet cl:b\n\tclear: both;\nsnippet cl:l\n\tclear: left;\nsnippet cl:n\n\tclear: none;\nsnippet cl:r\n\tclear: right;\nsnippet cp\n\tclip: ${1};\nsnippet cp:a\n\tclip: auto;\nsnippet cp:r\n\tclip: rect(${1:0} ${2:0} ${3:0} ${4:0});\nsnippet c\n\tcolor: #${1:000};\nsnippet ct\n\tcontent: ${1};\nsnippet ct:a\n\tcontent: attr(${1});\nsnippet ct:cq\n\tcontent: close-quote;\nsnippet ct:c\n\tcontent: counter(${1});\nsnippet ct:cs\n\tcontent: counters(${1});\nsnippet ct:ncq\n\tcontent: no-close-quote;\nsnippet ct:noq\n\tcontent: no-open-quote;\nsnippet ct:n\n\tcontent: normal;\nsnippet ct:oq\n\tcontent: open-quote;\nsnippet coi\n\tcounter-increment: ${1};\nsnippet cor\n\tcounter-reset: ${1};\nsnippet cur\n\tcursor: ${1};\nsnippet cur:a\n\tcursor: auto;\nsnippet cur:c\n\tcursor: crosshair;\nsnippet cur:d\n\tcursor: default;\nsnippet cur:ha\n\tcursor: hand;\nsnippet cur:he\n\tcursor: help;\nsnippet cur:m\n\tcursor: move;\nsnippet cur:p\n\tcursor: pointer;\nsnippet cur:t\n\tcursor: text;\nsnippet d\n\tdisplay: ${1};\nsnippet d:mib\n\tdisplay: -moz-inline-box;\nsnippet d:mis\n\tdisplay: -moz-inline-stack;\nsnippet d:b\n\tdisplay: block;\nsnippet d:cp\n\tdisplay: compact;\nsnippet d:ib\n\tdisplay: inline-block;\nsnippet d:itb\n\tdisplay: inline-table;\nsnippet d:i\n\tdisplay: inline;\nsnippet d:li\n\tdisplay: list-item;\nsnippet d:n\n\tdisplay: none;\nsnippet d:ri\n\tdisplay: run-in;\nsnippet d:tbcp\n\tdisplay: table-caption;\nsnippet d:tbc\n\tdisplay: table-cell;\nsnippet d:tbclg\n\tdisplay: table-column-group;\nsnippet d:tbcl\n\tdisplay: table-column;\nsnippet d:tbfg\n\tdisplay: table-footer-group;\nsnippet d:tbhg\n\tdisplay: table-header-group;\nsnippet d:tbrg\n\tdisplay: table-row-group;\nsnippet d:tbr\n\tdisplay: table-row;\nsnippet d:tb\n\tdisplay: table;\nsnippet ec\n\tempty-cells: ${1};\nsnippet ec:h\n\tempty-cells: hide;\nsnippet ec:s\n\tempty-cells: show;\nsnippet exp\n\texpression()\nsnippet fl\n\tfloat: ${1};\nsnippet fl:l\n\tfloat: left;\nsnippet fl:n\n\tfloat: none;\nsnippet fl:r\n\tfloat: right;\nsnippet f+\n\tfont: ${1:1em} ${2:Arial},${3:sans-serif};\nsnippet fef\n\tfont-effect: ${1};\nsnippet fef:eb\n\tfont-effect: emboss;\nsnippet fef:eg\n\tfont-effect: engrave;\nsnippet fef:n\n\tfont-effect: none;\nsnippet fef:o\n\tfont-effect: outline;\nsnippet femp\n\tfont-emphasize-position: ${1};\nsnippet femp:a\n\tfont-emphasize-position: after;\nsnippet femp:b\n\tfont-emphasize-position: before;\nsnippet fems\n\tfont-emphasize-style: ${1};\nsnippet fems:ac\n\tfont-emphasize-style: accent;\nsnippet fems:c\n\tfont-emphasize-style: circle;\nsnippet fems:ds\n\tfont-emphasize-style: disc;\nsnippet fems:dt\n\tfont-emphasize-style: dot;\nsnippet fems:n\n\tfont-emphasize-style: none;\nsnippet fem\n\tfont-emphasize: ${1};\nsnippet ff\n\tfont-family: ${1};\nsnippet ff:c\n\tfont-family: ${1:'Monotype Corsiva','Comic Sans MS'},cursive;\nsnippet ff:f\n\tfont-family: ${1:Capitals,Impact},fantasy;\nsnippet ff:m\n\tfont-family: ${1:Monaco,'Courier New'},monospace;\nsnippet ff:ss\n\tfont-family: ${1:Helvetica,Arial},sans-serif;\nsnippet ff:s\n\tfont-family: ${1:Georgia,'Times New Roman'},serif;\nsnippet fza\n\tfont-size-adjust: ${1};\nsnippet fza:n\n\tfont-size-adjust: none;\nsnippet fz\n\tfont-size: ${1};\nsnippet fsm\n\tfont-smooth: ${1};\nsnippet fsm:aw\n\tfont-smooth: always;\nsnippet fsm:a\n\tfont-smooth: auto;\nsnippet fsm:n\n\tfont-smooth: never;\nsnippet fst\n\tfont-stretch: ${1};\nsnippet fst:c\n\tfont-stretch: condensed;\nsnippet fst:e\n\tfont-stretch: expanded;\nsnippet fst:ec\n\tfont-stretch: extra-condensed;\nsnippet fst:ee\n\tfont-stretch: extra-expanded;\nsnippet fst:n\n\tfont-stretch: normal;\nsnippet fst:sc\n\tfont-stretch: semi-condensed;\nsnippet fst:se\n\tfont-stretch: semi-expanded;\nsnippet fst:uc\n\tfont-stretch: ultra-condensed;\nsnippet fst:ue\n\tfont-stretch: ultra-expanded;\nsnippet fs\n\tfont-style: ${1};\nsnippet fs:i\n\tfont-style: italic;\nsnippet fs:n\n\tfont-style: normal;\nsnippet fs:o\n\tfont-style: oblique;\nsnippet fv\n\tfont-variant: ${1};\nsnippet fv:n\n\tfont-variant: normal;\nsnippet fv:sc\n\tfont-variant: small-caps;\nsnippet fw\n\tfont-weight: ${1};\nsnippet fw:b\n\tfont-weight: bold;\nsnippet fw:br\n\tfont-weight: bolder;\nsnippet fw:lr\n\tfont-weight: lighter;\nsnippet fw:n\n\tfont-weight: normal;\nsnippet f\n\tfont: ${1};\nsnippet h\n\theight: ${1};\nsnippet h:a\n\theight: auto;\nsnippet l\n\tleft: ${1};\nsnippet l:a\n\tleft: auto;\nsnippet lts\n\tletter-spacing: ${1};\nsnippet lh\n\tline-height: ${1};\nsnippet lisi\n\tlist-style-image: url(${1});\nsnippet lisi:n\n\tlist-style-image: none;\nsnippet lisp\n\tlist-style-position: ${1};\nsnippet lisp:i\n\tlist-style-position: inside;\nsnippet lisp:o\n\tlist-style-position: outside;\nsnippet list\n\tlist-style-type: ${1};\nsnippet list:c\n\tlist-style-type: circle;\nsnippet list:dclz\n\tlist-style-type: decimal-leading-zero;\nsnippet list:dc\n\tlist-style-type: decimal;\nsnippet list:d\n\tlist-style-type: disc;\nsnippet list:lr\n\tlist-style-type: lower-roman;\nsnippet list:n\n\tlist-style-type: none;\nsnippet list:s\n\tlist-style-type: square;\nsnippet list:ur\n\tlist-style-type: upper-roman;\nsnippet lis\n\tlist-style: ${1};\nsnippet lis:n\n\tlist-style: none;\nsnippet mb\n\tmargin-bottom: ${1};\nsnippet mb:a\n\tmargin-bottom: auto;\nsnippet ml\n\tmargin-left: ${1};\nsnippet ml:a\n\tmargin-left: auto;\nsnippet mr\n\tmargin-right: ${1};\nsnippet mr:a\n\tmargin-right: auto;\nsnippet mt\n\tmargin-top: ${1};\nsnippet mt:a\n\tmargin-top: auto;\nsnippet m\n\tmargin: ${1};\nsnippet m:4\n\tmargin: ${1:0} ${2:0} ${3:0} ${4:0};\nsnippet m:3\n\tmargin: ${1:0} ${2:0} ${3:0};\nsnippet m:2\n\tmargin: ${1:0} ${2:0};\nsnippet m:0\n\tmargin: 0;\nsnippet m:a\n\tmargin: auto;\nsnippet mah\n\tmax-height: ${1};\nsnippet mah:n\n\tmax-height: none;\nsnippet maw\n\tmax-width: ${1};\nsnippet maw:n\n\tmax-width: none;\nsnippet mih\n\tmin-height: ${1};\nsnippet miw\n\tmin-width: ${1};\nsnippet op\n\topacity: ${1};\nsnippet op:ie\n\tfilter: progid:DXImageTransform.Microsoft.Alpha(Opacity=${1:100});\nsnippet op:ms\n\t-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=${1:100})';\nsnippet orp\n\torphans: ${1};\nsnippet o+\n\toutline: ${1:1px} ${2:solid} #${3:000};\nsnippet oc\n\toutline-color: ${1:#000};\nsnippet oc:i\n\toutline-color: invert;\nsnippet oo\n\toutline-offset: ${1};\nsnippet os\n\toutline-style: ${1};\nsnippet ow\n\toutline-width: ${1};\nsnippet o\n\toutline: ${1};\nsnippet o:n\n\toutline: none;\nsnippet ovs\n\toverflow-style: ${1};\nsnippet ovs:a\n\toverflow-style: auto;\nsnippet ovs:mq\n\toverflow-style: marquee;\nsnippet ovs:mv\n\toverflow-style: move;\nsnippet ovs:p\n\toverflow-style: panner;\nsnippet ovs:s\n\toverflow-style: scrollbar;\nsnippet ovx\n\toverflow-x: ${1};\nsnippet ovx:a\n\toverflow-x: auto;\nsnippet ovx:h\n\toverflow-x: hidden;\nsnippet ovx:s\n\toverflow-x: scroll;\nsnippet ovx:v\n\toverflow-x: visible;\nsnippet ovy\n\toverflow-y: ${1};\nsnippet ovy:a\n\toverflow-y: auto;\nsnippet ovy:h\n\toverflow-y: hidden;\nsnippet ovy:s\n\toverflow-y: scroll;\nsnippet ovy:v\n\toverflow-y: visible;\nsnippet ov\n\toverflow: ${1};\nsnippet ov:a\n\toverflow: auto;\nsnippet ov:h\n\toverflow: hidden;\nsnippet ov:s\n\toverflow: scroll;\nsnippet ov:v\n\toverflow: visible;\nsnippet pb\n\tpadding-bottom: ${1};\nsnippet pl\n\tpadding-left: ${1};\nsnippet pr\n\tpadding-right: ${1};\nsnippet pt\n\tpadding-top: ${1};\nsnippet p\n\tpadding: ${1};\nsnippet p:4\n\tpadding: ${1:0} ${2:0} ${3:0} ${4:0};\nsnippet p:3\n\tpadding: ${1:0} ${2:0} ${3:0};\nsnippet p:2\n\tpadding: ${1:0} ${2:0};\nsnippet p:0\n\tpadding: 0;\nsnippet pgba\n\tpage-break-after: ${1};\nsnippet pgba:aw\n\tpage-break-after: always;\nsnippet pgba:a\n\tpage-break-after: auto;\nsnippet pgba:l\n\tpage-break-after: left;\nsnippet pgba:r\n\tpage-break-after: right;\nsnippet pgbb\n\tpage-break-before: ${1};\nsnippet pgbb:aw\n\tpage-break-before: always;\nsnippet pgbb:a\n\tpage-break-before: auto;\nsnippet pgbb:l\n\tpage-break-before: left;\nsnippet pgbb:r\n\tpage-break-before: right;\nsnippet pgbi\n\tpage-break-inside: ${1};\nsnippet pgbi:a\n\tpage-break-inside: auto;\nsnippet pgbi:av\n\tpage-break-inside: avoid;\nsnippet pos\n\tposition: ${1};\nsnippet pos:a\n\tposition: absolute;\nsnippet pos:f\n\tposition: fixed;\nsnippet pos:r\n\tposition: relative;\nsnippet pos:s\n\tposition: static;\nsnippet q\n\tquotes: ${1};\nsnippet q:en\n\tquotes: '\\201C' '\\201D' '\\2018' '\\2019';\nsnippet q:n\n\tquotes: none;\nsnippet q:ru\n\tquotes: '\\00AB' '\\00BB' '\\201E' '\\201C';\nsnippet rz\n\tresize: ${1};\nsnippet rz:b\n\tresize: both;\nsnippet rz:h\n\tresize: horizontal;\nsnippet rz:n\n\tresize: none;\nsnippet rz:v\n\tresize: vertical;\nsnippet r\n\tright: ${1};\nsnippet r:a\n\tright: auto;\nsnippet tbl\n\ttable-layout: ${1};\nsnippet tbl:a\n\ttable-layout: auto;\nsnippet tbl:f\n\ttable-layout: fixed;\nsnippet tal\n\ttext-align-last: ${1};\nsnippet tal:a\n\ttext-align-last: auto;\nsnippet tal:c\n\ttext-align-last: center;\nsnippet tal:l\n\ttext-align-last: left;\nsnippet tal:r\n\ttext-align-last: right;\nsnippet ta\n\ttext-align: ${1};\nsnippet ta:c\n\ttext-align: center;\nsnippet ta:l\n\ttext-align: left;\nsnippet ta:r\n\ttext-align: right;\nsnippet td\n\ttext-decoration: ${1};\nsnippet td:l\n\ttext-decoration: line-through;\nsnippet td:n\n\ttext-decoration: none;\nsnippet td:o\n\ttext-decoration: overline;\nsnippet td:u\n\ttext-decoration: underline;\nsnippet te\n\ttext-emphasis: ${1};\nsnippet te:ac\n\ttext-emphasis: accent;\nsnippet te:a\n\ttext-emphasis: after;\nsnippet te:b\n\ttext-emphasis: before;\nsnippet te:c\n\ttext-emphasis: circle;\nsnippet te:ds\n\ttext-emphasis: disc;\nsnippet te:dt\n\ttext-emphasis: dot;\nsnippet te:n\n\ttext-emphasis: none;\nsnippet th\n\ttext-height: ${1};\nsnippet th:a\n\ttext-height: auto;\nsnippet th:f\n\ttext-height: font-size;\nsnippet th:m\n\ttext-height: max-size;\nsnippet th:t\n\ttext-height: text-size;\nsnippet ti\n\ttext-indent: ${1};\nsnippet ti:-\n\ttext-indent: -9999px;\nsnippet tj\n\ttext-justify: ${1};\nsnippet tj:a\n\ttext-justify: auto;\nsnippet tj:d\n\ttext-justify: distribute;\nsnippet tj:ic\n\ttext-justify: inter-cluster;\nsnippet tj:ii\n\ttext-justify: inter-ideograph;\nsnippet tj:iw\n\ttext-justify: inter-word;\nsnippet tj:k\n\ttext-justify: kashida;\nsnippet tj:t\n\ttext-justify: tibetan;\nsnippet to+\n\ttext-outline: ${1:0} ${2:0} #${3:000};\nsnippet to\n\ttext-outline: ${1};\nsnippet to:n\n\ttext-outline: none;\nsnippet tr\n\ttext-replace: ${1};\nsnippet tr:n\n\ttext-replace: none;\nsnippet tsh+\n\ttext-shadow: ${1:0} ${2:0} ${3:0} #${4:000};\nsnippet tsh\n\ttext-shadow: ${1};\nsnippet tsh:n\n\ttext-shadow: none;\nsnippet tt\n\ttext-transform: ${1};\nsnippet tt:c\n\ttext-transform: capitalize;\nsnippet tt:l\n\ttext-transform: lowercase;\nsnippet tt:n\n\ttext-transform: none;\nsnippet tt:u\n\ttext-transform: uppercase;\nsnippet tw\n\ttext-wrap: ${1};\nsnippet tw:no\n\ttext-wrap: none;\nsnippet tw:n\n\ttext-wrap: normal;\nsnippet tw:s\n\ttext-wrap: suppress;\nsnippet tw:u\n\ttext-wrap: unrestricted;\nsnippet t\n\ttop: ${1};\nsnippet t:a\n\ttop: auto;\nsnippet va\n\tvertical-align: ${1};\nsnippet va:bl\n\tvertical-align: baseline;\nsnippet va:b\n\tvertical-align: bottom;\nsnippet va:m\n\tvertical-align: middle;\nsnippet va:sub\n\tvertical-align: sub;\nsnippet va:sup\n\tvertical-align: super;\nsnippet va:tb\n\tvertical-align: text-bottom;\nsnippet va:tt\n\tvertical-align: text-top;\nsnippet va:t\n\tvertical-align: top;\nsnippet v\n\tvisibility: ${1};\nsnippet v:c\n\tvisibility: collapse;\nsnippet v:h\n\tvisibility: hidden;\nsnippet v:v\n\tvisibility: visible;\nsnippet whsc\n\twhite-space-collapse: ${1};\nsnippet whsc:ba\n\twhite-space-collapse: break-all;\nsnippet whsc:bs\n\twhite-space-collapse: break-strict;\nsnippet whsc:k\n\twhite-space-collapse: keep-all;\nsnippet whsc:l\n\twhite-space-collapse: loose;\nsnippet whsc:n\n\twhite-space-collapse: normal;\nsnippet whs\n\twhite-space: ${1};\nsnippet whs:n\n\twhite-space: normal;\nsnippet whs:nw\n\twhite-space: nowrap;\nsnippet whs:pl\n\twhite-space: pre-line;\nsnippet whs:pw\n\twhite-space: pre-wrap;\nsnippet whs:p\n\twhite-space: pre;\nsnippet wid\n\twidows: ${1};\nsnippet w\n\twidth: ${1};\nsnippet w:a\n\twidth: auto;\nsnippet wob\n\tword-break: ${1};\nsnippet wob:ba\n\tword-break: break-all;\nsnippet wob:bs\n\tword-break: break-strict;\nsnippet wob:k\n\tword-break: keep-all;\nsnippet wob:l\n\tword-break: loose;\nsnippet wob:n\n\tword-break: normal;\nsnippet wos\n\tword-spacing: ${1};\nsnippet wow\n\tword-wrap: ${1};\nsnippet wow:no\n\tword-wrap: none;\nsnippet wow:n\n\tword-wrap: normal;\nsnippet wow:s\n\tword-wrap: suppress;\nsnippet wow:u\n\tword-wrap: unrestricted;\nsnippet z\n\tz-index: ${1};\nsnippet z:a\n\tz-index: auto;\nsnippet zoo\n\tzoom: 1;\n",t.scope="css"})),function(){ace.require(["ace/snippets/css"],(function(n){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=n)}))}();
+ace.define("ace/snippets/css",["require","exports","module"],function(n,e,t){"use strict";e.snippetText=`snippet .
+	\${1} {
+		\${2}
+	}
+snippet !
+	 !important
+snippet bdi:m+
+	-moz-border-image: url(\${1}) \${2:0} \${3:0} \${4:0} \${5:0} \${6:stretch} \${7:stretch};
+snippet bdi:m
+	-moz-border-image: \${1};
+snippet bdrz:m
+	-moz-border-radius: \${1};
+snippet bxsh:m+
+	-moz-box-shadow: \${1:0} \${2:0} \${3:0} #\${4:000};
+snippet bxsh:m
+	-moz-box-shadow: \${1};
+snippet bdi:w+
+	-webkit-border-image: url(\${1}) \${2:0} \${3:0} \${4:0} \${5:0} \${6:stretch} \${7:stretch};
+snippet bdi:w
+	-webkit-border-image: \${1};
+snippet bdrz:w
+	-webkit-border-radius: \${1};
+snippet bxsh:w+
+	-webkit-box-shadow: \${1:0} \${2:0} \${3:0} #\${4:000};
+snippet bxsh:w
+	-webkit-box-shadow: \${1};
+snippet @f
+	@font-face {
+		font-family: \${1};
+		src: url(\${2});
+	}
+snippet @i
+	@import url(\${1});
+snippet @m
+	@media \${1:print} {
+		\${2}
+	}
+snippet bg+
+	background: #\${1:FFF} url(\${2}) \${3:0} \${4:0} \${5:no-repeat};
+snippet bga
+	background-attachment: \${1};
+snippet bga:f
+	background-attachment: fixed;
+snippet bga:s
+	background-attachment: scroll;
+snippet bgbk
+	background-break: \${1};
+snippet bgbk:bb
+	background-break: bounding-box;
+snippet bgbk:c
+	background-break: continuous;
+snippet bgbk:eb
+	background-break: each-box;
+snippet bgcp
+	background-clip: \${1};
+snippet bgcp:bb
+	background-clip: border-box;
+snippet bgcp:cb
+	background-clip: content-box;
+snippet bgcp:nc
+	background-clip: no-clip;
+snippet bgcp:pb
+	background-clip: padding-box;
+snippet bgc
+	background-color: #\${1:FFF};
+snippet bgc:t
+	background-color: transparent;
+snippet bgi
+	background-image: url(\${1});
+snippet bgi:n
+	background-image: none;
+snippet bgo
+	background-origin: \${1};
+snippet bgo:bb
+	background-origin: border-box;
+snippet bgo:cb
+	background-origin: content-box;
+snippet bgo:pb
+	background-origin: padding-box;
+snippet bgpx
+	background-position-x: \${1};
+snippet bgpy
+	background-position-y: \${1};
+snippet bgp
+	background-position: \${1:0} \${2:0};
+snippet bgr
+	background-repeat: \${1};
+snippet bgr:n
+	background-repeat: no-repeat;
+snippet bgr:x
+	background-repeat: repeat-x;
+snippet bgr:y
+	background-repeat: repeat-y;
+snippet bgr:r
+	background-repeat: repeat;
+snippet bgz
+	background-size: \${1};
+snippet bgz:a
+	background-size: auto;
+snippet bgz:ct
+	background-size: contain;
+snippet bgz:cv
+	background-size: cover;
+snippet bg
+	background: \${1};
+snippet bg:ie
+	filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='\${1}',sizingMethod='\${2:crop}');
+snippet bg:n
+	background: none;
+snippet bd+
+	border: \${1:1px} \${2:solid} #\${3:000};
+snippet bdb+
+	border-bottom: \${1:1px} \${2:solid} #\${3:000};
+snippet bdbc
+	border-bottom-color: #\${1:000};
+snippet bdbi
+	border-bottom-image: url(\${1});
+snippet bdbi:n
+	border-bottom-image: none;
+snippet bdbli
+	border-bottom-left-image: url(\${1});
+snippet bdbli:c
+	border-bottom-left-image: continue;
+snippet bdbli:n
+	border-bottom-left-image: none;
+snippet bdblrz
+	border-bottom-left-radius: \${1};
+snippet bdbri
+	border-bottom-right-image: url(\${1});
+snippet bdbri:c
+	border-bottom-right-image: continue;
+snippet bdbri:n
+	border-bottom-right-image: none;
+snippet bdbrrz
+	border-bottom-right-radius: \${1};
+snippet bdbs
+	border-bottom-style: \${1};
+snippet bdbs:n
+	border-bottom-style: none;
+snippet bdbw
+	border-bottom-width: \${1};
+snippet bdb
+	border-bottom: \${1};
+snippet bdb:n
+	border-bottom: none;
+snippet bdbk
+	border-break: \${1};
+snippet bdbk:c
+	border-break: close;
+snippet bdcl
+	border-collapse: \${1};
+snippet bdcl:c
+	border-collapse: collapse;
+snippet bdcl:s
+	border-collapse: separate;
+snippet bdc
+	border-color: #\${1:000};
+snippet bdci
+	border-corner-image: url(\${1});
+snippet bdci:c
+	border-corner-image: continue;
+snippet bdci:n
+	border-corner-image: none;
+snippet bdf
+	border-fit: \${1};
+snippet bdf:c
+	border-fit: clip;
+snippet bdf:of
+	border-fit: overwrite;
+snippet bdf:ow
+	border-fit: overwrite;
+snippet bdf:r
+	border-fit: repeat;
+snippet bdf:sc
+	border-fit: scale;
+snippet bdf:sp
+	border-fit: space;
+snippet bdf:st
+	border-fit: stretch;
+snippet bdi
+	border-image: url(\${1}) \${2:0} \${3:0} \${4:0} \${5:0} \${6:stretch} \${7:stretch};
+snippet bdi:n
+	border-image: none;
+snippet bdl+
+	border-left: \${1:1px} \${2:solid} #\${3:000};
+snippet bdlc
+	border-left-color: #\${1:000};
+snippet bdli
+	border-left-image: url(\${1});
+snippet bdli:n
+	border-left-image: none;
+snippet bdls
+	border-left-style: \${1};
+snippet bdls:n
+	border-left-style: none;
+snippet bdlw
+	border-left-width: \${1};
+snippet bdl
+	border-left: \${1};
+snippet bdl:n
+	border-left: none;
+snippet bdlt
+	border-length: \${1};
+snippet bdlt:a
+	border-length: auto;
+snippet bdrz
+	border-radius: \${1};
+snippet bdr+
+	border-right: \${1:1px} \${2:solid} #\${3:000};
+snippet bdrc
+	border-right-color: #\${1:000};
+snippet bdri
+	border-right-image: url(\${1});
+snippet bdri:n
+	border-right-image: none;
+snippet bdrs
+	border-right-style: \${1};
+snippet bdrs:n
+	border-right-style: none;
+snippet bdrw
+	border-right-width: \${1};
+snippet bdr
+	border-right: \${1};
+snippet bdr:n
+	border-right: none;
+snippet bdsp
+	border-spacing: \${1};
+snippet bds
+	border-style: \${1};
+snippet bds:ds
+	border-style: dashed;
+snippet bds:dtds
+	border-style: dot-dash;
+snippet bds:dtdtds
+	border-style: dot-dot-dash;
+snippet bds:dt
+	border-style: dotted;
+snippet bds:db
+	border-style: double;
+snippet bds:g
+	border-style: groove;
+snippet bds:h
+	border-style: hidden;
+snippet bds:i
+	border-style: inset;
+snippet bds:n
+	border-style: none;
+snippet bds:o
+	border-style: outset;
+snippet bds:r
+	border-style: ridge;
+snippet bds:s
+	border-style: solid;
+snippet bds:w
+	border-style: wave;
+snippet bdt+
+	border-top: \${1:1px} \${2:solid} #\${3:000};
+snippet bdtc
+	border-top-color: #\${1:000};
+snippet bdti
+	border-top-image: url(\${1});
+snippet bdti:n
+	border-top-image: none;
+snippet bdtli
+	border-top-left-image: url(\${1});
+snippet bdtli:c
+	border-corner-image: continue;
+snippet bdtli:n
+	border-corner-image: none;
+snippet bdtlrz
+	border-top-left-radius: \${1};
+snippet bdtri
+	border-top-right-image: url(\${1});
+snippet bdtri:c
+	border-top-right-image: continue;
+snippet bdtri:n
+	border-top-right-image: none;
+snippet bdtrrz
+	border-top-right-radius: \${1};
+snippet bdts
+	border-top-style: \${1};
+snippet bdts:n
+	border-top-style: none;
+snippet bdtw
+	border-top-width: \${1};
+snippet bdt
+	border-top: \${1};
+snippet bdt:n
+	border-top: none;
+snippet bdw
+	border-width: \${1};
+snippet bd
+	border: \${1};
+snippet bd:n
+	border: none;
+snippet b
+	bottom: \${1};
+snippet b:a
+	bottom: auto;
+snippet bxsh+
+	box-shadow: \${1:0} \${2:0} \${3:0} #\${4:000};
+snippet bxsh
+	box-shadow: \${1};
+snippet bxsh:n
+	box-shadow: none;
+snippet bxz
+	box-sizing: \${1};
+snippet bxz:bb
+	box-sizing: border-box;
+snippet bxz:cb
+	box-sizing: content-box;
+snippet cps
+	caption-side: \${1};
+snippet cps:b
+	caption-side: bottom;
+snippet cps:t
+	caption-side: top;
+snippet cl
+	clear: \${1};
+snippet cl:b
+	clear: both;
+snippet cl:l
+	clear: left;
+snippet cl:n
+	clear: none;
+snippet cl:r
+	clear: right;
+snippet cp
+	clip: \${1};
+snippet cp:a
+	clip: auto;
+snippet cp:r
+	clip: rect(\${1:0} \${2:0} \${3:0} \${4:0});
+snippet c
+	color: #\${1:000};
+snippet ct
+	content: \${1};
+snippet ct:a
+	content: attr(\${1});
+snippet ct:cq
+	content: close-quote;
+snippet ct:c
+	content: counter(\${1});
+snippet ct:cs
+	content: counters(\${1});
+snippet ct:ncq
+	content: no-close-quote;
+snippet ct:noq
+	content: no-open-quote;
+snippet ct:n
+	content: normal;
+snippet ct:oq
+	content: open-quote;
+snippet coi
+	counter-increment: \${1};
+snippet cor
+	counter-reset: \${1};
+snippet cur
+	cursor: \${1};
+snippet cur:a
+	cursor: auto;
+snippet cur:c
+	cursor: crosshair;
+snippet cur:d
+	cursor: default;
+snippet cur:ha
+	cursor: hand;
+snippet cur:he
+	cursor: help;
+snippet cur:m
+	cursor: move;
+snippet cur:p
+	cursor: pointer;
+snippet cur:t
+	cursor: text;
+snippet d
+	display: \${1};
+snippet d:mib
+	display: -moz-inline-box;
+snippet d:mis
+	display: -moz-inline-stack;
+snippet d:b
+	display: block;
+snippet d:cp
+	display: compact;
+snippet d:ib
+	display: inline-block;
+snippet d:itb
+	display: inline-table;
+snippet d:i
+	display: inline;
+snippet d:li
+	display: list-item;
+snippet d:n
+	display: none;
+snippet d:ri
+	display: run-in;
+snippet d:tbcp
+	display: table-caption;
+snippet d:tbc
+	display: table-cell;
+snippet d:tbclg
+	display: table-column-group;
+snippet d:tbcl
+	display: table-column;
+snippet d:tbfg
+	display: table-footer-group;
+snippet d:tbhg
+	display: table-header-group;
+snippet d:tbrg
+	display: table-row-group;
+snippet d:tbr
+	display: table-row;
+snippet d:tb
+	display: table;
+snippet ec
+	empty-cells: \${1};
+snippet ec:h
+	empty-cells: hide;
+snippet ec:s
+	empty-cells: show;
+snippet exp
+	expression()
+snippet fl
+	float: \${1};
+snippet fl:l
+	float: left;
+snippet fl:n
+	float: none;
+snippet fl:r
+	float: right;
+snippet f+
+	font: \${1:1em} \${2:Arial},\${3:sans-serif};
+snippet fef
+	font-effect: \${1};
+snippet fef:eb
+	font-effect: emboss;
+snippet fef:eg
+	font-effect: engrave;
+snippet fef:n
+	font-effect: none;
+snippet fef:o
+	font-effect: outline;
+snippet femp
+	font-emphasize-position: \${1};
+snippet femp:a
+	font-emphasize-position: after;
+snippet femp:b
+	font-emphasize-position: before;
+snippet fems
+	font-emphasize-style: \${1};
+snippet fems:ac
+	font-emphasize-style: accent;
+snippet fems:c
+	font-emphasize-style: circle;
+snippet fems:ds
+	font-emphasize-style: disc;
+snippet fems:dt
+	font-emphasize-style: dot;
+snippet fems:n
+	font-emphasize-style: none;
+snippet fem
+	font-emphasize: \${1};
+snippet ff
+	font-family: \${1};
+snippet ff:c
+	font-family: \${1:'Monotype Corsiva','Comic Sans MS'},cursive;
+snippet ff:f
+	font-family: \${1:Capitals,Impact},fantasy;
+snippet ff:m
+	font-family: \${1:Monaco,'Courier New'},monospace;
+snippet ff:ss
+	font-family: \${1:Helvetica,Arial},sans-serif;
+snippet ff:s
+	font-family: \${1:Georgia,'Times New Roman'},serif;
+snippet fza
+	font-size-adjust: \${1};
+snippet fza:n
+	font-size-adjust: none;
+snippet fz
+	font-size: \${1};
+snippet fsm
+	font-smooth: \${1};
+snippet fsm:aw
+	font-smooth: always;
+snippet fsm:a
+	font-smooth: auto;
+snippet fsm:n
+	font-smooth: never;
+snippet fst
+	font-stretch: \${1};
+snippet fst:c
+	font-stretch: condensed;
+snippet fst:e
+	font-stretch: expanded;
+snippet fst:ec
+	font-stretch: extra-condensed;
+snippet fst:ee
+	font-stretch: extra-expanded;
+snippet fst:n
+	font-stretch: normal;
+snippet fst:sc
+	font-stretch: semi-condensed;
+snippet fst:se
+	font-stretch: semi-expanded;
+snippet fst:uc
+	font-stretch: ultra-condensed;
+snippet fst:ue
+	font-stretch: ultra-expanded;
+snippet fs
+	font-style: \${1};
+snippet fs:i
+	font-style: italic;
+snippet fs:n
+	font-style: normal;
+snippet fs:o
+	font-style: oblique;
+snippet fv
+	font-variant: \${1};
+snippet fv:n
+	font-variant: normal;
+snippet fv:sc
+	font-variant: small-caps;
+snippet fw
+	font-weight: \${1};
+snippet fw:b
+	font-weight: bold;
+snippet fw:br
+	font-weight: bolder;
+snippet fw:lr
+	font-weight: lighter;
+snippet fw:n
+	font-weight: normal;
+snippet f
+	font: \${1};
+snippet h
+	height: \${1};
+snippet h:a
+	height: auto;
+snippet l
+	left: \${1};
+snippet l:a
+	left: auto;
+snippet lts
+	letter-spacing: \${1};
+snippet lh
+	line-height: \${1};
+snippet lisi
+	list-style-image: url(\${1});
+snippet lisi:n
+	list-style-image: none;
+snippet lisp
+	list-style-position: \${1};
+snippet lisp:i
+	list-style-position: inside;
+snippet lisp:o
+	list-style-position: outside;
+snippet list
+	list-style-type: \${1};
+snippet list:c
+	list-style-type: circle;
+snippet list:dclz
+	list-style-type: decimal-leading-zero;
+snippet list:dc
+	list-style-type: decimal;
+snippet list:d
+	list-style-type: disc;
+snippet list:lr
+	list-style-type: lower-roman;
+snippet list:n
+	list-style-type: none;
+snippet list:s
+	list-style-type: square;
+snippet list:ur
+	list-style-type: upper-roman;
+snippet lis
+	list-style: \${1};
+snippet lis:n
+	list-style: none;
+snippet mb
+	margin-bottom: \${1};
+snippet mb:a
+	margin-bottom: auto;
+snippet ml
+	margin-left: \${1};
+snippet ml:a
+	margin-left: auto;
+snippet mr
+	margin-right: \${1};
+snippet mr:a
+	margin-right: auto;
+snippet mt
+	margin-top: \${1};
+snippet mt:a
+	margin-top: auto;
+snippet m
+	margin: \${1};
+snippet m:4
+	margin: \${1:0} \${2:0} \${3:0} \${4:0};
+snippet m:3
+	margin: \${1:0} \${2:0} \${3:0};
+snippet m:2
+	margin: \${1:0} \${2:0};
+snippet m:0
+	margin: 0;
+snippet m:a
+	margin: auto;
+snippet mah
+	max-height: \${1};
+snippet mah:n
+	max-height: none;
+snippet maw
+	max-width: \${1};
+snippet maw:n
+	max-width: none;
+snippet mih
+	min-height: \${1};
+snippet miw
+	min-width: \${1};
+snippet op
+	opacity: \${1};
+snippet op:ie
+	filter: progid:DXImageTransform.Microsoft.Alpha(Opacity=\${1:100});
+snippet op:ms
+	-ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(Opacity=\${1:100})';
+snippet orp
+	orphans: \${1};
+snippet o+
+	outline: \${1:1px} \${2:solid} #\${3:000};
+snippet oc
+	outline-color: \${1:#000};
+snippet oc:i
+	outline-color: invert;
+snippet oo
+	outline-offset: \${1};
+snippet os
+	outline-style: \${1};
+snippet ow
+	outline-width: \${1};
+snippet o
+	outline: \${1};
+snippet o:n
+	outline: none;
+snippet ovs
+	overflow-style: \${1};
+snippet ovs:a
+	overflow-style: auto;
+snippet ovs:mq
+	overflow-style: marquee;
+snippet ovs:mv
+	overflow-style: move;
+snippet ovs:p
+	overflow-style: panner;
+snippet ovs:s
+	overflow-style: scrollbar;
+snippet ovx
+	overflow-x: \${1};
+snippet ovx:a
+	overflow-x: auto;
+snippet ovx:h
+	overflow-x: hidden;
+snippet ovx:s
+	overflow-x: scroll;
+snippet ovx:v
+	overflow-x: visible;
+snippet ovy
+	overflow-y: \${1};
+snippet ovy:a
+	overflow-y: auto;
+snippet ovy:h
+	overflow-y: hidden;
+snippet ovy:s
+	overflow-y: scroll;
+snippet ovy:v
+	overflow-y: visible;
+snippet ov
+	overflow: \${1};
+snippet ov:a
+	overflow: auto;
+snippet ov:h
+	overflow: hidden;
+snippet ov:s
+	overflow: scroll;
+snippet ov:v
+	overflow: visible;
+snippet pb
+	padding-bottom: \${1};
+snippet pl
+	padding-left: \${1};
+snippet pr
+	padding-right: \${1};
+snippet pt
+	padding-top: \${1};
+snippet p
+	padding: \${1};
+snippet p:4
+	padding: \${1:0} \${2:0} \${3:0} \${4:0};
+snippet p:3
+	padding: \${1:0} \${2:0} \${3:0};
+snippet p:2
+	padding: \${1:0} \${2:0};
+snippet p:0
+	padding: 0;
+snippet pgba
+	page-break-after: \${1};
+snippet pgba:aw
+	page-break-after: always;
+snippet pgba:a
+	page-break-after: auto;
+snippet pgba:l
+	page-break-after: left;
+snippet pgba:r
+	page-break-after: right;
+snippet pgbb
+	page-break-before: \${1};
+snippet pgbb:aw
+	page-break-before: always;
+snippet pgbb:a
+	page-break-before: auto;
+snippet pgbb:l
+	page-break-before: left;
+snippet pgbb:r
+	page-break-before: right;
+snippet pgbi
+	page-break-inside: \${1};
+snippet pgbi:a
+	page-break-inside: auto;
+snippet pgbi:av
+	page-break-inside: avoid;
+snippet pos
+	position: \${1};
+snippet pos:a
+	position: absolute;
+snippet pos:f
+	position: fixed;
+snippet pos:r
+	position: relative;
+snippet pos:s
+	position: static;
+snippet q
+	quotes: \${1};
+snippet q:en
+	quotes: '\\201C' '\\201D' '\\2018' '\\2019';
+snippet q:n
+	quotes: none;
+snippet q:ru
+	quotes: '\\00AB' '\\00BB' '\\201E' '\\201C';
+snippet rz
+	resize: \${1};
+snippet rz:b
+	resize: both;
+snippet rz:h
+	resize: horizontal;
+snippet rz:n
+	resize: none;
+snippet rz:v
+	resize: vertical;
+snippet r
+	right: \${1};
+snippet r:a
+	right: auto;
+snippet tbl
+	table-layout: \${1};
+snippet tbl:a
+	table-layout: auto;
+snippet tbl:f
+	table-layout: fixed;
+snippet tal
+	text-align-last: \${1};
+snippet tal:a
+	text-align-last: auto;
+snippet tal:c
+	text-align-last: center;
+snippet tal:l
+	text-align-last: left;
+snippet tal:r
+	text-align-last: right;
+snippet ta
+	text-align: \${1};
+snippet ta:c
+	text-align: center;
+snippet ta:l
+	text-align: left;
+snippet ta:r
+	text-align: right;
+snippet td
+	text-decoration: \${1};
+snippet td:l
+	text-decoration: line-through;
+snippet td:n
+	text-decoration: none;
+snippet td:o
+	text-decoration: overline;
+snippet td:u
+	text-decoration: underline;
+snippet te
+	text-emphasis: \${1};
+snippet te:ac
+	text-emphasis: accent;
+snippet te:a
+	text-emphasis: after;
+snippet te:b
+	text-emphasis: before;
+snippet te:c
+	text-emphasis: circle;
+snippet te:ds
+	text-emphasis: disc;
+snippet te:dt
+	text-emphasis: dot;
+snippet te:n
+	text-emphasis: none;
+snippet th
+	text-height: \${1};
+snippet th:a
+	text-height: auto;
+snippet th:f
+	text-height: font-size;
+snippet th:m
+	text-height: max-size;
+snippet th:t
+	text-height: text-size;
+snippet ti
+	text-indent: \${1};
+snippet ti:-
+	text-indent: -9999px;
+snippet tj
+	text-justify: \${1};
+snippet tj:a
+	text-justify: auto;
+snippet tj:d
+	text-justify: distribute;
+snippet tj:ic
+	text-justify: inter-cluster;
+snippet tj:ii
+	text-justify: inter-ideograph;
+snippet tj:iw
+	text-justify: inter-word;
+snippet tj:k
+	text-justify: kashida;
+snippet tj:t
+	text-justify: tibetan;
+snippet to+
+	text-outline: \${1:0} \${2:0} #\${3:000};
+snippet to
+	text-outline: \${1};
+snippet to:n
+	text-outline: none;
+snippet tr
+	text-replace: \${1};
+snippet tr:n
+	text-replace: none;
+snippet tsh+
+	text-shadow: \${1:0} \${2:0} \${3:0} #\${4:000};
+snippet tsh
+	text-shadow: \${1};
+snippet tsh:n
+	text-shadow: none;
+snippet tt
+	text-transform: \${1};
+snippet tt:c
+	text-transform: capitalize;
+snippet tt:l
+	text-transform: lowercase;
+snippet tt:n
+	text-transform: none;
+snippet tt:u
+	text-transform: uppercase;
+snippet tw
+	text-wrap: \${1};
+snippet tw:no
+	text-wrap: none;
+snippet tw:n
+	text-wrap: normal;
+snippet tw:s
+	text-wrap: suppress;
+snippet tw:u
+	text-wrap: unrestricted;
+snippet t
+	top: \${1};
+snippet t:a
+	top: auto;
+snippet va
+	vertical-align: \${1};
+snippet va:bl
+	vertical-align: baseline;
+snippet va:b
+	vertical-align: bottom;
+snippet va:m
+	vertical-align: middle;
+snippet va:sub
+	vertical-align: sub;
+snippet va:sup
+	vertical-align: super;
+snippet va:tb
+	vertical-align: text-bottom;
+snippet va:tt
+	vertical-align: text-top;
+snippet va:t
+	vertical-align: top;
+snippet v
+	visibility: \${1};
+snippet v:c
+	visibility: collapse;
+snippet v:h
+	visibility: hidden;
+snippet v:v
+	visibility: visible;
+snippet whsc
+	white-space-collapse: \${1};
+snippet whsc:ba
+	white-space-collapse: break-all;
+snippet whsc:bs
+	white-space-collapse: break-strict;
+snippet whsc:k
+	white-space-collapse: keep-all;
+snippet whsc:l
+	white-space-collapse: loose;
+snippet whsc:n
+	white-space-collapse: normal;
+snippet whs
+	white-space: \${1};
+snippet whs:n
+	white-space: normal;
+snippet whs:nw
+	white-space: nowrap;
+snippet whs:pl
+	white-space: pre-line;
+snippet whs:pw
+	white-space: pre-wrap;
+snippet whs:p
+	white-space: pre;
+snippet wid
+	widows: \${1};
+snippet w
+	width: \${1};
+snippet w:a
+	width: auto;
+snippet wob
+	word-break: \${1};
+snippet wob:ba
+	word-break: break-all;
+snippet wob:bs
+	word-break: break-strict;
+snippet wob:k
+	word-break: keep-all;
+snippet wob:l
+	word-break: loose;
+snippet wob:n
+	word-break: normal;
+snippet wos
+	word-spacing: \${1};
+snippet wow
+	word-wrap: \${1};
+snippet wow:no
+	word-wrap: none;
+snippet wow:n
+	word-wrap: normal;
+snippet wow:s
+	word-wrap: suppress;
+snippet wow:u
+	word-wrap: unrestricted;
+snippet z
+	z-index: \${1};
+snippet z:a
+	z-index: auto;
+snippet zoo
+	zoom: 1;
+`,e.scope="css"}),function(){ace.require(["ace/snippets/css"],function(n){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=n)})}();

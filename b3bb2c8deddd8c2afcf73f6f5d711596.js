@@ -1,1 +1,48 @@
-ace.define("ace/snippets/csound_orchestra",["require","exports","module"],(function(t,n,e){"use strict";n.snippetText="# else\nsnippet else\n\telse\n\t\t${1:/* statements */}\n# elseif\nsnippet elseif\n\telseif ${1:/* condition */} then\n\t\t${2:/* statements */}\n# if\nsnippet if\n\tif ${1:/* condition */} then\n\t\t${2:/* statements */}\n\tendif\n# instrument block\nsnippet instr\n\tinstr ${1:name}\n\t\t${2:/* statements */}\n\tendin\n# i-time while loop\nsnippet iwhile\n\ti${1:Index} = ${2:0}\n\twhile i${1:Index} < ${3:/* count */} do\n\t\t${4:/* statements */}\n\t\ti${1:Index} += 1\n\tod\n# k-rate while loop\nsnippet kwhile\n\tk${1:Index} = ${2:0}\n\twhile k${1:Index} < ${3:/* count */} do\n\t\t${4:/* statements */}\n\t\tk${1:Index} += 1\n\tod\n# opcode\nsnippet opcode\n\topcode ${1:name}, ${2:/* output types */ 0}, ${3:/* input types */ 0}\n\t\t${4:/* statements */}\n\tendop\n# until loop\nsnippet until\n\tuntil ${1:/* condition */} do\n\t\t${2:/* statements */}\n\tod\n# while loop\nsnippet while\n\twhile ${1:/* condition */} do\n\t\t${2:/* statements */}\n\tod\n",n.scope="csound_orchestra"})),function(){ace.require(["ace/snippets/csound_orchestra"],(function(t){"object"==typeof module&&"object"==typeof exports&&module&&(module.exports=t)}))}();
+ace.define("ace/snippets/csound_orchestra",["require","exports","module"],function(n,e,t){"use strict";e.snippetText=`# else
+snippet else
+	else
+		\${1:/* statements */}
+# elseif
+snippet elseif
+	elseif \${1:/* condition */} then
+		\${2:/* statements */}
+# if
+snippet if
+	if \${1:/* condition */} then
+		\${2:/* statements */}
+	endif
+# instrument block
+snippet instr
+	instr \${1:name}
+		\${2:/* statements */}
+	endin
+# i-time while loop
+snippet iwhile
+	i\${1:Index} = \${2:0}
+	while i\${1:Index} < \${3:/* count */} do
+		\${4:/* statements */}
+		i\${1:Index} += 1
+	od
+# k-rate while loop
+snippet kwhile
+	k\${1:Index} = \${2:0}
+	while k\${1:Index} < \${3:/* count */} do
+		\${4:/* statements */}
+		k\${1:Index} += 1
+	od
+# opcode
+snippet opcode
+	opcode \${1:name}, \${2:/* output types */ 0}, \${3:/* input types */ 0}
+		\${4:/* statements */}
+	endop
+# until loop
+snippet until
+	until \${1:/* condition */} do
+		\${2:/* statements */}
+	od
+# while loop
+snippet while
+	while \${1:/* condition */} do
+		\${2:/* statements */}
+	od
+`,e.scope="csound_orchestra"}),function(){ace.require(["ace/snippets/csound_orchestra"],function(n){typeof module=="object"&&typeof exports=="object"&&module&&(module.exports=n)})}();
