@@ -45,7 +45,7 @@ import MenuSearch from "components/Menu/Search.vue";
 import MenuSettings from "components/Menu/Settings.vue";
 import { useEventGlobal } from "src/helpers/useEventGlobal";
 import { useStore } from "src/store";
-import { computed, ref, onUnmounted } from "vue";
+import { computed, onUnmounted, ref } from "vue";
 
 const store = useStore();
 
