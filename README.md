@@ -1,8 +1,16 @@
-# Source code: Wecde (git.shin.wecde)
+# Source code `Wecde`
 
 Application use Vue 3, Quasar Framework...
 
 [Preview](https://wecde.github.io) app.
+
+### Documents 
+[https://wecde.github.io](https://wecde.github.io)
+
+### Live app 
+[https://wecde.github.io/wecde](https://wecde.github.io/wecde) 
+
+-------
 
 ## Install the dependencies
 ```bash
@@ -21,5 +29,5 @@ yarn lint
 
 ### Build the app for production
 ```bash
-quasar build
+yarn build
 ```
