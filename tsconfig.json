@@ -45,9 +45,6 @@
       ],
       "node_modules": [
         "./node_modules/*"
-      ],
-      "fs": [
-        "./src/modules/fs.ts"
       ]
     },
     // Forces quasar typings to be included, even if they aren't referenced directly

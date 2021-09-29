@@ -109,7 +109,6 @@ module.exports = configure(function (ctx) {
           ...cfg.resolve.alias,
           modules: path.resolve("./src/modules"),
           path$: "path-cross/build/module/index.js",
-          fs: path.resolve("./src/modules/fs.ts"),
         };
 
         // eslint-disable-next-line functional/immutable-data
@@ -125,7 +124,7 @@ module.exports = configure(function (ctx) {
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
-      https: true,
+      https: false,
       port: 8080,
       open: false, // opens browser window automatically
     },

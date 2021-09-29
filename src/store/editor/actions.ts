@@ -1,9 +1,6 @@
 import { join } from "path-cross";
 import fs from "src/modules/fs";
-import {
-  refreshGitStatusMatrixWorker,
-  useGitStatusMatrix,
-} from "src/worker/git-statusMatrix";
+import { useGitStatusMatrix } from "src/worker/git-statusMatrix";
 import { ActionTree } from "vuex";
 
 import { StateInterface } from "..";
@@ -28,7 +25,6 @@ const actions: ActionTree<EditorStateInterface, StateInterface> = {
           )
       );
 
-      void refreshGitStatusMatrixWorker();
       const matrix =
         (
           await useGitStatusMatrix()({
