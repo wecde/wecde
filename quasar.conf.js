@@ -104,6 +104,8 @@ module.exports = configure(function (ctx) {
             },
           },
         });
+        console.log(cfg.module.rules)
+
         // eslint-disable-next-line functional/immutable-data
         cfg.resolve.alias = {
           ...cfg.resolve.alias,
