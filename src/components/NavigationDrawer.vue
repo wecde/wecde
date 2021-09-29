@@ -51,13 +51,13 @@ const store = useStore();
 
 const eventGlobal = useEventGlobal();
 
-function handlerOpenProject() : void {
-  navigationTabs.value = 'files'
+function handlerOpenProject(): void {
+  navigationTabs.value = "files";
 }
 
-eventGlobal.on("open:project", handlerOpenProject)
+eventGlobal.on("open:project", handlerOpenProject);
 
-onUnmounted(() => eventGlobal.off("open:project", handlerOpenProject))
+onUnmounted(() => eventGlobal.off("open:project", handlerOpenProject));
 
 const navigationTabs = ref<string>("archive");
 const navigation = computed<boolean>({
@@ -81,11 +81,6 @@ const tabs = [
     panel: MenuFiles,
   },
   {
-    name: "search",
-    icon: "mdi-magnify",
-    panel: MenuSearch,
-  },
-  {
     name: "git",
     icon: "mdi-source-branch",
     "alert-icon": computed<string | null>(() =>
@@ -95,6 +90,11 @@ const tabs = [
       () => store.getters["editor/changes.length"] || null
     ), // if =0 -> set null
     panel: MenuGit,
+  },
+  {
+    name: "search",
+    icon: "mdi-magnify",
+    panel: MenuSearch,
   },
   {
     name: "settings",
