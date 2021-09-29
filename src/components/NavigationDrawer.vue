@@ -43,8 +43,8 @@ import MenuFiles from "components/Menu/Files.vue";
 import MenuGit from "components/Menu/Git.vue";
 import MenuSearch from "components/Menu/Search.vue";
 import MenuSettings from "components/Menu/Settings.vue";
-import { useStore } from "src/store";
 import { useEventGlobal } from "src/helpers/useEventGlobal";
+import { useStore } from "src/store";
 import { computed, ref } from "vue";
 
 const store = useStore();
