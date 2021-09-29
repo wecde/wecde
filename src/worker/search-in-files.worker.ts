@@ -134,7 +134,7 @@ function methods() {
           // eslint-disable-next-line functional/prefer-readonly-type
           const matches: [...Result["matches"]] = [];
           // eslint-disable-next-line functional/no-loop-statement
-          for await (const item of rawMatch) {
+          for (const item of [...rawMatch]) { // remove syntax for await because esbuild not support `for await (const item of rawMatch) {`
             const indexSearch = item.index || -1;
 
             const indexNewlineBeforeSearch = textContentFile.lastIndexOf(

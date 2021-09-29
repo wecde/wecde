@@ -11,6 +11,8 @@
 const path = require("path");
 
 /* eslint-disable @typescript-eslint/no-var-requires */
+const { ESBuildMinifyPlugin } = require("esbuild-loader");
+/* eslint-disable @typescript-eslint/no-var-requires */
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
 /* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require("quasar/wrappers");
@@ -104,7 +106,37 @@ module.exports = configure(function (ctx) {
             },
           },
         });
-        console.log(cfg.module.rules)
+
+        // eslint-disable-next-line functional/immutable-data
+        cfg.module.rules = cfg.module.rules.map((rule) => {
+          if (rule.test.toString() === "/\\.js$/") {
+            return {
+              ...rule,
+              use: void 0,
+              test: /\.js$/,
+              loader: "esbuild-loader",
+              options: {
+                loader: "js",
+                target: "es2015",
+              },
+            };
+          }
+
+          if (rule.test.toString() === "/\\.ts$/") {
+            return {
+              ...rule,
+              use: void 0,
+              test: /\.ts$/,
+              loader: "esbuild-loader",
+              options: {
+                loader: "ts",
+                target: "es2015",
+              },
+            };
+          }
+
+          return rule;
+        });
 
         // eslint-disable-next-line functional/immutable-data
         cfg.resolve.alias = {
@@ -120,6 +152,20 @@ module.exports = configure(function (ctx) {
             Buffer: ["buffer", "Buffer"],
           }),
           new NodePolyfillPlugin()
+        );
+
+        // eslint-disable-next-line functional/immutable-data
+        cfg.optimization.minimizer = cfg.optimization.minimizer.map(
+          (minimizer) => {
+            if (minimizer.constructor.name === "TerserPlugin") {
+              return new ESBuildMinifyPlugin({
+                target: "es2015",
+                css: true, // Apply minification to CSS assets
+              });
+            }
+
+            return minimizer;
+          }
         );
       },
     },
