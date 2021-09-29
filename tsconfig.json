@@ -45,6 +45,9 @@
       ],
       "node_modules": [
         "./node_modules/*"
+      ],
+      "fs": [
+        "./src/modules/fs.ts"
       ]
     },
     // Forces quasar typings to be included, even if they aren't referenced directly
@@ -72,9 +75,6 @@
     "assets/labs",
     "assets/templates",
     "resources",
-    "src-capacitor",
-    "src/fs",
-    "src/git.js",
-    "src/ace-support"
+    "src-capacitor"
   ]
 }

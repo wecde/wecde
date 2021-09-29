@@ -11,12 +11,15 @@
     "setup": "yarn setup:main && yarn setup:resources",
     "lint": "eslint --ext .js,.ts,.vue ./",
     "dev": "quasar dev",
+    "dev:pwa": "quasar dev -m pwa",
     "dev:android": "quasar dev -m capacitor -T android",
     "dev:ios": "quasar dev -m capacitor -T ios",
+    
+    "build": "yarn build:resources && quasar build",
+    "build:pwa": "yarn build:resources && quasar build -m pwa",
     "build:android": "quasar build -m capacitor -T android",
     "build:ios": "quasar build -m capacitor -T ios",
-    "build:resources": "yarn --cwd ./resources build",
-    "build:pwa": "yarn build:resources && quasar build"
+    "build:resources": "yarn --cwd ./resources build"
   },
   "dependencies": {
     "@capacitor/android": "^3.2.2",
@@ -73,7 +76,6 @@
     "@types/webpack-env": "^1.16.2",
     "@typescript-eslint/eslint-plugin": "^4.16.1",
     "@typescript-eslint/parser": "^4.16.1",
-    "crypto": "^1.0.1",
     "eslint": "^7.14.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-eslint-comments": "^3.2.0",
@@ -81,8 +83,10 @@
     "eslint-plugin-import": "^2.23.4",
     "eslint-plugin-vue": "^7.0.0",
     "fork-ts-checker-webpack-plugin": "^7.0.0-alpha.6",
+    "node-polyfill-webpack-plugin": "^1.1.4",
     "raw-loader": "^4.0.2",
     "typescript": "^4.3.5",
+    "workbox-webpack-plugin": "^6.0.0",
     "worker-loader": "^3.0.8"
   },
   "browserslist": [

@@ -8,6 +8,3 @@
 babel.config.js
 /src-ssr
 /resources
-/src/fs
-/src/git.js
-/src/ace-support

@@ -11,6 +11,8 @@
 const path = require("path");
 
 /* eslint-disable @typescript-eslint/no-var-requires */
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { configure } = require("quasar/wrappers");
 /* eslint-disable @typescript-eslint/no-var-requires */
 const webpack = require("webpack");
@@ -19,7 +21,7 @@ const webpack = require("webpack");
 module.exports = configure(function (ctx) {
   return {
     htmlVariables: {
-      productName: "Wecde"
+      productName: "Wecde",
     },
     // https://v2.quasar.dev/quasar-cli/supporting-ts
     supportTS: {
@@ -76,7 +78,7 @@ module.exports = configure(function (ctx) {
 
       // rtl: true, // https://v2.quasar.dev/options/rtl-support
       // preloadChunks: true,
-      // showProgress: false,
+      showProgress: true,
       // gzip: true,
       // analyze: true,
 
@@ -107,6 +109,7 @@ module.exports = configure(function (ctx) {
           ...cfg.resolve.alias,
           modules: path.resolve("./src/modules"),
           path$: "path-cross/build/module/index.js",
+          fs: path.resolve("./src/modules/fs.ts"),
         };
 
         // eslint-disable-next-line functional/immutable-data
@@ -114,14 +117,15 @@ module.exports = configure(function (ctx) {
           new webpack.ProvidePlugin({
             // process: "process/browser",
             Buffer: ["buffer", "Buffer"],
-          })
+          }),
+          new NodePolyfillPlugin()
         );
       },
     },
 
     // Full list of options: https://v2.quasar.dev/quasar-cli/quasar-conf-js#Property%3A-devServer
     devServer: {
-      https: false,
+      https: true,
       port: 8080,
       open: false, // opens browser window automatically
     },
@@ -192,28 +196,29 @@ module.exports = configure(function (ctx) {
         theme_color: "#010101",
         icons: [
           {
-            src: "/icons/favicon-16x16.png",
-            sizes: "16x16",
-            type: "image/png",
-            purpose: "any maskable",
-          },
-          {
-            src: "/icons/favicon-32x32.png",
-            sizes: "32x32",
-            type: "image/png",
-            purpose: "any maskable",
-          },
-          {
-            src: "/icons/favicon-96x96.png",
-            sizes: "96x96",
-            type: "image/png",
-            purpose: "any maskable",
-          },
-          {
-            src: "/icons/favicon-128x128.png",
+            src: "icons/icon-128x128.png",
             sizes: "128x128",
             type: "image/png",
-            purpose: "any maskable",
+          },
+          {
+            src: "icons/icon-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+          {
+            src: "icons/icon-256x256.png",
+            sizes: "256x256",
+            type: "image/png",
+          },
+          {
+            src: "icons/icon-384x384.png",
+            sizes: "384x384",
+            type: "image/png",
+          },
+          {
+            src: "icons/icon-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
           },
         ],
       },
