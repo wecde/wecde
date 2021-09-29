@@ -44,9 +44,20 @@ import MenuGit from "components/Menu/Git.vue";
 import MenuSearch from "components/Menu/Search.vue";
 import MenuSettings from "components/Menu/Settings.vue";
 import { useStore } from "src/store";
+import { useEventGlobal } from "src/helpers/useEventGlobal";
 import { computed, ref } from "vue";
 
 const store = useStore();
+
+const eventGlobal = useEventGlobal();
+
+function handlerOpenProject() : void {
+  navigationTabs.value = 'files'
+}
+
+eventGlobal.on("open:project", handlerOpenProject)
+
+onUnmounted(() => eventGlobal.off("open:project", handlerOpenProject))
 
 const navigationTabs = ref<string>("archive");
 const navigation = computed<boolean>({
@@ -70,6 +81,11 @@ const tabs = [
     panel: MenuFiles,
   },
   {
+    name: "search",
+    icon: "mdi-magnify",
+    panel: MenuSearch,
+  },
+  {
     name: "git",
     icon: "mdi-source-branch",
     "alert-icon": computed<string | null>(() =>
@@ -79,11 +95,6 @@ const tabs = [
       () => store.getters["editor/changes.length"] || null
     ), // if =0 -> set null
     panel: MenuGit,
-  },
-  {
-    name: "search",
-    icon: "mdi-magnify",
-    panel: MenuSearch,
   },
   {
     name: "settings",

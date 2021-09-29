@@ -2,7 +2,10 @@
   <q-item
     clickable
     v-ripple
-    @click="$store.commit(`editor/set:project`, project.fullpath)"
+    @click="
+      $store.commit(`editor/set:project`, project.fullpath);
+      eventGlobal.emit('open:project', project.fullpath);
+    "
     class="no-min-height"
   >
     <q-item-section avatar>
@@ -109,6 +112,7 @@ import { basename, join } from "path-cross";
 import { Notify, useQuasar } from "quasar";
 import { registerWatch, StatItem } from "src/helpers/fs-helper";
 import { useExportZip } from "src/helpers/useExportZip";
+import { useEventGlobal } from "src/helpers/useEventGlobal";
 import { useStore } from "src/store";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -125,6 +129,7 @@ const $q = useQuasar();
 const i18n = useI18n();
 
 const exportZip = useExportZip();
+const eventGlobal = useEventGlobal();
 
 const renaming = ref<boolean>(false);
 const git = ref<boolean>(false);

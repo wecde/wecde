@@ -40,9 +40,6 @@
       "modules/*": [
         "./src/modules/*"
       ],
-      "path": [
-        "./node_modules/path-cross/build/module/index.js"
-      ],
       "node_modules": [
         "./node_modules/*"
       ]

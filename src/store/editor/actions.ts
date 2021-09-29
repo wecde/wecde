@@ -1,13 +1,11 @@
-import git from "isomorphic-git"
+import git from "isomorphic-git";
 import { join } from "path-cross";
 import fs from "src/modules/fs";
-import { useGitStatusMatrix } from "src/worker/git-statusMatrix";
 import { ActionTree } from "vuex";
 
 import { StateInterface } from "..";
-  
-import { EditorStateInterface } from "./state";
 
+import { EditorStateInterface } from "./state";
 
 const actions: ActionTree<EditorStateInterface, StateInterface> = {
   async "update:matrix-of-filepath"(
@@ -27,17 +25,9 @@ const actions: ActionTree<EditorStateInterface, StateInterface> = {
           )
       );
 
-      console.log(
-        await git.statusMatrix({
-          fs,
-          dir: state.project,
-          filepaths,
-        })
-      );
-
       const matrix =
         (
-          await useGitStatusMatrix()({
+          await git.statusMatrix({
             fs,
             dir: state.project,
             filepaths,
