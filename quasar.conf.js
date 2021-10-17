@@ -27,12 +27,12 @@ module.exports = configure(function (ctx) {
     },
     // https://v2.quasar.dev/quasar-cli/supporting-ts
     supportTS: {
-      tsCheckerConfig: {
+      tsCheckerConfig: process.env.NODE_ENV === "production" ? {
         eslint: {
           enabled: true,
           files: "./src/**/*.{ts,tsx,js,jsx,vue}",
         },
-      },
+      } : false,
     },
 
     // https://v2.quasar.dev/quasar-cli/prefetch-feature
