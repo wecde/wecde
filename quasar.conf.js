@@ -155,7 +155,7 @@ module.exports = configure(function (ctx) {
         );
 
         // eslint-disable-next-line functional/immutable-data
-        cfg.optimization.minimizer = cfg.optimization.minimizer.map(
+        cfg.optimization.minimizer = cfg.optimization.minimizer?.map(
           (minimizer) => {
             if (minimizer.constructor.name === "TerserPlugin") {
               return new ESBuildMinifyPlugin({
